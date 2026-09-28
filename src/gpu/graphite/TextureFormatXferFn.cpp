@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/TextureFormatXferFn.h"
 
 #include "include/core/SkColorType.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkColorSpaceXformSteps.h"
@@ -61,21 +62,21 @@ XferRowFn create_xfer_row_fn(int n, int srcBpp, int dstBpp,
 
             PxVec pixel{};
             while (width >= n) {
-                memcpy(&pixel, src, srcBppN);
+                SK_UNSAFE_TODO(memcpy(&pixel, src, srcBppN));
                 pixel = applyPixel(pixel, opaqueAlpha);
-                memcpy(dst, &pixel, dstBppN);
+                SK_UNSAFE_TODO(memcpy(dst, &pixel, dstBppN));
 
                 width -= n;
-                src += srcBppN;
-                dst += dstBppN;
+                SK_UNSAFE_TODO(src += srcBppN);
+                SK_UNSAFE_TODO(dst += dstBppN);
             }
 
             if (width > 0) {
                 // Process tail that is less than a full vector
                 SkASSERT(width < n);
-                memcpy(&pixel, src, width * srcBpp);
+                SK_UNSAFE_TODO(memcpy(&pixel, src, width * srcBpp));
                 pixel = applyPixel(pixel, opaqueAlpha);
-                memcpy(dst, &pixel, width * dstBpp);
+                SK_UNSAFE_TODO(memcpy(dst, &pixel, width * dstBpp));
             }
         };
     } else {
@@ -89,10 +90,10 @@ XferRowFn create_xfer_row_fn(int n, int srcBpp, int dstBpp,
             while (width >= n) {
                 pixel = zeroValue;
                 pixel = applyPixel(pixel, opaqueAlpha);
-                memcpy(dst, &pixel, dstBppN);
+                SK_UNSAFE_TODO(memcpy(dst, &pixel, dstBppN));
 
                 width -= n;
-                dst += dstBppN;
+                SK_UNSAFE_TODO(dst += dstBppN);
             }
 
             if (width > 0) {
@@ -100,7 +101,7 @@ XferRowFn create_xfer_row_fn(int n, int srcBpp, int dstBpp,
                 SkASSERT(width < n);
                 pixel = zeroValue;
                 pixel = applyPixel(pixel, opaqueAlpha);
-                memcpy(dst, &pixel, width * dstBpp);
+                SK_UNSAFE_TODO(memcpy(dst, &pixel, width * dstBpp));
             }
         };
     }
@@ -948,17 +949,18 @@ void TextureFormatXferFn::run(int width, int height,
         // Identity conversion function still needs to move the data
         const int bpp = TextureFormatBytesPerBlock(fFormat);
         rowFns.push_back([bpp](const char* src, char* dst, int width) {
-            memcpy(dst, src, bpp * width);
+            SK_UNSAFE_TODO(memcpy(dst, src, bpp * width));
         });
     }
 
     for (int y = 0; y < rowInvokeCount; ++y) {
         // Always start by processing `src`
-        const char* input = static_cast<const char*>(src) + y * srcRowBytes;
+        const char* input = SK_UNSAFE_TODO(static_cast<const char*>(src) + y * srcRowBytes);
         for (int i = 0; i < rowFns.size(); ++i) {
             // And either output to the temporary row or the final `dst`
-            char* target = i == rowFns.size() - 1 ? (static_cast<char*>(dst) + y * dstRowBytes)
-                                                  : static_cast<char*>(tempRowStorage.get());
+            char* target = i == rowFns.size() - 1
+                                   ? (SK_UNSAFE_TODO(static_cast<char*>(dst) + y * dstRowBytes))
+                                   : static_cast<char*>(tempRowStorage.get());
             rowFns[i](input, target, width);
             // If there's more than one rowFn, switch to using the temporary row as input
             input = target;

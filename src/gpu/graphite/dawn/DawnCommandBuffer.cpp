@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/dawn/DawnCommandBuffer.h"
 
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
@@ -177,11 +178,11 @@ std::optional<GpuStats> DawnCommandBuffer::gpuStats() {
         SKIA_LOG_W("Failed to get timer query results because buffer couldn't be mapped.");
         return {};
     }
-    if (results[1] < results[0]) {
+    if (SK_UNSAFE_TODO(results[1]) < results[0]) {
         return {};
     }
     GpuStats stats;
-    stats.elapsedTime = results[1] - results[0];
+    stats.elapsedTime = SK_UNSAFE_TODO(results[1]) - results[0];
     return stats;
 }
 
@@ -230,7 +231,7 @@ bool DawnCommandBuffer::setNewCommandBufferResources() {
 // further tracking.
 const DawnSampler* DawnCommandBuffer::getSampler(
         const DrawPassCommands::BindTexturesAndSamplers& command, int32_t index) {
-    auto desc = command.fSamplers[index];
+    auto desc = SK_UNSAFE_TODO(command.fSamplers[index]);
     if (desc.isImmutable()) {
         const DawnSampler* immutableSampler = fActiveGraphicsPipeline->immutableSampler(index);
         if (immutableSampler) {
@@ -407,8 +408,10 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
         const std::array<float, 4>& clearColor = renderPassDesc.fClearColor;
         wgpuColorAttachment.clearValue = {
                 clearColor[0], clearColor[1], clearColor[2], clearColor[3]};
-        wgpuColorAttachment.loadOp = wgpuLoadActionMap[static_cast<int>(colorInfo.fLoadOp)];
-        wgpuColorAttachment.storeOp = wgpuStoreActionMap[static_cast<int>(colorInfo.fStoreOp)];
+        wgpuColorAttachment.loadOp =
+                SK_UNSAFE_TODO(wgpuLoadActionMap[static_cast<int>(colorInfo.fLoadOp)]);
+        wgpuColorAttachment.storeOp =
+                SK_UNSAFE_TODO(wgpuStoreActionMap[static_cast<int>(colorInfo.fStoreOp)]);
 
         // Set up resolve attachment
         if (resolveTexture) {
@@ -499,17 +502,17 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
         if (TextureFormatHasDepth(depthStencilInfo.fFormat)) {
             wgpuDepthStencilAttachment.depthClearValue = renderPassDesc.fClearDepth;
             wgpuDepthStencilAttachment.depthLoadOp =
-                    wgpuLoadActionMap[static_cast<int>(depthStencilInfo.fLoadOp)];
+                    SK_UNSAFE_TODO(wgpuLoadActionMap[static_cast<int>(depthStencilInfo.fLoadOp)]);
             wgpuDepthStencilAttachment.depthStoreOp =
-                    wgpuStoreActionMap[static_cast<int>(depthStencilInfo.fStoreOp)];
+                    SK_UNSAFE_TODO(wgpuStoreActionMap[static_cast<int>(depthStencilInfo.fStoreOp)]);
         }
 
         if (TextureFormatHasStencil(depthStencilInfo.fFormat)) {
             wgpuDepthStencilAttachment.stencilClearValue = renderPassDesc.fClearStencil;
             wgpuDepthStencilAttachment.stencilLoadOp =
-                    wgpuLoadActionMap[static_cast<int>(depthStencilInfo.fLoadOp)];
+                    SK_UNSAFE_TODO(wgpuLoadActionMap[static_cast<int>(depthStencilInfo.fLoadOp)]);
             wgpuDepthStencilAttachment.stencilStoreOp =
-                    wgpuStoreActionMap[static_cast<int>(depthStencilInfo.fStoreOp)];
+                    SK_UNSAFE_TODO(wgpuStoreActionMap[static_cast<int>(depthStencilInfo.fStoreOp)]);
         }
 
         wgpuRenderPass.depthStencilAttachment = &wgpuDepthStencilAttachment;
@@ -901,7 +904,8 @@ void DawnCommandBuffer::bindTextureAndSamplers(
         std::vector<wgpu::BindGroupEntry> entries;
 
         for (int i = 0; i < command.fNumTexSamplers; ++i) {
-            const auto* texture = static_cast<const DawnTexture*>(command.fTextures[i]->texture());
+            const auto* texture = static_cast<const DawnTexture*>(
+                    SK_UNSAFE_TODO(command.fTextures[i]->texture()));
             const auto* sampler = this->getSampler(command, i);
             auto& wgpuTextureView = texture->sampleTextureView();
             auto& wgpuSampler = sampler->dawnSampler();
@@ -992,7 +996,7 @@ void DawnCommandBuffer::syncUniformBuffers() {
 
         std::array<wgpu::BindGroupEntry, kMaxUniformsInGroup> bindGroupEntries {};
         for (int i = 0; i < kMaxUniformsInGroup; ++i) {
-            bindGroupEntries[i].binding = kBindingIndices[i];
+            bindGroupEntries[i].binding = SK_UNSAFE_TODO(kBindingIndices[i]);
             if (enabled[i] && fBoundUniforms[i]) {
                 bindGroupEntries[i].size = fBoundUniforms[i].fSize;
                 bindGroupEntries[i].buffer =
@@ -1293,16 +1297,17 @@ bool DawnCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
     dst.texture = wgpuTexture;
 
     for (int i = 0; i < count; ++i) {
-        src.layout.offset = copyData[i].fBufferOffset;
-        src.layout.bytesPerRow = copyData[i].fBufferRowBytes;
+        src.layout.offset = SK_UNSAFE_TODO(copyData[i].fBufferOffset);
+        src.layout.bytesPerRow = SK_UNSAFE_TODO(copyData[i].fBufferRowBytes);
 
-        dst.origin.x = copyData[i].fRect.x();
-        dst.origin.y = copyData[i].fRect.y();
-        dst.mipLevel = copyData[i].fMipLevel;
+        dst.origin.x = SK_UNSAFE_TODO(copyData[i].fRect.x());
+        dst.origin.y = SK_UNSAFE_TODO(copyData[i].fRect.y());
+        dst.mipLevel = SK_UNSAFE_TODO(copyData[i].fMipLevel);
 
-        wgpu::Extent3D copySize = {static_cast<uint32_t>(copyData[i].fRect.width()),
-                                   static_cast<uint32_t>(copyData[i].fRect.height()),
-                                   1};
+        wgpu::Extent3D copySize = {
+                static_cast<uint32_t>(SK_UNSAFE_TODO(copyData[i].fRect.width())),
+                static_cast<uint32_t>(SK_UNSAFE_TODO(copyData[i].fRect.height())),
+                1};
         fCommandEncoder.CopyBufferToTexture(&src, &dst, &copySize);
     }
 

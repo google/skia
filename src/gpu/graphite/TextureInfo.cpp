@@ -9,6 +9,7 @@
 
 #include "include/core/SkFourByteTag.h"
 #include "include/core/SkStream.h"
+#include "include/private/SkAttributes.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/TextureFormat.h"
@@ -57,14 +58,14 @@ SkString TextureInfo::toString() const {
 
     // Strip the leading "k" from the enum name when creating the TextureInfo string.
     SkASSERT(BackendApiToStr(fBackend)[0] == 'k');
-    const char* backendName = BackendApiToStr(fBackend) + 1;
+    const char* backendName = SK_UNSAFE_TODO(BackendApiToStr(fBackend) + 1);
 
     return SkStringPrintf("%s(viewFormat=%s,%s,bpp=%d,sampleCount=%u,mipmapped=%d,protected=%d)",
                           backendName,
                           TextureFormatName(fViewFormat),
                           fData->toBackendString().c_str(),
                           TextureFormatBytesPerBlock(fViewFormat),
-                          (unsigned) fData->fSampleCount,
+                          (unsigned)fData->fSampleCount,
                           static_cast<int>(fData->fMipmapped),
                           static_cast<int>(fProtected));
 }

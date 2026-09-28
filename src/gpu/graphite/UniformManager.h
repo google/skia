@@ -17,6 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkAlign.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkColorData.h"
@@ -502,7 +503,7 @@ struct LayoutTraits {
                 // Load the 3 values into a float4 to take advantage of vectorized conversion.
                 // The 4th value will not be copied to dst.
                 const float* srcF = static_cast<const float*>(src);
-                srcData = VecF{srcF[0], srcF[1], srcF[2], 0.f};
+                srcData = VecF{srcF[0], SK_UNSAFE_TODO(srcF[1]), SK_UNSAFE_TODO(srcF[2]), 0.f};
             } else {
                 srcData = VecF::Load(src);
             }
@@ -510,9 +511,9 @@ struct LayoutTraits {
             auto dstData = to_half(srcData);
             // NOTE: this is identical to Vec::store() for N=1,2,4 and correctly drops the 4th
             // lane when N=3.
-            memcpy(dst, &dstData, kSize);
+            SK_UNSAFE_TODO(memcpy(dst, &dstData, kSize));
         } else {
-            memcpy(dst, src, kSize);
+            SK_UNSAFE_TODO(memcpy(dst, src, kSize));
         }
     }
 
@@ -551,7 +552,7 @@ void UniformManager::write(const void* src, SkSLType type) {
 
     L::Copy(src, dst);
     if (N == 3 && LayoutRules::PadVec3Size(fLayout)) {
-        memset(dst + L::kSize, 0, L::kElemSize);
+        SK_UNSAFE_TODO(memset(dst + L::kSize, 0, L::kElemSize));
     }
 }
 
@@ -581,11 +582,11 @@ void UniformManager::writeArray(const void* src, int count, SkSLType type) {
         for (int i = 0; i < count; ++i) {
             L::Copy(srcBytes, dst);
             if constexpr (kStride - L::kSize > 0) {
-                memset(dst + L::kSize, 0, kStride - L::kSize);
+                SK_UNSAFE_TODO(memset(dst + L::kSize, 0, kStride - L::kSize));
             }
 
-            dst += kStride;
-            srcBytes += kSrcStride;
+            SK_UNSAFE_TODO(dst += kStride);
+            SK_UNSAFE_TODO(srcBytes += kSrcStride);
         }
     } else {
         // A dense array with no type conversion, so copy in one go.
@@ -593,7 +594,7 @@ void UniformManager::writeArray(const void* src, int count, SkSLType type) {
         char* dst = this->append(L::kAlign, L::kSize*count);
         SkDEBUGCODE(this->checkExpected(dst, type, count));
 
-        memcpy(dst, src, L::kSize*count);
+        SK_UNSAFE_TODO(memcpy(dst, src, L::kSize * count));
     }
 }
 
@@ -620,8 +621,8 @@ char* UniformManager::append(int alignment, int size) {
 
     char* dst = fStorage.push_back_n(size + padding);
     if (padding > 0) {
-        memset(dst, 0, padding);
-        dst += padding;
+        SK_UNSAFE_TODO(memset(dst, 0, padding));
+        SK_UNSAFE_TODO(dst += padding);
     }
 
     // For pow of 2, max is LCM. If that assumption changes, this should change as well.

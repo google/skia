@@ -26,15 +26,6 @@ src:*src/gpu/graphite/*=emit
 src:*src/gpu/graphite/DrawAtlas.cpp
 src:*src/gpu/graphite/KeyHelpers.h
 src:*src/gpu/graphite/RendererProvider.h
-src:*src/gpu/graphite/TextureFormatXferFn.cpp
-src:*src/gpu/graphite/TextureInfo.cpp
-src:*src/gpu/graphite/TextureProxy.cpp
-src:*src/gpu/graphite/TextureUtils.cpp
-src:*src/gpu/graphite/UniformManager.h
-src:*src/gpu/graphite/YUVABackendTextures.cpp
-src:*src/gpu/graphite/dawn/DawnBuffer.cpp
-src:*src/gpu/graphite/dawn/DawnCaps.cpp
-src:*src/gpu/graphite/dawn/DawnCommandBuffer.cpp
 src:*src/gpu/graphite/dawn/DawnErrorChecker.cpp
 src:*src/gpu/graphite/dawn/DawnGraphicsPipeline.cpp
 src:*src/gpu/graphite/dawn/DawnGraphiteUtils.cpp
@@ -43,7 +34,6 @@ src:*src/gpu/graphite/dawn/DawnSampler.cpp
 src:*src/gpu/graphite/dawn/DawnSharedContext.cpp
 src:*src/gpu/graphite/dawn/DawnTexture.cpp
 src:*src/gpu/graphite/dawn/DawnTextureInfo.cpp
-src:*src/gpu/graphite/compute/DispatchGroup.cpp
 src:*src/gpu/graphite/geom/AnalyticBlurMask.cpp
 src:*src/gpu/graphite/geom/AnalyticRRectBlurMask.cpp
 src:*src/gpu/graphite/geom/BoundsManager.h

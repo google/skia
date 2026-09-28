@@ -8,6 +8,7 @@
 #include "include/gpu/graphite/YUVABackendTextures.h"
 
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/SkAttributes.h"
 #include "src/core/SkYUVAInfoLocation.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -96,7 +97,7 @@ YUVABackendTextures::YUVABackendTextures(const SkYUVAInfo& yuvaInfo,
         SkASSERT(numRequiredChannels > 0);
         fPlaneChannelMasks[i] = TextureInfoPriv::ChannelMask(textures[i].info());
         if (!textures[i].isValid() ||
-            textures[i].dimensions() != planeDimensions[i] ||
+            textures[i].dimensions() != SK_UNSAFE_TODO(planeDimensions[i]) ||
             textures[i].backend() != textures[0].backend() ||
             num_channels(fPlaneChannelMasks[i]) < numRequiredChannels) {
             SkASSERT(!this->isValid());

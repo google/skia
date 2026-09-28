@@ -13,6 +13,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "include/private/SkTo.h"
 #include "src/gpu/BufferWriter.h"
@@ -172,7 +173,8 @@ bool Builder::appendStepInternal(
                 SkASSERT(r.fSlot >= 0);
                 // Allocate a new resource only if the shared slot is empty (except for a
                 // SampledTexture which needs its sampler to be allocated internally).
-                DispatchResourceOptional* slot = &fOutputTable.fSharedSlots[r.fSlot];
+                DispatchResourceOptional* slot =
+                        SK_UNSAFE_TODO(&fOutputTable.fSharedSlots[r.fSlot]);
                 if (std::holds_alternative<std::monostate>(*slot)) {
                     SkASSERT(r.fType != Type::kReadOnlyTexture);
                     SkASSERT(r.fType != Type::kSampledTexture);
@@ -262,7 +264,7 @@ void Builder::assignSharedBuffer(BindBufferInfo buffer, unsigned int slot, Clear
     SkASSERT(buffer);
     SkASSERT(buffer.fSize);
 
-    fOutputTable.fSharedSlots[slot] = buffer;
+    SK_UNSAFE_TODO(fOutputTable.fSharedSlots[slot]) = buffer;
     if (cleared == ClearBuffer::kYes) {
         fObj->fClearList.push_back(buffer);
     }
@@ -273,7 +275,7 @@ void Builder::assignSharedTexture(sk_sp<TextureProxy> texture, unsigned int slot
     SkASSERT(texture);
 
     fObj->fTextures.push_back(std::move(texture));
-    fOutputTable.fSharedSlots[slot] = TextureIndex{fObj->fTextures.size() - 1u};
+    SK_UNSAFE_TODO(fOutputTable.fSharedSlots[slot]) = TextureIndex{fObj->fTextures.size() - 1u};
 }
 
 std::unique_ptr<DispatchGroup> Builder::finalize() {
@@ -294,7 +296,7 @@ BindBufferInfo Builder::getSharedBufferResource(unsigned int slot) const {
 
     BindBufferInfo info;
     if (const BindBufferInfo* slotValue =
-                std::get_if<BindBufferInfo>(&fOutputTable.fSharedSlots[slot])) {
+                std::get_if<BindBufferInfo>(SK_UNSAFE_TODO(&fOutputTable.fSharedSlots[slot]))) {
         info = *slotValue;
     }
     return info;
@@ -303,7 +305,8 @@ BindBufferInfo Builder::getSharedBufferResource(unsigned int slot) const {
 sk_sp<TextureProxy> Builder::getSharedTextureResource(unsigned int slot) const {
     SkASSERT(fObj);
 
-    const TextureIndex* idx = std::get_if<TextureIndex>(&fOutputTable.fSharedSlots[slot]);
+    const TextureIndex* idx =
+            std::get_if<TextureIndex>(SK_UNSAFE_TODO(&fOutputTable.fSharedSlots[slot]));
     if (!idx) {
         return nullptr;
     }
