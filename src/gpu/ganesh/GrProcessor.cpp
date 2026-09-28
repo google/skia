@@ -11,19 +11,23 @@
 
 #include <memory>
 
-// We use a global pool protected by a mutex(spinlock). Chrome may use the same GrContext on
-// different threads. The GrContext is not used concurrently on different threads and there is a
-// memory barrier between accesses of a context on different threads. Also, there may be multiple
-// GrContexts and those contexts may be in use concurrently on different threads.
+// GrProcessors are allocated from a single process-global memory pool. By default, access to the
+// pool is serialized with a spinlock: Chrome may use the same GrContext on different threads (never
+// concurrently, and with a memory barrier between accesses), and there may also be multiple
+// GrContexts in use concurrently on different threads.
+//
+// Clients that guarantee that at most one GrDirectContext is ever in use in the process (and thus
+// that this pool is never accessed concurrently) may define SK_ASSUME_SINGLE_GANESH_CONTEXT to
+// elide the lock entirely. Note that this is a per-process guarantee: it is violated if a second
+// library in the same process uses its own Ganesh context concurrently, even if each individual
+// component only creates one.
 namespace {
-#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+#if !defined(SK_ASSUME_SINGLE_GANESH_CONTEXT)
 static SkSpinlock gProcessorSpinlock;
 #endif
 class MemoryPoolAccessor {
 public:
-
-// We know in the Android framework there is only one GrContext.
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+#if defined(SK_ASSUME_SINGLE_GANESH_CONTEXT)
     MemoryPoolAccessor() {}
     ~MemoryPoolAccessor() {}
 #else
