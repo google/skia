@@ -1439,6 +1439,21 @@ ShaderCodeDictionary::ShaderCodeDictionary(
                                       { "samplerV" },
                                       { "samplerA" }}}
     };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPackedYUVImageShader] = {
+            /*name=*/"PackedYUVImage",
+            /*staticFn=*/"sk_packed_yuv_image_shader",
+            SnippetRequirementFlags::kLocalCoords,
+            /*uniforms=*/{{{ "invImgSize",         SkSLType::kFloat2 },
+                           { "subset",             SkSLType::kFloat4 },
+                           { "tilemodeX",          SkSLType::kInt },
+                           { "tilemodeY",          SkSLType::kInt },
+                           { "channelSelectY",     SkSLType::kHalf4 },
+                           { "channelSelectU",     SkSLType::kHalf4 },
+                           { "channelSelectV",     SkSLType::kHalf4 },
+                           { "yuvToRGBMatrix",     SkSLType::kHalf3x3 },
+                           { "yuvToRGBTranslate",  SkSLType::kHalf3 }}},
+            /*texturesAndSamplers=*/{{"samplerPlane"}}
+    };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCubicYUVImageShader] = {
             /*name=*/"CubicYUVImage",
             /*staticFn=*/"sk_cubic_yuv_image_shader",

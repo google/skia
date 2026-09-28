@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/Image_YUVA_Graphite.h"
 
+#include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
@@ -92,12 +93,6 @@ sk_sp<Image_YUVA> Image_YUVA::Make(const Caps* caps,
     if (!yuvaInfo.isValid()) {
         return nullptr;
     }
-#if defined(SK_ENABLE_YUVA_PACKED_422)
-    // Packed 4:2:2 (kYUYV) sampling is implemented in the follow up CLs.
-    if (yuvaInfo.planeConfig() == SkYUVAInfo::PlaneConfig::kYUYV) {
-        return nullptr;
-    }
-#endif
     SkImageInfo info = SkImageInfo::Make(
             yuvaInfo.dimensions(), kAssumedColorType, yuva_alpha_type(yuvaInfo), imageColorSpace);
     if (!SkImageInfoIsValid(info)) {
@@ -129,7 +124,15 @@ sk_sp<Image_YUVA> Image_YUVA::Make(const Caps* caps,
         return nullptr;
     }
     // Y channel should match the YUVAInfo dimensions
-    if (planes[locations[kY].fPlane].dimensions() != yuvaInfo.dimensions()) {
+    SkISize yDims = yuvaInfo.dimensions();
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+    if (yuvaInfo.planeConfig() == SkYUVAInfo::PlaneConfig::kYUYV &&
+        SkEncodedOriginSwapsWidthHeight(yuvaInfo.origin())) {
+        using std::swap;
+        swap(yDims.fWidth, yDims.fHeight);
+    }
+#endif
+    if (planes[locations[kY].fPlane].dimensions() != yDims) {
         return nullptr;
     }
     // UV channels should have planes with the same dimensions and subsampling factor.

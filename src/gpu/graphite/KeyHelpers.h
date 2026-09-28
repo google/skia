@@ -174,6 +174,7 @@ struct YUVImageShaderBlock {
         float fAlphaParam = 0;
         SkMatrix fYUVtoRGBMatrix;
         SkPoint3 fYUVtoRGBTranslate;
+        bool fPacked = false;
 
         // TODO: Currently these are only filled in when we're generating the key from an actual
         // SkImageShader. In the pre-compile case we will need to create Graphite promise

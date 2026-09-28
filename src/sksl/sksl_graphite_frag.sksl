@@ -537,6 +537,69 @@ $pure half4 sk_yuv_image_shader(float2 coords,
                        yuvToRGBMatrix, yuvToRGBTranslate);
 }
 
+$pure half4 sk_packed_yuv_image_shader(float2 coords,
+                                       float2 invImgSize,
+                                       float4 subset,
+                                       int tileModeX,
+                                       int tileModeY,
+                                       half4 channelSelectY,
+                                       half4 channelSelectU,
+                                       half4 channelSelectV,
+                                       half3x3 yuvToRGBMatrix,
+                                       half3 yuvToRGBTranslate,
+                                       sampler2D sPlane) {
+    // Packed 4:2:2: the plane stores one 2-channel texel per pixel; channel 0 holds the
+    // pixel's own luma and channel 1 holds the chroma sample shared by the pixel's
+    // horizontal pair (U in even texels, V in odd texels). The coords arrive in plane texel
+    // space (the image's encoded origin has been applied upstream), so the parity of the
+    // pixel's texel index selects which of the pair's two chroma samples is its U vs V.
+    // Sampling is always nearest.
+
+    // Decal has to be resolved here rather than by the sampling helper: this plane carries no
+    // alpha, so a zeroed YUV sample would convert to an opaque color instead of transparency.
+    if (tileModeX == $kTileModeDecal) {
+        float snappedX = floor(coords.x) + 0.5;
+        if (snappedX < subset.x || snappedX > subset.z) {
+            return half4(0);
+        }
+    }
+    if (tileModeY == $kTileModeDecal) {
+        float snappedY = floor(coords.y) + 0.5;
+        if (snappedY < subset.y || snappedY > subset.w) {
+            return half4(0);
+        }
+    }
+
+    // Tile before deriving the texel parity: repeat and mirror can map the pixel onto a texel of
+    // the opposite parity, which would swap U and V.
+    float2 tiled = float2($tile(tileModeX, coords.x, subset.x, subset.z),
+                          $tile(tileModeY, coords.y, subset.y, subset.w));
+
+    // Texel centers of the sampled region, so that tiled coords landing exactly on a subset
+    // boundary resolve to the edge texel rather than its neighbor.
+    float4 insetClamp = float4(floor(subset.xy) + $kLinearInset, ceil(subset.zw) - $kLinearInset);
+
+    float pixelIdx = floor(clamp(tiled.x, insetClamp.x, insetClamp.z));
+    bool odd = mod(pixelIdx, 2.0) > 0.5;
+    float2 texelCenter = float2(pixelIdx + 0.5,
+                                clamp(floor(tiled.y) + 0.5, insetClamp.y, insetClamp.w));
+    half4 sampleOwn = $sample_image(texelCenter, invImgSize, sPlane);
+
+    // The adjacent texel carries the pair's other chroma sample. Clamping it means that at an odd
+    // left edge or even right edge of the subset, where the pixel's pair partner falls outside the
+    // subset, the edge chroma is duplicated instead of reading outside the subset.
+    float2 adjacent = float2(clamp(texelCenter.x + (odd ? -1.0 : 1.0),
+                                   insetClamp.x, insetClamp.z),
+                             texelCenter.y);
+    half4 sampleAdjacent = $sample_image(adjacent, invImgSize, sPlane);
+
+    half Y = dot(channelSelectY, sampleOwn);
+    half U = odd ? dot(channelSelectU, sampleAdjacent) : dot(channelSelectU, sampleOwn);
+    half V = odd ? dot(channelSelectV, sampleOwn) : dot(channelSelectV, sampleAdjacent);
+
+    return $yuv_to_rgb_no_swizzle(Y, U, V, 1, yuvToRGBMatrix, yuvToRGBTranslate);
+}
+
 $pure half4 sk_cubic_yuv_image_shader(float2 coords,
                                       float2 invImgSizeY,
                                       float2 invImgSizeUV,  // Relative to Y's coordinate space
