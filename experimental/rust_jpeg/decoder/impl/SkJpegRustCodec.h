@@ -38,9 +38,7 @@ protected:
                     rust::Box<rust_jpeg::Reader>,
                     SkEncodedOrigin origin = kDefault_SkEncodedOrigin);
 
-    SkEncodedImageFormat onGetEncodedFormat() const override {
-        return SkEncodedImageFormat::kJPEG;
-    }
+    SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kJPEG; }
 
     bool onRewind() override;
 
@@ -51,8 +49,7 @@ protected:
     bool onGetGainmapInfo(SkGainmapInfo* info,
                           std::unique_ptr<SkStream>* gainmapImageStream) override;
 
-    bool onGetGainmapCodec(SkGainmapInfo* info,
-                           std::unique_ptr<SkCodec>* gainmapCodec) override;
+    bool onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec>* gainmapCodec) override;
 
 private:
     sk_sp<const SkData> getEncodedData() const override;
@@ -66,14 +63,16 @@ private:
     // Incremental decoding exposes stable baseline scanlines as they become
     // available and replaceable full-frame previews after progressive scans.
     Result onStartIncrementalDecode(const SkImageInfo& dstInfo,
-                                   void* dst,
-                                   size_t dstRowBytes,
-                                   const Options&) override;
+                                    void* dst,
+                                    size_t dstRowBytes,
+                                    const Options&) override;
 
     Result onIncrementalDecode(int* rowsDecoded) override;
 
     // Helper methods
-    Result performFullDecode(const SkImageInfo& dstInfo, void* dst, size_t dstRowStride,
+    Result performFullDecode(const SkImageInfo& dstInfo,
+                             void* dst,
+                             size_t dstRowStride,
                              int* rowsDecoded = nullptr);
     Result initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts);
     void swizzleRow(const uint8_t* srcRow, void* dstRow);

@@ -2111,6 +2111,9 @@ skia_component("skia") {
     "modules/skcms",
     "//src/partition_alloc:raw_ptr",
   ]
+  if (skia_use_rust_jpeg_decode) {
+    deps += [ ":jpeg_decode_rust" ]
+  }
 
   public = []
   public += skia_codec_public

@@ -21,7 +21,11 @@
 #include "bench/SkSLBench.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
+#if defined(SK_CODEC_DECODES_JPEG_WITH_RUST)
+#include "experimental/rust_jpeg/decoder/SkJpegRustDecoder.h"
+#else
 #include "include/codec/SkJpegDecoder.h"
+#endif
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
@@ -1407,7 +1411,11 @@ int main(int argc, char** argv) {
 #else
     SkCodecs::Register(SkPngDecoder::Decoder());
 #endif
+#if defined(SK_CODEC_DECODES_JPEG_WITH_RUST)
+    SkCodecs::Register(SkJpegRustDecoder::Decoder());
+#else
     SkCodecs::Register(SkJpegDecoder::Decoder());
+#endif
 
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
