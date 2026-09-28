@@ -12,6 +12,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkEnumBitMask.h"
 #include "src/core/SkSLTypeShared.h"
@@ -100,7 +101,7 @@ TessellateWedgesRenderStep::TessellateWedgesRenderStep(Layout layout,
                      stencilSettings,
                      /*staticAttrs=*/{{{"resolveLevel_and_idx",
                                         VertexAttribType::kFloat2, SkSLType::kFloat2}}},
-                     /*appendAttrs=*/kAttributes[infinitySupport],
+                     /*appendAttrs=*/SK_UNSAFE_TODO(kAttributes[infinitySupport]),
                      /*storageUniforms=*/{})
         , fInfinitySupport(infinitySupport) {
     // Initialize the static buffers we'll use when recording draw calls.
@@ -212,20 +213,20 @@ void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw,
                 case SkPathVerb::kLine:
                     // Unlike curve tessellation, wedges have to handle lines as part of the patch,
                     // effectively forming a single triangle with the fan point.
-                    writer.writeLine(pts[0], pts[1]);
-                    lastPoint = pts[1];
+                    writer.writeLine(pts[0], SK_UNSAFE_TODO(pts[1]));
+                    lastPoint = SK_UNSAFE_TODO(pts[1]);
                     break;
                 case SkPathVerb::kQuad:
                     writer.writeQuadratic(pts);
-                    lastPoint = pts[2];
+                    lastPoint = SK_UNSAFE_TODO(pts[2]);
                     break;
                 case SkPathVerb::kConic:
                     writer.writeConic(pts, *w);
-                    lastPoint = pts[2];
+                    lastPoint = SK_UNSAFE_TODO(pts[2]);
                     break;
                 case SkPathVerb::kCubic:
                     writer.writeCubic(pts);
-                    lastPoint = pts[3];
+                    lastPoint = SK_UNSAFE_TODO(pts[3]);
                     break;
                 default: break;
             }

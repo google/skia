@@ -14,6 +14,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkDebug.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/graphite/AtlasProvider.h"
@@ -212,7 +213,7 @@ void BitmapTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
 
     // write textures and samplers
     for (unsigned int i = 0; i < numProxies; ++i) {
-        gatherer->add(proxies[i], {SkFilterMode::kNearest, SkTileMode::kClamp});
+        gatherer->add(SK_UNSAFE_TODO(proxies[i]), {SkFilterMode::kNearest, SkTileMode::kClamp});
     }
     // If the atlas has less than 4 active proxies we still need to set up samplers for the shader.
     for (unsigned int i = numProxies; i < kNumTextAtlasTextures; ++i) {

@@ -11,6 +11,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
+#include "include/private/SkAttributes.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
@@ -474,16 +475,16 @@ private:
         fNumTilingModes = 0;
 
         if (flags & YUVImageShaderFlags::kHardwareSamplingNoSwizzle) {
-            fTilingModes[fNumTilingModes++] = kHWTiledNoSwizzle;
+            SK_UNSAFE_TODO(fTilingModes[fNumTilingModes++]) = kHWTiledNoSwizzle;
         }
         if (flags & YUVImageShaderFlags::kHardwareSampling) {
-            fTilingModes[fNumTilingModes++] = kHWTiledWithSwizzle;
+            SK_UNSAFE_TODO(fTilingModes[fNumTilingModes++]) = kHWTiledWithSwizzle;
         }
         if (flags & YUVImageShaderFlags::kShaderBasedSampling) {
-            fTilingModes[fNumTilingModes++] = kShaderTiled;
+            SK_UNSAFE_TODO(fTilingModes[fNumTilingModes++]) = kShaderTiled;
         }
         if (flags & YUVImageShaderFlags::kCubicSampling) {
-            fTilingModes[fNumTilingModes++] = kCubicShaderTiled;
+            SK_UNSAFE_TODO(fTilingModes[fNumTilingModes++]) = kCubicShaderTiled;
         }
 
         SkASSERT(fNumTilingModes == SkPopCount(flags.value()));
@@ -513,21 +514,21 @@ private:
         static constexpr SkSamplingOptions kDefaultSampling;
 
         YUVImageShaderBlock::ImageData imgData(
-                fTilingModes[desiredTiling] == kCubicShaderTiled
-                                     ? kDefaultCubicSampling
-                                     : kDefaultSampling,
+                SK_UNSAFE_TODO(fTilingModes[desiredTiling]) == kCubicShaderTiled
+                        ? kDefaultCubicSampling
+                        : kDefaultSampling,
                 SkTileMode::kClamp,
-                fTilingModes[desiredTiling] == kShaderTiled ? SkTileMode::kRepeat
-                                                            : SkTileMode::kClamp,
-                /* imgSize= */ { 1, 1 },
-                /* subset= */ fTilingModes[desiredTiling] == kShaderTiled
-                                     ? SkRect::MakeEmpty()
-                                     : SkRect::MakeWH(1, 1));
+                SK_UNSAFE_TODO(fTilingModes[desiredTiling]) == kShaderTiled ? SkTileMode::kRepeat
+                                                                            : SkTileMode::kClamp,
+                /* imgSize= */ {1, 1},
+                /* subset= */
+                SK_UNSAFE_TODO(fTilingModes[desiredTiling]) == kShaderTiled ? SkRect::MakeEmpty()
+                                                                            : SkRect::MakeWH(1, 1));
 
         static constexpr SkV4 kRedChannel{ 1.f, 0.f, 0.f, 0.f };
         imgData.fChannelSelect[0] = kRedChannel;
         imgData.fChannelSelect[1] = kRedChannel;
-        if (fTilingModes[desiredTiling] == kHWTiledNoSwizzle) {
+        if (SK_UNSAFE_TODO(fTilingModes[desiredTiling] == kHWTiledNoSwizzle)) {
             imgData.fChannelSelect[2] = kRedChannel;
         } else {
             // Having a non-red channel selector forces a swizzle
@@ -643,14 +644,14 @@ private:
         fNumStopVariants = 0;
 
         if (flags & GradientShaderFlags::kSmall) {
-            fStopVariants[fNumStopVariants++] = 4;
+            SK_UNSAFE_TODO(fStopVariants[fNumStopVariants++]) = 4;
         }
         if (flags & GradientShaderFlags::kMedium) {
-            fStopVariants[fNumStopVariants++] = 8;
+            SK_UNSAFE_TODO(fStopVariants[fNumStopVariants++]) = 8;
         }
         if (flags & GradientShaderFlags::kLarge) {
-            fStopVariants[fNumStopVariants++] =
-                    GradientShaderBlocks::GradientData::kNumInternalStorageStops+1;
+            SK_UNSAFE_TODO(fStopVariants[fNumStopVariants++]) =
+                    GradientShaderBlocks::GradientData::kNumInternalStorageStops + 1;
         }
 
         SkASSERT(fNumStopVariants == SkPopCount(flags.value()));
@@ -673,9 +674,8 @@ private:
 
         bool gradUsesStorage = keyContext.caps()->storageBufferSupport();
         const int desiredStopCombination = desiredCombination % fNumStopVariants;
-        GradientShaderBlocks::GradientData gradData(fType,
-                                                    fStopVariants[desiredStopCombination],
-                                                    gradUsesStorage);
+        GradientShaderBlocks::GradientData gradData(
+                fType, SK_UNSAFE_TODO(fStopVariants[desiredStopCombination]), gradUsesStorage);
 
         // The logic for setting up color spaces here should match that in the "add_gradient_to_key"
         // functions from src/gpu/graphite/KeyHelpers.cpp.
@@ -1162,7 +1162,7 @@ private:
 #if defined(SK_DEBUG)
         // All blurs should behave the same
         for (int i = 0; i < kNumIntrinsicCombinations; ++i) {
-            const SkRuntimeEffect* other = GetKnownRuntimeEffect(kIDs[i]);
+            const SkRuntimeEffect* other = GetKnownRuntimeEffect(SK_UNSAFE_TODO(kIDs[i]));
             SkASSERT(SkRuntimeEffectPriv::AlwaysOpaque(effect) ==
                      SkRuntimeEffectPriv::AlwaysOpaque(other));
         }
@@ -1176,8 +1176,8 @@ private:
         int desiredWrappedCombination = desiredCombination / kNumIntrinsicCombinations;
         SkASSERT(desiredWrappedCombination < fNumWrappedCombos);
 
-
-        const SkRuntimeEffect* effect = GetKnownRuntimeEffect(kIDs[desiredBlurCombination]);
+        const SkRuntimeEffect* effect =
+                GetKnownRuntimeEffect(SK_UNSAFE_TODO(kIDs[desiredBlurCombination]));
         SkASSERT(effect->children().size() == 1);
 
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
@@ -1248,7 +1248,7 @@ private:
                     { StableKey::kMatrixConvTexSm, StableKey::kMatrixConvTexLg };
 
             --remainingCombinations;
-            stableKey = kTextureBasedStableKeys[remainingCombinations % 2];
+            stableKey = SK_UNSAFE_TODO(kTextureBasedStableKeys[remainingCombinations % 2]);
             desiredTextureCombination = remainingCombinations / 2;
             SkASSERT(desiredTextureCombination < fNumRawImageShaderCombos);
         }
