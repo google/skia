@@ -11,14 +11,21 @@
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkEncodedInfo.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkColorPalette.h"
 #include "src/core/SkColorData.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <ranges>
 #include <string_view>
+#include <utility>
 
 #ifdef SK_PRINT_CODEC_MESSAGES
     #define SkCodecPrintf SkDebugf
@@ -344,6 +351,77 @@ public:
         SkASSERT(codec);
         return codec->getEncodedData();
     }
+
+    static bool NeedsRewind(const SkCodec* codec) {
+        SkASSERT(codec);
+        return codec->fNeedsRewind;
+    }
+
+    // A move-only heap-allocated byte buffer tracked against SkCodec's decode memory budget.
+    class BudgetedBuffer {
+    public:
+        BudgetedBuffer() = default;
+        BudgetedBuffer(BudgetedBuffer&& other) noexcept
+                : fStorage(std::move(other.fStorage)), fSize(std::exchange(other.fSize, 0)) {}
+        BudgetedBuffer& operator=(BudgetedBuffer&& other) noexcept {
+            if (this != &other) {
+                fStorage = std::move(other.fStorage);
+                fSize = std::exchange(other.fSize, 0);
+            }
+            return *this;
+        }
+
+        BudgetedBuffer(const BudgetedBuffer&) = delete;
+        BudgetedBuffer& operator=(const BudgetedBuffer&) = delete;
+
+        // Checks that `numBytes` fits within `codec`'s decode memory budget and allocates
+        // storage (zero-initialized by default). The buffer must be empty before calling
+        // this method (call `reset()` first if reusing a buffer). Returns `kOutOfMemory` if
+        // the budget is exceeded, or `kInternalError` if allocation fails.
+        [[nodiscard]] SkCodec::Result allocateFromBudget(SkCodec* codec,
+                                                         size_t numBytes,
+                                                         bool zeroInit = true) {
+            SkASSERT_RELEASE(codec);
+            SkASSERT_RELEASE(this->empty());
+            if (numBytes == 0) {
+                return SkCodec::kSuccess;
+            }
+            if (!codec->allocateFromBudget(numBytes)) {
+                return SkCodec::kOutOfMemory;
+            }
+            void* buffer = zeroInit ? sk_calloc_canfail(numBytes) : sk_malloc_canfail(numBytes);
+            if (!buffer) {
+                return SkCodec::kInternalError;
+            }
+            fStorage.reset(static_cast<uint8_t*>(buffer));
+            fSize = numBytes;
+            return SkCodec::kSuccess;
+        }
+
+        void reset() {
+            fStorage.reset();
+            fSize = 0;
+        }
+
+        uint8_t* data() { return fStorage.get(); }
+        const uint8_t* data() const { return fStorage.get(); }
+        size_t size() const { return fSize; }
+        bool empty() const { return fSize == 0; }
+        uint8_t* begin() { return fStorage.get(); }
+        const uint8_t* begin() const { return fStorage.get(); }
+        uint8_t* end() { return fStorage.get() + fSize; }
+        const uint8_t* end() const { return fStorage.get() + fSize; }
+        SkSpan<uint8_t> span() { return SkSpan(fStorage.get(), fSize); }
+        SkSpan<const uint8_t> span() const { return SkSpan(fStorage.get(), fSize); }
+
+    private:
+        std::unique_ptr<uint8_t, SkFunctionObject<sk_free>> fStorage;
+        size_t fSize = 0;
+    };
+    static_assert(std::ranges::contiguous_range<BudgetedBuffer>);
+    static_assert(std::ranges::contiguous_range<const BudgetedBuffer>);
+    static_assert(std::ranges::sized_range<BudgetedBuffer>);
+    static_assert(std::ranges::sized_range<const BudgetedBuffer>);
 };
 
 #endif // SkCodecPriv_DEFINED

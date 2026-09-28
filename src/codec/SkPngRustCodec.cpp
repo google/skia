@@ -28,7 +28,6 @@
 #include "src/codec/SkPngCompositeChunkReader.h"
 #include "src/codec/SkPngPriv.h"
 #include "src/codec/SkSwizzler.h"
-#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkSafeMath.h"
@@ -790,17 +789,9 @@ SkCodec::Result SkPngRustCodec::initializeDecodingDst(DecodingState& decodingSta
         preblendBufferSize = dstRowSize;
     }
 
-    if (preblendBufferSize > 0) {
-        if (!this->allocateFromBudget(preblendBufferSize)) {
-            return kOutOfMemory;
-        }
-        void* buffer = sk_calloc_canfail(preblendBufferSize);
-        if (!buffer) {
-            return kInternalError;
-        }
-        decodingState.fPreblendBufferStorage.reset(static_cast<uint8_t*>(buffer));
-        decodingState.fPreblendBuffer =
-                SkSpan(decodingState.fPreblendBufferStorage.get(), preblendBufferSize);
+    if (Result result = decodingState.fPreblendBuffer.allocateFromBudget(this, preblendBufferSize);
+        result != kSuccess) {
+        return result;
     }
 
     decodingState.fDst = DecodingDstInfo{

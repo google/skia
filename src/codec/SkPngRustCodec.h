@@ -12,9 +12,8 @@
 #include <vector>
 
 #include "include/core/SkSpan.h"
-#include "include/private/SkMalloc.h"
-#include "include/private/SkTemplates.h"
 #include "rust/png/FFI.rs.h"
+#include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkPngCodecBase.h"
 #include "third_party/rust/cxx/v1/cxx.h"
@@ -98,8 +97,7 @@ private:
         // take the subset / sampled rows from.
         // TODO: Subsets of APNG not supported, but if we need to, we would need
         // a separate fInterlacedBuffer along with fPreblendBuffer.
-        std::unique_ptr<uint8_t, SkFunctionObject<sk_free>> fPreblendBufferStorage;
-        SkSpan<uint8_t> fPreblendBuffer;
+        SkCodecPriv::BudgetedBuffer fPreblendBuffer;
 
         int fFirstRow = 0;
         int fLastRow = 0;
