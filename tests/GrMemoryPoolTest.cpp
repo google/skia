@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkMalloc.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkRandom.h"
@@ -34,7 +35,7 @@ public:
 
     void* operator new(size_t size) {
         if (!gPool) {
-            return ::operator new(size);
+            return sk_malloc_throw(size);
         } else {
             return gPool->allocate(size);
         }
@@ -42,7 +43,7 @@ public:
 
     void operator delete(void* p) {
         if (!gPool) {
-            ::operator delete(p);
+            sk_free(p);
         } else {
             return gPool->release(p);
         }

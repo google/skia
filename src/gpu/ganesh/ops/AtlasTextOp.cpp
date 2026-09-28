@@ -12,6 +12,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkMalloc.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkDistanceFieldGen.h"
@@ -74,7 +75,7 @@ void* AtlasTextOp::operator new(size_t s) {
         return std::exchange(gCache, nullptr);
     }
 
-    return ::operator new(s);
+    return sk_malloc_throw(s);
 }
 
 void AtlasTextOp::operator delete(void* bytes) noexcept {
@@ -82,11 +83,11 @@ void AtlasTextOp::operator delete(void* bytes) noexcept {
         gCache = bytes;
         return;
     }
-    ::operator delete(bytes);
+    sk_free(bytes);
 }
 
 void AtlasTextOp::ClearCache() {
-    ::operator delete(gCache);
+    sk_free(gCache);
     gCache = nullptr;
 }
 
