@@ -7,8 +7,10 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkCanvas.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/Device.h"
@@ -168,3 +170,44 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(NullRecordingInsertTest, reporter, context,
     REPORTER_ASSERT(reporter, status == InsertStatus::kInvalidRecording);
     REPORTER_ASSERT(reporter, finishProcContext.fFinishProcCalled);
 }
+
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(InsertRecordingPendingCountsTest, reporter, context,
+                                   CtsEnforcement::kNever) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    // 1. Inserting an empty recording first should return zero pending commands and passes.
+    std::unique_ptr<Recording> emptyRecording1 = recorder->snap();
+    REPORTER_ASSERT(reporter, emptyRecording1);
+
+    InsertStatus status0 = context->insertRecording({emptyRecording1.get()});
+    REPORTER_ASSERT(reporter, status0 == InsertStatus::kSuccess);
+    REPORTER_ASSERT(reporter, status0.numPendingCommands() == 0);
+    REPORTER_ASSERT(reporter, status0.numPendingPasses() == 0);
+
+    // 2. Create a non-empty recording by drawing to a surface.
+    SkImageInfo info = SkImageInfo::Make({16, 16}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), info);
+    REPORTER_ASSERT(reporter, surface);
+    surface->getCanvas()->clear(SkColors::kRed);
+
+    std::unique_ptr<Recording> nonEmptyRecording = recorder->snap();
+    REPORTER_ASSERT(reporter, nonEmptyRecording);
+
+    InsertStatus status1 = context->insertRecording({nonEmptyRecording.get()});
+    REPORTER_ASSERT(reporter, status1 == InsertStatus::kSuccess);
+    REPORTER_ASSERT(reporter, status1.numPendingCommands() > 0);
+    REPORTER_ASSERT(reporter, status1.numPendingPasses() > 0);
+
+    int pendingCommands = status1.numPendingCommands();
+    int pendingPasses = status1.numPendingPasses();
+
+    // 3. Inserting an empty recording afterwards should not change the pending commands/passes.
+    std::unique_ptr<Recording> emptyRecording2 = recorder->snap();
+    REPORTER_ASSERT(reporter, emptyRecording2);
+
+    InsertStatus status2 = context->insertRecording({emptyRecording2.get()});
+    REPORTER_ASSERT(reporter, status2 == InsertStatus::kSuccess);
+    REPORTER_ASSERT(reporter, status2.numPendingCommands() == pendingCommands);
+    REPORTER_ASSERT(reporter, status2.numPendingPasses() == pendingPasses);
+}
+

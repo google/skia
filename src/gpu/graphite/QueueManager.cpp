@@ -241,7 +241,9 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
     // If we got here, the simulated status should be kSuccess or it means we missed returning the
     // simulated error earlier.
     SkASSERT(info.fSimulatedStatus == InsertStatus::kSuccess);
-    return InsertStatus::kSuccess;
+    return InsertStatus(InsertStatus::kSuccess,
+                        fCurrentCommandBuffer->numPendingCommands(),
+                        fCurrentCommandBuffer->numPendingPasses());
 }
 
 bool QueueManager::addTask(Task* task,

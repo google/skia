@@ -54,6 +54,9 @@ public:
     bool isResourceTracked(const Resource* resource);
 #endif
 
+    int numPendingCommands() const { return fNumPendingCommands; }
+    int numPendingPasses() const { return fNumPendingPasses; }
+
     // Takes a CommandBuffer ref on the Resource that will be released when the command buffer has
     // finished execution. This allows a Resource to be returned to ResourceCache for reuse while
     // the CommandBuffer is still executing on the GPU. This is most commonly used for Textures or
@@ -217,6 +220,8 @@ private:
     TrackedResourceArray<gr_cb<Resource>> fCommandBufferResources;
     skia_private::TArray<sk_sp<RefCntedCallback>> fFinishedProcs;
     skia_private::TArray<sk_sp<Buffer>> fBuffersToAsyncMap;
+    int fNumPendingCommands = 0;
+    int fNumPendingPasses = 0;
 };
 
 } // namespace skgpu::graphite

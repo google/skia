@@ -61,15 +61,47 @@ public:
         kOutOfOrderRecording,
     };
 
-    InsertStatus() : fValue(kSuccess) {}
+    InsertStatus() = default;
     /*implicit*/ InsertStatus(V v) : fValue(v) {}
     InsertStatus(V v, std::string message) : fValue(v), fMessage(std::move(message)) {}
+    InsertStatus(V v,
+                 int numPendingCommands,
+                 int numPendingPasses)
+            : fValue(v)
+            , fNumPendingCommands(numPendingCommands)
+            , fNumPendingPasses(numPendingPasses) {}
 
     operator InsertStatus::V() const {
         return fValue;
     }
 
     const std::string& message() const { return fMessage; }
+
+    /**
+     * Returns the number of pending commands in the CommandBuffer waiting to be submitted
+     * to the GPU (including low-level GPU draw commands across all draw passes, compute
+     * dispatches, buffer/texture copies, buffer clears, and CPU synchronizations) after
+     * inserting the Recording. Note that this counts low-level GPU draw commands rather than
+     * high-level Skia draw commands (e.g. SkCanvas::draw* calls), and counts all pending
+     * commands currently in the CommandBuffer, not just the commands in the newly inserted
+     * Recording.
+     *
+     * This count is approximate only and does not include commands generated directly by
+     * the backends (e.g. backend-specific layout transitions, barriers, blits, or
+     * pipeline binds).
+     */
+    int numPendingCommands() const { return fNumPendingCommands; }
+
+    /**
+     * Returns the number of pending passes (render passes and compute passes) in the
+     * CommandBuffer waiting to be submitted to the GPU after inserting the Recording. Note
+     * that this counts all pending passes currently in the CommandBuffer, not just those
+     * in the newly inserted Recording.
+     *
+     * This count is approximate only and does not include passes generated directly by
+     * the backends.
+     */
+    int numPendingPasses() const { return fNumPendingPasses; }
 
     // Assist migration from old bool return value of insertRecording; kSuccess is true,
     // all other error statuses are false.
@@ -81,8 +113,10 @@ public:
     }
 
 private:
-    V fValue;
+    V fValue = kSuccess;
     std::string fMessage;
+    int fNumPendingCommands = 0;
+    int fNumPendingPasses = 0;
 };
 
 /**
