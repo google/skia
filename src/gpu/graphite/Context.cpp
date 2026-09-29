@@ -107,6 +107,16 @@ namespace skgpu::graphite { class Recording; }
 
 namespace skgpu::graphite {
 
+#if defined(GPU_TEST_UTILS)
+namespace {
+bool gDisableSmallSizeReadCPUFallback = false;
+}  // namespace
+
+void ContextPriv::disableSmallSizeReadCPUFallback_ForTesting(bool disable) {
+    gDisableSmallSizeReadCPUFallback = disable;
+}
+#endif
+
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
 
 Context::ContextID Context::ContextID::Next() {
@@ -436,7 +446,17 @@ void Context::asyncReadPixels(std::unique_ptr<Recorder> recorder,
     }
 
     const bool requireConversion = !view || !caps->isCopyableSrc(view.proxy()->textureInfo());
+
+    const bool smallRead =
+#if defined(GPU_TEST_UTILS)
+            !gDisableSmallSizeReadCPUFallback &&
+#endif
+            (srcRect.size().area() < 64 * 64);
+
     const bool tryGpuConversion =
+            // For small reads, CPU conversion might be faster than setting up the
+            // GPU pass. So only do GPU conversion for non-small reads.
+            !smallRead &&
             view &&
             (
 #if !defined(SK_LEGACY_GRAPHITE_READ_PIXELS_BOTTOM_LEFT_BEHAVIOR)

@@ -77,6 +77,8 @@ public:
                     const TextureProxyView&,
                     const SkImageInfo& srcImageInfo,
                     int srcX, int srcY);
+
+    static void disableSmallSizeReadCPUFallback_ForTesting(bool disable);
 #endif
 
 private:

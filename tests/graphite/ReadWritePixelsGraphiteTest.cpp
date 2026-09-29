@@ -566,6 +566,10 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphit
     using Renderable = skgpu::Renderable;
     using TextureInfo = skgpu::graphite::TextureInfo;
 
+    // The test textures are small (16x16), so disable the CPU fallback to ensure
+    // the GPU conversion path is tested.
+    skgpu::graphite::ContextPriv::disableSmallSizeReadCPUFallback_ForTesting(true);
+
     auto reader = std::function<GraphiteReadSrcFn<Image>>([context, testContext](
                                                                   const Image& image,
                                                                   const SkIPoint& offset,
@@ -643,6 +647,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphit
     // It's possible that we've created an Image using the factory, but then don't try to do
     // readPixels on it, leaving a hanging command buffer. So we submit here to clean up.
     context->submit();
+    skgpu::graphite::ContextPriv::disableSmallSizeReadCPUFallback_ForTesting(false);
 }
 
 DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixelsGraphite,
