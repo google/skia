@@ -923,8 +923,7 @@ bool SkPngRustCodec::canReadRow() {
     return true;
 }
 
-SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingState,
-                                                       int* rowsDecodedPtr) {
+SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingState) {
     SkASSERT_RELEASE(!this->canReadRow());
 
     const bool isSampling = this->isSampling();
@@ -948,9 +947,6 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
         if (!stopsBeforeEndOfFrame || decodingState.fRowsWrittenToOutput < dstHeight) {
             Result result = ToSkCodecResult(fReader->next_interlaced_row(decodedRow));
             if (result != kSuccess) {
-                if (result == kIncompleteInput && rowsDecodedPtr) {
-                    *rowsDecodedPtr = decodingState.fRowsWrittenToOutput;
-                }
                 return result;
             }
         }
@@ -1060,8 +1056,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
     }
 }
 
-SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
-                                                  int* rowsDecodedPtr) {
+SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState) {
     SkASSERT_RELEASE(this->canReadRow());
     const bool interlaced = fReader->interlaced();
     rust::Slice<uint8_t> dstSlice;
@@ -1085,9 +1080,6 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
         Result result = ToSkCodecResult(rustResult);
 
         if (result != kSuccess) {
-            if (result == kIncompleteInput && rowsDecodedPtr) {
-                *rowsDecodedPtr = decodingState.fRowsWrittenToOutput;
-            }
             return result;
         }
 
@@ -1146,6 +1138,15 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
     }
 }
 
+void SkPngRustCodec::reportRowsDecoded(Result result,
+                                       const DecodingState& decodingState,
+                                       int* rowsDecoded) const {
+    if (result == kSuccess || !rowsDecoded) {
+        return;
+    }
+    *rowsDecoded = decodingState.fRowsWrittenToOutput;
+}
+
 SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
                                             void* pixels,
                                             size_t rowBytes,
@@ -1158,15 +1159,14 @@ SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     result = this->initializeDecodingDst(*decodingState);
-    if (result != kSuccess) {
-        return result;
+    if (result == kSuccess) {
+        if (this->canReadRow()) {
+            result = this->incrementalDecode(*decodingState);
+        } else {
+            result = this->incrementalDecodeXForm(*decodingState);
+        }
     }
-
-    if (this->canReadRow()) {
-        result = this->incrementalDecode(*decodingState, rowsDecoded);
-    } else {
-        result = this->incrementalDecodeXForm(*decodingState, rowsDecoded);
-    }
+    this->reportRowsDecoded(result, *decodingState, rowsDecoded);
     return result;
 }
 
@@ -1186,16 +1186,14 @@ SkCodec::Result SkPngRustCodec::onIncrementalDecode(int* rowsDecoded) {
     }
 
     Result result = this->initializeDecodingDst(*fIncrementalDecodingState);
-    if (result != kSuccess) {
-        fIncrementalDecodingState.reset();
-        return result;
+    if (result == kSuccess) {
+        if (this->canReadRow()) {
+            result = this->incrementalDecode(*fIncrementalDecodingState);
+        } else {
+            result = this->incrementalDecodeXForm(*fIncrementalDecodingState);
+        }
     }
-
-    if (this->canReadRow()) {
-        result = this->incrementalDecode(*fIncrementalDecodingState, rowsDecoded);
-    } else {
-        result = this->incrementalDecodeXForm(*fIncrementalDecodingState, rowsDecoded);
-    }
+    this->reportRowsDecoded(result, *fIncrementalDecodingState, rowsDecoded);
     if (result != kIncompleteInput) {
         // After successfully reading the whole row (`kSuccess`), and after a
         // fatal error (only recoverable error is `kIncompleteInput`) our client

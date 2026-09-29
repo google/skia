@@ -24,6 +24,7 @@
 #endif
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
@@ -292,6 +293,33 @@ static sk_sp<SkData> WithoutIendCrc(const SkData* data) {
 static sk_sp<SkData> WithoutIendChunk(const SkData* data) {
     SkASSERT(HasTrailingIendChunk(data));
     return SkData::MakeSubset(data, 0, data->size() - kIendChunkSize);
+}
+
+// Returns a copy of `data` with the last byte of the CRC of its `idatIndex`-th (0-based) `IDAT`
+// chunk flipped, or nullptr if there is no such chunk. Decoding then fails with `kErrorInInput`
+// once that chunk has been read, after the rows from the preceding `IDAT` chunks.
+static sk_sp<SkData> WithCorruptIdatCrc(const SkData* data, int idatIndex) {
+    constexpr size_t kSignatureSize = 8;
+    constexpr size_t kChunkHeaderSize = 8;  // 4-byte length + 4-byte type.
+    constexpr size_t kCrcSize = 4;
+
+    sk_sp<SkData> copy = SkData::MakeWithCopy(data->data(), data->size());
+    uint8_t* bytes = static_cast<uint8_t*>(copy->writable_data());
+    size_t offset = kSignatureSize;
+    while (offset + kChunkHeaderSize <= copy->size()) {
+        const size_t length = (size_t{bytes[offset]} << 24) | (size_t{bytes[offset + 1]} << 16) |
+                              (size_t{bytes[offset + 2]} << 8) | size_t{bytes[offset + 3]};
+        const size_t crcEnd = offset + kChunkHeaderSize + length + kCrcSize;
+        if (crcEnd > copy->size()) {
+            break;
+        }
+        if (memcmp(bytes + offset + 4, "IDAT", 4) == 0 && idatIndex-- == 0) {
+            bytes[crcEnd - 1] ^= 0xFF;
+            return copy;
+        }
+        offset = crcEnd;
+    }
+    return nullptr;
 }
 
 static std::optional<SkBitmap> DecodeAndroidPixels(
@@ -2092,4 +2120,95 @@ DEF_TEST(RustPngCodec_interlacedPreblendBufferBudget_subset, r) {
     AssertInterlacedPreblendBufferBudget(r, /*sampleSize=*/1, [](const SkImageInfo& info) {
         return SkIRect::MakeXYWH(0, 1, info.width(), info.height() - 1);
     });
+}
+
+// Regression test helper for b/562804783: like `SkPngCodec`, `SkPngRustCodec` must report
+// `rowsDecoded` for `kErrorInInput` (not just `kIncompleteInput`), so that callers such as
+// `SkCodec::getPixels` keep the rows decoded before the error instead of filling the whole image.
+static void AssertRowsDecodedReportedOnErrorInInput(skiatest::Reporter* r,
+                                                    SkColorType colorType,
+                                                    SkAlphaType alphaType,
+                                                    sk_sp<SkColorSpace> colorSpace) {
+    // Non-interlaced RGBA8 image whose image data is split across 12 `IDAT` chunks.
+    static constexpr char kPath[] = "images/text.png";
+    sk_sp<SkData> data = GetResourceAsData(kPath);
+    if (!data) {
+        ERRORF(r, "Missing resource: %s", kPath);
+        return;
+    }
+    sk_sp<SkData> corruptData = WithCorruptIdatCrc(data.get(), /*idatIndex=*/5);
+    if (!corruptData) {
+        ERRORF(r, "Failed to corrupt IDAT CRC in %s", kPath);
+        return;
+    }
+
+    std::unique_ptr<SkCodec> refCodec =
+            SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(data), nullptr);
+    std::unique_ptr<SkCodec> codec =
+            SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(corruptData), nullptr);
+    if (!refCodec || !codec) {
+        ERRORF(r, "Failed to create Rust codec");
+        return;
+    }
+    const SkImageInfo info =
+            codec->getInfo().makeColorType(colorType).makeAlphaType(alphaType).makeColorSpace(
+                    std::move(colorSpace));
+    SkBitmap refBitmap;
+    refBitmap.allocPixels(info);
+    SkCodec::Result result = refCodec->getPixels(info, refBitmap.getPixels(), refBitmap.rowBytes());
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+
+    SkBitmap bitmap;
+    bitmap.allocPixels(info);
+    result = codec->startIncrementalDecode(info, bitmap.getPixels(), bitmap.rowBytes());
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    int rowsDecoded = -1;
+    result = codec->incrementalDecode(&rowsDecoded);
+    REPORTER_ASSERT(r,
+                    result == SkCodec::kErrorInInput,
+                    "actualResult=\"%s\" != kErrorInInput",
+                    SkCodec::ResultToString(result));
+    REPORTER_ASSERT(r,
+                    rowsDecoded > 0 && rowsDecoded < info.height(),
+                    "rowsDecoded=%d, height=%d",
+                    rowsDecoded,
+                    info.height());
+    if (rowsDecoded <= 0 || rowsDecoded >= info.height()) {
+        return;
+    }
+
+    // `getPixels` keeps the decoded rows, and only fills the rows after them.
+    bitmap.eraseColor(SK_ColorMAGENTA);
+    SkCodec::Options options;
+    options.fZeroInitialized = SkCodec::kNo_ZeroInitialized;
+    result = codec->getPixels(info, bitmap.getPixels(), bitmap.rowBytes(), &options);
+    REPORTER_ASSERT(r,
+                    result == SkCodec::kErrorInInput,
+                    "actualResult=\"%s\" != kErrorInInput",
+                    SkCodec::ResultToString(result));
+    const size_t rowBytes = info.minRowBytes();
+    for (int y = 0; y < rowsDecoded; ++y) {
+        if (memcmp(bitmap.getAddr(0, y), refBitmap.getAddr(0, y), rowBytes) != 0) {
+            ERRORF(r, "Decoded row %d differs from the intact image", y);
+            return;
+        }
+    }
+    for (int y = rowsDecoded; y < info.height(); ++y) {
+        if (bitmap.getColor(0, y) == SK_ColorMAGENTA) {
+            ERRORF(r, "Row %d after rowsDecoded (%d) was not filled", y, rowsDecoded);
+            return;
+        }
+    }
+}
+
+// kRGBA_8888 + kUnpremul without a color space on an RGBA8 source without `iCCP` satisfies
+// `canReadRow()`, i.e. goes through `incrementalDecode` (`read_row`).
+DEF_TEST(RustPngCodec_rowsDecodedReportedOnErrorInInput_readRow, r) {
+    AssertRowsDecodedReportedOnErrorInInput(
+            r, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, /*colorSpace=*/nullptr);
+}
+
+DEF_TEST(RustPngCodec_rowsDecodedReportedOnErrorInInput_xform, r) {
+    AssertRowsDecodedReportedOnErrorInInput(
+            r, kN32_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
 }
