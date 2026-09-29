@@ -1880,7 +1880,18 @@
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNG"
   },
   {
-    "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNGAndroid"
+    "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNGAndroid",
+    "cq_config": {
+      "location_regexes": [
+        "include/(codec|encode)/SkPng.*",
+        "src/(codec|encode)/SkPng.*",
+        "(include|src)/codec/Sk(AndroidCodec|SampledCodec).*",
+        "rust/(common|png)/.*",
+        "bazel/external/image-png/.*",
+        "MODULE.bazel",
+        "tests/(SkPngRust|PngGainmap|AndroidCodec).*"
+      ]
+    }
   },
   {
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"

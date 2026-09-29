@@ -73139,6 +73139,17 @@
     "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {},
     "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs": {},
     "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustALL": {},
+    "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNGAndroid": {
+      "location_regexes": [
+        "include/(codec|encode)/SkPng.*",
+        "src/(codec|encode)/SkPng.*",
+        "(include|src)/codec/Sk(AndroidCodec|SampledCodec).*",
+        "rust/(common|png)/.*",
+        "bazel/external/image-png/.*",
+        "MODULE.bazel",
+        "tests/(SkPngRust|PngGainmap|AndroidCodec).*"
+      ]
+    },
     "Test-Ubuntu24.04-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_Graphite": {
       "location_regexes": [
         "(include|src)/gpu/graphite/vk/.*",
