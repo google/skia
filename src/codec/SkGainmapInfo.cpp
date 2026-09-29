@@ -57,6 +57,10 @@ static bool read_rational_be(SkStream* s, float* value) {
     if (!SkStreamPriv::ReadU32BE(s, &denominator)) {
         return false;
     }
+    // ISO 21496-1 requires denominators to be non-zero.
+    if (denominator == 0) {
+        return false;
+    }
     *value = static_cast<float>(static_cast<double>(numerator) / static_cast<double>(denominator));
     return true;
 }
@@ -68,6 +72,10 @@ static bool read_positive_rational_be(SkStream* s, float* value) {
         return false;
     }
     if (!SkStreamPriv::ReadU32BE(s, &denominator)) {
+        return false;
+    }
+    // ISO 21496-1 requires denominators to be non-zero.
+    if (denominator == 0) {
         return false;
     }
     *value = static_cast<float>(static_cast<double>(numerator) / static_cast<double>(denominator));
@@ -139,6 +147,12 @@ static bool read_iso_gainmap_info(SkStream* s, SkGainmapInfo& info) {
         }
         if (!read_positive_rational_be(s, &gamma[i])) {
             SkCodecPrintf("Failed to read ISO 21496-1 gamma.\n");
+            return false;
+        }
+        // ISO 21496-1 requires gamma to be strictly positive, and `fGainmapGamma` is its
+        // reciprocal.
+        if (gamma[i] == 0.f) {
+            SkCodecPrintf("Invalid ISO 21496-1 gamma.\n");
             return false;
         }
         if (!read_rational_be(s, &baseOffset[i])) {

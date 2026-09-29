@@ -1068,3 +1068,48 @@ DEF_TEST(AndroidCodec_gainmapInfoParse, r) {
 }
 
 #endif  // !defined(SK_ENABLE_NDK_IMAGES)
+
+DEF_TEST(AndroidCodec_gainmapInfoParseInvalidRational, r) {
+    // Single-channel ISO 21496-1 metadata: a 5-byte header followed by 7 rationals, each a 4-byte
+    // numerator followed by a 4-byte denominator.
+    constexpr size_t kHeaderSize = 5;
+    constexpr size_t kRationalSize = 8;
+    constexpr size_t kGammaIndex = 4;
+    const uint8_t validData[] = {
+            0x00, 0x00,                                      // Minimum version
+            0x00, 0x00,                                      // Writer version
+            0x00,                                            // Flags
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,  // Base HDR headroom
+            0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,  // Altr HDR headroom
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,  // Gainmap min
+            0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,  // Gainmap max
+            0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,  // Gamma
+            0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x40,  // Base offset
+            0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x40,  // Altr offset
+    };
+    constexpr size_t kRationalCount = (sizeof(validData) - kHeaderSize) / kRationalSize;
+
+    // Returns whether `validData` parses after zeroing the 4 bytes at `offset`.
+    auto parsesWithZeroedBytesAt = [&](size_t offset) {
+        sk_sp<SkData> data = SkData::MakeWithCopy(validData, sizeof(validData));
+        memset(static_cast<uint8_t*>(data->writable_data()) + offset, 0, 4);
+        SkGainmapInfo info;
+        return SkGainmapInfo::Parse(data.get(), info);
+    };
+
+    SkGainmapInfo info;
+    REPORTER_ASSERT(r,
+                    SkGainmapInfo::Parse(
+                            SkData::MakeWithoutCopy(validData, sizeof(validData)).get(), info));
+
+    // Zero denominators are invalid.
+    for (size_t i = 0; i < kRationalCount; ++i) {
+        REPORTER_ASSERT(r,
+                        !parsesWithZeroedBytesAt(kHeaderSize + i * kRationalSize + 4),
+                        "rational %zu",
+                        i);
+    }
+
+    // A zero gamma is invalid, since `fGainmapGamma` is its reciprocal.
+    REPORTER_ASSERT(r, !parsesWithZeroedBytesAt(kHeaderSize + kGammaIndex * kRationalSize));
+}
