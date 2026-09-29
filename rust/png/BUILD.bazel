@@ -19,6 +19,13 @@ bool_flag(
     default = True,
 )
 
+# Set for fuzzing builds (e.g. `skia_build_fuzzers=true` in GN), so that `FFI.rs`
+# skips checks such as chunk CRCs that would otherwise reject most mutated inputs.
+bool_flag(
+    name = "fuzzing_build_mode",
+    default = False,
+)
+
 skia_filegroup(
     name = "rs_srcs",
     srcs = ["FFI.rs"],
@@ -64,7 +71,10 @@ rust_static_library(
         "//conditions:default": [],
     }),
     crate_root = "FFI.rs",
-    rustc_flags = ["-Dwarnings"],
+    rustc_flags = ["-Dwarnings"] + select({
+        ":fuzzing_build_mode_true": ["--cfg=FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"],
+        "//conditions:default": [],
+    }),
     visibility = [
         "//src/codec:__pkg__",
         "//src/encode:__pkg__",
