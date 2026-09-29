@@ -159,12 +159,6 @@
     "name": "Build-Mac-Clang-arm64-Debug-iOS"
   },
   {
-    "name": "Build-Mac-Clang-arm64-Debug-iOS18"
-  },
-  {
-    "name": "Build-Mac-Clang-arm64-Debug-iOS18_Metal"
-  },
-  {
     "name": "Build-Mac-Clang-arm64-Debug-iOS_Graphite_Native_Metal"
   },
   {
@@ -200,12 +194,6 @@
   {
     "name": "Build-Mac-Clang-arm64-Release-iOS",
     "cq_config": {}
-  },
-  {
-    "name": "Build-Mac-Clang-arm64-Release-iOS18"
-  },
-  {
-    "name": "Build-Mac-Clang-arm64-Release-iOS18_Metal"
   },
   {
     "name": "Build-Mac-Clang-arm64-Release-iOS_Graphite_Native_Metal",
@@ -1331,6 +1319,18 @@
     "name": "Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All-Metal"
   },
   {
+    "name": "Perf-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Release-All"
+  },
+  {
+    "name": "Perf-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Release-All-Metal"
+  },
+  {
+    "name": "Perf-iOS-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All"
+  },
+  {
+    "name": "Perf-iOS-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All-Metal"
+  },
+  {
     "name": "Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All"
   },
   {
@@ -1341,18 +1341,6 @@
   },
   {
     "name": "Perf-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-Metal"
-  },
-  {
-    "name": "Perf-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Release-All"
-  },
-  {
-    "name": "Perf-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Release-All-Metal"
-  },
-  {
-    "name": "Perf-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All"
-  },
-  {
-    "name": "Perf-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All-Metal"
   },
   {
     "name": "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-All-Android"
@@ -2438,6 +2426,30 @@
     "name": "Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All-Metal"
   },
   {
+    "name": "Test-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Debug-All"
+  },
+  {
+    "name": "Test-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Debug-All-Metal"
+  },
+  {
+    "name": "Test-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Release-All"
+  },
+  {
+    "name": "Test-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Release-All-Metal"
+  },
+  {
+    "name": "Test-iOS-Clang-iPhone15Pro-GPU-AppleA17-arm64-Debug-All"
+  },
+  {
+    "name": "Test-iOS-Clang-iPhone15Pro-GPU-AppleA17-arm64-Debug-All-Metal"
+  },
+  {
+    "name": "Test-iOS-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All"
+  },
+  {
+    "name": "Test-iOS-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All-Metal"
+  },
+  {
     "name": "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All"
   },
   {
@@ -2460,29 +2472,5 @@
   },
   {
     "name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-Metal"
-  },
-  {
-    "name": "Test-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Debug-All"
-  },
-  {
-    "name": "Test-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Debug-All-Metal"
-  },
-  {
-    "name": "Test-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Release-All"
-  },
-  {
-    "name": "Test-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Release-All-Metal"
-  },
-  {
-    "name": "Test-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Debug-All"
-  },
-  {
-    "name": "Test-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Debug-All-Metal"
-  },
-  {
-    "name": "Test-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All"
-  },
-  {
-    "name": "Test-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All-Metal"
   }
 ]

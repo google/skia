@@ -86,7 +86,6 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-arm64-Debug-iOS',
   'Build-Mac-Clang-arm64-Release-Graphite_Native_Dawn_Metal',
   'Build-Mac-Clang-arm64-Release-Graphite_Native_Metal',
-  'Build-Mac-Clang-arm64-Release-iOS18_Metal',
   'Build-Mac-Clang-x86_64-Debug-ASAN',
   'Build-Mac-Clang-x86_64-Debug-Metal',
   'Build-Ubuntu24.04-Clang-x86_64-Release-SKVX_DISABLE_SIMD',
