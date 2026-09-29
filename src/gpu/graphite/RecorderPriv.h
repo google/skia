@@ -41,6 +41,7 @@ class Caps;
 class Context;
 class Device;
 class DrawBufferManager;
+class DrawContext;
 class ProxyCache;
 class RendererProvider;
 class ResourceCache;
@@ -87,7 +88,9 @@ public:
     DrawBufferManager* drawBufferManager() { return fRecorder->fDrawBufferManager.get(); }
     UploadBufferManager* uploadBufferManager() { return fRecorder->fUploadBufferManager.get(); }
 
-    AtlasProvider* atlasProvider() { return fRecorder->fAtlasProvider.get(); }
+    AtlasProvider* getOrCreateAtlasProvider();
+    void recordAtlasProviderUploads(DrawContext*);
+    void compactAtlasProvider();
     TokenTracker* tokenTracker() { return fRecorder->fTokenTracker.get(); }
     sktext::gpu::StrikeCache* strikeCache() { return fRecorder->fStrikeCache.get(); }
     sktext::gpu::TextBlobRedrawCoordinator* textBlobCache() {

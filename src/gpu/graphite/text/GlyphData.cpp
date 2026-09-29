@@ -29,7 +29,7 @@ GlyphData::GlyphData(sk_sp<TextStrike> strike,
                      Recorder* recorder,
                      sktext::gpu::RendererData renderData)
         : fTextStrike{std::move(strike)}
-        , fRenderData(recorder->priv().atlasProvider()
+        , fRenderData(recorder->priv().getOrCreateAtlasProvider()
                                      ->textAtlasManager()
                                      ->resolveRendererData(renderData)) {}
 
@@ -49,7 +49,7 @@ std::tuple<bool, int> GlyphData::regenerateAtlas(int begin,
                                                  Recorder* recorder) {
     SkASSERT(glyphVector.hasBackendData());
 
-    auto atlasManager = recorder->priv().atlasProvider()->textAtlasManager();
+    auto atlasManager = recorder->priv().getOrCreateAtlasProvider()->textAtlasManager();
     auto tokenTracker = recorder->priv().tokenTracker();
 
     // TODO: this is not a great place for this -- need a better way to init atlases when needed

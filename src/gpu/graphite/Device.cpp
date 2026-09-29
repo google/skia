@@ -2252,7 +2252,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     // with their required Renderers (e.g. CoverageMask for path atlases, EndCaps + WideTiles for
     // sparse strips). Device can then perform common paint/clip setup once, record each sub-draw
     // into fDC, and potentially optimize DrawListLayer insertion.
-    AtlasProvider* atlasProvider = fRecorder->priv().atlasProvider();
+    AtlasProvider* atlasProvider = fRecorder->priv().getOrCreateAtlasProvider();
     switch (renderers->pathRendererStrategy()) {
         case PathRendererStrategy::kComputeAnalyticAA:
         case PathRendererStrategy::kComputeMSAA16:
@@ -2411,7 +2411,7 @@ void Device::internalFlush() {
     ASSERT_SINGLE_OWNER
 
     // Push any pending uploads from the atlas provider that pending draws reference.
-    fRecorder->priv().atlasProvider()->recordUploads(fDC.get());
+    fRecorder->priv().recordAtlasProviderUploads(fDC.get());
 
     // Clip shapes are depth-only draws, but aren't recorded in the DrawContext until a flush in
     // order to determine the Z values for each element.
@@ -2426,7 +2426,7 @@ void Device::internalFlush() {
     fAtlasedPathCount = 0;
 
     // Any cleanup in the AtlasProvider
-    fRecorder->priv().atlasProvider()->compact();
+    fRecorder->priv().compactAtlasProvider();
 }
 
 bool Device::needsFlushBeforeDraw(int numNewRenderSteps, DstReadStrategy dstReadStrategy) {

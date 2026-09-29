@@ -1950,9 +1950,13 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     // If there is no MSAA supported, rasterize any remaining elements by flattening them
     // into a single mask and storing in an atlas. Otherwise these will be handled by
     // Device::drawClip().
-    ClipAtlasManager* clipAtlas =
-            fDevice->recorder()->priv().atlasProvider()->getClipAtlasManager();
-    if (clipAtlas && !outEffectiveElements->empty()) {
+    ClipAtlasManager* clipAtlas = nullptr;
+    // Avoid lazily creating the AtlasProvider if there are no clip elements to atlas.
+    if (!outEffectiveElements->empty()) {
+        clipAtlas = fDevice->recorder()->priv().getOrCreateAtlasProvider()
+                            ->getClipAtlasManager();
+    }
+    if (clipAtlas) {
         AtlasClip* atlasClip = &nonMSAAClip.fAtlasClip;
 
         SkIRect iMaskBounds = cs.outerBounds().makeRoundOut().asSkIRect();

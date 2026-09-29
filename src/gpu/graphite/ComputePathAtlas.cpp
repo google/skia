@@ -53,12 +53,13 @@ ComputePathAtlas::ComputePathAtlas(Recorder* recorder)
 bool ComputePathAtlas::initializeTextureIfNeeded() {
     if (!fTexture) {
         SkColorType targetCT = ComputeShaderCoverageMaskTargetFormat(fRecorder->priv().caps());
-        fTexture = fRecorder->priv().atlasProvider()->getAtlasTexture(fRecorder,
-                                                                      this->width(),
-                                                                      this->height(),
-                                                                      targetCT,
-                                                                      /*identifier=*/0,
-                                                                      /*requireStorageUsage=*/true);
+        fTexture = fRecorder->priv().getOrCreateAtlasProvider()->getAtlasTexture(
+                fRecorder,
+                this->width(),
+                this->height(),
+                targetCT,
+                /*identifier=*/0,
+                /*requireStorageUsage=*/true);
     }
     return fTexture != nullptr;
 }

@@ -155,7 +155,7 @@ void SDFTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
     unsigned int numProxies;
     Recorder* recorder = subRunData.recorder();
     const sk_sp<TextureProxy>* proxies =
-            recorder->priv().atlasProvider()->textAtlasManager()->getProxies(
+            recorder->priv().getOrCreateAtlasProvider()->textAtlasManager()->getProxies(
                     subRunData.resolvedMaskFormat(), &numProxies);
     SkASSERT(proxies && numProxies > 0);
 

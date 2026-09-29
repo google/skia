@@ -208,7 +208,8 @@ void DrawContext::recordDependency(sk_sp<Task> task) {
 
 PathAtlas* DrawContext::getComputePathAtlas(Recorder* recorder) {
     if (!fComputePathAtlas) {
-        fComputePathAtlas = recorder->priv().atlasProvider()->createComputePathAtlas(recorder);
+        fComputePathAtlas =
+                recorder->priv().getOrCreateAtlasProvider()->createComputePathAtlas(recorder);
     }
     return fComputePathAtlas.get();
 }
