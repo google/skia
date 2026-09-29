@@ -61,6 +61,9 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "image_scale\n"
                                          "json\n"
                                          "path_deserialize\n"
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+                                         "png_rust_decoder\n"
+#endif
                                          "region_deserialize\n"
                                          "region_set_path\n"
                                          "skdescriptor_deserialize\n"
@@ -99,6 +102,9 @@ static void fuzz_img(const sk_sp<SkData>&, uint8_t, uint8_t);
 static void fuzz_json(const sk_sp<SkData>&);
 static void fuzz_parse_path(const sk_sp<SkData>&);
 static void fuzz_path_deserialize(const sk_sp<SkData>&);
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+static void fuzz_png_rust_decoder(const sk_sp<SkData>&);
+#endif
 static void fuzz_region_deserialize(const sk_sp<SkData>&);
 static void fuzz_region_set_path(const sk_sp<SkData>&);
 static void fuzz_skdescriptor_deserialize(const sk_sp<SkData>&);
@@ -236,6 +242,12 @@ static int fuzz_file(const SkString& path, SkString type) {
         fuzz_path_deserialize(std::move(bytes));
         return 0;
     }
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+    if (type.equals("png_rust_decoder")) {
+        fuzz_png_rust_decoder(std::move(bytes));
+        return 0;
+    }
+#endif
     if (type.equals("region_deserialize")) {
         fuzz_region_deserialize(std::move(bytes));
         return 0;
@@ -335,10 +347,10 @@ static std::map<std::string, std::string> cf_api_map = {
     {"api_triangulation", "Triangulation"},
     {"cubic_roots", "CubicRoots"},
     {"jpeg_encoder", "JPEGEncoder"},
-    // TODO(https://crbug.com/459478411): Add OSS-ClusterFuzz coverage of Rust
-    // PNG encoder.  (And also decoder?  See earlier discussion about these map
-    // entries at https://review.skia.org/1091836/comment/db7930d5_d2e1f030/)
     {"png_encoder", "PNGEncoder"},
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+    {"png_rust_encoder", "PNGRustEncoder"},
+#endif
     {"quad_roots", "QuadRoots"},
     {"skia_pathop_fuzzer", "LegacyChromiumPathop"},
     {"webp_encoder", "WEBPEncoder"}
@@ -356,6 +368,9 @@ static std::map<std::string, std::string> cf_map = {
     {"image_filter_deserialize_width", "filter_fuzz"},
     {"parse_path", "parse_path"},
     {"path_deserialize", "path_deserialize"},
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+    {"png_rust_decoder", "png_rust_decoder"},
+#endif
     {"region_deserialize", "region_deserialize"},
     {"region_set_path", "region_set_path"},
     {"skcolorspace", "color_deserialize"},
@@ -532,6 +547,18 @@ static void fuzz_android_codec(const sk_sp<SkData>& data) {
     }
     SkDebugf("[terminated] Could not use Android Codec sampleSize=%u!\n", sampleSize);
 }
+
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+bool FuzzPNGRustDecoder(const uint8_t* data, size_t size);
+
+static void fuzz_png_rust_decoder(const sk_sp<SkData>& data) {
+    if (FuzzPNGRustDecoder(data->bytes(), data->size())) {
+        SkDebugf("[terminated] Success from Rust PNG decoder!\n");
+        return;
+    }
+    SkDebugf("[terminated] Could not decode Rust PNG.\n");
+}
+#endif
 
 // This is a "legacy" fuzzer that likely does too much. It was based off of how
 // DM reads in images. image_decode, image_decode_incremental and android_codec

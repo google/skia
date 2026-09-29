@@ -3378,6 +3378,9 @@ if (skia_enable_tools) {
       if (skia_use_rust_bmp_decode) {
         sources += [ "fuzz/oss_fuzz/FuzzBMPRustDecoder.cpp" ]
       }
+      if (skia_use_rust_png_decode) {
+        sources += [ "fuzz/oss_fuzz/FuzzPNGRustDecoder.cpp" ]
+      }
       deps = [
         ":flags",
         ":gpu_tool_utils",
@@ -4012,6 +4015,13 @@ if (skia_build_fuzzers) {
         "fuzz/FuzzEncoders.cpp",
         "fuzz/oss_fuzz/FuzzPNGRustEncoder.cpp",
       ]
+      deps = []
+    }
+  }
+
+  if (skia_use_rust_png_decode) {
+    libfuzzer_app("png_rust_decoder") {
+      sources = [ "fuzz/oss_fuzz/FuzzPNGRustDecoder.cpp" ]
       deps = []
     }
   }
