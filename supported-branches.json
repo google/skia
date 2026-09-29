@@ -27,6 +27,10 @@
     {
       "ref": "refs/heads/chrome/m155",
       "owner": "chrome-branch-day@chops-service-accounts.iam.gserviceaccount.com"
+    },
+    {
+      "ref": "refs/heads/chrome/m156",
+      "owner": "chrome-branch-day@chops-service-accounts.iam.gserviceaccount.com"
     }
   ]
 }
