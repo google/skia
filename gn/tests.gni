@@ -373,6 +373,8 @@ sparse_strips_test_sources = [
   "$_tests/graphite/sparse_strips/ClipTest.cpp",
   "$_tests/graphite/sparse_strips/CoverageTest.cpp",
   "$_tests/graphite/sparse_strips/CoverageTestUtils.h",
+  "$_tests/graphite/sparse_strips/FastValidator.cpp",
+  "$_tests/graphite/sparse_strips/FastValidator.h",
   "$_tests/graphite/sparse_strips/FlattenTest.cpp",
   "$_tests/graphite/sparse_strips/LUTTest.cpp",
   "$_tests/graphite/sparse_strips/Oracle.cpp",

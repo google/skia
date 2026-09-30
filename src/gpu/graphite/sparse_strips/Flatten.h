@@ -200,6 +200,7 @@ private:
 
     // Stubs for non-simplifying, non-culling flattening to be used as a source of truth.
 #if defined(GPU_TEST_UTILS)
+    template <uint16_t, uint16_t> friend class FastValidator;
     void processPathsSimdTest(const SkPath& path, const SkMatrix& ctm, float width, float height,
                               Polyline* polyline);
     void processPathsScalarTest(const SkPath& path, const SkMatrix& ctm, float width,
