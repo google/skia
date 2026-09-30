@@ -8,6 +8,7 @@
 
 import argparse
 import os
+import re
 import sys
 
 from io import StringIO
@@ -75,7 +76,8 @@ def to_rewrite():
         for file_name in files:
           yield os.path.join(path, file_name)
 
-# Rewrite any #includes relative to Skia's top-level directory.
+# Rewrite any #includes relative to Skia's top-level directory and sort forward declarations.
+fwd_decl_re = re.compile(r'^\s*(?:class|struct)\s+[A-Za-z_]\w*\s*;\s*$')
 need_rewriting = []
 rewrite_is_automatic = True
 for file_path in to_rewrite():
@@ -103,6 +105,21 @@ for file_path in to_rewrite():
     output = StringIO() if args.dry_run else open(file_path, 'w', newline='\n')
 
     includes = []
+    fwd_decls = []
+    prev_line_is_template = False
+
+    def flush_includes():
+      # Deduplicate includes in this block. If a file needs to be included
+      # multiple times, the separate includes should go in different blocks.
+      for inc in sorted(list(set(includes))):
+        output.write(inc.strip('\n') + '\n')
+      includes.clear()
+
+    def flush_fwd_decls():
+      for decl in sorted(list(set(fwd_decls))):
+        output.write(decl.strip('\n') + '\n')
+      fwd_decls.clear()
+
     for line in lines:
       parts = line.replace('<', '"').replace('>', '"').split('"')
       if (len(parts) == 3
@@ -110,6 +127,7 @@ for file_path in to_rewrite():
           and 'include' in parts[0]
           and not parts[1].startswith('partition_alloc/')
           and os.path.basename(parts[1]) in headers):
+        flush_fwd_decls()
         include_paths = headers[os.path.basename(parts[1])]
         if (len(include_paths) == 1):
           header = include_paths[0]
@@ -126,23 +144,25 @@ for file_path in to_rewrite():
               print('\t' + opt)
 
         includes.append(parts[0] + '"%s"' % header + parts[2])
+        prev_line_is_template = False
+      elif fwd_decl_re.match(line) and not prev_line_is_template:
+        flush_includes()
+        fwd_decls.append(line)
+        prev_line_is_template = False
       else:
-        # deduplicate includes in this block. If a file needs to be included
-        # multiple times, the separate includes should go in different blocks.
-        includes = sorted(list(set(includes)))
-        for inc in includes:
-          output.write(inc.strip('\n') + '\n')
-        includes = []
+        flush_includes()
+        flush_fwd_decls()
         output.write(line.strip('\n') + '\n')
-    # Fix any straggling includes, e.g. in a file that only includes something else.
-    for inc in sorted(includes):
-      output.write(inc.strip('\n') + '\n')
+        prev_line_is_template = line.strip().startswith('template')
+    # Fix any straggling includes or forward declarations.
+    flush_includes()
+    flush_fwd_decls()
     if args.dry_run and output.getvalue() != open(file_path).read():
       need_rewriting.append(file_path)
     output.close()
 
 if need_rewriting:
-  print('Some files need rewritten #includes:')
+  print('Some files need rewritten #includes or sorted forward declarations:')
   for path in need_rewriting:
     print('\t' + path)
 
