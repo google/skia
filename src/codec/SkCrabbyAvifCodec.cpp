@@ -201,9 +201,9 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
     // need to set maxThreads since MediaCodec doesn't allow explicit setting
     // of threads.
 
-    if (gainmapOnly) {
-        avifDecoder->imageContentToDecode = crabbyavif::AVIF_IMAGE_CONTENT_GAIN_MAP;
-    }
+    avifDecoder->imageContentToDecode = gainmapOnly
+                                                ? crabbyavif::AVIF_IMAGE_CONTENT_GAIN_MAP
+                                                : crabbyavif::AVIF_IMAGE_CONTENT_COLOR_AND_ALPHA;
 
     crabbyavif::avifResult res =
             crabbyavif::avifDecoderSetIOMemory(avifDecoder.get(), data->bytes(), data->size());
