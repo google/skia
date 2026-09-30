@@ -64,6 +64,24 @@ void compile(SharedContext* sharedContext,
             continue;
         }
 
+        if (SkToBool(r->depthStencilFlags() & DepthStencilFlags::kDepth) &&
+            !TextureFormatHasDepth(renderPassDesc.fDepthStencilAttachment.fFormat)) {
+            // This renderer requires depth, which is incompatible with the requested render pass,
+            // so skip it.
+            continue;
+        }
+        if (SkToBool(r->depthStencilFlags() & DepthStencilFlags::kStencil) &&
+            !TextureFormatHasStencil(renderPassDesc.fDepthStencilAttachment.fFormat)) {
+            // This renderer requires stencil, which is incompatible with the requested render pass,
+            // so skip it.
+            continue;
+        }
+        if (r->requiresMSAA() && renderPassDesc.fSampleCount == SampleCount::k1) {
+            // This renderer expects MSAA, which is incompatible with the requested render pass,
+            // so skip it.
+            continue;
+        }
+
         for (auto&& s : r->steps()) {
             SkASSERT(!s->performsShading() || s->emitsPrimitiveColor() == withPrimitiveBlender);
 
@@ -167,12 +185,14 @@ void Precompile(PrecompileContext* precompileContext,
                 const RenderStep* renderStep =
                     rendererProvider->lookup(RenderStep::RenderStepID::kCoverBounds_InverseCover);
 
-                GraphicsPipelineHandle handle = pipelineManager->createHandle(
-                        sharedContext,
-                        keyContext.rtEffectDict(),
-                        { renderStep->renderStepID(), UniquePaintParamsID::Invalid() },
-                        renderPassDesc,
-                        PipelineCreationFlags::kForPrecompilation);
+                if (rpp.fDSFlags & DepthStencilFlags::kStencil) {
+                    GraphicsPipelineHandle handle = pipelineManager->createHandle(
+                            sharedContext,
+                            keyContext.rtEffectDict(),
+                            { renderStep->renderStepID(), UniquePaintParamsID::Invalid() },
+                            renderPassDesc,
+                            PipelineCreationFlags::kForPrecompilation);
+                }
             }
 
             if (drawTypes & DrawTypeFlags::kBitmapText_Color) {
