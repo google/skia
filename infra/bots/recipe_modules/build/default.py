@@ -94,9 +94,12 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
   if os == 'Mac':
     extra_cflags.append(
         '-DREBUILD_IF_CHANGED_xcode_build_version=%s' % api.xcode.version)
-    if 'iOS' in extra_tokens:
-      env['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
-      args['ios_min_target'] = '"15.0"'
+    if 'iOS18' in extra_tokens:
+      env['IPHONEOS_DEPLOYMENT_TARGET'] = '18.2'
+      args['ios_min_target'] = '"18.0"'
+    elif 'iOS' in extra_tokens:
+      env['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      args['ios_min_target'] = '"13.0"'
     else:
       # We have some machines on 11.
       env['MACOSX_DEPLOYMENT_TARGET'] = '11.0'

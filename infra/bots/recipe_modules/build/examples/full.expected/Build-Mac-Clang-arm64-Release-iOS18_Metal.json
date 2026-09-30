@@ -192,13 +192,13 @@
     "cmd": [
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
-      "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Debug-iOS/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=16f6\", \"-O1\"] ios_min_target=\"13.0\" is_trivial_abi=true link_pool_depth=2 skia_ios_identity=\".*83FNP.*\" skia_ios_profile=\"[START_DIR]/provisioning_profile_ios/Upstream_Com_Testing_Provisioning_Profile.mobileprovision\" skia_use_client_icu=true skia_use_libgrapheme=true target_cpu=\"arm64\" target_os=\"ios\" werror=true"
+      "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Release-iOS18_Metal/Release",
+      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=16f6\"] ios_min_target=\"18.0\" is_debug=false is_trivial_abi=true link_pool_depth=2 skia_ios_identity=\".*83FNP.*\" skia_ios_profile=\"[START_DIR]/provisioning_profile_ios/Upstream_Com_Testing_Provisioning_Profile.mobileprovision\" skia_use_client_icu=true skia_use_gl=false skia_use_libgrapheme=true skia_use_metal=true target_cpu=\"arm64\" target_os=\"ios\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "IPHONEOS_DEPLOYMENT_TARGET": "13.0",
+      "IPHONEOS_DEPLOYMENT_TARGET": "18.2",
       "PATH": "[START_DIR]/cache/work/skia/third_party/ninja:<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
@@ -207,12 +207,12 @@
     "cmd": [
       "[START_DIR]/cache/work/skia/third_party/ninja/ninja",
       "-C",
-      "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Debug-iOS/Debug"
+      "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Release-iOS18_Metal/Release"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "IPHONEOS_DEPLOYMENT_TARGET": "13.0",
+      "IPHONEOS_DEPLOYMENT_TARGET": "18.2",
       "PATH": "[START_DIR]/cache/work/skia/third_party/ninja:<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
@@ -221,8 +221,8 @@
     "cmd": [
       "python3",
       "RECIPE_MODULE[skia::build]/resources/copy_build_products.py",
-      "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Debug-iOS/Debug",
-      "[START_DIR]/[SWARM_OUT_DIR]/out/Debug",
+      "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Release-iOS18_Metal/Release",
+      "[START_DIR]/[SWARM_OUT_DIR]/out/Release",
       "dm,dm.exe,dm.app,nanobench.app,get_images_from_skps,get_images_from_skps.exe,nanobench,nanobench.exe,*.so,*.dll,*.dylib,skottie_tool,lib/*.so,run_testlab"
     ],
     "infra_step": true,
