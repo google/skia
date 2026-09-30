@@ -823,6 +823,43 @@ describe('Paragraph Behavior', function() {
         expect(paraStyleOverride.applyRoundingHack).toEqual(false);
     });
 
+    it('paragraph_render_soft_hyphens', () => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
+        const textStyle = {
+            fontFamilies: ['Noto Serif'],
+            fontSize: 20,
+        };
+        expect(new CanvasKit.ParagraphStyle({textStyle}).renderSoftHyphens).toEqual(false);
+
+        // Returns [line count, longest line] for 'abcd\u00ADe' laid out at the given width.
+        const layout = (renderSoftHyphens, width) => {
+            const paraStyle = new CanvasKit.ParagraphStyle({textStyle, renderSoftHyphens});
+            const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+            builder.addText('abcd\u00ADe');
+            const paragraph = builder.build();
+            paragraph.layout(width);
+            const result = [paragraph.getLineMetrics().length, paragraph.getLongestLine()];
+            paragraph.delete();
+            builder.delete();
+            return result;
+        };
+
+        // Just narrower than the unbroken text, so the line breaks at the soft hyphen.
+        const width = layout(false, 1000)[1] - 1;
+        const [hiddenLines, hiddenWidth] = layout(false, width);
+        const [renderedLines, renderedWidth] = layout(true, width);
+
+        expect(hiddenLines).toEqual(2);
+        expect(renderedLines).toEqual(2);
+        expect(renderedWidth).toBeGreaterThan(hiddenWidth);
+
+        fontMgr.delete();
+    });
+
     gm('paragraph_font_provider', (canvas) => {
         if (!CanvasKit.Paragraph) {
             console.warn('Skipping test because not compiled with paragraph');

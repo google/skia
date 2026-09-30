@@ -267,6 +267,7 @@ struct SimpleParagraphStyle {
     SimpleTextStyle textStyle;
     SimpleStrutStyle strutStyle;
     bool applyRoundingHack;
+    bool renderSoftHyphens;
 };
 
 para::ParagraphStyle toParagraphStyle(const SimpleParagraphStyle& s) {
@@ -295,6 +296,7 @@ para::ParagraphStyle toParagraphStyle(const SimpleParagraphStyle& s) {
     ps.setApplyRoundingHack(s.applyRoundingHack);
     ps.setTextHeightBehavior(s.textHeightBehavior);
     ps.setReplaceTabCharacters(s.replaceTabCharacters);
+    ps.setRenderSoftHyphens(s.renderSoftHyphens);
     return ps;
 }
 
@@ -803,7 +805,8 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("textHeightBehavior",   &SimpleParagraphStyle::textHeightBehavior)
         .field("textStyle",            &SimpleParagraphStyle::textStyle)
         .field("strutStyle",           &SimpleParagraphStyle::strutStyle)
-        .field("applyRoundingHack",    &SimpleParagraphStyle::applyRoundingHack);
+        .field("applyRoundingHack",    &SimpleParagraphStyle::applyRoundingHack)
+        .field("renderSoftHyphens",    &SimpleParagraphStyle::renderSoftHyphens);
 
     value_object<SimpleStrutStyle>("StrutStyle")
         .field("_fontFamiliesPtr", &SimpleStrutStyle::fontFamiliesPtr)

@@ -95,6 +95,7 @@
       s['textHeightBehavior'] = s['textHeightBehavior'] || CanvasKit.TextHeightBehavior.All;
       s['textStyle'] = CanvasKit.TextStyle(s['textStyle']);
       s['applyRoundingHack'] = s['applyRoundingHack'] !== false;
+      s['renderSoftHyphens'] = s['renderSoftHyphens'] || false;
       return s;
     };
 

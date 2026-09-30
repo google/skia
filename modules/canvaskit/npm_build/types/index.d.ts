@@ -1310,6 +1310,7 @@ export interface ParagraphStyle {
     textHeightBehavior?: TextHeightBehavior;
     textStyle?: TextStyle;
     applyRoundingHack?: boolean;
+    renderSoftHyphens?: boolean;
 }
 
 export interface PositionWithAffinity {
