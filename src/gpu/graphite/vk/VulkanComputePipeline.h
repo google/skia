@@ -30,18 +30,22 @@ public:
     VkPipeline                       vkPipeline() const { return fPipeline;       }
     VkPipelineLayout           vkPipelineLayout() const { return fPipelineLayout; }
     SkSpan<const DescriptorData> descriptorData() const { return fDescriptorData; }
+    VkDescriptorType                bindingType(size_t index) const;
+    VkAccessFlags             bufferAccessFlags(size_t index) const;
 
 private:
     VulkanComputePipeline(const SharedContext*,
                           VkPipeline,
                           VkPipelineLayout,
-                          skia_private::TArray<DescriptorData> descriptorData);
+                          skia_private::TArray<DescriptorData> descriptorData,
+                          skia_private::TArray<VkAccessFlags> bufferAccessFlags);
 
     void freeGpuData() override;
 
     VkPipeline fPipeline;
     VkPipelineLayout fPipelineLayout;
     skia_private::TArray<DescriptorData> fDescriptorData;
+    skia_private::TArray<VkAccessFlags> fBufferAccessFlags;
 };
 
 }  // namespace skgpu::graphite

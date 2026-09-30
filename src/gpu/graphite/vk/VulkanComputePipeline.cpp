@@ -48,18 +48,26 @@ sk_sp<VulkanComputePipeline> VulkanComputePipeline::Make(VulkanSharedContext* sh
 
     skia_private::TArray<DescriptorData> descriptorData;
     descriptorData.reserve_exact(step->resources().size());
+    skia_private::TArray<VkAccessFlags> bufferAccessFlags;
+    bufferAccessFlags.reserve_exact(step->resources().size());
 
     int bindingIndex = 0;
     for (const ComputeStep::ResourceDesc& r : step->resources()) {
         DescriptorType descType;
+        VkAccessFlags accessFlags = 0;
         switch (r.fType) {
             case ComputeStep::ResourceType::kUniformBuffer:
                 descType = DescriptorType::kUniformBuffer;
+                accessFlags = VK_ACCESS_UNIFORM_READ_BIT;
                 break;
             case ComputeStep::ResourceType::kStorageBuffer:
-            case ComputeStep::ResourceType::kReadOnlyStorageBuffer:
             case ComputeStep::ResourceType::kIndirectBuffer:
                 descType = DescriptorType::kStorageBuffer;
+                accessFlags = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+                break;
+            case ComputeStep::ResourceType::kReadOnlyStorageBuffer:
+                descType = DescriptorType::kStorageBuffer;
+                accessFlags = VK_ACCESS_SHADER_READ_BIT;
                 break;
             case ComputeStep::ResourceType::kWriteOnlyStorageTexture:
                 descType = DescriptorType::kStorageTexture;
@@ -79,6 +87,7 @@ sk_sp<VulkanComputePipeline> VulkanComputePipeline::Make(VulkanSharedContext* sh
                                   /*count=*/1,
                                   bindingIndex++,
                                   PipelineStageFlags::kCompute});
+        bufferAccessFlags.push_back(accessFlags);
     }
 
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
@@ -151,17 +160,21 @@ sk_sp<VulkanComputePipeline> VulkanComputePipeline::Make(VulkanSharedContext* sh
     return sk_sp<VulkanComputePipeline>(new VulkanComputePipeline(sharedContext,
                                                                   pipeline,
                                                                   pipelineLayout,
-                                                                  std::move(descriptorData)));
+                                                                  std::move(descriptorData),
+                                                                  std::move(bufferAccessFlags)));
 }
 
-VulkanComputePipeline::VulkanComputePipeline(const SharedContext* sharedContext,
-                                             VkPipeline pipeline,
-                                             VkPipelineLayout pipelineLayout,
-                                             skia_private::TArray<DescriptorData> descriptorData)
+VulkanComputePipeline::VulkanComputePipeline(
+        const SharedContext* sharedContext,
+        VkPipeline pipeline,
+        VkPipelineLayout pipelineLayout,
+        skia_private::TArray<DescriptorData> descriptorData,
+        skia_private::TArray<VkAccessFlags> bufferAccessFlags)
         : ComputePipeline(sharedContext)
         , fPipeline(pipeline)
         , fPipelineLayout(pipelineLayout)
-        , fDescriptorData(std::move(descriptorData)) {}
+        , fDescriptorData(std::move(descriptorData))
+        , fBufferAccessFlags(std::move(bufferAccessFlags)) {}
 
 void VulkanComputePipeline::freeGpuData() {
     auto sharedCtxt = static_cast<const VulkanSharedContext*>(this->sharedContext());
@@ -175,6 +188,16 @@ void VulkanComputePipeline::freeGpuData() {
                     DestroyPipelineLayout(sharedCtxt->device(), fPipelineLayout, nullptr));
         fPipelineLayout = VK_NULL_HANDLE;
     }
+}
+
+VkDescriptorType VulkanComputePipeline::bindingType(size_t index) const {
+    SkASSERT(index < SkToSizeT(fDescriptorData.size()));
+    return DsTypeEnumToVkDs(fDescriptorData[index].fType);
+}
+
+VkAccessFlags VulkanComputePipeline::bufferAccessFlags(size_t index) const {
+    SkASSERT(index < SkToSizeT(fBufferAccessFlags.size()));
+    return fBufferAccessFlags[index];
 }
 
 }  // namespace skgpu::graphite

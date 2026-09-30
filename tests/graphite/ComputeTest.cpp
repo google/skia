@@ -95,8 +95,10 @@ std::unique_ptr<Recording> submit_recording(Context* context,
     return recording;
 }
 
-bool is_dawn_or_metal_context_type(skiatest::GpuContextType ctxType) {
-    return skiatest::IsDawnContextType(ctxType) || skiatest::IsMetalContextType(ctxType);
+bool is_compute_supported_context_type(skiatest::GpuContextType ctxType) {
+    return skiatest::IsDawnContextType(ctxType) ||
+           skiatest::IsMetalContextType(ctxType) ||
+           skiatest::IsVulkanContextType(ctxType);
 }
 
 // These tests often need to write one float parameter into a uniform declared as a float4 in
@@ -106,10 +108,10 @@ static constexpr size_t kFloatToFloat4Padding = 3 * sizeof(float);
 
 }  // namespace
 
-#define DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(            \
+#define DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(            \
         name, reporter, graphite_context, test_context)           \
     DEF_GRAPHITE_TEST_FOR_CONTEXTS(name,                          \
-                                   is_dawn_or_metal_context_type, \
+                                   is_compute_supported_context_type, \
                                    reporter,                      \
                                    graphite_context,              \
                                    test_context,                  \
@@ -117,7 +119,7 @@ static constexpr size_t kFloatToFloat4Padding = 3 * sizeof(float);
 
 // TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
 // compute programs.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_SingleDispatchTest,
                                               reporter,
                                               context,
                                               testContext) {
@@ -248,7 +250,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest,
 
 // TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
 // compute programs.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_DispatchGroupTest,
                                               reporter,
                                               context,
                                               testContext) {
@@ -495,7 +497,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest,
 
 // TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
 // compute programs.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_UniformBufferTest,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_UniformBufferTest,
                                               reporter,
                                               context,
                                               testContext) {
@@ -644,7 +646,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_UniformBufferTest,
 
 // TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
 // compute programs.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_ExternallyAssignedBuffer,
                                               reporter,
                                               context,
                                               testContext) {
@@ -763,7 +765,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer,
 
 // Tests the storage texture binding for a compute dispatch that writes the same color to every
 // pixel of a storage texture.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTexture,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_StorageTexture,
                                               reporter,
                                               context,
                                               testContext) {
@@ -868,7 +870,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTexture,
 
 // Tests the readonly texture binding for a compute dispatch that random-access reads from a
 // CPU-populated texture and copies it to a storage texture.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_StorageTextureReadAndWrite,
                                               reporter,
                                               context,
                                               testContext) {
@@ -1033,7 +1035,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite
     }
 }
 
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ReadOnlyStorageBuffer,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_ReadOnlyStorageBuffer,
                                               reporter,
                                               context,
                                               testContext) {
@@ -1176,7 +1178,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ReadOnlyStorageBuffer,
 }
 
 // Tests that a texture written by one compute step can be sampled by a subsequent step.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComputeSteps,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_StorageTextureMultipleComputeSteps,
                                               reporter,
                                               context,
                                               testContext) {
@@ -1326,7 +1328,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComp
 // Tests that a texture can be sampled by a compute step using a sampler.
 // TODO(armansito): Once the previous TODO is done, add additional tests that exercise mixed use of
 // texture, buffer, and sampler bindings.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SampledTexture,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_SampledTexture,
                                               reporter,
                                               context,
                                               testContext) {
@@ -1495,7 +1497,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SampledTexture,
 // features like this as part of SkSLTest.cpp instead of as a graphite test.
 // TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
 // compute programs.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_AtomicOperationsTest,
                                               reporter,
                                               context,
                                               testContext) {
@@ -1632,7 +1634,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest,
 // to exercise SkSL features like this as part of SkSLTest.cpp instead of as a graphite test.
 // TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
 // compute programs.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayAndStructTest,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_AtomicOperationsOverArrayAndStructTest,
                                               reporter,
                                               context,
                                               testContext) {
@@ -1773,7 +1775,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayA
                     secondHalfCount);
 }
 
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_ClearedBuffer,
                                               reporter,
                                               context,
                                               testContext) {
@@ -1880,7 +1882,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer,
     }
 }
 
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrdering,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_ClearOrdering,
                                               reporter,
                                               context,
                                               testContext) {
@@ -1994,7 +1996,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrdering,
     }
 }
 
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrderingScratchBuffers,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_ClearOrderingScratchBuffers,
                                               reporter,
                                               context,
                                               testContext) {
@@ -2116,7 +2118,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrderingScratchBuffer
     }
 }
 
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_IndirectDispatch,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_IndirectDispatch,
                                               reporter,
                                               context,
                                               testContext) {
@@ -2662,7 +2664,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(Compute_NativeShaderSourceWGSL, reporter, con
                     result);
 }
 
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_WorkgroupUniformLoadTest,
+DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_WorkgroupUniformLoadTest,
                                               reporter,
                                               context,
                                               testContext) {

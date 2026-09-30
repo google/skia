@@ -21,8 +21,10 @@
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
+#include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/vk/VulkanBuffer.h"
 #include "src/gpu/graphite/vk/VulkanCaps.h"
+#include "src/gpu/graphite/vk/VulkanComputePipeline.h"
 #include "src/gpu/graphite/vk/VulkanDescriptorSet.h"
 #include "src/gpu/graphite/vk/VulkanFramebuffer.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
@@ -124,6 +126,7 @@ VulkanCommandBuffer::~VulkanCommandBuffer() {
         VULKAN_CALL(fSharedContext->interface(),
                     DestroyFence(fSharedContext->device(), fSubmitFence, nullptr));
     }
+
     // This should delete any command buffers as well.
     VULKAN_CALL(fSharedContext->interface(),
                 DestroyCommandPool(fSharedContext->device(), fPool, nullptr));
@@ -1726,7 +1729,203 @@ void VulkanCommandBuffer::drawIndexedIndirect(PrimitiveType) {
                                        /*stride=*/0));
 }
 
-bool VulkanCommandBuffer::onAddComputePass(DispatchGroupSpan) { return false; }
+bool VulkanCommandBuffer::bindDispatchResources(const DispatchGroup& group,
+                                                const DispatchGroup::Dispatch& dispatch) {
+    SkASSERT(fActiveComputePipeline);
+
+    if (dispatch.fBindings.empty()) {
+        return true;
+    }
+
+    sk_sp<VulkanDescriptorSet> descSet =
+            fResourceProvider->findOrCreateDescriptorSet(fActiveComputePipeline->descriptorData());
+    if (!descSet) {
+        SKIA_LOG_E("Unable to find or create compute descriptor set");
+        return false;
+    }
+
+    struct BindingWrite {
+        VkDescriptorType fType = VK_DESCRIPTOR_TYPE_MAX_ENUM;
+        VkDescriptorBufferInfo fBufferInfo = {};
+        VkDescriptorImageInfo fImageInfo = {};
+        bool fHasBuffer = false;
+        bool fHasTexture = false;
+        bool fHasSampler = false;
+    };
+
+    size_t numBindings = fActiveComputePipeline->descriptorData().size();
+    constexpr int kInlineBindings = 8;
+    STArray<kInlineBindings, BindingWrite> bindingWrites;
+    bindingWrites.resize(numBindings);
+    for (size_t i = 0; i < numBindings; ++i) {
+        bindingWrites[i].fType = fActiveComputePipeline->bindingType(i);
+    }
+
+    for (const ResourceBinding& binding : dispatch.fBindings) {
+        SkASSERT(binding.fIndex < SkTo<uint32_t>(bindingWrites.size()));
+        BindingWrite& bWrite = bindingWrites[binding.fIndex];
+
+        if (const BindBufferInfo* buffer = std::get_if<BindBufferInfo>(&binding.fResource)) {
+            if (!buffer->fBuffer) {
+                SKIA_LOG_E("Encountered null buffer binding for compute dispatch");
+                return false;
+            }
+            SkASSERT(buffer->fSize > 0);
+#if defined(SK_DEBUG)
+            if (bWrite.fType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
+                SkASSERT(buffer->fSize <= fSharedContext->vulkanCaps().maxUniformBufferRange());
+            } else if (bWrite.fType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) {
+                SkASSERT(buffer->fSize <= fSharedContext->vulkanCaps().maxStorageBufferRange());
+            }
+#endif
+            const auto* vkBuffer = static_cast<const VulkanBuffer*>(buffer->fBuffer);
+            bWrite.fBufferInfo.buffer = vkBuffer->vkBuffer();
+            bWrite.fBufferInfo.offset = buffer->fOffset;
+            bWrite.fBufferInfo.range = buffer->fSize;
+            bWrite.fHasBuffer = true;
+            VkAccessFlags accessFlags = fActiveComputePipeline->bufferAccessFlags(binding.fIndex);
+            SkASSERT(accessFlags != 0);
+            vkBuffer->setBufferAccess(this, accessFlags, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+        } else if (const TextureIndex* texIdx = std::get_if<TextureIndex>(&binding.fResource)) {
+            const auto* texture =
+                    static_cast<const VulkanTexture*>(group.getTexture(texIdx->fValue));
+            SkASSERT(texture);
+            if (bWrite.fType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) {
+                const_cast<VulkanTexture*>(texture)->setImageLayout(
+                        this,
+                        VK_IMAGE_LAYOUT_GENERAL,
+                        VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
+                        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+                bWrite.fImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+            } else {
+                SkASSERT(bWrite.fType == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE ||
+                         bWrite.fType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+                const_cast<VulkanTexture*>(texture)->setImageLayout(
+                        this,
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                        VK_ACCESS_SHADER_READ_BIT,
+                        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+                bWrite.fImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            }
+            bWrite.fImageInfo.imageView =
+                    texture->getImageView(VulkanImageView::Usage::kShaderInput)->imageView();
+            bWrite.fHasTexture = true;
+        } else if (const SamplerIndex* samplerIdx = std::get_if<SamplerIndex>(&binding.fResource)) {
+            const auto* sampler =
+                    static_cast<const VulkanSampler*>(group.getSampler(samplerIdx->fValue));
+            SkASSERT(sampler);
+            bWrite.fImageInfo.sampler = sampler->vkSampler();
+            bWrite.fHasSampler = true;
+        }
+    }
+
+    STArray<kInlineBindings, VkWriteDescriptorSet> writes;
+    writes.reserve_exact(bindingWrites.size());
+    const auto& descData = fActiveComputePipeline->descriptorData();
+    for (int i = 0; i < bindingWrites.size(); ++i) {
+        BindingWrite& bWrite = bindingWrites[i];
+        VkWriteDescriptorSet write = {};
+        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        write.dstSet = *descSet->descriptorSet();
+        write.dstBinding = descData[i].fBindingIndex;
+        write.dstArrayElement = 0;
+        write.descriptorCount = 1;
+        write.descriptorType = bWrite.fType;
+
+        if (bWrite.fHasBuffer) {
+            write.pBufferInfo = &bWrite.fBufferInfo;
+            writes.push_back(write);
+        } else if (bWrite.fHasTexture || bWrite.fHasSampler) {
+            SkASSERT(bWrite.fType != VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ||
+                     (bWrite.fHasTexture && bWrite.fHasSampler));
+            write.pImageInfo = &bWrite.fImageInfo;
+            writes.push_back(write);
+        }
+    }
+
+    if (!writes.empty()) {
+        VULKAN_CALL(fSharedContext->interface(),
+                    UpdateDescriptorSets(fSharedContext->device(),
+                                         writes.size(),
+                                         writes.data(),
+                                         0,
+                                         nullptr));
+    }
+
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdBindDescriptorSets(fPrimaryCommandBuffer,
+                                      VK_PIPELINE_BIND_POINT_COMPUTE,
+                                      fActiveComputePipeline->vkPipelineLayout(),
+                                      0,
+                                      1,
+                                      descSet->descriptorSet(),
+                                      0,
+                                      nullptr));
+
+    this->trackResource(std::move(descSet));
+    return true;
+}
+
+bool VulkanCommandBuffer::onAddComputePass(DispatchGroupSpan groups) {
+    for (const auto& group : groups) {
+        group->addResourceRefs(this);
+        for (const auto& dispatch : group->dispatches()) {
+            const ComputePipeline* pipeline = group->getPipeline(dispatch.fPipelineIndex);
+            if (!pipeline) {
+                fActiveComputePipeline = nullptr;
+                return false;
+            }
+            const auto* vkComputePipeline = static_cast<const VulkanComputePipeline*>(pipeline);
+            if (fActiveComputePipeline != vkComputePipeline) {
+                fActiveComputePipeline = vkComputePipeline;
+                VULKAN_CALL(fSharedContext->interface(),
+                            CmdBindPipeline(fPrimaryCommandBuffer,
+                                            VK_PIPELINE_BIND_POINT_COMPUTE,
+                                            vkComputePipeline->vkPipeline()));
+            }
+
+            if (!this->bindDispatchResources(*group, dispatch)) {
+                fActiveComputePipeline = nullptr;
+                return false;
+            }
+
+            if (const BindBufferInfo* indirect =
+                        std::get_if<BindBufferInfo>(&dispatch.fGlobalSizeOrIndirect)) {
+                const auto* indirectBuffer = static_cast<const VulkanBuffer*>(indirect->fBuffer);
+                indirectBuffer->setBufferAccess(this,
+                                                VK_ACCESS_INDIRECT_COMMAND_READ_BIT,
+                                                VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT);
+            }
+
+            // TODO: Currently we submit pipeline barriers before each dispatch to ensure safety
+            // against RAW/WAW hazards. If a DispatchGroup contains independent dispatches that do
+            // not have data dependencies on each other, flushing barriers inside this inner loop
+            // could cause slight over-synchronization. We can optimize this in the future by
+            // batching barriers across independent dispatches.
+            this->submitPipelineBarriers();
+
+            if (const WorkgroupSize* globalSize =
+                        std::get_if<WorkgroupSize>(&dispatch.fGlobalSizeOrIndirect)) {
+                VULKAN_CALL(fSharedContext->interface(),
+                            CmdDispatch(fPrimaryCommandBuffer,
+                                        globalSize->fWidth,
+                                        globalSize->fHeight,
+                                        globalSize->fDepth));
+            } else {
+                SkASSERT(std::holds_alternative<BindBufferInfo>(dispatch.fGlobalSizeOrIndirect));
+                const BindBufferInfo& indirect =
+                        *std::get_if<BindBufferInfo>(&dispatch.fGlobalSizeOrIndirect);
+                const auto* indirectBuffer = static_cast<const VulkanBuffer*>(indirect.fBuffer);
+                VULKAN_CALL(fSharedContext->interface(),
+                            CmdDispatchIndirect(fPrimaryCommandBuffer,
+                                                indirectBuffer->vkBuffer(),
+                                                indirect.fOffset));
+            }
+        }
+    }
+    fActiveComputePipeline = nullptr;
+    return true;
+}
 
 bool VulkanCommandBuffer::onCopyBufferToBuffer(const Buffer* srcBuffer,
                                                size_t srcOffset,
@@ -1929,8 +2128,34 @@ bool VulkanCommandBuffer::onSynchronizeBufferToCpu(const Buffer* buffer, bool* o
     return true;
 }
 
-bool VulkanCommandBuffer::onClearBuffer(const Buffer*, size_t offset, size_t size) {
-    return false;
+bool VulkanCommandBuffer::onClearBuffer(const Buffer* buffer, size_t offset, size_t size) {
+    SkASSERT(fActive);
+    SkASSERT(!fActiveRenderPass);
+
+    // Note: A requested clear of size 0 is treated as a no-op (matching Dawn and Metal).
+    // It must not be passed to vkCmdFillBuffer as VK_WHOLE_SIZE.
+    if (size == 0) {
+        return true;
+    }
+
+    SkASSERT(SkIsAlign4(offset));
+    SkASSERT(SkIsAlign4(size));
+
+    const auto* vkBuffer = static_cast<const VulkanBuffer*>(buffer);
+    SkASSERT(vkBuffer->bufferUsageFlags() & VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+    SkASSERT(offset + size <= vkBuffer->size());
+
+    vkBuffer->setBufferAccess(this, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+    this->submitPipelineBarriers();
+
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdFillBuffer(fPrimaryCommandBuffer,
+                              vkBuffer->vkBuffer(),
+                              offset,
+                              size,
+                              0));
+
+    return true;
 }
 
 void VulkanCommandBuffer::addBufferMemoryBarrier(const Resource* resource,

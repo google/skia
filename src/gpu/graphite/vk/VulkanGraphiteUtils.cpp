@@ -81,7 +81,7 @@ VkShaderModule CreateVulkanShaderModule(const VulkanSharedContext* context,
 }
 
 void DescriptorDataToVkDescSetLayout(const VulkanSharedContext* ctxt,
-                                     const SkSpan<DescriptorData>& requestedDescriptors,
+                                     const SkSpan<const DescriptorData>& requestedDescriptors,
                                      VkDescriptorSetLayout* outLayout) {
     // If requestedDescriptors is empty, that simply means we should create an empty placeholder
     // layout that doesn't actually contain any descriptors.

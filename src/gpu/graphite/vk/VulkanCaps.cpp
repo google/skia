@@ -156,6 +156,12 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     // TODO(b/353983969): Enable storage buffers once perf regressions are addressed.
     fStorageBufferSupport = false;
 
+    // These are guaranteed to be supported on Vulkan 1.0+.
+    SkASSERT(deviceLimits.maxComputeWorkGroupInvocations > 0);
+    SkASSERT(deviceLimits.maxPerStageDescriptorStorageBuffers > 0);
+    fComputeSupport = true;
+    fStorageBufferSupportForCompute = true;
+
     VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
     VULKAN_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &deviceMemoryProperties));
     fSupportsMemorylessAttachments = false;

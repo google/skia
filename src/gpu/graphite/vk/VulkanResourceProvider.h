@@ -51,7 +51,7 @@ public:
     sk_sp<VulkanYcbcrConversion> findOrCreateCompatibleYcbcrConversion(
             const VulkanYcbcrConversionInfo& ycbcrInfo) const;
 
-    sk_sp<VulkanDescriptorSet> findOrCreateDescriptorSet(SkSpan<DescriptorData>);
+    sk_sp<VulkanDescriptorSet> findOrCreateDescriptorSet(SkSpan<const DescriptorData>);
 
     sk_sp<VulkanGraphicsPipeline> findOrCreateLoadMSAAPipeline(const RenderPassDesc&);
 

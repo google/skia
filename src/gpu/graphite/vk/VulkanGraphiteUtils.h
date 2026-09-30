@@ -82,7 +82,7 @@ VkShaderModule CreateVulkanShaderModule(const VulkanSharedContext*,
 
 VkDescriptorType DsTypeEnumToVkDs(DescriptorType);
 void DescriptorDataToVkDescSetLayout(const VulkanSharedContext*,
-                                     const SkSpan<DescriptorData>&,
+                                     const SkSpan<const DescriptorData>&,
                                      VkDescriptorSetLayout*);
 
 TextureFormat VkFormatToTextureFormat(VkFormat);

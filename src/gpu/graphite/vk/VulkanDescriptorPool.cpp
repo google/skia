@@ -13,10 +13,11 @@
 
 namespace skgpu::graphite {
 
-sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(const VulkanSharedContext* context,
-                                                       SkSpan<DescriptorData> requestedDescCounts,
-                                                       VkDescriptorSetLayout layout,
-                                                       uint32_t numSets) {
+sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(
+        const VulkanSharedContext* context,
+        SkSpan<const DescriptorData> requestedDescCounts,
+        VkDescriptorSetLayout layout,
+        uint32_t numSets) {
     if (requestedDescCounts.empty() || numSets == 0) {
         // Note: On failure, we do not destroy `layout` here or below because the caller
         // (VulkanResourceProvider) retains ownership and destroys `layout` if pool creation fails.

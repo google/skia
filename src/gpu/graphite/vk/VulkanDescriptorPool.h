@@ -26,7 +26,7 @@ public:
      * sets possible (kMaxNumSets). Counts must be > 0.
     */
     static sk_sp<VulkanDescriptorPool> Make(const VulkanSharedContext*,
-                                            SkSpan<DescriptorData>,
+                                            SkSpan<const DescriptorData>,
                                             VkDescriptorSetLayout,
                                             uint32_t numSets);
 

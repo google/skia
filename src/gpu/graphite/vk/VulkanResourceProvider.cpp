@@ -209,7 +209,7 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(SkISize dimensions
 }
 
 namespace {
-GraphiteResourceKey build_desc_set_key(const SkSpan<DescriptorData>& requestedDescriptors) {
+GraphiteResourceKey build_desc_set_key(const SkSpan<const DescriptorData>& requestedDescriptors) {
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
     // The number of int32s needed for a key can depend on whether we use immutable samplers or not.
@@ -272,7 +272,7 @@ sk_sp<VulkanDescriptorSet> add_new_desc_set_to_cache(const VulkanSharedContext* 
 } // anonymous namespace
 
 sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
-        SkSpan<DescriptorData> requestedDescriptors) {
+        SkSpan<const DescriptorData> requestedDescriptors) {
     if (requestedDescriptors.empty()) {
         return nullptr;
     }
