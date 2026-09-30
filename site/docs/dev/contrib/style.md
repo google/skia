@@ -35,9 +35,11 @@ We wrap lines at 100 columns unless it is excessively ugly (use your judgement).
 
 ## Naming
 
-Most externally visible types and functions use an Sk- prefix to designate
-they're part of Skia, but code in Ganesh uses Gr-. Nested types need not be
-prefixed.
+Most externally visible types and functions in core Skia use an Sk- prefix to
+designate they're part of Skia, while code in Ganesh uses Gr-. Code in Graphite
+(and shared GPU utilities) lives in the `skgpu::graphite` (or `skgpu`)
+namespace and omits type and filename prefixes (e.g. `skgpu::graphite::Recorder`
+in `Recorder.h`). Nested types need not be prefixed.
 
 <!--?prettify?-->
 
@@ -48,6 +50,12 @@ public:
         ...
     };
 };
+
+namespace skgpu::graphite {
+class Recorder {
+    ...
+};
+}  // namespace skgpu::graphite
 ```
 
 Data fields in structs, classes, and unions that have methods begin with
@@ -157,7 +165,9 @@ enum SkMatrixFlags {
 ```
 
 Macros are all caps with underscores between words. Macros that have greater
-than file scope should be prefixed SK or GR.
+than file scope should be prefixed SK, SKGPU, or GR. Header guards in
+namespaced directories such as Graphite include the namespace prefix (e.g.
+`skgpu_graphite_Recorder_DEFINED`).
 
 Static non-class functions in implementation files are lower-case with
 underscores separating words:
@@ -210,7 +220,9 @@ than `#ifdef MACRO`.
 #endif
 ```
 
-The rest of Skia tends to use `#ifdef SK_MACRO` for boolean flags.
+Graphite and shared GPU macros use the `SKGPU_` prefix (e.g.
+`SKGPU_ASSERT_SINGLE_OWNER`). The rest of Skia tends to use `#ifdef SK_MACRO`
+(or `#if defined(SK_MACRO)`) for boolean flags.
 
 ## Braces
 
