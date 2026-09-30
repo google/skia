@@ -11,9 +11,10 @@
 #include "tools/flags/CommandLineFlags.h"
 
 
-SKPAnimationBench::SKPAnimationBench(const char* name, const SkPicture* pic, const SkIRect& clip,
+SKPAnimationBench::SKPAnimationBench(const char* name, const SkPicture* pic,
+                                     const SkIRect& clip, const SkISize& tileSize,
                                      sk_sp<Animation> animation, bool doLooping)
-    : INHERITED(name, pic, clip, 1.0, doLooping)
+    : INHERITED(name, pic, clip, 1.0, tileSize, doLooping)
     , fAnimation(std::move(animation)) {
     fUniqueName.printf("%s_%s", name, fAnimation->getTag());
 }
@@ -45,7 +46,7 @@ void SKPAnimationBench::drawPicture() {
         canvas->clipRect(tile.clipRect());
         canvas->setMatrix(tile.mat());
 
-        canvas->drawPicture(this->picture(), &trans, nullptr);
+        canvas->drawPicture(tile.picture(), &trans, nullptr);
     }
 
     for (const TileInfo& tile : tileInfo) {

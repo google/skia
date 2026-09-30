@@ -25,8 +25,8 @@ public:
                                           SkMatrix* drawMatrix) = 0;
     };
 
-    SKPAnimationBench(const char* name, const SkPicture*, const SkIRect& devClip, sk_sp<Animation>,
-                      bool doLooping);
+    SKPAnimationBench(const char* name, const SkPicture*, const SkIRect& devClip,
+                      const SkISize& tileSize, sk_sp<Animation>, bool doLooping);
 
     static sk_sp<Animation> MakeZoomAnimation(SkScalar zoomMax, double zoomPeriodMs);
 

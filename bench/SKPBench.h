@@ -20,12 +20,18 @@ class SkSurface;
  */
 class SKPBench : public Benchmark {
 public:
-    SKPBench(const char* name, const SkPicture*, const SkIRect& devClip, SkScalar scale,
-             bool doLooping);
+    SKPBench(const char* name, const SkPicture*, const SkIRect& devClip,
+             SkScalar scale, const SkISize& tileSize, bool doLooping);
     ~SKPBench() override;
 
     bool shouldLoop() const override {
         return fDoLooping;
+    }
+
+    // Returns true if a non-empty tile size is set, indicating the picture should be subdivided
+    // into tiles when benchmarking draw commands.
+    bool shouldTile() const {
+        return !fTileSize.isEmpty();
     }
 
     void getGpuStats(SkCanvas*,
@@ -48,18 +54,23 @@ protected:
     const SkPicture* picture() const { return fPic.get(); }
 
     struct TileInfo {
-        TileInfo(sk_sp<SkSurface> surface, SkIRect tileRect, SkRect clipRect, const SkM44& mat)
-            : fSurface(std::move(surface))
+        TileInfo(sk_sp<SkPicture> picture, sk_sp<SkSurface> surface,
+                 const SkIRect& tileRect, const SkRect& clipRect, const SkM44& mat)
+            : fPicture(std::move(picture))
+            , fSurface(std::move(surface))
             , fTileRect(tileRect)
             , fClipRect(clipRect)
             , fMat(mat) {}
 
+        SkPicture* picture() const { return fPicture.get(); }
         SkSurface* surface() const { return fSurface.get(); }
         SkIRect tileRect() const { return fTileRect; }
         SkRect clipRect() const { return fClipRect; }
         const SkM44& mat() const { return fMat; }
 
     private:
+        // A tile-specific subset of the original SkPicture
+        sk_sp<SkPicture> fPicture;
         sk_sp<SkSurface> fSurface;
         SkIRect fTileRect;
         SkRect fClipRect;
@@ -69,11 +80,13 @@ protected:
     const skia_private::TArray<TileInfo>& tileInfo() const { return fTiles; }
 
 private:
+    void createTiles(SkCanvas* canvas, const SkIRect& bounds, const SkISize& tileSize);
     bool submitsInternalFrames() override { return true; }
 
     sk_sp<const SkPicture> fPic;
     const SkIRect fClip;
     const SkScalar fScale;
+    const SkISize fTileSize;
     SkString fName;
     SkString fUniqueName;
 

@@ -15,6 +15,8 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 	args := []string{
 		"nanobench",
 		"--pre_log",
+		// TODO(sarahrust): This is a default clip value but should be derived from the task instead.
+		"--clip", "0,0,1000,1000",
 	}
 
 	if b.GPU() {
@@ -24,6 +26,10 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 	configs := []string{}
 	if b.CPU() {
 		args = append(args, "--nogpu")
+
+		// Default tile width and height used for CPU SKP playback.
+		args = append(args, "--tile", "256,256")
+
 		configs = append(configs, "8888", "nonrendering")
 
 		if b.ExtraConfig("BonusConfigs") {
@@ -42,6 +48,9 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 
 	} else if b.GPU() {
 		args = append(args, "--nocpu")
+
+		// Default tile width and height used for GPU SKP playback.
+		args = append(args, "--tile", "1600,512")
 
 		glPrefix := "gl"
 		sampleCount := 8

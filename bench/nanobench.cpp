@@ -165,13 +165,16 @@ static DEFINE_string(outResultsFile, "", "If given, write results here as JSON."
 static DEFINE_int(maxCalibrationAttempts, 3,
              "Try up to this many times to guess loops for a bench, or skip the bench.");
 static DEFINE_int(maxLoops, 1000000, "Never run a bench more times than this.");
-static DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
+static DEFINE_string(clip, "0,0,0,0", "Clip for SKPs. "
+                     "0 means the original SKP dimensions are used.");
 static DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
 static DEFINE_string(zoom, "1.0,0",
                      "Comma-separated zoomMax,zoomPeriodMs factors for a periodic SKP zoom "
                      "function that ping-pongs between 1.0 and zoomMax.");
 static DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
 static DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
+static DEFINE_string(tile, "0,0", "Tile SKPs to simulate common rendering scenarios. "
+                     "Specify the width and height of each tile. 0 means no tiling on the SKPs.");
 static DEFINE_int(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 static DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
 static DEFINE_bool(gpuStatsDump, false, "Dump GPU stats after each benchmark to json");
@@ -858,6 +861,12 @@ public:
             exit(1);
         }
 
+        if (2 != sscanf(FLAGS_tile[0], "%d,%d", &fTileSize.fWidth, &fTileSize.fHeight)
+            || fTileSize.fWidth < 0 || fTileSize.fHeight < 0) {
+            SkDebugf("Can't parse %s from --tile as valid non-negative SkISize.\n", FLAGS_tile[0]);
+            exit(1);
+        }
+
         // Prepare the images for decoding
         if (!CommonFlags::CollectImages(FLAGS_images, &fImages)) {
             exit(1);
@@ -1024,7 +1033,8 @@ public:
                     continue;
                 }
 
-                if (FLAGS_bbh) {
+                // Tiling requires the SKP to have a BBH to cull out draw commands.
+                if (FLAGS_bbh || !fTileSize.isEmpty()) {
                     // The SKP we read off disk doesn't have a BBH.  Re-record so it grows one.
                     SkRTreeFactory factory;
                     SkPictureRecorder recorder;
@@ -1037,7 +1047,7 @@ public:
                 fSourceType = "skp";
                 fBenchType = "playback";
                 return new SKPBench(name.c_str(), pic.get(), fClip, fScales[fCurrentScale],
-                                    FLAGS_loopSKP);
+                                    fTileSize, FLAGS_loopSKP);
             }
 
             while (fCurrentSVG < fSVGs.size()) {
@@ -1046,7 +1056,7 @@ public:
                     fSourceType = "svg";
                     fBenchType = "playback";
                     return new SKPBench(SkOSPath::Basename(path).c_str(), pic.get(), fClip,
-                                        fScales[fCurrentScale], FLAGS_loopSKP);
+                                        fScales[fCurrentScale], fTileSize, FLAGS_loopSKP);
                 }
             }
 
@@ -1069,8 +1079,8 @@ public:
                 SkString name = SkOSPath::Basename(path.c_str());
                 sk_sp<SKPAnimationBench::Animation> animation =
                     SKPAnimationBench::MakeZoomAnimation(fZoomMax, fZoomPeriodMs);
-                return new SKPAnimationBench(name.c_str(), pic.get(), fClip, std::move(animation),
-                                             FLAGS_loopSKP);
+                return new SKPAnimationBench(name.c_str(), pic.get(), fClip, fTileSize,
+                                             std::move(animation), FLAGS_loopSKP);
             }
         }
 
@@ -1330,6 +1340,7 @@ private:
     TArray<SkColorType, true> fColorTypes;
     SkScalar           fZoomMax;
     double             fZoomPeriodMs;
+    SkISize fTileSize;
 
     double fSKPBytes, fSKPOps;
 

@@ -7,6 +7,7 @@
 
 #include "bench/GpuTools.h"
 #include "bench/SKPBench.h"
+#include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
@@ -22,21 +23,15 @@
 
 using namespace skia_private;
 
-// These CPU tile sizes are not good per se, but they are similar to what Chrome uses.
-static DEFINE_int(CPUbenchTileW, 256, "Tile width  used for CPU SKP playback.");
-static DEFINE_int(CPUbenchTileH, 256, "Tile height used for CPU SKP playback.");
-
-static DEFINE_int(GPUbenchTileW, 1600, "Tile width  used for GPU SKP playback.");
-static DEFINE_int(GPUbenchTileH, 512, "Tile height used for GPU SKP playback.");
-
 SKPBench::SKPBench(const char* name, const SkPicture* pic, const SkIRect& clip, SkScalar scale,
-                   bool doLooping)
-    : fPic(SkRef(pic))
-    , fClip(clip)
-    , fScale(scale)
-    , fName(name)
-    , fDoLooping(doLooping) {
-    fUniqueName.printf("%s_%.2g", name, scale);  // Scale makes this unqiue for perf.skia.org traces.
+                   const SkISize& tileSize, bool doLooping)
+        : fPic(SkRef(pic))
+        , fClip(clip)
+        , fScale(scale)
+        , fTileSize(tileSize)
+        , fName(name)
+        , fDoLooping(doLooping) {
+    fUniqueName.printf("%s_%.2g", name, scale); // Scale makes this unique for perf.skia.org traces.
 }
 
 SKPBench::~SKPBench() {}
@@ -49,33 +44,19 @@ const char* SKPBench::onGetUniqueName() {
     return fUniqueName.c_str();
 }
 
-void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
-    SkIRect bounds = canvas->getDeviceClipBounds();
-    bounds.intersect(fClip);
-    bounds.intersect(fPic->cullRect().roundOut());
-    SkAssertResult(!bounds.isEmpty());
-
-#if defined(SK_GRAPHITE)
-    const bool gpu = canvas->recordingContext() != nullptr || canvas->recorder() != nullptr;
-#else
-    const bool gpu = canvas->recordingContext() != nullptr;
-#endif
-    int tileW = gpu ? FLAGS_GPUbenchTileW : FLAGS_CPUbenchTileW,
-        tileH = gpu ? FLAGS_GPUbenchTileH : FLAGS_CPUbenchTileH;
-
-    tileW = std::min(tileW, bounds.width());
-    tileH = std::min(tileH, bounds.height());
-
-    int xTiles = SkScalarCeilToInt(bounds.width()  / SkIntToScalar(tileW));
-    int yTiles = SkScalarCeilToInt(bounds.height() / SkIntToScalar(tileH));
+// Subdivides the given bounds into a grid of tiles according to fTileSize, records each tile's
+// SkPicture, creates the corresponding SkSurface, and stores TileInfo entries in fTiles.
+void SKPBench::createTiles(SkCanvas* canvas, const SkIRect& bounds, const SkISize& tileSize) {
+    int xTiles = SkScalarCeilToInt(bounds.width()  / SkIntToScalar(tileSize.width()));
+    int yTiles = SkScalarCeilToInt(bounds.height() / SkIntToScalar(tileSize.height()));
 
     fTiles.reserve(xTiles * yTiles);
 
-    SkImageInfo ii = canvas->imageInfo().makeWH(tileW, tileH);
+    SkImageInfo ii = canvas->imageInfo().makeWH(tileSize.width(), tileSize.height());
 
-    for (int y = bounds.fTop; y < bounds.fBottom; y += tileH) {
-        for (int x = bounds.fLeft; x < bounds.fRight; x += tileW) {
-            const SkIRect tileRect = SkIRect::MakeXYWH(x, y, tileW, tileH);
+    for (int y = bounds.fTop; y < bounds.fBottom; y += tileSize.height()) {
+        for (int x = bounds.fLeft; x < bounds.fRight; x += tileSize.width()) {
+            const SkIRect tileRect = SkIRect::MakeXYWH(x, y, tileSize.width(), tileSize.height());
 
             // Never want the contents of a tile to include stuff the parent
             // canvas clips out
@@ -85,8 +66,35 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
             SkM44 mat = canvas->getLocalToDevice();
             mat.preScale(fScale, fScale);
 
-            fTiles.emplace_back(canvas->makeSurface(ii), tileRect, clip, mat);
+            // Record the commands to draw what's only in the tile from the original picture.
+            SkPictureRecorder recorder;
+            SkCanvas* tiledCanvas = recorder.beginRecording(SkRect::Make(tileRect));
+            fPic->playback(tiledCanvas);
+            sk_sp<SkPicture> tiledPicture = recorder.finishRecordingAsPicture();
+            sk_sp<SkSurface> tiledSurface = canvas->makeSurface(ii);
+            SkASSERT(tiledSurface != nullptr);
+
+            fTiles.emplace_back(tiledPicture, tiledSurface, tileRect, clip, mat);
         }
+    }
+}
+
+void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
+    SkIRect bounds = canvas->getDeviceClipBounds();
+    if (!fClip.isEmpty()) {
+        bounds.intersect(fClip);
+    }
+    bounds.intersect(fPic->cullRect().roundOut());
+    SkAssertResult(!bounds.isEmpty());
+
+    if (this->shouldTile()) {
+        SkISize tileSize = SkISize::Make(std::min(fTileSize.width(), bounds.width()),
+                                         std::min(fTileSize.height(), bounds.height()));
+        this->createTiles(canvas, bounds, tileSize);
+    } else {
+        // The whole picture is one tile. This will playback the whole picture and reduce ops to
+        // fit just the bounds, whether clipped or not.
+        this->createTiles(canvas, bounds, bounds.size());
     }
 }
 
@@ -108,7 +116,11 @@ bool SKPBench::isSuitableFor(Backend backend) {
 }
 
 SkISize SKPBench::onGetSize() {
-    return SkISize::Make(fClip.width(), fClip.height());
+    if (fClip.isEmpty()) {
+        return fPic->cullRect().roundOut().size();
+    } else {
+        return SkISize::Make(fClip.width(), fClip.height());
+    }
 }
 
 void SKPBench::onDrawFrame(int loops, SkCanvas* /* canvas */, std::function<void()> submitFrame) {
@@ -135,7 +147,7 @@ void SKPBench::drawPicture() {
         canvas->clipRect(tile.clipRect());
         canvas->setMatrix(tile.mat());
 
-        canvas->drawPicture(fPic.get(), &trans, nullptr);
+        canvas->drawPicture(tile.picture(), &trans, nullptr);
     }
 
     for (const TileInfo& tile : fTiles) {
