@@ -15,8 +15,6 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 	args := []string{
 		"nanobench",
 		"--pre_log",
-		// TODO(sarahrust): This is a default clip value but should be derived from the task instead.
-		"--clip", "0,0,1000,1000",
 	}
 
 	if b.GPU() {
@@ -26,9 +24,6 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 	configs := []string{}
 	if b.CPU() {
 		args = append(args, "--nogpu")
-
-		// Default tile width and height used for CPU SKP playback.
-		args = append(args, "--tile", "256,256")
 
 		configs = append(configs, "8888", "nonrendering")
 
@@ -48,9 +43,6 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 
 	} else if b.GPU() {
 		args = append(args, "--nocpu")
-
-		// Default tile width and height used for GPU SKP playback.
-		args = append(args, "--tile", "1600,512")
 
 		glPrefix := "gl"
 		sampleCount := 8
@@ -317,12 +309,22 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 		// Render tiled, single-frame skps with an extremely tall canvas that hopefully allows for
 		// us to tile most or all of the content.
 		args = append(args,
-			"--sourceType", "skp", "--clip", "0,0,1600,16384", "--GPUbenchTileW", "1600",
-			"--GPUbenchTileH", "512", "--samples", "1", "--loops", "1", "--config", "gldmsaa",
+			"--sourceType", "skp", "--clip", "0,0,1600,16384", "--tile", "1600,512",
+			"--samples", "1", "--loops", "1", "--config", "gldmsaa",
 			"--dmsaaStatsDump")
 		// Don't collect stats on the skps generated from vector content. We want these to actually
 		// trigger dmsaa.
 		match = append(match, "~svg", "~chalkboard", "~motionmark")
+	} else {
+		// TODO(sarahrust): This is a default clip and tile value but should be derived from the task instead.
+		args = append(args, "--clip", "0,0,1000,1000")
+		if b.CPU() {
+			// Default tile width and height used for CPU SKP playback.
+			args = append(args, "--tile", "256,256")
+		} else if b.GPU() {
+			// Default tile width and height used for GPU SKP playback.
+			args = append(args, "--tile", "1600,512")
+		}
 	}
 
 	// TODO (thomsmit): Remove this when testing is over
