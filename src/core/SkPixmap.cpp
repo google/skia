@@ -752,10 +752,16 @@ bool SkPixmap::erase(const SkColor4f& color, const SkIRect* subset) const {
         return false;
     }
 
-    SkIRect clip = this->bounds();
+    const SkIRect thisBounds = this->bounds();
+    SkIRect clip = thisBounds;
     if (subset && !clip.intersect(*subset)) {
         return false;   // is this check really needed (i.e. to return false in this case?)
     }
+    SkASSERT_RELEASE(!clip.isEmpty());
+    SkASSERTF_RELEASE(thisBounds.contains(clip),
+                      "clip bounds: [%d, %d, %d, %d], this bounds: [%d, %d, %d, %d]",
+                      clip.fLeft, clip.fTop, clip.fRight, clip.fBottom,
+                      thisBounds.fLeft, thisBounds.fTop, thisBounds.fRight, thisBounds.fBottom);
 
     // Erase is meant to simulate drawing in kSRC mode -- which means we have to convert out
     // unpremul input into premul (which we always do when we draw).
