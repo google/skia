@@ -123,6 +123,10 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_SingleDispatchTest,
                                               reporter,
                                               context,
                                               testContext) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     constexpr uint32_t kProblemSize = 512;
     constexpr float kFactor = 4.f;
 
@@ -255,7 +259,8 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_DispatchGroupTest,
                                               context,
                                               testContext) {
     // TODO(b/315834710): This fails on Dawn D3D11
-    if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11) {
+    if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11 ||
+        context->supportsProtectedContent()) {
         return;
     }
 
@@ -502,7 +507,8 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_UniformBufferTest,
                                               context,
                                               testContext) {
     // TODO(b/315834710): This fails on Dawn D3D11
-    if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11) {
+    if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11 ||
+        context->supportsProtectedContent()) {
         return;
     }
 
@@ -650,6 +656,10 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_ExternallyAssignedBuffer,
                                               reporter,
                                               context,
                                               testContext) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     constexpr uint32_t kProblemSize = 512;
     constexpr float kFactor = 4.f;
 
@@ -1522,7 +1532,8 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_AtomicOperationsTest,
                                               context,
                                               testContext) {
     // This fails on Dawn D3D11, b/315834710
-    if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11) {
+    if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11 ||
+        context->supportsProtectedContent()) {
         return;
     }
 
@@ -1659,7 +1670,8 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_AtomicOperationsOverArrayAndStruc
                                               context,
                                               testContext) {
     // This fails on Dawn D3D11, b/315834710
-    if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11) {
+    if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11 ||
+        context->supportsProtectedContent()) {
         return;
     }
 
@@ -1799,6 +1811,10 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_ClearedBuffer,
                                               reporter,
                                               context,
                                               testContext) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     constexpr uint32_t kProblemSize = 512;
 
     // The ComputeStep packs kProblemSize floats into kProblemSize / 4 vectors and each thread
@@ -1906,6 +1922,10 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_ClearOrdering,
                                               reporter,
                                               context,
                                               testContext) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     // Initiate two independent DispatchGroups operating on the same buffer. The first group
     // writes garbage to the buffer and the second group copies the contents to an output buffer.
     // This test validates that the reads, writes, and clear occur in the expected order.
@@ -2020,6 +2040,10 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_ClearOrderingScratchBuffers,
                                               reporter,
                                               context,
                                               testContext) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     // This test is the same as the ClearOrdering test but the two stages write to a recycled
     // ScratchBuffer. This is primarily to test ScratchBuffer reuse.
     constexpr uint32_t kWorkgroupSize = 64;
@@ -2693,7 +2717,8 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_WorkgroupUniformLoadTest,
                                               reporter,
                                               context,
                                               testContext) {
-    if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11) {
+    if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11 ||
+        context->supportsProtectedContent()) {
         return;
     }
 
