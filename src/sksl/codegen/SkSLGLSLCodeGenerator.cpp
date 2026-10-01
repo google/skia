@@ -904,6 +904,11 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     dim = "SubpassData";
                     proj = false;
                     break;
+                case SpvDimTileImageDataEXT:  // fall through
+                case SpvDimMax:
+                    SkASSERT(false); // doesn't exist
+                    proj = false;
+                    break;
             }
             this->write("texture");
             if (fCaps.fGLSLGeneration < SkSL::GLSLGeneration::k130) {

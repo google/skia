@@ -2314,10 +2314,12 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                         SkASSERT(arg1Type.matches(*fContext.fTypes.fFloat3));
                     }
                     break;
-                case SpvDimCube:   // fall through
-                case SpvDimRect:   // fall through
-                case SpvDimBuffer: // fall through
-                case SpvDimSubpassData:
+                case SpvDimCube:              // fall through
+                case SpvDimRect:              // fall through
+                case SpvDimBuffer:            // fall through
+                case SpvDimSubpassData:       // fall through
+                case SpvDimTileImageDataEXT:  // fall through
+                case SpvDimMax:
                     break;
             }
             // Work around Nvidia bug when RelaxedPrecision is applied to
@@ -5792,7 +5794,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, SPIRVBlob& ou
 bool SPIRVCodeGenerator::generateCode() {
     SkASSERT(!fContext.fErrors->errorCount());
     this->writeWord(SpvMagicNumber, *fOutBuffer);
-    this->writeWord(SpvVersion, *fOutBuffer);
+    this->writeWord(kSPIRVVersion, *fOutBuffer);
     this->writeWord(SKSL_MAGIC, *fOutBuffer);
     // Placeholder for id count, to be determined after writeInstruction.
     this->writeWord(0, *fOutBuffer);

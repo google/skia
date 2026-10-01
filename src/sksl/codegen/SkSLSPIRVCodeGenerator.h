@@ -23,6 +23,12 @@ struct ShaderCaps;
 
 using ValidateSPIRVProc = bool (*)(ErrorReporter&, SkSpan<const uint32_t>);
 
+// The SPIR-V version emitted by ToSPIRV, encoded as in the module header word (0x00MMmm00).
+// This is intentionally independent of SpvVersion in spirv.h, which tracks the newest version the
+// header describes. Tools that validate or disassemble SkSL's SPIR-V output must use a
+// spvtools target environment that accepts this version.
+inline constexpr uint32_t kSPIRVVersion = 0x00010000;  // SPIR-V 1.0
+
 /**
  * Converts a Program into a SPIR-V binary. Prefer the std::vector<uint32_t> variant bacause the
  * OutputStream variant incurs an additional copy.
