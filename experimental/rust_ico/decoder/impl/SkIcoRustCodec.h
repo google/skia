@@ -44,8 +44,9 @@ public:
      */
     static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
-
 protected:
+    SkISize onGetScaledDimensions(float desiredScale) const override;
+
     /**
      * Initiates the ICO decode.
      */
@@ -56,11 +57,16 @@ protected:
         return SkEncodedImageFormat::kICO;
     }
 
-    // Frame support - each embedded image is a separate frame
+    // Chromium's IcoRustImageDecoder enumerates ICO entries through SkCodec's
+    // frame APIs. Each entry is independent and updates its native-sized rect.
     int onGetFrameCount() override;
     bool onGetFrameInfo(int index, FrameInfo* info) const override;
 
     SkScanlineOrder onGetScanlineOrder() const override;
+
+    // ICO entries are alternative representations of one logical image, so any
+    // embedded entry's native dimensions are a supported decode size.
+    bool onDimensionsSupported(const SkISize&) override;
 
     bool conversionSupported(const SkImageInfo&, bool, bool) override {
         // This will be checked by the embedded codec.
@@ -99,9 +105,9 @@ private:
     /**
      * Common codec selection logic for onGetPixels and onStartIncrementalDecode.
      *
-     * If opts.fFrameIndex is valid and matches dims, calls fn on that codec and
-     * returns unconditionally. Otherwise loops through dimension-matched codecs,
-     * stopping on kSuccess or kIncompleteInput.
+     * A nonzero frame index selects that entry authoritatively. Frame zero also
+     * serves as SkCodec's default option, so it retains dimension-based
+     * selection for callers that choose an ICO representation by output size.
      *
      * fn signature: Result fn(SkCodec* codec, int codecIndex, const Options& embeddedOpts)
      * where embeddedOpts has fFrameIndex reset to 0.
@@ -118,90 +124,55 @@ private:
         // Raw BMP entry data for AND mask post-processing.
         // Non-null for BMP entries, null for PNG entries.
         sk_sp<const SkData> fBmpEntryData;
+        SkISize fReportedFrameSize;
     };
 
     /**
      * Constructor called by MakeFromStream.
      * @param embeddedImages decoder + AND-mask payload for each embedded image,
-     *        ordered by decreasing quality; takes ownership
+     *        ordered by descending quality; takes ownership
      */
     SkIcoRustCodec(SkEncodedInfo&& info,
                    std::unique_ptr<SkStream>,
                    std::vector<EmbeddedImage> embeddedImages);
 
-    const SkFrameHolder* getFrameHolder() const override {
-        return &fFrameHolder;
-    }
+    const SkFrameHolder* getFrameHolder() const override { return &fFrameHolder; }
 
-    /**
-     * Frame class for ICO - each embedded image is a frame.
-     * ICO frames are always independent (no inter-frame dependencies).
-     */
-    class Frame : public SkFrame {
+    class Frame final : public SkFrame {
     public:
-        Frame(int index, int width, int height, SkEncodedInfo::Alpha alpha)
-            : SkFrame(index)
-            , fWidth(width)
-            , fHeight(height)
-            , fReportedAlpha(alpha) {
-            // ICO frames don't depend on previous frames
-            this->setRequiredFrame(SkCodec::kNoFrame);
-            this->setHasAlpha(alpha != SkEncodedInfo::Alpha::kOpaque_Alpha);
-            // Set the frame rect to cover the full image
-            this->setXYWH(0, 0, width, height);
-        }
-
-        int width() const { return fWidth; }
-        int height() const { return fHeight; }
+        Frame(int index, const SkImageInfo& info, SkEncodedInfo::Alpha alpha);
 
     protected:
-        SkEncodedInfo::Alpha onReportedAlpha() const override {
-            return fReportedAlpha;
-        }
+        SkEncodedInfo::Alpha onReportedAlpha() const override { return fReportedAlpha; }
 
     private:
-        int fWidth;
-        int fHeight;
         SkEncodedInfo::Alpha fReportedAlpha;
     };
 
-    /**
-     * FrameHolder for ICO - holds info about all embedded images.
-     */
-    class FrameHolder : public SkFrameHolder {
+    class FrameHolder final : public SkFrameHolder {
     public:
-        FrameHolder() = default;
-        ~FrameHolder() override = default;
-
-        void setScreenSize(int w, int h) {
-            fScreenWidth = w;
-            fScreenHeight = h;
+        void setScreenSize(int width, int height) {
+            fScreenWidth = width;
+            fScreenHeight = height;
         }
 
-        void appendFrame(int index, int width, int height, SkEncodedInfo::Alpha alpha) {
-            fFrames.emplace_back(index, width, height, alpha);
-        }
-
-        int size() const { return static_cast<int>(fFrames.size()); }
-
-        const Frame* frame(int i) const {
-            if (i < 0 || i >= static_cast<int>(fFrames.size())) {
-                return nullptr;
-            }
-            return &fFrames[i];
+        void appendFrame(int index, const SkImageInfo& info, SkEncodedInfo::Alpha alpha) {
+            fFrames.emplace_back(index, info, alpha);
         }
 
     protected:
-        const SkFrame* onGetFrame(int i) const override {
-            return frame(i);
+        const SkFrame* onGetFrame(int index) const override {
+            return index >= 0 && static_cast<size_t>(index) < fFrames.size()
+                           ? &fFrames[index]
+                           : nullptr;
         }
 
     private:
         std::vector<Frame> fFrames;
     };
 
-    // Single source of truth: one record per embedded image keeps the codec and
-    // its AND-mask payload in lockstep, and fFrameHolder is derived from it.
+    // One record per embedded image keeps the codec and its AND-mask payload in
+    // lockstep.
     std::vector<EmbeddedImage> fEmbeddedImages;
     FrameHolder fFrameHolder;
 

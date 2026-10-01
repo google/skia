@@ -7,6 +7,9 @@
 
 #include "experimental/rust_ico/decoder/SkIcoRustDecoder.h"
 
+#include <cstdint>
+#include <cstring>
+#include <iterator>
 #include <memory>
 #include <utility>
 
@@ -18,12 +21,19 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#if defined(SK_CODEC_DECODES_ICO)
+#include "src/codec/SkIcoCodec.h"
+#endif
 #include "tests/ComparePixels.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 #define REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, actualResult) \
     REPORTER_ASSERT(r, actualResult == SkCodec::kSuccess, \
@@ -63,6 +73,174 @@ DEF_TEST(RustIcoCodec_decode_multi_bmp, r) {
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
     REPORTER_ASSERT(r, image);
 }
+
+// ICO entries are alternative representations of one logical image. Verify
+// that each native size can be selected by destination dimensions and exposed
+// through the indexed frame API used by Blink.
+DEF_TEST(RustIcoCodec_alternative_dimensions, r) {
+    std::unique_ptr<SkCodec> codec = decode_ico(r, "images/color_wheel.ico");
+    if (!codec) {
+        return;
+    }
+
+    // The top-level (canvas) size is the largest entry.
+    REPORTER_ASSERT(r, codec->dimensions() == SkISize::Make(128, 128),
+                    "Expected 128x128 canvas, got %dx%d",
+                    codec->dimensions().width(), codec->dimensions().height());
+
+    REPORTER_ASSERT(r, codec->getFrameCount() == 5,
+                    "Expected five compatibility frames, got %d", codec->getFrameCount());
+    for (int i = 0; i < codec->getFrameCount(); ++i) {
+        SkCodec::FrameInfo frameInfo;
+        REPORTER_ASSERT(r, codec->getFrameInfo(i, &frameInfo));
+        REPORTER_ASSERT(r, frameInfo.fRequiredFrame == SkCodec::kNoFrame);
+    }
+
+    const int kExpectedSizes[] = {128, 64, 48, 32, 16};
+    const float kExpectedScales[] = {1.0f, 0.25f, 0.140625f, 0.0625f, 0.015625f};
+    for (int expected : kExpectedSizes) {
+        skiatest::ReporterContext ctx(r, SkStringPrintf("size %d", expected).c_str());
+        SkImageInfo info = codec->getInfo()
+                                   .makeWH(expected, expected)
+                                   .makeColorType(kN32_SkColorType);
+        SkBitmap bitmap;
+        REPORTER_ASSERT(r, bitmap.tryAllocPixels(info));
+        bitmap.eraseColor(SK_ColorTRANSPARENT);
+
+        SkCodec::Result result = codec->getPixels(bitmap.pixmap());
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+        REPORTER_ASSERT(r, bitmap.width() == expected && bitmap.height() == expected,
+                        "decoded %dx%d, expected %dx%d",
+                        bitmap.width(), bitmap.height(), expected, expected);
+    }
+
+    for (size_t i = 0; i < sizeof(kExpectedSizes) / sizeof(kExpectedSizes[0]); i++) {
+        REPORTER_ASSERT(r,
+                        codec->getScaledDimensions(kExpectedScales[i]) ==
+                                SkISize::Make(kExpectedSizes[i], kExpectedSizes[i]),
+                        "Scale %g did not select %dx%d",
+                        kExpectedScales[i], kExpectedSizes[i], kExpectedSizes[i]);
+    }
+
+    SkBitmap bitmap;
+    REPORTER_ASSERT(r, bitmap.tryAllocPixels(codec->getInfo().makeColorType(kN32_SkColorType)));
+    SkCodec::Options options;
+    options.fFrameIndex = 1;
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(bitmap.pixmap(), &options));
+}
+
+// Verify that callers can decode an indexed entry into a larger canvas when
+// they explicitly request an alpha-capable destination for the padding.
+DEF_TEST(RustIcoCodec_indexed_full_canvas, r) {
+    std::unique_ptr<SkCodec> codec = decode_ico(r, "images/color_wheel.ico");
+    if (!codec) {
+        return;
+    }
+
+    const int kExpectedSizes[] = {128, 64, 48, 32, 16};
+    REPORTER_ASSERT(r, codec->getFrameCount() == std::size(kExpectedSizes));
+    for (int i = 0; i < codec->getFrameCount(); ++i) {
+        SkCodec::FrameInfo frameInfo;
+        REPORTER_ASSERT(r, codec->getFrameInfo(i, &frameInfo));
+        REPORTER_ASSERT(r, frameInfo.fFrameRect ==
+                                   SkIRect::MakeWH(kExpectedSizes[i], kExpectedSizes[i]));
+    }
+
+    constexpr int kFrameIndex = 1;
+    constexpr int kFrameSize = 64;
+    const SkImageInfo canvasInfo = codec->getInfo()
+                                           .makeColorType(kN32_SkColorType)
+                                           .makeAlphaType(kPremul_SkAlphaType);
+    const SkImageInfo nativeInfo = canvasInfo.makeWH(kFrameSize, kFrameSize);
+
+    SkBitmap expected;
+    REPORTER_ASSERT(r, expected.tryAllocPixels(nativeInfo));
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(expected.pixmap()));
+
+    SkCodec::Options options;
+    options.fFrameIndex = kFrameIndex;
+    SkBitmap canvas;
+    REPORTER_ASSERT(r, canvas.tryAllocPixels(canvasInfo));
+    canvas.eraseColor(SK_ColorMAGENTA);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(canvas.pixmap(), &options));
+
+    bool matches = true;
+    for (int y = 0; y < kFrameSize && matches; ++y) {
+        for (int x = 0; x < kFrameSize; ++x) {
+            if (canvas.getColor(x, y) != expected.getColor(x, y)) {
+                matches = false;
+                break;
+            }
+        }
+    }
+    REPORTER_ASSERT(r, matches);
+    REPORTER_ASSERT(r, SkColorGetA(canvas.getColor(127, 127)) == 0);
+
+    std::unique_ptr<SkCodec> incremental = decode_ico(r, "images/color_wheel.ico");
+    if (!incremental) {
+        return;
+    }
+    SkBitmap incrementalCanvas;
+    REPORTER_ASSERT(r, incrementalCanvas.tryAllocPixels(canvasInfo));
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+            r, incremental->startIncrementalDecode(
+                       canvasInfo, incrementalCanvas.getPixels(),
+                       incrementalCanvas.rowBytes(), &options));
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, incremental->incrementalDecode());
+    REPORTER_ASSERT(r, ToolUtils::equal_pixels(canvas.pixmap(), incrementalCanvas.pixmap()));
+
+    SkBitmap undersized;
+    REPORTER_ASSERT(r, undersized.tryAllocPixels(canvasInfo.makeWH(16, 16)));
+    REPORTER_ASSERT(r, codec->getPixels(undersized.pixmap(), &options) ==
+                               SkCodec::kInvalidScale);
+}
+
+#if defined(SK_CODEC_DECODES_ICO)
+DEF_TEST(RustIcoCodec_matches_legacy_size_selection, r) {
+    sk_sp<SkData> data = GetResourceAsData("images/color_wheel.ico");
+    if (!data) {
+        ERRORF(r, "Missing resource: images/color_wheel.ico");
+        return;
+    }
+
+    SkCodec::Result rustCreateResult;
+    SkCodec::Result legacyCreateResult;
+    std::unique_ptr<SkCodec> rustCodec =
+            SkIcoRustDecoder::Decode(SkMemoryStream::Make(data), &rustCreateResult);
+    std::unique_ptr<SkCodec> legacyCodec =
+            SkIcoCodec::MakeFromStream(SkMemoryStream::Make(data), &legacyCreateResult);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, rustCreateResult);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, legacyCreateResult);
+    REPORTER_ASSERT(r, rustCodec && legacyCodec);
+    if (!rustCodec || !legacyCodec) {
+        return;
+    }
+
+    REPORTER_ASSERT(r, rustCodec->dimensions() == legacyCodec->dimensions());
+    REPORTER_ASSERT(r, rustCodec->getEncodedFormat() == legacyCodec->getEncodedFormat());
+
+    const int kSizes[] = {128, 64, 48, 32, 16, 24};
+    for (int size : kSizes) {
+        skiatest::ReporterContext ctx(r, SkStringPrintf("size %d", size).c_str());
+        const SkImageInfo info = SkImageInfo::MakeN32Premul(size, size);
+        SkBitmap rustBitmap;
+        SkBitmap legacyBitmap;
+        REPORTER_ASSERT(r, rustBitmap.tryAllocPixels(info));
+        REPORTER_ASSERT(r, legacyBitmap.tryAllocPixels(info));
+
+        const SkCodec::Result rustResult = rustCodec->getPixels(rustBitmap.pixmap());
+        const SkCodec::Result legacyResult = legacyCodec->getPixels(legacyBitmap.pixmap());
+        REPORTER_ASSERT(r, rustResult == legacyResult,
+                        "Rust returned %s, legacy returned %s",
+                        SkCodec::ResultToString(rustResult),
+                        SkCodec::ResultToString(legacyResult));
+        if (rustResult == SkCodec::kSuccess) {
+            REPORTER_ASSERT(r, ToolUtils::equal_pixels(rustBitmap.pixmap(),
+                                                       legacyBitmap.pixmap()));
+        }
+    }
+}
+#endif
 
 // Test decoding a valid ICO file with PNG images (google_chrome.ico has PNG).
 DEF_TEST(RustIcoCodec_decode_with_png, r) {
@@ -225,6 +403,122 @@ DEF_TEST(RustIcoCodec_invalid_ico_handling, r) {
     test("sigsegv_favicon_2", "invalid_images/sigsegv_favicon_2.ico");
     test("b37623797", "invalid_images/b37623797.ico");
     test("b38116746", "invalid_images/b38116746.ico");
+}
+
+DEF_TEST(RustIcoCodec_accept_directory_payload_dimension_mismatch, r) {
+    sk_sp<SkData> data = GetResourceAsData("images/wrong-frame-dimensions.ico");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+
+    SkCodec::Result result;
+    std::unique_ptr<SkCodec> codec =
+            SkIcoRustDecoder::Decode(SkMemoryStream::Make(std::move(data)), &result);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+
+    REPORTER_ASSERT(r, codec->dimensions() == SkISize::Make(256, 256));
+    REPORTER_ASSERT(r, codec->getFrameCount() == 4);
+
+    constexpr SkISize kNativeSize = SkISize::Make(128, 128);
+    constexpr int kFrameIndex = 2;
+    SkCodec::FrameInfo frameInfo;
+    REPORTER_ASSERT(r, codec->getFrameInfo(kFrameIndex, &frameInfo));
+    REPORTER_ASSERT(r, frameInfo.fFrameRect == SkIRect::MakeWH(256, 256));
+
+    const SkImageInfo canvasInfo =
+            codec->getInfo().makeColorType(kN32_SkColorType).makeAlphaType(kPremul_SkAlphaType);
+    SkBitmap canvas;
+    REPORTER_ASSERT(r, canvas.tryAllocPixels(canvasInfo));
+    canvas.eraseColor(SK_ColorMAGENTA);
+    SkCodec::Options options;
+    options.fFrameIndex = kFrameIndex;
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(canvas.pixmap(), &options));
+
+    SkBitmap native;
+    REPORTER_ASSERT(r, native.tryAllocPixels(canvasInfo.makeDimensions(kNativeSize)));
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(native.pixmap()));
+
+    SkBitmap canvasSubset;
+    REPORTER_ASSERT(r, canvas.extractSubset(&canvasSubset, SkIRect::MakeSize(kNativeSize)));
+    REPORTER_ASSERT(r, ToolUtils::equal_pixels(canvasSubset.pixmap(), native.pixmap()));
+    REPORTER_ASSERT(r, SkColorGetA(canvas.getColor(255, 255)) == 0);
+}
+
+DEF_TEST(RustIcoCodec_partial_directory_payload_dimension_mismatch, r) {
+    sk_sp<SkData> data = GetResourceAsData("images/wrong-frame-dimensions.ico");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+
+    constexpr size_t kFirstPayloadEnd = 1376;
+    REPORTER_ASSERT(r, data->size() >= kFirstPayloadEnd);
+    if (data->size() < kFirstPayloadEnd) {
+        return;
+    }
+    sk_sp<SkData> partial = SkData::MakeSubset(data.get(), 0, kFirstPayloadEnd);
+
+    SkCodec::Result result;
+    std::unique_ptr<SkCodec> codec =
+            SkIcoRustDecoder::Decode(SkMemoryStream::Make(std::move(partial)), &result);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+
+    REPORTER_ASSERT(r, codec->dimensions() == SkISize::Make(256, 256));
+    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
+    SkCodec::FrameInfo frameInfo;
+    REPORTER_ASSERT(r, codec->getFrameInfo(0, &frameInfo));
+    REPORTER_ASSERT(r, frameInfo.fFrameRect == SkIRect::MakeWH(256, 256));
+
+    const SkImageInfo canvasInfo =
+            codec->getInfo().makeColorType(kN32_SkColorType).makeAlphaType(kPremul_SkAlphaType);
+    SkBitmap bitmap;
+    REPORTER_ASSERT(r, bitmap.tryAllocPixels(canvasInfo));
+    bitmap.eraseColor(SK_ColorMAGENTA);
+    SkCodec::Options options;
+    options.fFrameIndex = 0;
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(bitmap.pixmap(), &options));
+    REPORTER_ASSERT(r, SkColorGetA(bitmap.getColor(255, 255)) == 0);
+}
+
+DEF_TEST(RustIcoCodec_reject_payload_exceeding_directory_canvas, r) {
+    sk_sp<SkData> data = GetResourceAsData("images/color_wheel.ico");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+
+    sk_sp<SkData> mutated = SkData::MakeUninitialized(data->size());
+    std::memcpy(mutated->writable_data(), data->data(), data->size());
+
+    constexpr size_t kDirectoryHeaderSize = 6;
+    constexpr size_t kDirectoryEntrySize = 16;
+    constexpr size_t kEntryCount = 5;
+    REPORTER_ASSERT(r, data->size() >= kDirectoryHeaderSize + kEntryCount * kDirectoryEntrySize);
+    if (data->size() < kDirectoryHeaderSize + kEntryCount * kDirectoryEntrySize) {
+        return;
+    }
+    auto* bytes = static_cast<uint8_t*>(mutated->writable_data());
+    for (size_t i = 0; i < kEntryCount; ++i) {
+        const size_t entryOffset = kDirectoryHeaderSize + i * kDirectoryEntrySize;
+        bytes[entryOffset] = 1;
+        bytes[entryOffset + 1] = 1;
+    }
+
+    SkCodec::Result result;
+    std::unique_ptr<SkCodec> codec =
+            SkIcoRustDecoder::Decode(SkMemoryStream::Make(std::move(mutated)), &result);
+
+    REPORTER_ASSERT(r, !codec);
+    REPORTER_ASSERT(r, result == SkCodec::kInvalidInput);
 }
 
 // Test getPixels with a pre-allocated bitmap.
@@ -479,7 +773,7 @@ DEF_TEST(RustIcoCodec_truncated_all_entries_missing, r) {
 // Test that an ICO file truncated so that only some embedded images are present
 // still reports kSuccess (matching SkIcoCodec) and produces a usable codec whose
 // reported size is stable, derived from the ICO directory rather than from the
-// subset of frames that happen to be decodable so far.
+// subset of entries that happen to be decodable so far.
 //
 // This stability is required by progressive/deferred clients such as Blink: they
 // lock the image size from the first successful parse, so a size that grew as
@@ -513,17 +807,14 @@ DEF_TEST(RustIcoCodec_truncated_some_entries_missing, r) {
         // SkIcoCodec.
         REPORTER_ASSERT(r, result == SkCodec::kSuccess,
                         "Expected kSuccess for partially truncated ICO with usable "
-                        "frames, got %s",
+                        "entries, got %s",
                         SkCodec::ResultToString(result));
 
-        // The codec should still be usable for the entries that are present.
-        int frameCount = codec->getFrameCount();
-        REPORTER_ASSERT(r, frameCount > 0, "Should have at least one decodable frame");
-        REPORTER_ASSERT(r, frameCount < 5,
-                        "Should have fewer than 5 frames (original has 5), got %d", frameCount);
+        REPORTER_ASSERT(r, codec->getFrameCount() > 0);
+        REPORTER_ASSERT(r, codec->getFrameCount() < fullCodec->getFrameCount());
 
         // The reported size must match the full-file size even though fewer
-        // frames are decodable -- it comes from the directory, not the decodable
+        // entries are decodable -- it comes from the directory, not the decodable
         // subset. This is the property that prevents progressive-decode overflows.
         REPORTER_ASSERT(r, codec->dimensions() == fullDims,
                         "Partial-data size (%dx%d) should equal full-data size (%dx%d)",
@@ -533,6 +824,14 @@ DEF_TEST(RustIcoCodec_truncated_some_entries_missing, r) {
         // getInfo() must describe a non-empty image so callers can size buffers.
         REPORTER_ASSERT(r, !codec->getInfo().isEmpty(),
                         "Codec info should describe a non-empty image");
+
+        SkBitmap bitmap;
+        REPORTER_ASSERT(r, bitmap.tryAllocPixels(
+                                   codec->getInfo().makeColorType(kN32_SkColorType)));
+        SkCodec::Options options;
+        options.fFrameIndex = 0;
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                r, codec->getPixels(bitmap.pixmap(), &options));
     } else {
         // If no entries decoded at all, kInvalidInput is acceptable.
         REPORTER_ASSERT(r, result == SkCodec::kInvalidInput ||
