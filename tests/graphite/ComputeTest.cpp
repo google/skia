@@ -769,6 +769,10 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_StorageTexture,
                                               reporter,
                                               context,
                                               testContext) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     // For this test we allocate a 8x8 tile which is written to by a single workgroup of the same
@@ -874,6 +878,10 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_StorageTextureReadAndWrite,
                                               reporter,
                                               context,
                                               testContext) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     // For this test we allocate a 8x8 tile which is written to by a single workgroup of the same
@@ -1039,6 +1047,10 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_ReadOnlyStorageBuffer,
                                               reporter,
                                               context,
                                               testContext) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     // For this test we allocate a 8x8 tile which is written to by a single workgroup of the same
@@ -1182,6 +1194,10 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_StorageTextureMultipleComputeStep
                                               reporter,
                                               context,
                                               testContext) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     // For this test we allocate a 8x8 tile which is written to by a single workgroup of the same
@@ -1332,6 +1348,10 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_SampledTexture,
                                               reporter,
                                               context,
                                               testContext) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     // The first ComputeStep initializes a 8x8 texture with a checkerboard pattern of alternating
@@ -2122,6 +2142,11 @@ DEF_GRAPHITE_TEST_FOR_COMPUTE_CONTEXTS(Compute_IndirectDispatch,
                                               reporter,
                                               context,
                                               testContext) {
+    // TODO (thomsmit): Add protected bit to indirect buffers when on protected context.
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     // This fails on Dawn D3D11, b/315834710
     if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11) {
         return;
