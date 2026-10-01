@@ -1351,7 +1351,7 @@ static bool read_hagc(const skcms_ICCTag* tag, skcms_HAGC* hagc) {
 
 void skcms_GetTagByIndex(const skcms_ICCProfile* profile, uint32_t idx, skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return; }
-    if (idx >= profile->tag_count) { return; }
+    if (idx > profile->tag_count) { return; }
     const tag_Layout* tags = get_tag_table(profile);
     tag->signature = read_big_u32(tags[idx].signature);
     tag->size      = read_big_u32(tags[idx].size);
@@ -2525,7 +2525,7 @@ static bool tf_is_gamma(const skcms_TransferFunction& tf) {
 
 struct OpAndArg {
     Op          op;
-    const void* arg;
+    const void* arg;  // nullptr represents a no-op; op is ignored.
 };
 
 static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
@@ -2541,22 +2541,22 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
     const auto& op = kOps[channel];
 
     if (curve->table_entries == 0) {
-        const OpAndArg noop = { Op::load_a8/*doesn't matter*/, nullptr };
-
         const skcms_TransferFunction& tf = curve->parametric;
 
         if (tf_is_gamma(tf)) {
-            return tf.g != 1 ? OpAndArg{op.sGamma, &tf}
-                             : noop;
+            return tf.g != 1 ? OpAndArg{op.sGamma, &tf} : OpAndArg{};
         }
 
         switch (classify(tf)) {
-            case skcms_TFType_Invalid:    return noop;
+            case skcms_TFType_Invalid:
+                return {};
             // TODO(https://issues.skia.org/issues/420956739): Consider adding
             // support for PQ and HLG. Generally any code that goes through this
             // path would also want tone mapping too.
-            case skcms_TFType_PQ:         return noop;
-            case skcms_TFType_HLG:        return noop;
+            case skcms_TFType_PQ:
+                return {};
+            case skcms_TFType_HLG:
+                return {};
             case skcms_TFType_sRGBish:    return OpAndArg{op.sRGBish,   &tf};
             case skcms_TFType_PQish:      return OpAndArg{op.PQish,     &tf};
             case skcms_TFType_HLGish:     return OpAndArg{op.HLGish,    &tf};

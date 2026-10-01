@@ -1,7 +1,7 @@
 Name: skcms
 URL: https://skia.googlesource.com/skcms
 Version: N/A
-Revision: 7e711e0a4467b5844f8de27ef43b680aecc6d287
+Revision: 7e572ada698a60ff50bd9038fd6e01e44f40868a
 Update Mechanism: Autoroll
 Security Critical: yes
 Shipped: yes
