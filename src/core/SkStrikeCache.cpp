@@ -26,6 +26,11 @@ struct SkFontMetrics;
 
 using namespace sktext;
 
+// This flag is required by Flutter, if we remove
+// gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental at the moment, then it
+// will break the flutter roller.
+// TODO(alexisdavidc): Remove this fallback once Flutter is migrated away from this experimental
+// global flag to simplify strike cache initialization.
 #if defined(SK_ENABLE_THREADLOCAL_STRIKECACHE)
 SK_API bool gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental = true;
 #else
