@@ -5878,8 +5878,35 @@ SI I32 min_intr(I32 x, I32 y) { return min(x, y); }
 SI U16 max_intr(U16 x, U16 y) { return max(x, y); }
 SI U16 min_intr(U16 x, U16 y) { return min(x, y); }
 #endif // defined(SKRP_CPU_SSE41) || defined(SKRP_CPU_AVX)
+#elif defined(SKRP_CPU_NEON)
+SI F max_intr(F x, F y) {
+    float32x4_t xl, xh, yl, yh;
+    split(x, &xl, &xh);
+    split(y, &yl, &yh);
+    return join<F>(vmaxq_f32(xl, yl), vmaxq_f32(xh, yh));
+}
+SI F min_intr(F x, F y) {
+    float32x4_t xl, xh, yl, yh;
+    split(x, &xl, &xh);
+    split(y, &yl, &yh);
+    return join<F>(vminq_f32(xl, yl), vminq_f32(xh, yh));
+}
+SI I32 max_intr(I32 x, I32 y) {
+    int32x4_t xl, xh, yl, yh;
+    split(x, &xl, &xh);
+    split(y, &yl, &yh);
+    return join<I32>(vmaxq_s32(xl, yl), vmaxq_s32(xh, yh));
+}
+SI I32 min_intr(I32 x, I32 y) {
+    int32x4_t xl, xh, yl, yh;
+    split(x, &xl, &xh);
+    split(y, &yl, &yh);
+    return join<I32>(vminq_s32(xl, yl), vminq_s32(xh, yh));
+}
+SI U16 max_intr(U16 x, U16 y) { return vmaxq_u16(x, y); }
+SI U16 min_intr(U16 x, U16 y) { return vminq_u16(x, y); }
 #else
-// TODO(kjlubick) make sure NEON and other architectures are handling this well
+// TODO(kjlubick) make sure other architectures are handling this well
 SI F   max_intr(F x, F y) { return max(x, y); }
 SI F   min_intr(F x, F y) { return min(x, y); }
 SI I32 max_intr(I32 x, I32 y) { return max(x, y); }
