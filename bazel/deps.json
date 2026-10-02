@@ -197,7 +197,7 @@
       "remote": "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git"
     },
     {
-      "commit": "4f3a92dfbd5b49593e43b3c245b6688da2ad933a",
+      "commit": "342d3e5d26d057e536c633a51949a08c64718004",
       "name": "spirv_tools",
       "remote": "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git"
     },
@@ -215,13 +215,13 @@
     },
     {
       "build_file": "//bazel/external/vulkan_tools:BUILD.bazel",
-      "commit": "e66cf3b66a876cd795621e2096f3189162cb4345",
+      "commit": "f13d435dd50dc616db0c10e7bac87cd3aa7c82e3",
       "name": "vulkan_tools",
       "remote": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools"
     },
     {
       "build_file": "//bazel/external/vulkan_utility_libraries:BUILD.bazel",
-      "commit": "ad949c938b19bf00f18d9f2a99f099033f2cfcfa",
+      "commit": "68b0ae52a6cc8de7df3af7b549e9a2efa7c78d8a",
       "name": "vulkan_utility_libraries",
       "remote": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries"
     },
