@@ -23,8 +23,8 @@ class MtlMemoryAllocator;
 }
 
 namespace skgpu::graphite {
-struct ContextOptions;
 class MtlGraphicsPipeline;
+struct ContextOptions;
 
 class MtlThreadSafeResourceProvider final : public ThreadSafeResourceProvider {
 public:
@@ -60,7 +60,8 @@ private:
                      SkExecutor*,
                      SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 
-    void createCompatibleDepthStencilState(const DepthStencilSettings&, const char* label);
+    sk_cfp<id<MTLDepthStencilState>> createCompatibleDepthStencilState(const DepthStencilSettings&,
+                                                                       const char* label) const;
 
     sk_sp<GraphicsPipeline> createGraphicsPipeline(
             const RuntimeEffectDictionary*,
@@ -79,7 +80,7 @@ private:
     // which case, this would be a reasonable place for this cache.
     // TODO(robertphillips): Come up with a scheme to map from DepthStencilSettings to tightly
     // packed ints and switch this to be a std::array.
-    skia_private::THashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>>
+    skia_private::TArray<std::pair<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>>>
             fDepthStencilStates;
 };
 

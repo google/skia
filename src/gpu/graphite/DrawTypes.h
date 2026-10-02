@@ -10,6 +10,7 @@
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkEnumBitMask.h"
+#include "include/private/SkTo.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -207,30 +208,26 @@ struct DepthStencilSettings {
         constexpr Face(StencilOp stencilFail,
                        StencilOp depthFail,
                        StencilOp dsPass,
-                       CompareOp compare,
-                       uint32_t readMask,
-                       uint32_t writeMask)
+                       CompareOp compare)
                 : fStencilFailOp(stencilFail)
                 , fDepthFailOp(depthFail)
                 , fDepthStencilPassOp(dsPass)
-                , fCompareOp(compare)
-                , fReadMask(readMask)
-                , fWriteMask(writeMask) {}
+                , fCompareOp(compare) {}
 
         StencilOp fStencilFailOp = StencilOp::kKeep;
         StencilOp fDepthFailOp = StencilOp::kKeep;
         StencilOp fDepthStencilPassOp = StencilOp::kKeep;
         CompareOp fCompareOp = CompareOp::kAlways;
-        uint32_t fReadMask = 0xffffffff;
-        uint32_t fWriteMask = 0xffffffff;
+
+        // Return true if not the default stencil settings, i.e. does something to or with the
+        // stencil buffer.
+        constexpr explicit operator bool() const { return !(*this == Face()); }
 
         constexpr bool operator==(const Face& that) const {
             return this->fStencilFailOp == that.fStencilFailOp &&
                    this->fDepthFailOp == that.fDepthFailOp &&
                    this->fDepthStencilPassOp == that.fDepthStencilPassOp &&
-                   this->fCompareOp == that.fCompareOp &&
-                   this->fReadMask == that.fReadMask &&
-                   this->fWriteMask == that.fWriteMask;
+                   this->fCompareOp == that.fCompareOp;
         }
     };
 
@@ -238,34 +235,53 @@ struct DepthStencilSettings {
     constexpr DepthStencilSettings(Face front,
                                    Face back,
                                    uint32_t stencilRef,
-                                   bool stencilTest,
+                                   uint32_t stencilReadMask,
+                                   uint32_t stencilWriteMask,
                                    CompareOp depthCompare,
-                                   bool depthTest,
                                    bool depthWrite)
             : fFrontStencil(front)
             , fBackStencil(back)
             , fStencilReferenceValue(stencilRef)
+            , fStencilReadMask(stencilReadMask)
+            , fStencilWriteMask(stencilWriteMask)
             , fDepthCompareOp(depthCompare)
-            , fStencilTestEnabled(stencilTest)
-            , fDepthTestEnabled(depthTest)
-            , fDepthWriteEnabled(depthWrite) {}
+            , fDepthWriteEnabled(depthWrite) {
+        // If there's no non-default stencil face state, the shared stencil state should be default
+        SkASSERT(this->stencilEnabled() || (stencilRef == 0 &&
+                                            stencilReadMask == 0xffffffff &&
+                                            stencilWriteMask == 0xffffffff));
+    }
+
+    // True means the render pass must have a stencil attachment
+    constexpr bool stencilEnabled() const {
+        return SkToBool(fFrontStencil) || SkToBool(fBackStencil);
+    }
+    // True means the render pass must have a depth attachment
+    constexpr bool depthEnabled() const {
+        return fDepthCompareOp != CompareOp::kAlways || fDepthWriteEnabled;
+    }
+
+    constexpr explicit operator bool() const {
+        return this->stencilEnabled() || this->depthEnabled();
+    }
 
     constexpr bool operator==(const DepthStencilSettings& that) const {
         return this->fFrontStencil == that.fFrontStencil &&
                this->fBackStencil == that.fBackStencil &&
                this->fStencilReferenceValue == that.fStencilReferenceValue &&
+               this->fStencilReadMask == that.fStencilReadMask &&
+               this->fStencilWriteMask == that.fStencilWriteMask &&
                this->fDepthCompareOp == that.fDepthCompareOp &&
-               this->fStencilTestEnabled == that.fStencilTestEnabled &&
-               this->fDepthTestEnabled == that.fDepthTestEnabled &&
                this->fDepthWriteEnabled == that.fDepthWriteEnabled;
     }
 
     Face fFrontStencil;
     Face fBackStencil;
     uint32_t fStencilReferenceValue = 0;
+    uint32_t fStencilReadMask = 0xffffffff;
+    uint32_t fStencilWriteMask = 0xffffffff;
+
     CompareOp fDepthCompareOp = CompareOp::kAlways;
-    bool fStencilTestEnabled = false;
-    bool fDepthTestEnabled = false;
     bool fDepthWriteEnabled = false;
 };
 

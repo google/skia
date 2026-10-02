@@ -459,25 +459,28 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
 
     // Depth stencil state
     const auto& depthStencilSettings = step->depthStencilSettings();
-    SkASSERT(depthStencilSettings.fDepthTestEnabled ||
-             depthStencilSettings.fDepthCompareOp == CompareOp::kAlways);
+
     TextureFormat dsFormat = renderPassDesc.fDepthStencilAttachment.fFormat;
+    SkASSERT(dsFormat != TextureFormat::kUnsupported || !depthStencilSettings);
+
     wgpu::DepthStencilState depthStencil;
     if (dsFormat != TextureFormat::kUnsupported) {
         SkASSERT(TextureFormatIsDepthOrStencil(dsFormat));
         depthStencil.format = TextureFormatToDawnFormat(dsFormat);
-        if (depthStencilSettings.fDepthTestEnabled) {
-            depthStencil.depthWriteEnabled = depthStencilSettings.fDepthWriteEnabled;
-        }
-        depthStencil.depthCompare = compare_op_to_dawn(depthStencilSettings.fDepthCompareOp);
 
-        // Dawn validation fails if the stencil state is non-default and the
-        // format doesn't have the stencil aspect.
-        if (TextureFormatHasStencil(dsFormat) && depthStencilSettings.fStencilTestEnabled) {
+        if (depthStencilSettings.depthEnabled()) {
+            SkASSERT(TextureFormatHasDepth(dsFormat));
+            depthStencil.depthWriteEnabled = depthStencilSettings.fDepthWriteEnabled;
+            depthStencil.depthCompare = compare_op_to_dawn(depthStencilSettings.fDepthCompareOp);
+        }
+
+        if (depthStencilSettings.stencilEnabled()) {
+            SkASSERT(TextureFormatHasStencil(dsFormat));
             depthStencil.stencilFront = stencil_face_to_dawn(depthStencilSettings.fFrontStencil);
             depthStencil.stencilBack = stencil_face_to_dawn(depthStencilSettings.fBackStencil);
-            depthStencil.stencilReadMask = depthStencilSettings.fFrontStencil.fReadMask;
-            depthStencil.stencilWriteMask = depthStencilSettings.fFrontStencil.fWriteMask;
+            depthStencil.stencilReadMask = depthStencilSettings.fStencilReadMask;
+            depthStencil.stencilWriteMask = depthStencilSettings.fStencilWriteMask;
+            // NOTE: fStencilReferenceValue is dynamic state and set on the render encoder
         }
 
         descriptor.depthStencil = &depthStencil;

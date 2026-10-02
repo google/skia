@@ -1925,9 +1925,8 @@ void Device::drawGeometry(const Transform& localToDevice,
     SkASSERT(renderer);
     for (const RenderStep* step : renderer->steps()) {
         auto dss = step->depthStencilSettings();
-        SkASSERT((!step->performsShading() || dss.fDepthTestEnabled) &&
-                 (!dss.fDepthTestEnabled ||
-                  dss.fDepthCompareOp == CompareOp::kLess ||
+        SkASSERT((!step->performsShading() || dss.fDepthCompareOp != CompareOp::kAlways) ||
+                 (dss.fDepthCompareOp == CompareOp::kLess ||
                   dss.fDepthCompareOp == CompareOp::kLEqual));
     }
 #endif

@@ -18,23 +18,23 @@ namespace skgpu::graphite {
  */
 
 static constexpr DepthStencilSettings kDirectDepthLessPass = {
-        /*front=*/       {},
-        /*back=*/        {},
-        /*stencilRef=*/  0,
-        /*stencilTest=*/ false,
-        /*depthCompare=*/CompareOp::kLess,
-        /*depthTest=*/   true,
-        /*depthWrite=*/  true
+        /*front=*/           {},
+        /*back=*/            {},
+        /*stencilRef=*/      0,
+        /*stencilReadMask=*/ 0xffffffff,
+        /*stencilWriteMask=*/0xffffffff,
+        /*depthCompare=*/    CompareOp::kLess,
+        /*depthWrite=*/      true,
 };
 
 static constexpr DepthStencilSettings kDirectDepthLEqualPass = {
-        /*front=*/       {},
-        /*back=*/        {},
-        /*stencilRef=*/  0,
-        /*stencilTest=*/ false,
-        /*depthCompare=*/CompareOp::kLEqual,
-        /*depthTest=*/   true,
-        /*depthWrite=*/  true
+        /*front=*/           {},
+        /*back=*/            {},
+        /*stencilRef=*/      0,
+        /*stencilReadMask=*/ 0xffffffff,
+        /*stencilWriteMask=*/0xffffffff,
+        /*depthCompare=*/    CompareOp::kLEqual,
+        /*depthWrite=*/      true,
 };
 
 /**
@@ -47,9 +47,7 @@ constexpr DepthStencilSettings::Face kIncrementCW = {
         /*stencilFail=*/   StencilOp::kKeep,
         /*depthFail=*/     StencilOp::kKeep,
         /*dsPass=*/        StencilOp::kIncWrap,
-        /*compare=*/       CompareOp::kAlways,
-        /*readMask=*/      0xffffffff,
-        /*writeMask=*/     0xffffffff
+        /*compare=*/       CompareOp::kAlways
 };
 
 // Decrements stencil value on counterclockwise triangles. Used for "winding" fill.
@@ -57,9 +55,7 @@ constexpr DepthStencilSettings::Face kDecrementCCW = {
         /*stencilFail=*/   StencilOp::kKeep,
         /*depthFail=*/     StencilOp::kKeep,
         /*dsPass=*/        StencilOp::kDecWrap,
-        /*compare=*/       CompareOp::kAlways,
-        /*readMask=*/      0xffffffff,
-        /*writeMask=*/     0xffffffff
+        /*compare=*/       CompareOp::kAlways
 };
 
 // Increments the stencil value whenever a triangle is encountered. Used for storing a stroked
@@ -68,9 +64,7 @@ static constexpr DepthStencilSettings::Face kIncrementAlways = {
         /*stencilFail=*/   StencilOp::kKeep,
         /*depthFail=*/     StencilOp::kKeep,
         /*dsPass=*/        StencilOp::kIncClamp,
-        /*compare=*/       CompareOp::kAlways,
-        /*readMask=*/      0xffffffff,
-        /*writeMask=*/     0xffffffff
+        /*compare=*/       CompareOp::kAlways
 };
 
 // Toggles the bottom stencil bit. Used for "even-odd" fill.
@@ -78,45 +72,43 @@ constexpr DepthStencilSettings::Face kToggle = {
         /*stencilFail=*/   StencilOp::kKeep,
         /*depthFail=*/     StencilOp::kKeep,
         /*dsPass=*/        StencilOp::kInvert,
-        /*compare=*/       CompareOp::kAlways,
-        /*readMask=*/      0xffffffff,
-        /*writeMask=*/     0x00000001
+        /*compare=*/       CompareOp::kAlways
 };
 
 // Stencil settings to use for a standard Redbook "stencil" pass corresponding to a "winding"
 // fill rule (regular or inverse is selected by a follow-up pass).
 constexpr DepthStencilSettings kWindingStencilPass = {
-        /*front=*/       kIncrementCW,
-        /*back=*/        kDecrementCCW,
-        /*stencilRef=*/  0,
-        /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kLess,
-        /*depthTest=*/   true,
-        /*depthWrite=*/  false // The depth write will be handled by the covering pass
+        /*front=*/           kIncrementCW,
+        /*back=*/            kDecrementCCW,
+        /*stencilRef=*/      0,
+        /*stencilReadMask=*/ 0xffffffff,
+        /*stencilWriteMask=*/0xffffffff,
+        /*depthCompare=*/    CompareOp::kLess,
+        /*depthWrite=*/      false // The depth write will be handled by the covering pass
 };
 
 // Stencil settings to use for a standard Redbook "stencil" pass corresponding to an "even-odd"
 // fill rule (regular or inverse is selected by a follow-up pass).
 constexpr DepthStencilSettings kEvenOddStencilPass = {
-        /*front=*/       kToggle,
-        /*back=*/        kToggle,
-        /*stencilRef=*/  0,
-        /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kLess,
-        /*depthTest=*/   true,
-        /*depthWrite=*/  false // The depth write will be handled by the covering pass
+        /*front=*/           kToggle,
+        /*back=*/            kToggle,
+        /*stencilRef=*/      0,
+        /*stencilReadMask=*/ 0xffffffff,
+        /*stencilWriteMask=*/0x00000001,
+        /*depthCompare=*/    CompareOp::kLess,
+        /*depthWrite=*/      false // The depth write will be handled by the covering pass
 };
 
 // Stencil settings to use for always stenciling out any triangle encountered, useful for stroked
 // paths.
 static constexpr DepthStencilSettings kIncrementStencilPass = {
-        /*front=*/       kIncrementAlways,
-        /*back=*/        kIncrementAlways,
-        /*stencilRef=*/  0,
-        /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kLess,
-        /*depthTest=*/   true,
-        /*depthWrite=*/  false // The depth write will be handled by the covering pass
+        /*front=*/           kIncrementAlways,
+        /*back=*/            kIncrementAlways,
+        /*stencilRef=*/      0,
+        /*stencilReadMask=*/ 0xffffffff,
+        /*stencilWriteMask=*/0xffffffff,
+        /*depthCompare=*/    CompareOp::kLess,
+        /*depthWrite=*/      false // The depth write will be handled by the covering pass
 };
 
 /**
@@ -132,9 +124,7 @@ constexpr DepthStencilSettings::Face kPassNonZero = {
         /*stencilFail=*/   StencilOp::kKeep,
         /*depthFail=*/     StencilOp::kZero,
         /*dsPass=*/        StencilOp::kZero,
-        /*compare=*/       CompareOp::kNotEqual,
-        /*readMask=*/      0xffffffff,
-        /*writeMask=*/     0xffffffff
+        /*compare=*/       CompareOp::kNotEqual
 };
 
  // Resets non-zero bits to 0, passes when zero.
@@ -142,33 +132,31 @@ constexpr DepthStencilSettings::Face kPassZero = {
         /*stencilFail=*/   StencilOp::kZero,
         /*depthFail=*/     StencilOp::kKeep,
         /*dsPass=*/        StencilOp::kKeep,
-        /*compare=*/       CompareOp::kEqual,
-        /*readMask=*/      0xffffffff,
-        /*writeMask=*/     0xffffffff
+        /*compare=*/       CompareOp::kEqual
 };
 
 // Stencil settings to use for a standard Redbook "cover" pass for a regular fill, assuming that the
 // stencil buffer has been modified by either kWindingStencilPass or kEvenOddStencilPass.
 constexpr DepthStencilSettings kRegularCoverPass = {
-        /*front=*/       kPassNonZero,
-        /*back=*/        kPassNonZero,
-        /*stencilRef=*/  0,
-        /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kLess,
-        /*depthTest=*/   true,
-        /*depthWrite=*/  true
+        /*front=*/           kPassNonZero,
+        /*back=*/            kPassNonZero,
+        /*stencilRef=*/      0,
+        /*stencilReadMask=*/ 0xffffffff,
+        /*stencilWriteMask=*/0xffffffff,
+        /*depthCompare=*/    CompareOp::kLess,
+        /*depthWrite=*/      true
 };
 
 // Stencil settings to use for a standard Redbook "cover" pass for inverse fills, assuming that the
 // stencil buffer has been modified by either kWindingStencilPass or kEvenOddStencilPass.
 constexpr DepthStencilSettings kInverseCoverPass = {
-        /*front=*/       kPassZero,
-        /*back=*/        kPassZero,
-        /*stencilRef=*/  0,
-        /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kLess,
-        /*depthTest=*/   true,
-        /*depthWrite=*/  true
+        /*front=*/           kPassZero,
+        /*back=*/            kPassZero,
+        /*stencilRef=*/      0,
+        /*stencilReadMask=*/ 0xffffffff,
+        /*stencilWriteMask=*/0xffffffff,
+        /*depthCompare=*/    CompareOp::kLess,
+        /*depthWrite=*/      true
 };
 
 }  // namespace skgpu::graphite
