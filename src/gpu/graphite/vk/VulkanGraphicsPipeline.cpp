@@ -273,7 +273,6 @@ static void setup_depth_stencil_state(const Caps& caps,
         stencilInfo->depthTestEnable = stencilSettings.depthEnabled();
         stencilInfo->depthWriteEnable = stencilSettings.fDepthWriteEnabled;
         stencilInfo->depthCompareOp = compare_op_to_vk_compare_op(stencilSettings.fDepthCompareOp);
-        stencilInfo->depthBoundsTestEnable = VK_FALSE;
         stencilInfo->stencilTestEnable = stencilSettings.stencilEnabled();
         if (stencilInfo->stencilTestEnable) {
             setup_stencil_op_state(&stencilInfo->front,
@@ -287,6 +286,8 @@ static void setup_depth_stencil_state(const Caps& caps,
                                    stencilSettings.fStencilReadMask,
                                    stencilSettings.fStencilWriteMask);
         }
+
+        stencilInfo->depthBoundsTestEnable = VK_FALSE;
         stencilInfo->minDepthBounds = 0.0f;
         stencilInfo->maxDepthBounds = 1.0f;
     }
@@ -994,7 +995,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
             shaderInfo->appendAttributes(),
             vertexBindingDescriptions,
             vertexAttributeDescriptions,
-            step->depthStencilSettings(),
+            shaderInfo->depthStencilSettings(),
             shaderInfo->blendInfo(),
             renderPassDesc,
             &shadersPipeline);

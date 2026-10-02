@@ -1108,6 +1108,10 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
 
     result->fStorageBufferStages |= step->storageBufferStages();
 
+    // TODO(michaelludwig): Modify the depth portion of the DepthStencilSettings depending on
+    // whether or not depth is going to be useful (and whether or not the render pass has it).
+    result->fDepthStencilSettings = step->depthStencilSettings();
+
     result->generateVertexSkSL(caps, step, sharedData);
     result->fVSLabel = step->name();
     if (sharedData.fNeedsLocalCoords) {

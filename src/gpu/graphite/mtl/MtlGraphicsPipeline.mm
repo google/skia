@@ -291,7 +291,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
             sharedContext, shaderInfo->fsLabel(), fsMSL.fText, errorHandler);
 
     sk_cfp<id<MTLDepthStencilState>> dss =
-            sharedContext->getCompatibleDepthStencilState(step->depthStencilSettings());
+            sharedContext->getCompatibleDepthStencilState(shaderInfo->depthStencilSettings());
 
     PipelineInfo pipelineInfo{ *shaderInfo, pipelineCreationFlags,
                                pipelineKey.hash(), compilationID };
@@ -310,7 +310,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
                shaderInfo->appendAttributes(),
                {fsLibrary.get(), "fragmentMain"},
                std::move(dss),
-               step->depthStencilSettings().fStencilReferenceValue,
+               shaderInfo->depthStencilSettings().fStencilReferenceValue,
                blendInfo,
                renderPassDesc);
 }

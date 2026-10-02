@@ -458,7 +458,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     descriptor.fragment = &fragment;
 
     // Depth stencil state
-    const auto& depthStencilSettings = step->depthStencilSettings();
+    const auto& depthStencilSettings = shaderInfo->depthStencilSettings();
 
     TextureFormat dsFormat = renderPassDesc.fDepthStencilAttachment.fFormat;
     SkASSERT(dsFormat != TextureFormat::kUnsupported || !depthStencilSettings);
