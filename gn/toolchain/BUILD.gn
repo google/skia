@@ -7,24 +7,6 @@ declare_args() {
   host_cc = cc
   host_cxx = cxx
 
-  if (is_android) {
-    _prefix = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin"
-    if (host_os == "win") {
-      target_ar = "$_prefix/llvm-ar.exe"
-      target_cc = "$_prefix/clang.exe --target=$ndk_target$ndk_api -fno-addrsig"
-      target_cxx =
-          "$_prefix/clang++.exe --target=$ndk_target$ndk_api -fno-addrsig"
-    } else {
-      target_ar = "$_prefix/llvm-ar"
-      target_cc = "$_prefix/$ndk_target$ndk_api-clang"
-      target_cxx = "$_prefix/$ndk_target$ndk_api-clang++"
-    }
-  } else {
-    target_ar = ar
-    target_cc = cc
-    target_cxx = cxx
-  }
-
   cc_wrapper = ""
 
   # dsymutil seems to kill the machine when too many processes are run in
