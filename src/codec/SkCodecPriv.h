@@ -23,7 +23,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#if !defined(SK_BUILD_FOR_ANDROID)
 #include <ranges>
+#endif
 #include <string_view>
 #include <utility>
 
@@ -418,10 +420,12 @@ public:
         std::unique_ptr<uint8_t, SkFunctionObject<sk_free>> fStorage;
         size_t fSize = 0;
     };
+#if !defined(SK_BUILD_FOR_ANDROID)
     static_assert(std::ranges::contiguous_range<BudgetedBuffer>);
     static_assert(std::ranges::contiguous_range<const BudgetedBuffer>);
     static_assert(std::ranges::sized_range<BudgetedBuffer>);
     static_assert(std::ranges::sized_range<const BudgetedBuffer>);
+#endif
 };
 
 #endif // SkCodecPriv_DEFINED
