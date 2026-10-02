@@ -7,10 +7,13 @@
 
 #include "include/core/SkContext.h"
 
+#include "include/core/SkContextOptions.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/core/SkTypes.h"
+#include "src/capture/SkCapture.h"
+#include "src/capture/SkCaptureManager.h"
 #include "src/core/SkContextPriv.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkSharedContext.h"
@@ -19,6 +22,9 @@
 #include "src/core/SkTypefaceCache.h"
 
 SkContext::SkContext(const SkContextOptions& options) {
+    if (options.fEnableCapture) {
+        fCaptureManager = sk_make_sp<SkCaptureManager>();
+    }
     fSharedContext = sk_make_sp<SkSharedContext>(options);
 }
 
@@ -26,6 +32,23 @@ SkContext::~SkContext() = default;
 
 SkContextPriv SkContext::priv() { return SkContextPriv(this); }
 SkContextPrivConst SkContext::priv() const { return SkContextPrivConst(this); }
+
+void SkContext::startCapture() {
+    if (!fCaptureManager) {
+        return;
+    }
+
+    fCaptureManager->toggleCapture(true);
+}
+
+sk_sp<SkCapture> SkContext::endCapture() {
+    if (!fCaptureManager) {
+        return nullptr;
+    }
+
+    fCaptureManager->toggleCapture(false);
+    return fCaptureManager->getLastCapture();
+}
 
 SkResourceCache* SkContext::resourceCache() const {
     return fSharedContext->synchronizedResourceCache();

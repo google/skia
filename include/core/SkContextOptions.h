@@ -50,6 +50,12 @@ struct SK_API SkContextOptions {
      * paths. If the cache needs to allocate more, it will purge previous entries.
      */
     size_t fFontCacheLimit = 2 * 1024 * 1024;
+
+    /**
+     * This enables support for capturing SkCaptures. The client still must call startCapture and
+     * endCapture on the SkContext.
+     */
+    bool fEnableCapture = false;
 };
 
 #endif  // SkContextOptions_DEFINED

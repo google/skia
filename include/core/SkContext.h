@@ -13,6 +13,8 @@
 
 #include <memory>
 
+class SkCapture;
+class SkCaptureManager;
 class SkContextPriv;
 class SkContextPrivConst;
 class SkResourceCache;
@@ -39,6 +41,16 @@ public:
     SkContextPriv priv();
     SkContextPrivConst priv() const;
 
+    /*
+     * Starts the SkCapture. Must have set SkContextOptions::fEnableCapture to start.
+     */
+    void startCapture();
+
+    /*
+     * Ends the SkCapture and returns the collected draws and surface creation.
+     */
+    sk_sp<SkCapture> endCapture();
+
 private:
     SkContext(const SkContextOptions&);
 
@@ -63,6 +75,7 @@ private:
 
     void dumpMemoryStatistics(SkTraceMemoryDump* dump);
 
+    sk_sp<SkCaptureManager> fCaptureManager;
     sk_sp<SkSharedContext> fSharedContext;
 };
 
