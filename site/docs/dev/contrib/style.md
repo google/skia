@@ -9,16 +9,25 @@ we hope to make the existing code conform to the guildelines.
 
 ## Files
 
-We use .cpp and .h as extensions for c++ source and header files.
+We use `.cpp` and `.h` as extensions for C++ source and header files.
 
-Headers that aren't meant for public consumption should be placed in src
-directories so that they aren't in a client's search path, or in include/private
-if they need to be used by public headers.
+Headers that aren't meant for public consumption should be placed in `src/`
+directories so that they aren't in a client's search path, or in
+`include/private/` (such as `include/private/base/`) if they need to be used by
+public headers.
 
-We prefer to minimize includes. If forward declaring a name in a header is
-sufficient then that is preferred to an include.
+`#include` directives use full paths relative to the repository root (e.g.
+`#include "include/core/SkTypes.h"` or `#include "src/core/SkPriv.h"`). We
+follow "include what you use" (do not rely on transitive includes), except in
+headers where forward declaring a name is preferred over an `#include` when
+sufficient.
 
-Forward declarations and file includes should be in alphabetical order.
+Forward declarations and file includes should be in alphabetical order. In both
+`.cpp` and `.h` files, Skia headers (`"..."`) come first, followed by system and
+C/C++ standard library headers (`<...>`). In `.cpp` files, the corresponding
+header for that implementation file comes first before all other includes. You
+can run `python3 tools/rewrite_includes.py` to automatically sort Skia includes
+and forward declarations (which is also checked on presubmit).
 
 ### No define before sktypes
 
@@ -33,13 +42,38 @@ We prefer no trailing whitespace but aren't very strict about it.
 
 We wrap lines at 100 columns unless it is excessively ugly (use your judgement).
 
+### Formatting and `git clang-format`
+
+Skia provides a [`.clang-format`](https://skia.googlesource.com/skia/+/main/.clang-format)
+configuration so you can format your modified lines before uploading:
+
+```
+git clang-format
+```
+
+`git clang-format` is a helpful guide and should be used often, but it is not
+the end-all be-all. Automated formatting does not always produce the most
+readable result—for example, when formatting tabular data, matrix/geometry grids,
+aligned comments or assignments, or hand-wrapped expressions. Use `git clang-format`
+as a starting point, and use your judgment when manual formatting is clearer.
+
 ## Naming
 
-Most externally visible types and functions in core Skia use an Sk- prefix to
-designate they're part of Skia, while code in Ganesh uses Gr-. Code in Graphite
-(and shared GPU utilities) lives in the `skgpu::graphite` (or `skgpu`)
-namespace and omits type and filename prefixes (e.g. `skgpu::graphite::Recorder`
-in `Recorder.h`). Nested types need not be prefixed.
+Externally visible types and functions follow these prefix and namespace
+conventions:
+
+* **Core Skia**: Uses an `Sk`- prefix to designate they're part of Skia (e.g.
+  `SkCanvas`).
+* **Ganesh**: Uses a `Gr`- prefix (e.g. `GrRecordingContext`).
+* **Namespaced subsystems**: Newer subsystems use namespaces and omit `Sk`/`Gr`
+  prefixes on types and filenames inside those namespaces (e.g.
+  `skgpu::graphite::Recorder` in `Recorder.h`):
+  * `skgpu::graphite` (Graphite)
+  * `skgpu` (shared GPU utilities)
+  * `skcpu` (CPU backend utilities)
+  * `sktext` and `SkSL`
+  * `skia_private` (internal containers and utilities)
+* **Nested types**: Need not be prefixed.
 
 <!--?prettify?-->
 
@@ -113,27 +147,32 @@ int drawPicture() {
 }
 ```
 
-Enum values are also prefixed with k. Unscoped enum values are postfixed with an
-underscore and singular name of the enum name. The enum itself should be
-singular for exclusive values or plural for a bitfield. If a count is needed it
-is `k<singular enum name>Count` and not be a member of the enum (see example),
-or a kLast member of the enum is fine too.
+Enum values are also prefixed with `k`. Scoped enums (`enum class`) are
+preferred in new code and do not need suffixes on their enumerators. Unscoped
+enum values are postfixed with an underscore and singular name of the enum name.
+The enum itself should be singular for exclusive values or plural for a
+bitfield (often paired with `SK_MAKE_BITMASK_OPS` and `SkEnumBitMask`). If a
+count is needed it is `k<singular enum name>Count`, not a member of the enum,
+and is derived from using a `kLast` member of the enum (see example).
 
 <!--?prettify?-->
 
 ```
-// Enum class does not need suffixes.
+// Scoped enum class (preferred for new code) does not need suffixes.
 enum class SkPancakeType {
      kBlueberry,
      kPlain,
      kChocolateChip,
+
+     kLast = kChocolateChip
 };
+static constexpr int kPancakeTypeCount = static_cast<int>(SkPancakeType::kLast) + 1;
 ```
 
 <!--?prettify?-->
 
 ```
-// Enum should have a suffix after the enum name.
+// Unscoped enum should have a suffix after the enum name.
 enum SkDonutType {
      kGlazed_DonutType,
      kSprinkles_DonutType,
@@ -143,7 +182,7 @@ enum SkDonutType {
      kLast_DonutType = kMaple_DonutType
 };
 
-static const SkDonutType kDonutTypeCount = kLast_DonutType + 1;
+static const int kDonutTypeCount = kLast_DonutType + 1;
 ```
 
 <!--?prettify?-->
@@ -165,12 +204,13 @@ enum SkMatrixFlags {
 ```
 
 Macros are all caps with underscores between words. Macros that have greater
-than file scope should be prefixed SK, SKGPU, or GR. Header guards in
+than file scope should be prefixed `SK`, `SKGPU`, or `GR`. Header guards in
 namespaced directories such as Graphite include the namespace prefix (e.g.
 `skgpu_graphite_Recorder_DEFINED`).
 
-Static non-class functions in implementation files are lower-case with
-underscores separating words:
+File-local helper functions in implementation (`.cpp`) files are lower-case with
+underscores separating words, and may be declared `static` or placed in an
+anonymous `namespace`:
 
 <!--?prettify?-->
 
@@ -221,14 +261,16 @@ than `#ifdef MACRO`.
 ```
 
 Graphite and shared GPU macros use the `SKGPU_` prefix (e.g.
-`SKGPU_ASSERT_SINGLE_OWNER`). The rest of Skia tends to use `#ifdef SK_MACRO`
-(or `#if defined(SK_MACRO)`) for boolean flags.
+`SKGPU_ASSERT_SINGLE_OWNER`). When checking whether a macro is defined, prefer
+`#if defined(SK_MACRO)` over `#ifdef SK_MACRO`.
 
 ## Braces
 
-Open braces don't get a newline. `else` and `else if` appear on same line as
+Open braces don't get a newline. `else` and `else if` appear on the same line as
 opening and closing braces unless preprocessor conditional compilation
 interferes. Braces are always used with `if`, `else`, `while`, `for`, and `do`.
+Prefer multi-line `if` statements over single-line `if` statements, unless
+aligning a series of simple checks improves readability.
 
 <!--?prettify?-->
 
@@ -286,7 +328,9 @@ switch (...) {
 }
 ```
 
-Cases and default in switch statements are indented from the switch.
+Cases and default in switch statements are indented from the switch. When a
+switch maps enum values to simple return values or assignments, compact
+single-line `case` statements are also fine when they improve readability.
 
 <!--?prettify?-->
 
@@ -300,8 +344,8 @@ switch (color) {
         break;
     ...
     default:
-       ...
-       break;
+        ...
+        break;
 }
 ```
 
@@ -346,16 +390,14 @@ switch (filter) {
 ## Classes
 
 Unless there is a need for forward declaring something, class declarations
-should be ordered `public`, `protected`, `private`. Each should be preceded by a
-newline. Within each visibility section (`public`, `private`), fields should not
-be intermixed with methods. It's nice to keep all data fields together at the
-end.
+should be ordered `public`, `protected`, `private`. Within each visibility
+section (`public`, `private`), fields should not be intermixed with methods.
+It's nice to keep all data fields together at the end.
 
 <!--?prettify?-->
 
 ```
 class SkFoo {
-
 public:
     ...
 
@@ -392,8 +434,8 @@ necessary when using a scope qualifier.
 class GrDillPickle : public GrPickle {
     ...
     bool onTasty() const override {
-        return GrPickle::onTasty()
-            && fFreshDill;
+        return GrPickle::onTasty() &&
+               fFreshDill;
     }
     ...
 private:
@@ -517,7 +559,8 @@ SkScalar SkPaint::getFontMetrics(FontMetric* metrics, SkScalar scale) const;
 ```
 
 If function arguments or parameters do not all fit on one line, the overflowing
-parameters may be lined up with the first parameter on the next line
+parameters may be lined up with the first parameter on the next line (either
+grouped across lines or placed one per line):
 
 <!--?prettify?-->
 
@@ -529,7 +572,7 @@ void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst,
 }
 ```
 
-or all parameters placed on the next line and indented eight spaces
+or all parameters placed on the next line and indented eight spaces:
 
 <!--?prettify?-->
 
