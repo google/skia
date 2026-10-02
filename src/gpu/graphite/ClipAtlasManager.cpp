@@ -14,7 +14,6 @@
 #include "include/core/SkSize.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkAssert.h"
-#include "include/private/SkAttributes.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -214,7 +213,7 @@ sk_sp<TextureProxy> ClipAtlasManager::DrawAtlasMgr::findOrCreateEntry(
                                      topLeft.y() + kEntryPadding + subsetRelativePos.y());
             fDrawAtlas->setLastUseToken(entry->fLocator,
                                         recorder->priv().tokenTracker()->nextFlushToken());
-            return SK_UNSAFE_TODO(fDrawAtlas->getProxies()[entry->fLocator.pageIndex()]);
+            return fDrawAtlas->getProxies()[entry->fLocator.pageIndex()];
         }
         entry = entry->fNext;
     }
@@ -301,7 +300,7 @@ sk_sp<TextureProxy> ClipAtlasManager::DrawAtlasMgr::addToAtlas(
     fDrawAtlas->setLastUseToken(*locator,
                                 recorder->priv().tokenTracker()->nextFlushToken());
 
-    return SK_UNSAFE_TODO(fDrawAtlas->getProxies()[locator->pageIndex()]);
+    return fDrawAtlas->getProxies()[locator->pageIndex()];
 }
 
 bool ClipAtlasManager::DrawAtlasMgr::recordUploads(DrawContext* dc, Recorder* recorder) {

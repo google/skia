@@ -5,7 +5,6 @@
 #define SkTraceEventCommon_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkAttributes.h"
 #include "include/utils/SkTraceEventPhase.h"
 
 // Trace events are for tracking application performance and resource usage.
@@ -217,8 +216,7 @@ static inline void skprintf_like_noop(const char format[], ...) {}
 template <typename... Args>
 static inline void sk_noop(Args...) {}
 #define TRACE_EMPTY(...) do { sk_noop(__VA_ARGS__); } while (0)
-#define TRACE_EMPTY_FMT(fmt, ...) \
-    do { SK_UNSAFE_TODO(skprintf_like_noop)(fmt, ##__VA_ARGS__); } while (0)
+#define TRACE_EMPTY_FMT(fmt, ...) do { skprintf_like_noop(fmt, ##__VA_ARGS__); } while (0)
 #else
 #define TRACE_EMPTY(...) do {} while (0)
 #define TRACE_EMPTY_FMT(fmt, ...) do {} while (0)
@@ -238,7 +236,7 @@ static inline void sk_noop(Args...) {}
     #define TRACE_EVENT_INSTANT0(cg, n, scope) TRACE_EMPTY(cg, n, scope)
     #define TRACE_EVENT_INSTANT1(cg, n, scope, a1n, a1v) TRACE_EMPTY(cg, n, scope, a1n, a1v)
     #define TRACE_EVENT_INSTANT2(cg, n, scope, a1n, a1v, a2n, a2v)  \
-        SK_UNSAFE_TODO(TRACE_EMPTY(cg, n, scope, a1n, a1v, a2n, a2v))
+        TRACE_EMPTY(cg, n, scope, a1n, a1v, a2n, a2v)
     #define TRACE_EVENT_INSTANT0_ALWAYS(cg, n, scope) TRACE_EMPTY(cg, n, scope)
     #define TRACE_EVENT_INSTANT1_ALWAYS(cg, n, scope, a1n, a1v) TRACE_EMPTY(cg, n, scope, a1n, a1v)
     #define TRACE_EVENT_INSTANT2_ALWAYS(cg, n, scope, a1n, a1v, a2n, a2v)  \
@@ -469,9 +467,8 @@ namespace skia_private {
 #define ATRACE_ANDROID_FRAMEWORK(fmt, ...)                                                  \
     char SK_PERFETTO_UID(skTraceStrBuf)[SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE];           \
     if (SkAndroidFrameworkTraceUtil::getEnableTracing()) {                                  \
-        SK_UNSAFE_TODO(snprintf)(SK_PERFETTO_UID(skTraceStrBuf),                            \
-                                 SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE,                   \
-                                 fmt, ##__VA_ARGS__);                                       \
+        snprintf(SK_PERFETTO_UID(skTraceStrBuf), SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE,   \
+                 fmt, ##__VA_ARGS__);                                                       \
     }                                                                                       \
     TRACE_EVENT0("skia.android", TRACE_STR_COPY(SK_PERFETTO_UID(skTraceStrBuf)))
 
@@ -531,9 +528,8 @@ namespace skia_private {
 
 #define TRACE_EVENT_INSTANT2(category_group, name, scope, arg1_name, arg1_val,      \
                              arg2_name, arg2_val)                                   \
-    do { SK_UNSAFE_TODO(TRACE_EVENT_ATRACE_OR_PERFETTO(category_group, name,       \
-                                                       arg1_name, arg1_val,        \
-                                                       arg2_name, arg2_val);) } while(0)
+    do { TRACE_EVENT_ATRACE_OR_PERFETTO(category_group, name, arg1_name, arg1_val,  \
+                                        arg2_name, arg2_val); } while(0)
 
 // As above but appends the ".always" suffix
 #define TRACE_EVENT_INSTANT0_ALWAYS(category_group, name, scope) \
@@ -629,9 +625,9 @@ namespace skia_private {
 
 #define TRACE_EVENT_INSTANT2(category_group, name, scope, arg1_name, arg1_val, \
                              arg2_name, arg2_val)                              \
-  SK_UNSAFE_TODO(INTERNAL_TRACE_EVENT_ADD(TRACE_EVENT_PHASE_INSTANT, category_group, name,    \
-                                          TRACE_EVENT_FLAG_NONE | scope, arg1_name, arg1_val, \
-                                          arg2_name, arg2_val))
+  INTERNAL_TRACE_EVENT_ADD(TRACE_EVENT_PHASE_INSTANT, category_group, name,    \
+                           TRACE_EVENT_FLAG_NONE | scope, arg1_name, arg1_val, \
+                           arg2_name, arg2_val)
 
 #define TRACE_EVENT_INSTANT0_ALWAYS(category_group, name, scope)            \
   INTERNAL_TRACE_EVENT_ADD(TRACE_EVENT_PHASE_INSTANT, category_group, name, \

@@ -40,7 +40,6 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/SingleOwner.h"
 #include "include/private/SkAssert.h"
-#include "include/private/SkAttributes.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
@@ -1296,7 +1295,7 @@ void Device::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPain
                 break;
             }
 
-            SK_UNSAFE_TODO(strokeCorners[i]) = {strokeCorner, strokeCorner};
+            strokeCorners[i] = {strokeCorner, strokeCorner};
             validCorners++;
         }
 
@@ -1443,20 +1442,19 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
     // SkPaint paintWithShader(paint);
     int dstClipIndex = 0;
     for (int i = 0; i < count; ++i) {
-        const auto& entry = SK_UNSAFE_TODO(set[i]);
         // If the entry is clipped by 'dstClips', that must be provided
-        SkASSERT(!entry.fHasClip || dstClips);
+        SkASSERT(!set[i].fHasClip || dstClips);
         // Similarly, if it has an extra transform, those must be provided
-        SkASSERT(entry.fMatrixIndex < 0 || preViewMatrices);
+        SkASSERT(set[i].fMatrixIndex < 0 || preViewMatrices);
 
         // See SkImageShader::MakeForDrawRect, as this behavior is consistent but avoids
         // allocating SkShader objects or having to modify the SkPaint.
         // Adjust `dst` such that it only samples from the portion of fSrcRect that overlaps with
         // the image bounds. This "decal" effect is applied geometrically to what is drawn so that
         // actual texture tiling can be clamped to the src rect.
-        const SkRect imageBounds = SkRect::Make(entry.fImage->bounds());
-        SkRect dstToDraw = entry.fDstRect;
-        SkRect subset = entry.fSrcRect;
+        const SkRect imageBounds = SkRect::Make(set[i].fImage->bounds());
+        SkRect dstToDraw = set[i].fDstRect;
+        SkRect subset = set[i].fSrcRect;
         SkMatrix localMatrix = SkMatrix::RectToRectOrIdentity(subset, dstToDraw);
         if (!imageBounds.contains(subset)) {
             if (subset.intersect(imageBounds)) {
@@ -1468,16 +1466,16 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         }
         if (!dstToDraw.isEmpty()) {
             PaintParams::SimpleImage imageShader{
-                    entry.fImage.get(),
+                    set[i].fImage.get(),
                     &localMatrix,
                     constraint == SkCanvas::kStrict_SrcRectConstraint ? subset : imageBounds,
                     sampling};
 
             // NOTE: See drawEdgeAAQuad for details, we do not snap non-AA quads.
-            SkEnumBitMask<EdgeAAQuad::Flags> flags = static_cast<EdgeAAQuad::Flags>(entry.fAAFlags);
-            EdgeAAQuad quad = entry.fHasClip
-                                      ? EdgeAAQuad(SK_UNSAFE_TODO(dstClips + dstClipIndex), flags)
-                                      : EdgeAAQuad(dstToDraw, flags);
+            SkEnumBitMask<EdgeAAQuad::Flags> flags =
+                    static_cast<EdgeAAQuad::Flags>(set[i].fAAFlags);
+            EdgeAAQuad quad = set[i].fHasClip ? EdgeAAQuad(dstClips + dstClipIndex, flags)
+                                              : EdgeAAQuad(dstToDraw, flags);
 
             // TODO: Calling drawGeometry() for each entry re-evaluates the clip stack every time,
             // which is consistent with Ganesh's behavior. It also matches the behavior if edge-AA
@@ -1485,14 +1483,13 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
             // However, we should explore the performance trade off with doing one bulk evaluation
             // for the whole set
             const SkMatrix* xtraXform =
-                    entry.fMatrixIndex < 0 ? nullptr
-                                           : SK_UNSAFE_TODO(&preViewMatrices[entry.fMatrixIndex]);
+                    set[i].fMatrixIndex < 0 ? nullptr : &preViewMatrices[set[i].fMatrixIndex];
             this->drawGeometry(xtraXform ? localToDevice.concat(SkM44(*xtraXform)) : localToDevice,
                                Geometry(quad),
-                               PaintParams(paint, imageShader, entry.fAlpha),
+                               PaintParams(paint, imageShader, set[i].fAlpha),
                                DefaultFillStyle());
         }
-        dstClipIndex += 4 * entry.fHasClip;
+        dstClipIndex += 4 * set[i].fHasClip;
     }
 }
 

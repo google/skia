@@ -10,7 +10,6 @@
 #include "include/gpu/graphite/Recording.h"
 #include "include/private/SkAlign.h"
 #include "include/private/SkAssert.h"
-#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkTo.h"
@@ -535,7 +534,7 @@ VertexWriter StaticBufferManager::getVertexWriter(size_t count,
     if (alignedCount > count) {
         const uint32_t byteDiff = (alignedCount - count) * stride;
         void* zPtr = SkTAddOffset<void>(data, count * stride);
-        SK_UNSAFE_TODO(memset(zPtr, 0, byteDiff));
+        memset(zPtr, 0, byteDiff);
     }
     return VertexWriter{data, size};
 }
