@@ -13,9 +13,6 @@
 #include "src/core/SkSpinlock.h"
 #include "src/core/SkTHash.h"
 
-#include <condition_variable>
-#include <mutex>
-
 namespace skgpu {
 class UniqueKey;
 }
@@ -30,9 +27,9 @@ class GraphicsPipelineDesc;
 class GraphicsPipelineHandle;
 enum class PipelineCreationFlags : uint8_t;
 class PipelineCreationTask;
-struct RenderPassDesc;
 class RuntimeEffectDictionary;
 class SharedContext;
+struct RenderPassDesc;
 
 class PipelineManager {
 public:
@@ -100,20 +97,11 @@ private:
 
     std::unique_ptr<SkTaskGroup> fTaskGroup SK_GUARDED_BY(fSpinLock);
 
-    void signalCompleted(PipelineCreationTask*);
-    void potentiallyWaitOn(PipelineCreationTask*);
+    void potentiallyWaitOn(const sk_sp<PipelineCreationTask>&);
 
     // Returns true if compilation occurred; false otherwise.
-    static bool InlineCompile(PipelineCreationTask*);
-
-    // We have the mutex and condition_variable here to limit the number of
-    // mutexes/semaphores we need for synchronizing access to the pipelines.
-    // The Context thread is the only place that resolves handles so we will only
-    // ever be waiting on at most one pipeline at a time and no other thread will
-    // need to block on waiting for a different pipeline. This means we don't need
-    // to add a condition_variable to every PipelineCreationTask.
-    std::mutex fMutex;
-    std::condition_variable fConditionVariable; // SK_GUARDED_BY(fMutex)
+    // All callers must hold a ref on the PipelineCreationTask.
+    static bool InlineCompile(const sk_sp<PipelineCreationTask>&);
 };
 
 } // namespace skgpu::graphite

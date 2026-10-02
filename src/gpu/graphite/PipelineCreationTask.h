@@ -81,9 +81,6 @@ private:
     std::atomic<bool> fIsHighPriority{false};
 
     std::atomic<bool> fStarted{false};
-    // Ideally, in C++-20, we would just wait on 'fCompleted' rather than using the
-    // mutex/condition_variable pattern (in PipelineManager). This is atomic bc it is still used
-    // outside the mutex in GraphicsPipelineHandle::pipelineOrNull.
     std::atomic<bool> fCompleted{false};
 };
 
