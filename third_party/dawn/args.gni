@@ -9,4 +9,5 @@ declare_args() {
   dawn_enable_opengles = false
   dawn_enable_metal = is_mac || is_ios
   dawn_enable_vulkan = is_linux || is_android
+  dawn_use_agility_sdk = false
 }
