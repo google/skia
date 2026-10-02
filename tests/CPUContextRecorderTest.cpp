@@ -5,20 +5,35 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/RasterContext.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkContext.h"
+#include "include/core/SkContextOptions.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "src/capture/SkCapture.h"
 #include "src/core/SkResourceCache.h"
 #include "tests/Test.h"
 
 #include <memory>
+
+DEF_TEST(SkContext_CaptureDisabledByDefault, reporter) {
+    SkContextOptions opts;
+    std::unique_ptr<SkContext> ctx = SkContexts::MakeRaster(opts);
+    REPORTER_ASSERT(reporter, ctx != nullptr);
+
+    ctx->startCapture();
+    sk_sp<SkCapture> capture = ctx->endCapture();
+    REPORTER_ASSERT(reporter, capture == nullptr);
+}
 
 // TODO(alexisdavidc) Re-enable once the new SkContext / CPU Context & Recorder API is implemented.
 #if 0
