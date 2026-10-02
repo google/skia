@@ -186,6 +186,9 @@ private:
     // Feature of VK_EXT_host_image_copy or Vulkan 1.4
     VkPhysicalDeviceHostImageCopyFeatures fHostImageCopy = {};
 
+    // Feature of VK_EXT_pipeline_protected_access or Vulkan 1.4
+    VkPhysicalDevicePipelineProtectedAccessFeatures fPipelineProtectedAccess = {};
+
     // Feature of VK_EXT_pipeline_creation_cache_control or Vulkan 1.3
     VkPhysicalDevicePipelineCreationCacheControlFeatures fPipelineCreationCacheControl = {};
 

@@ -720,6 +720,12 @@ static bool create_shaders_pipeline(VulkanSharedContext* sharedContext,
     shadersPipelineCreateInfo.renderPass = completePipelineInfo.renderPass;
     shadersPipelineCreateInfo.subpass = completePipelineInfo.subpass;
 
+    if (sharedContext->vulkanCaps().supportsPipelineProtectedAccess()) {
+        shadersPipelineCreateInfo.flags |= sharedContext->caps()->protectedSupport()
+                                            ? VK_PIPELINE_CREATE_PROTECTED_ACCESS_ONLY_BIT_EXT
+                                            : VK_PIPELINE_CREATE_NO_PROTECTED_ACCESS_BIT_EXT;
+    }
+
     // Specify that this is the shaders subset of the pipeline.
     libraryInfo.flags = VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT |
                         VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT;
@@ -1131,6 +1137,12 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(
     pipelineCreateInfo.subpass = subpassIndex;
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineCreateInfo.basePipelineIndex = -1;
+
+    if (sharedContext->vulkanCaps().supportsPipelineProtectedAccess()) {
+        pipelineCreateInfo.flags |= sharedContext->caps()->protectedSupport()
+                                        ? VK_PIPELINE_CREATE_PROTECTED_ACCESS_ONLY_BIT_EXT
+                                        : VK_PIPELINE_CREATE_NO_PROTECTED_ACCESS_BIT_EXT;
+    }
 
     VkPipelineLibraryCreateInfoKHR shadersLibraryInfo = {};
     shadersLibraryInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR;

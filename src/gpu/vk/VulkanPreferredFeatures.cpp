@@ -136,6 +136,7 @@ struct DeviceExtensions {
     bool fMultisampledRenderToSingleSampledEXT = false;
     bool fHostImageCopyEXT = false;
     bool fPipelineCreationCacheControlEXT = false;
+    bool fPipelineProtectedAccessEXT = false;
     bool fDriverPropertiesKHR = false;
     bool fCreateRenderpass2KHR = false;
     bool fLoadStoreOpNoneEXT = false;
@@ -205,6 +206,8 @@ void mark_device_extensions(DeviceExtensions& exts, const char* name) {
         exts.fHostImageCopyEXT = true;
     } else if (strcmp(name, VK_EXT_PIPELINE_CREATION_CACHE_CONTROL_EXTENSION_NAME) == 0) {
         exts.fPipelineCreationCacheControlEXT = true;
+    } else if (strcmp(name, VK_EXT_PIPELINE_PROTECTED_ACCESS_EXTENSION_NAME) == 0) {
+        exts.fPipelineProtectedAccessEXT = true;
     } else if (strcmp(name, VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME) == 0) {
         exts.fDriverPropertiesKHR = true;
     } else if (strcmp(name, VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME) == 0) {
@@ -280,6 +283,7 @@ struct FeaturesToAdd {
     bool fMultisampledRenderToSingleSampled = true;
     bool fHostImageCopy = true;
     bool fPipelineCreationCacheControl = true;
+    bool fPipelineProtectedAccess = true;
     bool fFrameBoundary = true;
     bool fSamplerYcbcrConversion = true;
 };
@@ -297,11 +301,15 @@ FeaturesToAdd get_features_to_query(uint32_t apiVersion,
         toQuery.fDynamicRenderingLocalRead = false;
         // VK_EXT_host_image_copy's feature is included in VkPhysicalDeviceVulkan14Features
         toQuery.fHostImageCopy = false;
+        // VK_EXT_pipeline_protected_access's feature is included in
+        // VkPhysicalDeviceVulkan14Features
+        toQuery.fPipelineProtectedAccess = false;
     } else {
         toQuery.fVulkan14 = false;
         // Check for support via individual extensions' feature structs
         toQuery.fDynamicRenderingLocalRead = exts.fDynamicRenderingLocalReadKHR;
         toQuery.fHostImageCopy = exts.fHostImageCopyEXT;
+        toQuery.fPipelineProtectedAccess = exts.fPipelineProtectedAccessEXT;
     }
     if (apiVersion >= VK_API_VERSION_1_3) {
         // VK_KHR_synchronization2's feature is included in VkPhysicalDeviceVulkan13Features
@@ -410,6 +418,9 @@ FeaturesToAdd get_features_to_query(uint32_t apiVersion,
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES:
                 toQuery.fPipelineCreationCacheControl = false;
                 break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES:
+                toQuery.fPipelineProtectedAccess = false;
+                break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT:
                 toQuery.fFrameBoundary = false;
                 break;
@@ -500,6 +511,10 @@ void VulkanPreferredFeatures::addFeaturesToQuery(const VkExtensionProperties* de
         }
         if (exts.fHostImageCopyEXT) {
             fHostImageCopy.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES;
+        }
+        if (exts.fPipelineProtectedAccessEXT) {
+            fPipelineProtectedAccess.sType =
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES;
         }
         if (exts.fLoadStoreOpNoneKHR) {
             fLoadStoreOpNoneExtension = VK_KHR_LOAD_STORE_OP_NONE_EXTENSION_NAME;
@@ -682,6 +697,10 @@ void VulkanPreferredFeatures::addFeaturesToQuery(const VkExtensionProperties* de
         SkASSERT(fPipelineCreationCacheControl.sType != 0);
         AddToPNextChain(&appFeatures, &fPipelineCreationCacheControl);
     }
+    if (toQuery.fPipelineProtectedAccess) {
+        SkASSERT(fPipelineProtectedAccess.sType != 0);
+        AddToPNextChain(&appFeatures, &fPipelineProtectedAccess);
+    }
     if (toQuery.fFrameBoundary) {
         SkASSERT(fFrameBoundary.sType != 0);
         AddToPNextChain(&appFeatures, &fFrameBoundary);
@@ -717,6 +736,7 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
     toEnable.fMultisampledRenderToSingleSampled = fMultisampledRenderToSingleSampled.sType != 0;
     toEnable.fHostImageCopy = fHostImageCopy.sType != 0;
     toEnable.fPipelineCreationCacheControl = fPipelineCreationCacheControl.sType != 0;
+    toEnable.fPipelineProtectedAccess = fPipelineProtectedAccess.sType != 0;
     toEnable.fFrameBoundary = fFrameBoundary.sType != 0;
 
     // Note on enabling the YCbCr conversion feature: Regardless of whether Skia or the app added
@@ -782,6 +802,10 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
         if (!appEnabledExts.fHostImageCopyEXT && toEnable.fHostImageCopy) {
             appExtensions.push_back(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME);
             appEnabledExts.fHostImageCopyEXT = true;
+        }
+        if (!appEnabledExts.fPipelineProtectedAccessEXT && toEnable.fPipelineProtectedAccess) {
+            appExtensions.push_back(VK_EXT_PIPELINE_PROTECTED_ACCESS_EXTENSION_NAME);
+            appEnabledExts.fPipelineProtectedAccessEXT = true;
         }
         if (!appEnabledExts.fPipelineCreationCacheControlEXT &&
             toEnable.fPipelineCreationCacheControl) {
@@ -1007,6 +1031,7 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
         fVulkan14.indexTypeUint8 = VK_FALSE;
         fVulkan14.maintenance5 = VK_FALSE;
         fVulkan14.maintenance6 = VK_FALSE;
+        // Enabled later if we see protectedMemory is supported.
         fVulkan14.pipelineProtectedAccess = VK_FALSE;
         fVulkan14.pipelineRobustness = VK_FALSE;
         fVulkan14.pushDescriptor = VK_FALSE;
@@ -1047,6 +1072,10 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
                 auto* features = reinterpret_cast<VkPhysicalDeviceVulkan11Features*>(pNext);
                 // If this struct is not chained by Skia, copy enabled features.
                 if (features != &fVulkan11) {
+                    if (fVulkan11.protectedMemory && hasVulkan14Features) {
+                        fVulkan14.pipelineProtectedAccess = VK_TRUE;
+                    }
+
                     DUP_INTO(fVulkan11, storageBuffer16BitAccess);
                     DUP_INTO(fVulkan11, uniformAndStorageBuffer16BitAccess);
                     DUP_INTO(fVulkan11, storagePushConstant16);
@@ -1378,9 +1407,14 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES: {
+                auto* features =
+                        reinterpret_cast<VkPhysicalDeviceProtectedMemoryFeatures*>(pNext);
+                if (hasVulkan14Features && features->protectedMemory) {
+                    // pipelineProtectedAccess is only required in Vulkan 1.4 if protectedMemory
+                    // is supported.
+                    fVulkan14.pipelineProtectedAccess = VK_TRUE;
+                }
                 if (hasVulkan11Features) {
-                    auto* features =
-                            reinterpret_cast<VkPhysicalDeviceProtectedMemoryFeatures*>(pNext);
                     DUP_INTO(fVulkan11, protectedMemory);
                 } else {
                     chain(newChainEnd, pNext);
@@ -1813,7 +1847,14 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
                     DUP_INTO(fVulkan14, pipelineProtectedAccess);
                 } else {
                     chain(newChainEnd, pNext);
+                    if (appEnabledExts.fPipelineProtectedAccessEXT) {
+                        auto* features =
+                                reinterpret_cast<VkPhysicalDevicePipelineProtectedAccessFeatures*>(
+                                        pNext);
+                        features->pipelineProtectedAccess = VK_TRUE;
+                    }
                 }
+                toEnable.fPipelineProtectedAccess = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES: {
@@ -1902,6 +1943,9 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
     }
     if (toEnable.fPipelineCreationCacheControl) {
         chain(newChainEnd, &fPipelineCreationCacheControl);
+    }
+    if (toEnable.fPipelineProtectedAccess) {
+        chain(newChainEnd, &fPipelineProtectedAccess);
     }
     if (toEnable.fFrameBoundary) {
         chain(newChainEnd, &fFrameBoundary);

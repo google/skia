@@ -15,8 +15,8 @@
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
 namespace skgpu::graphite {
-struct ContextOptions;
 class VulkanTextureInfo;
+struct ContextOptions;
 
 class VulkanCaps final : public Caps {
 public:
@@ -96,6 +96,8 @@ public:
         return fSupportsPipelineCreationCacheControl;
     }
 
+    bool supportsPipelineProtectedAccess() const { return fSupportsPipelineProtectedAccess; }
+
     bool supportsOcclusionQueryPrecise() const { return fOcclusionQueryPrecise; }
 
     uint32_t timestampValidBits(uint32_t queueIndex) const {
@@ -150,6 +152,9 @@ private:
         // From VkPhysicalDevicePipelineCreationCacheControlFeatures or
         // VkPhysicalDeviceVulkan13Features
         bool fPipelineCreationCacheControl = false;
+        // From VkPhysicalDevicePipelineProtectedAccessFeaturesEXT or
+        // VkPhysicalDeviceVulkan14Features:
+        bool fPipelineProtectedAccess = false;
         // From VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT
         bool fFormatRGBA10x6WithoutYCbCrSampler = false;
     };
@@ -220,6 +225,7 @@ private:
     bool fIsInputAttachmentReadCoherent = false;
     bool fSupportsFrameBoundary = false;
     bool fSupportsPipelineCreationCacheControl = false;
+    bool fSupportsPipelineProtectedAccess = false;
     bool fOcclusionQueryPrecise = false;
 
     // Flags to enable workarounds for driver bugs
