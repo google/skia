@@ -17,18 +17,18 @@
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/codec/SkBmpRustCodec.h"
-#include "src/codec/SkPngRustCodec.h"
 #include "rust/common/SkStreamAdapter.h"
+#include "src/codec/SkBmpRustCodec.h"
 #include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkPngRustCodec.h"
 #include "src/core/SkStreamPriv.h"
 
-#include "modules/skcms/skcms.h"
 #include <algorithm>
 #include <cstdint>
 #include <limits>
 #include <memory>
 #include <utility>
+#include "modules/skcms/skcms.h"
 
 using namespace skia_private;
 
@@ -55,10 +55,10 @@ static bool apply_and_mask(void* dst,
         return false;
     }
     rust::Slice<uint8_t> pixelSlice(static_cast<uint8_t*>(dst), pixelBytes);
-    rust::Slice<const uint8_t> dataSlice(
-            static_cast<const uint8_t*>(entryData->data()), entryData->size());
-    rust_ico::apply_and_mask(pixelSlice, dataSlice, info.width(), info.height(),
-                             info.bytesPerPixel(), rowBytes);
+    rust::Slice<const uint8_t> dataSlice(static_cast<const uint8_t*>(entryData->data()),
+                                         entryData->size());
+    rust_ico::apply_and_mask(
+            pixelSlice, dataSlice, info.width(), info.height(), info.bytesPerPixel(), rowBytes);
     return true;
 }
 
@@ -71,8 +71,8 @@ bool SkIcoRustCodec::IsIco(const void* buffer, size_t bytesRead) {
     return rust_ico::is_ico(inputAdapter);
 }
 
-std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(
-    std::unique_ptr<SkStream> stream, Result* result) {
+std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
+                                                        Result* result) {
     // Handle nullptr result parameter by using local storage
     Result resultStorage;
     if (result == nullptr) {
@@ -112,8 +112,7 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(
     // Parse ICO directory using Rust via a seekable view over the buffer.
     SkMemoryStream dataStream(data);
     rust::stream::SkStreamAdapter inputAdapter(&dataStream);
-    rust::Box<rust_ico::DirectoryResult> directoryResult =
-            rust_ico::parse_directory(inputAdapter);
+    rust::Box<rust_ico::DirectoryResult> directoryResult = rust_ico::parse_directory(inputAdapter);
 
     // Map Rust parse result to SkCodec::Result
     switch (directoryResult->status()) {
@@ -191,18 +190,15 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(
     for (uint32_t groupStart = 0; groupStart < numImages;) {
         const uint32_t offset = directoryResult->get_entry(groupStart).offset;
         uint32_t groupEnd = groupStart + 1;
-        while (groupEnd < numImages &&
-               directoryResult->get_entry(groupEnd).offset == offset) {
+        while (groupEnd < numImages && directoryResult->get_entry(groupEnd).offset == offset) {
             ++groupEnd;
         }
 
         const size_t availableSize = offset < totalSize ? totalSize - offset : 0;
         const bool hasNextOffset = groupEnd < numImages;
-        const uint32_t nextOffset =
-                hasNextOffset ? directoryResult->get_entry(groupEnd).offset : 0;
-        const size_t size =
-                hasNextOffset ? std::min<size_t>(nextOffset - offset, availableSize)
-                              : availableSize;
+        const uint32_t nextOffset = hasNextOffset ? directoryResult->get_entry(groupEnd).offset : 0;
+        const size_t size = hasNextOffset ? std::min<size_t>(nextOffset - offset, availableSize)
+                                          : availableSize;
         const bool hasCompleteNextOffset = hasNextOffset && nextOffset <= totalSize;
         for (uint32_t i = groupStart; i < groupEnd; ++i) {
             const bool truncated =
@@ -256,8 +252,8 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(
             codec = SkPngRustCodec::MakeFromStream(std::move(entryStream), &entryResult);
         } else {
             bmpData = entryData;
-            codec = SkBmpRustCodec::MakeFromStream(std::move(entryStream), &entryResult,
-                                                   SkBmpRustCodec::StreamType::kICO);
+            codec = SkBmpRustCodec::MakeFromStream(
+                    std::move(entryStream), &entryResult, SkBmpRustCodec::StreamType::kICO);
         }
         if (!codec && entryResult == kIncompleteInput) {
             hasIncompleteEntry = true;
@@ -270,11 +266,11 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(
 
             // Store codec with its bit count for sorting
             entries.push_back({
-                std::move(codec),
-                std::move(bmpData),
-                directorySize,
-                hotSpot,
-                entry.bit_count,
+                    std::move(codec),
+                    std::move(bmpData),
+                    directorySize,
+                    hotSpot,
+                    entry.bit_count,
             });
         }
     }
@@ -301,21 +297,20 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(
     // payload fits their reported frame ahead of metadata-only oversized
     // entries so frame zero remains decodable, then preserve the existing
     // payload-area/bit-depth ordering within each group.
-    std::stable_sort(
-            entries.begin(),
-            entries.end(),
-            [fitsReportedFrame](const CodecEntry& a, const CodecEntry& b) {
-                const bool aFits = fitsReportedFrame(a);
-                const bool bFits = fitsReportedFrame(b);
-                if (aFits != bFits) {
-                    return aFits;
-                }
-                const SkISize aDims = a.codec->dimensions();
-                const SkISize bDims = b.codec->dimensions();
-                const int64_t aArea = aDims.area();
-                const int64_t bArea = bDims.area();
-                return aArea != bArea ? aArea > bArea : a.bitCount > b.bitCount;
-            });
+    std::stable_sort(entries.begin(),
+                     entries.end(),
+                     [fitsReportedFrame](const CodecEntry& a, const CodecEntry& b) {
+                         const bool aFits = fitsReportedFrame(a);
+                         const bool bFits = fitsReportedFrame(b);
+                         if (aFits != bFits) {
+                             return aFits;
+                         }
+                         const SkISize aDims = a.codec->dimensions();
+                         const SkISize bDims = b.codec->dimensions();
+                         const int64_t aArea = aDims.area();
+                         const int64_t bArea = bDims.area();
+                         return aArea != bArea ? aArea > bArea : a.bitCount > b.bitCount;
+                     });
 
     if (!fitsReportedFrame(entries.front()) && hasIncompleteEntry) {
         *result = kIncompleteInput;
@@ -381,9 +376,7 @@ bool SkIcoRustCodec::getHotSpot(int frameIndex, SkIPoint* hotSpot) const {
     return true;
 }
 
-SkIcoRustCodec::Frame::Frame(int index,
-                             const SkImageInfo& info,
-                             SkEncodedInfo::Alpha alpha)
+SkIcoRustCodec::Frame::Frame(int index, const SkImageInfo& info, SkEncodedInfo::Alpha alpha)
         : SkFrame(index), fReportedAlpha(alpha) {
     this->setRequiredFrame(SkCodec::kNoFrame);
     this->setHasAlpha(alpha != SkEncodedInfo::Alpha::kOpaque_Alpha);
@@ -391,9 +384,7 @@ SkIcoRustCodec::Frame::Frame(int index,
     this->setXYWH(0, 0, info.width(), info.height());
 }
 
-int SkIcoRustCodec::onGetFrameCount() {
-    return SkToInt(fEmbeddedImages.size());
-}
+int SkIcoRustCodec::onGetFrameCount() { return SkToInt(fEmbeddedImages.size()); }
 
 bool SkIcoRustCodec::onGetFrameInfo(int index, FrameInfo* info) const {
     const SkFrame* frame = fFrameHolder.getFrame(index);
@@ -457,8 +448,7 @@ bool SkIcoRustCodec::onDimensionsSupported(const SkISize& dim) {
  * See selectAndDecode declaration in the header for details.
  */
 template <typename Fn>
-SkCodec::Result SkIcoRustCodec::selectAndDecode(
-        const SkISize& dims, const Options& opts, Fn fn) {
+SkCodec::Result SkIcoRustCodec::selectAndDecode(const SkISize& dims, const Options& opts, Fn fn) {
     // Each embedded image is a separate codec with its own single frame (index 0),
     // so reset fFrameIndex when delegating.
     Options embeddedOpts = opts;
@@ -552,24 +542,26 @@ SkCodec::Result SkIcoRustCodec::onStartIncrementalDecode(const SkImageInfo& dstI
                                                          const SkCodec::Options& options) {
     fCurrCodec = nullptr;
     fIncrementalBmpEntryData.reset();
-    return selectAndDecode(dstInfo.dimensions(), options,
-        [&](SkCodec* codec, int codecIndex, const Options& embeddedOpts) -> Result {
-            const SkImageInfo embeddedInfo = dstInfo.makeDimensions(codec->dimensions());
-            if (embeddedInfo.dimensions() != dstInfo.dimensions() &&
-                !clear_canvas(dstInfo, pixels, rowBytes, options.fZeroInitialized)) {
-                return kInvalidConversion;
-            }
-            Result r = codec->startIncrementalDecode(
-                    embeddedInfo, pixels, rowBytes, &embeddedOpts);
-            if (r == kSuccess) {
-                fCurrCodec = codec;
-                fIncrementalDst = pixels;
-                fIncrementalRowBytes = rowBytes;
-                fIncrementalDstInfo = embeddedInfo;
-                fIncrementalBmpEntryData = fEmbeddedImages[codecIndex].fBmpEntryData;
-            }
-            return r;
-        });
+    return selectAndDecode(
+            dstInfo.dimensions(),
+            options,
+            [&](SkCodec* codec, int codecIndex, const Options& embeddedOpts) -> Result {
+                const SkImageInfo embeddedInfo = dstInfo.makeDimensions(codec->dimensions());
+                if (embeddedInfo.dimensions() != dstInfo.dimensions() &&
+                    !clear_canvas(dstInfo, pixels, rowBytes, options.fZeroInitialized)) {
+                    return kInvalidConversion;
+                }
+                Result r = codec->startIncrementalDecode(
+                        embeddedInfo, pixels, rowBytes, &embeddedOpts);
+                if (r == kSuccess) {
+                    fCurrCodec = codec;
+                    fIncrementalDst = pixels;
+                    fIncrementalRowBytes = rowBytes;
+                    fIncrementalDstInfo = embeddedInfo;
+                    fIncrementalBmpEntryData = fEmbeddedImages[codecIndex].fBmpEntryData;
+                }
+                return r;
+            });
 }
 
 SkCodec::Result SkIcoRustCodec::onIncrementalDecode(int* rowsDecoded) {
@@ -578,8 +570,10 @@ SkCodec::Result SkIcoRustCodec::onIncrementalDecode(int* rowsDecoded) {
     if (result == kSuccess || result == kIncompleteInput) {
         // Apply AND mask for BMP entries after incremental decode completes
         if (fIncrementalBmpEntryData) {
-            if (!apply_and_mask(fIncrementalDst, fIncrementalRowBytes,
-                                fIncrementalDstInfo, fIncrementalBmpEntryData)) {
+            if (!apply_and_mask(fIncrementalDst,
+                                fIncrementalRowBytes,
+                                fIncrementalDstInfo,
+                                fIncrementalBmpEntryData)) {
                 return kInvalidParameters;
             }
         }

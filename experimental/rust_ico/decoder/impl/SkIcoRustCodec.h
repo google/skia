@@ -53,12 +53,13 @@ protected:
     /**
      * Initiates the ICO decode.
      */
-    Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
-            int*) override;
+    Result onGetPixels(const SkImageInfo& dstInfo,
+                       void* dst,
+                       size_t dstRowBytes,
+                       const Options&,
+                       int*) override;
 
-    SkEncodedImageFormat onGetEncodedFormat() const override {
-        return SkEncodedImageFormat::kICO;
-    }
+    SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kICO; }
 
     // Chromium's IcoRustImageDecoder enumerates ICO entries through SkCodec's
     // frame APIs. Each entry is independent and updates its native-sized rect.
@@ -87,8 +88,10 @@ private:
     // clients such as Blink's `SkiaImageDecoderBase`.
     bool onSupportsIncrementalDecode(const SkImageInfo&) override { return true; }
 
-    Result onStartIncrementalDecode(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
-            const SkCodec::Options&) override;
+    Result onStartIncrementalDecode(const SkImageInfo& dstInfo,
+                                    void* pixels,
+                                    size_t rowBytes,
+                                    const SkCodec::Options&) override;
 
     Result onIncrementalDecode(int* rowsDecoded) override;
 
@@ -115,8 +118,7 @@ private:
      * fn signature: Result fn(SkCodec* codec, int codecIndex, const Options& embeddedOpts)
      * where embeddedOpts has fFrameIndex reset to 0.
      */
-    template <typename Fn>
-    Result selectAndDecode(const SkISize& dims, const Options& opts, Fn fn);
+    template <typename Fn> Result selectAndDecode(const SkISize& dims, const Options& opts, Fn fn);
 
     /**
      * Bundles an embedded image's decoder with its optional AND-mask payload so
@@ -167,9 +169,8 @@ private:
 
     protected:
         const SkFrame* onGetFrame(int index) const override {
-            return index >= 0 && static_cast<size_t>(index) < fFrames.size()
-                           ? &fFrames[index]
-                           : nullptr;
+            return index >= 0 && static_cast<size_t>(index) < fFrames.size() ? &fFrames[index]
+                                                                             : nullptr;
         }
 
     private:

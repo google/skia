@@ -269,8 +269,7 @@ impl Reader {
 
         let total_bytes = image::ImageDecoder::total_bytes(&decoder) as usize;
         let mut pixels = vec![0u8; total_bytes];
-        image::ImageDecoder::read_image(decoder, &mut pixels)
-            .map_err(|_| IcoError::InvalidData)?;
+        image::ImageDecoder::read_image(decoder, &mut pixels).map_err(|_| IcoError::InvalidData)?;
 
         Ok(Reader {
             pixels,
@@ -407,7 +406,7 @@ impl Reader {
                 rgba_pixels.push(chunk[0]); // R
                 rgba_pixels.push(chunk[1]); // G
                 rgba_pixels.push(chunk[2]); // B
-                rgba_pixels.push(255);      // A (opaque)
+                rgba_pixels.push(255); // A (opaque)
             }
         }
 
@@ -556,9 +555,8 @@ pub fn apply_and_mask(
         return;
     }
 
-    let header_size = u32::from_le_bytes([
-        entry_data[0], entry_data[1], entry_data[2], entry_data[3],
-    ]) as usize;
+    let header_size =
+        u32::from_le_bytes([entry_data[0], entry_data[1], entry_data[2], entry_data[3]]) as usize;
 
     // Color table size (for bit depths <= 8)
     let color_table_size = if bit_count <= 8 {
@@ -675,11 +673,19 @@ pub struct DirectoryResult {
 
 impl DirectoryResult {
     fn error(status: DirectoryParseResult) -> Box<Self> {
-        Box::new(Self { status, file_type: IcoFileType::Icon, entries: Vec::new() })
+        Box::new(Self {
+            status,
+            file_type: IcoFileType::Icon,
+            entries: Vec::new(),
+        })
     }
 
     fn error_for(status: DirectoryParseResult, file_type: IcoFileType) -> Box<Self> {
-        Box::new(Self { status, file_type, entries: Vec::new() })
+        Box::new(Self {
+            status,
+            file_type,
+            entries: Vec::new(),
+        })
     }
 
     pub fn status(&self) -> DirectoryParseResult {

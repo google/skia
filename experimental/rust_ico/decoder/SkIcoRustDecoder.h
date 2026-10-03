@@ -45,9 +45,7 @@ SK_API std::unique_ptr<SkCodec> Decode(sk_sp<const SkData>,
  */
 SK_API bool GetHotSpot(const SkCodec* codec, int frameIndex, SkIPoint* hotSpot);
 
-inline constexpr SkCodecs::Decoder Decoder() {
-    return { "ico", IsIco, Decode };
-}
+inline constexpr SkCodecs::Decoder Decoder() { return {"ico", IsIco, Decode}; }
 
 }  // namespace SkIcoRustDecoder
 

@@ -15,9 +15,7 @@
 
 namespace SkIcoRustDecoder {
 
-bool IsIco(const void* buff, size_t bytesRead) {
-    return SkIcoRustCodec::IsIco(buff, bytesRead);
-}
+bool IsIco(const void* buff, size_t bytesRead) { return SkIcoRustCodec::IsIco(buff, bytesRead); }
 
 std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
                                 SkCodec::Result* result,
