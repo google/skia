@@ -9,6 +9,7 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedImageFormat.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "src/codec/SkFrameHolder.h"
@@ -43,6 +44,8 @@ public:
      * Reads enough of the stream to determine the image format.
      */
     static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
+
+    bool getHotSpot(int frameIndex, SkIPoint* hotSpot) const;
 
 protected:
     SkISize onGetScaledDimensions(float desiredScale) const override;
@@ -125,6 +128,7 @@ private:
         // Non-null for BMP entries, null for PNG entries.
         sk_sp<const SkData> fBmpEntryData;
         SkISize fReportedFrameSize;
+        SkIPoint fHotSpot;
     };
 
     /**
@@ -134,7 +138,8 @@ private:
      */
     SkIcoRustCodec(SkEncodedInfo&& info,
                    std::unique_ptr<SkStream>,
-                   std::vector<EmbeddedImage> embeddedImages);
+                   std::vector<EmbeddedImage> embeddedImages,
+                   bool isCursor);
 
     const SkFrameHolder* getFrameHolder() const override { return &fFrameHolder; }
 
@@ -175,6 +180,7 @@ private:
     // lockstep.
     std::vector<EmbeddedImage> fEmbeddedImages;
     FrameHolder fFrameHolder;
+    const bool fIsCursor;
 
     // fCurrCodec is owned by this class, but should not be an
     // std::unique_ptr. It will be deleted by the destructor of fEmbeddedImages.
