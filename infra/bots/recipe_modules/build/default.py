@@ -98,8 +98,12 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
       env['IPHONEOS_DEPLOYMENT_TARGET'] = '18.2'
       args['ios_min_target'] = '"18.0"'
     elif 'iOS' in extra_tokens:
-      env['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
-      args['ios_min_target'] = '"13.0"'
+      if 'Graphite' in extra_tokens:
+        env['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+        args['ios_min_target'] = '"15.0"'
+      else:
+        env['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+        args['ios_min_target'] = '"13.0"'
     else:
       # We have some machines on 11.
       env['MACOSX_DEPLOYMENT_TARGET'] = '11.0'

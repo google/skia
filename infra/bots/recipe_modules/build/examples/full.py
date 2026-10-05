@@ -84,6 +84,7 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGPU',
   'Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoPrecompile',
   'Build-Mac-Clang-arm64-Debug-iOS',
+  'Build-Mac-Clang-arm64-Debug-iOS_Graphite_Native_Metal',
   'Build-Mac-Clang-arm64-Release-Graphite_Native_Dawn_Metal',
   'Build-Mac-Clang-arm64-Release-Graphite_Native_Metal',
   'Build-Mac-Clang-arm64-Release-iOS18_Metal',
