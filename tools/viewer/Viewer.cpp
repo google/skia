@@ -3221,8 +3221,7 @@ void Viewer::drawImGui() {
 #if defined(SK_VULKAN)
                     if (isVulkan && !sksl) {
                         // Disassemble the SPIR-V into its textual form.
-                        // Vulkan 1.1 accepts SPIR-V 1.0-1.3, matching SkSL::kSPIRVVersion.
-                        spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_1);
+                        spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
                         uint32_t options = spvtools::SpirvTools::kDefaultDisassembleOption;
                         options |= SPV_BINARY_TO_TEXT_OPTION_COMMENT |
                                    SPV_BINARY_TO_TEXT_OPTION_INDENT |

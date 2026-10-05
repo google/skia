@@ -131,11 +131,10 @@ static SpvStorageClass get_storage_class_spv_id(StorageClass storageClass) {
         case StorageClass::kUniform: return SpvStorageClassUniform;
         // Note: In SPIR-V 1.3, a storage buffer can be declared with the "StorageBuffer"
         // storage class and the "Block" decoration and the <1.3 approach we use here ("Uniform"
-        // storage class and the "BufferBlock" decoration) is deprecated. The deprecated approach
-        // is still valid in SPIR-V 1.3 (which we target), is well supported in Vulkan, and
+        // storage class and the "BufferBlock" decoration) is deprecated. Since we target SPIR-V
+        // 1.0, we have to use the deprecated approach which is well supported in Vulkan and
         // addresses SkSL use cases (notably SkSL currently doesn't support pointer features that
-        // would benefit from SPV_KHR_variable_pointers capabilities). BufferBlock is removed in
-        // SPIR-V 1.4, so targeting 1.4+ will require switching to the StorageBuffer approach.
+        // would benefit from SPV_KHR_variable_pointers capabilities).
         case StorageClass::kStorageBuffer: return SpvStorageClassUniform;
         case StorageClass::kOutput: return SpvStorageClassOutput;
         case StorageClass::kWorkgroup: return SpvStorageClassWorkgroup;

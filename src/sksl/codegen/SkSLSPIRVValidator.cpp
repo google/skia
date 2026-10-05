@@ -17,8 +17,7 @@ namespace SkSL {
 static bool validate_spirv(ErrorReporter& reporter,
                            SkSpan<const uint32_t> program,
                            bool disassemble) {
-    // Vulkan 1.1 accepts SPIR-V 1.0-1.3. This must accept SkSL::kSPIRVVersion.
-    spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_1);
+    spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
     std::string errors;
     auto msgFn = [&errors](spv_message_level_t, const char*, const spv_position_t&, const char* m) {
         errors += "SPIR-V validation error: ";

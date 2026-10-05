@@ -27,12 +27,7 @@ using ValidateSPIRVProc = bool (*)(ErrorReporter&, SkSpan<const uint32_t>);
 // This is intentionally independent of SpvVersion in spirv.h, which tracks the newest version the
 // header describes. Tools that validate or disassemble SkSL's SPIR-V output must use a
 // spvtools target environment that accepts this version.
-//
-// SPIR-V 1.3 is the newest version a Vulkan 1.1 device (Skia's minimum) is required to accept, and
-// the first to include GroupNonUniform (subgroup) operations. Note that the device's effective API
-// version is min(VkApplicationInfo::apiVersion, VkPhysicalDeviceProperties::apiVersion), which is
-// why VulkanBackendContext::fMaxAPIVersion must match the instance's apiVersion.
-inline constexpr uint32_t kSPIRVVersion = 0x00010300;  // SPIR-V 1.3
+inline constexpr uint32_t kSPIRVVersion = 0x00010000;  // SPIR-V 1.0
 
 /**
  * Converts a Program into a SPIR-V binary. Prefer the std::vector<uint32_t> variant bacause the
