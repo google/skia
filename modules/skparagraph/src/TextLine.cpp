@@ -628,6 +628,13 @@ void TextLine::createSoftHyphen() {
     if (!lastCluster.isSoftHyphen()) {
         return;
     }
+    // Only draw the hyphen if the line actually broke at the soft hyphen. It
+    // didn't if spaces or a hard line break follow it, which are trimmed into
+    // the ghost clusters, or if the soft hyphen ends the paragraph.
+    if (fClusterRange.end != fGhostClusterRange.end ||
+        fTextIncludingNewlines.end >= fOwner->text().size()) {
+        return;
+    }
 
     SkString hyphenStr("-");
     fHyphen = this->shapeEllipsis(hyphenStr, &lastCluster, /*isHyphen=*/true);

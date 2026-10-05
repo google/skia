@@ -8884,6 +8884,75 @@ UNIX_ONLY_TEST(SkParagraph_SoftHyphenNoBreak, reporter) {
     REPORTER_ASSERT(reporter, firstLine.hyphen() == nullptr);
 }
 
+// A line can end with a soft hyphen without breaking there. In that case no
+// hyphen should be rendered.
+static std::unique_ptr<Paragraph> layoutSoftHyphenText(sk_sp<ResourceFontCollection> fontCollection,
+                                                       const char* text,
+                                                       SkScalar width) {
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setRenderSoftHyphens(true);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, strlen(text));
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(width);
+    return paragraph;
+}
+
+static bool anyLineHasHyphen(Paragraph* paragraph) {
+    auto impl = static_cast<ParagraphImpl*>(paragraph);
+    for (auto& line : impl->lines()) {
+        if (line.hyphen() != nullptr) {
+            return true;
+        }
+    }
+    return false;
+}
+
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenAtEndOfParagraph, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    // The space keeps this off the single-run layout fast path, which never
+    // creates a soft hyphen.
+    auto paragraph = layoutSoftHyphenText(fontCollection, "an inter\xC2\xAD", TestCanvasWidth);
+    REPORTER_ASSERT(reporter, static_cast<ParagraphImpl*>(paragraph.get())->lines().size() == 1);
+    REPORTER_ASSERT(reporter, !anyLineHasHyphen(paragraph.get()));
+}
+
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenBeforeSpace, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    // The line breaks at the space, not at the soft hyphen before it.
+    auto paragraph = layoutSoftHyphenText(fontCollection,
+                                          "inter\xC2\xAD"
+                                          " national",
+                                          80);
+    REPORTER_ASSERT(reporter, static_cast<ParagraphImpl*>(paragraph.get())->lines().size() >= 2);
+    REPORTER_ASSERT(reporter, !anyLineHasHyphen(paragraph.get()));
+}
+
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenBeforeHardBreak, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    auto paragraph = layoutSoftHyphenText(fontCollection,
+                                          "inter\xC2\xAD"
+                                          "\nnational",
+                                          TestCanvasWidth);
+    REPORTER_ASSERT(reporter, static_cast<ParagraphImpl*>(paragraph.get())->lines().size() == 2);
+    REPORTER_ASSERT(reporter, !anyLineHasHyphen(paragraph.get()));
+}
+
 UNIX_ONLY_TEST(SkParagraph_MultipleSoftHyphens, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
