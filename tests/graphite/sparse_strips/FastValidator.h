@@ -33,7 +33,8 @@ template <uint16_t kTileWidth, uint16_t kTileHeight> class Tiles;
 // Unlike the Oracle, the FastValidator implicitly assumes that the flattenning and tiling are
 // correct; it calculates winding by consuming the polyline produced by flattenning and therefore
 // does not root solve. It only validates the condensed geometric tiles produced by the
-// StripProcessors.
+// StripProcessors: the EndCaps per subsample, and every other tile of the viewport, which must be
+// covered by exactly one WideTile if all of its subsamples are inside the path, or else be empty.
 template <uint16_t kTileWidth, uint16_t kTileHeight> class FastValidator {
 public:
     static constexpr float kTileWidthF = static_cast<float>(kTileWidth);
@@ -75,8 +76,10 @@ public:
     // Validates a single path end-to-end:
     // 1. Flattens using unculled Flatten::processPathsSimdTest to get ground-truth polyline.
     // 2. Runs the production pipeline under test (culled Flatten -> Tiler -> MakeStrips).
-    // 3. Evaluates 8-subsample winding only across the tiles of interest (ends.caps()).
+    // 3. Evaluates 8-subsample winding across the tiles of interest (ends.caps()).
     // 4. Verifies actual masks and alpha reduction against expected ground truth.
+    // 5. Verifies that every other tile of the viewport is covered by exactly one WideTile if it is
+    //    inside the path, and is empty if it is outside.
     static bool ValidatePath(skiatest::Reporter* reporter,
                              Recorder* recorder,
                              const SkPath& path,

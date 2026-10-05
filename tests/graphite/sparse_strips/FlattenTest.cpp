@@ -7,13 +7,19 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
 #include "src/core/SkVx.h"
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
+#include "tests/graphite/sparse_strips/CullingRepros.h"
 
 #include <cmath>
 
@@ -405,7 +411,7 @@ template <FlattenMode kMode> class FlattenTestRunner {
         const float kViewH = 100.0f;
 
         enum class Expect {
-            kCulled,      // Removed: Init NaN + Start pt + Cull NaN + Last pt + Start pt (5 points)
+            kCulled,      // Removed: Start pt + Cull NaN (2 points)
             kSimplified,  // Left side simplification: Start pt + End pt + Close pt + NaN (4 points)
             kSubdivided   // Intersects viewport: Subdivided curve (> 4 points)
         };
@@ -420,8 +426,8 @@ template <FlattenMode kMode> class FlattenTestRunner {
             if (expect == Expect::kCulled) {
                 REPORTER_ASSERT(
                         reporter,
-                        count == 5,
-                        "[%s] Expected curve to be entirely culled (5 points), got %d points",
+                        count == 2,
+                        "[%s] Expected curve to be entirely culled (2 points), got %d points",
                         testName,
                         count);
             } else if (expect == Expect::kSimplified) {
@@ -460,6 +466,79 @@ template <FlattenMode kMode> class FlattenTestRunner {
         checkPath(SkPathBuilder().moveTo(-20, -20).quadTo(120, -20, 120, 120).detach(),
                   Expect::kSubdivided,
                   "Crosses_Viewport");
+    }
+
+    // A contour whose verbs are all culled must still emit its closing edge whenever that edge is
+    // not itself culled, since it may be the only geometry contributing winding inside the clip.
+    // This only matters for open contours: an explicit close() reaches Flatten as a (never culled)
+    // line. Note: This only verifies the polyline; FastValidator validates the resulting coverage.
+    static void TestCulledContourClosingEdge(skiatest::Reporter* reporter) {
+        // Flattens a single contour whose verbs all lie outside of `clip` and verifies that its
+        // closing edge is the only line that survives culling.
+        auto checkOnlyClosingEdge = [&](const SkPath& path,
+                                        const SkMatrix& ctm,
+                                        const SkIRect& clip,
+                                        const char* testName) {
+            Flatten flattener;
+            Polyline polyline;
+            // Note: Flatten only supports clips anchored at the origin at this point.
+            SkASSERT(clip.fLeft == 0 && clip.fTop == 0);
+            flattener.processPaths<kMode>(path,
+                                          ctm,
+                                          static_cast<float>(clip.width()),
+                                          static_cast<float>(clip.height()),
+                                          &polyline);
+
+            const SkPoint startPt = ctm.mapPoint(path.getPoint(0));
+            const SkPoint lastPt = ctm.mapPoint(path.getPoint(path.countPoints() - 1));
+            // Allow for differences in how the ctm is applied to large device space coordinates.
+            constexpr float kTolerance = 0.01f;
+            int numLines = 0;
+            bool hasClosingEdge = false;
+            for (auto [line, index] : polyline) {
+                ++numLines;
+                hasClosingEdge |= SkPoint::Distance(line.p0, lastPt) <= kTolerance &&
+                                  SkPoint::Distance(line.p1, startPt) <= kTolerance;
+            }
+            REPORTER_ASSERT(reporter,
+                            numLines == 1 && hasClosingEdge,
+                            "[%s] Expected only the closing edge (%f, %f) -> (%f, %f) to survive "
+                            "culling, got %d lines (closing edge %s)",
+                            testName,
+                            lastPt.fX,
+                            lastPt.fY,
+                            startPt.fX,
+                            startPt.fY,
+                            numLines,
+                            hasClosingEdge ? "found" : "missing");
+        };
+
+        const SkIRect clip = SkIRect::MakeWH(100, 100);
+
+        // Closing edge runs down the left of the clip, covering all of it.
+        checkOnlyClosingEdge(CullingRepros::AllVerbsCulledContour(clip, /*close=*/false),
+                             SkMatrix::I(),
+                             clip,
+                             "AllVerbsCulled_ClosingEdgeLeft_Open");
+        checkOnlyClosingEdge(CullingRepros::AllVerbsCulledContour(clip, /*close=*/true),
+                             SkMatrix::I(),
+                             clip,
+                             "AllVerbsCulled_ClosingEdgeLeft_Closed");
+
+        // Closing edge crosses the clip at x = 50, covering only its right half.
+        checkOnlyClosingEdge(SkPathBuilder()
+                                     .moveTo(50, -20)
+                                     .cubicTo(70, -60, 100, -60, 120, -20)  // Above
+                                     .cubicTo(160, 20, 160, 80, 120, 120)   // Right
+                                     .cubicTo(100, 160, 70, 160, 50, 120)   // Below
+                                     .detach(),
+                             SkMatrix::I(),
+                             clip,
+                             "AllVerbsCulled_ClosingEdgeCrossesClip");
+
+        // Exact inputs captured from the viewer, with a non-identity ctm.
+        const CullingRepros::Repro repro = CullingRepros::DeskTiger8Capture3Draw2();
+        checkOnlyClosingEdge(repro.fPath, repro.fCtm, repro.fClip, "DeskTiger8Capture3Draw2");
     }
 
     static void TestTrickyStrokes(skiatest::Reporter* reporter) {
@@ -644,6 +723,7 @@ public:
                            "CulledEndQuadClosed");
 
         TestCulling(reporter);
+        TestCulledContourClosingEdge(reporter);
         TestTrickyStrokes(reporter);
     }
 };

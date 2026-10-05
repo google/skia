@@ -355,11 +355,14 @@ SK_ALWAYS_INLINE skvx::int4 is_finite_simd(skvx::float4 x) {
 }
 
 template <bool kIsIdentity,
+          bool kShouldCull,
           typename ProcessQuadFn,
           typename ProcessConicFn,
           typename ProcessCubicFn>
 SK_ALWAYS_INLINE void processPathsImpl(const SkPath& path,
                                        const SkMatrix& ctm,
+                                       float width,
+                                       float height,
                                        Polyline* polyline,
                                        ProcessQuadFn&& processQuad,
                                        ProcessConicFn&& processConic,
@@ -368,6 +371,31 @@ SK_ALWAYS_INLINE void processPathsImpl(const SkPath& path,
     bool needStartPt = false;
     SkPoint startPt = {0, 0};
     SkPoint lastPt = {0, 0};
+
+    // Note: The closing edge must be considered even if every verb in the contour was culled.
+    // Culled verbs lie entirely above, right of, or below the clip and contribute no winding inside
+    // it, but the closing edge can still cross (or lie left of) the clip, in which case it may be
+    // the only geometry contributing winding.
+    auto closeContour = [&]() {
+        if (!closed && lastPt != startPt) {
+            SkPoint closePts[2] = {lastPt, startPt};
+            if constexpr (kShouldCull) {
+                if (!is_completely_culled<2>(closePts, width, height)) {
+                    if (needStartPt) {
+                        polyline->appendPoint(lastPt);
+                    }
+                    polyline->appendPoint(startPt);
+                }
+            } else {
+                if (needStartPt) {
+                    polyline->appendPoint(lastPt);
+                }
+                polyline->appendPoint(startPt);
+            }
+        }
+        closed = true;
+        needStartPt = false;
+    };
 
     SkPath::Iter iter(path, false);
     SkPoint localPts[4];
@@ -383,16 +411,10 @@ SK_ALWAYS_INLINE void processPathsImpl(const SkPath& path,
                     pts = mappedPts;
                 }
 
-                if (!closed && lastPt != startPt) {
-                    if (needStartPt) {
-                        polyline->appendPoint(lastPt);
-                    }
-                    polyline->appendPoint(startPt);
-                }
+                closeContour();
                 polyline->appendSentinel();
 
                 closed = false;
-                needStartPt = false;
                 lastPt = pts[0];
                 startPt = pts[0];
                 polyline->appendPoint(pts[0]);
@@ -466,14 +488,7 @@ SK_ALWAYS_INLINE void processPathsImpl(const SkPath& path,
                 break;
             }
             case SkPath::kClose_Verb: {
-                closed = true;
-                if (lastPt != startPt) {
-                    if (needStartPt) {
-                        polyline->appendPoint(lastPt);
-                    }
-                    polyline->appendPoint(startPt);
-                }
-                needStartPt = false;
+                closeContour();
                 break;
             }
             default:
@@ -481,13 +496,7 @@ SK_ALWAYS_INLINE void processPathsImpl(const SkPath& path,
         }
     }
 
-    if (!closed && lastPt != startPt) {
-        if (needStartPt) {
-            polyline->appendPoint(lastPt);
-        }
-        polyline->appendPoint(startPt);
-    }
-
+    closeContour();
     polyline->appendSentinel();
 }
 
@@ -928,9 +937,11 @@ SK_ALWAYS_INLINE void Flatten::processPathsSimdImpl(
     };
 
     if (ctm.isIdentity()) {
-        processPathsImpl<true>(path, ctm, polyline, processQuad, processConic, processCubic);
+        processPathsImpl</*kIsIdentity=*/true, kShouldCull>(
+                path, ctm, width, height, polyline, processQuad, processConic, processCubic);
     } else {
-        processPathsImpl<false>(path, ctm, polyline, processQuad, processConic, processCubic);
+        processPathsImpl</*kIsIdentity=*/false, kShouldCull>(
+                path, ctm, width, height, polyline, processQuad, processConic, processCubic);
     }
 }
 
@@ -1014,11 +1025,11 @@ SK_ALWAYS_INLINE void Flatten::processPathsScalarImpl(
     };
 
     if (ctm.isIdentity()) {
-        processPathsImpl</*kIsIdentity=*/true>(
-                path, ctm, polyline, processQuad, processConic, processCubic);
+        processPathsImpl</*kIsIdentity=*/true, kShouldCull>(
+                path, ctm, width, height, polyline, processQuad, processConic, processCubic);
     } else {
-        processPathsImpl</*kIsIdentity=*/false>(
-                path, ctm, polyline, processQuad, processConic, processCubic);
+        processPathsImpl</*kIsIdentity=*/false, kShouldCull>(
+                path, ctm, width, height, polyline, processQuad, processConic, processCubic);
     }
 }
 

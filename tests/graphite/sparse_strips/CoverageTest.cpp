@@ -17,6 +17,7 @@
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tests/graphite/sparse_strips/CullingRepros.h"
 #include "tests/graphite/sparse_strips/FastValidator.h"
 #include "tests/graphite/sparse_strips/SkpValidator.h"
 
@@ -272,6 +273,89 @@ void run_culling_simplification_suite(
           minorErrors[2]);
 }
 
+// Draws whose verbs lie (almost) entirely outside of the viewport, and are therefore culled, but
+// whose fill still covers the viewport. Since that coverage consists solely of WideTiles, this
+// relies on FastValidator validating the tiles outside of the EndCaps.
+template <uint16_t kTileWidth, uint16_t kTileHeight>
+void run_culled_geometry_suite(skiatest::Reporter* reporter,
+                               Recorder* recorder,
+                               typename FastValidator<kTileWidth, kTileHeight>::StripFunc stripFunc,
+                               const char* implName) {
+    const SkTDArray<uint8_t> lut = GenerateMSAALUT<uint8_t>();
+    std::array<uint32_t, 3> minorErrors = {0, 0, 0};
+
+    struct TestCase {
+        SkPath path;
+        SkMatrix ctm;
+        SkIRect clip;
+        const char* name;
+    };
+    std::vector<TestCase> cases;
+
+    // A quad that covers all of a tall clip from outside of it. Its left side is split into two
+    // lines that meet halfway through tile row 32, and its other sides are above, right of, and
+    // below the clip.
+    const SkIRect tallClip = SkIRect::MakeWH(8 * kTileWidth, 64 * kTileHeight);
+    const float l = static_cast<float>(tallClip.fLeft);
+    const float t = static_cast<float>(tallClip.fTop);
+    const float r = static_cast<float>(tallClip.fRight);
+    const float b = static_cast<float>(tallClip.fBottom);
+    cases.push_back({SkPathBuilder()
+                             .moveTo(l - 10.0f, t - 20.0f)
+                             .lineTo(l - 12.0f, t + 32.5f * kTileHeight)
+                             .lineTo(l - 10.0f, b + 20.0f)
+                             .lineTo(r + 20.0f, b + 20.0f)
+                             .lineTo(r + 20.0f, t - 20.0f)
+                             .close()
+                             .detach(),
+                     SkMatrix::I(),
+                     tallClip,
+                     "SplitLeftEdge_TallClip"});
+
+    // Every verb is culled, so the closing edge is the only geometry contributing winding.
+    const SkIRect clip = SkIRect::MakeWH(100, 100);
+    cases.push_back({CullingRepros::AllVerbsCulledContour(clip, /*close=*/false),
+                     SkMatrix::I(),
+                     clip,
+                     "AllVerbsCulled_ClosingEdgeLeft_Open"});
+    cases.push_back({CullingRepros::AllVerbsCulledContour(clip, /*close=*/true),
+                     SkMatrix::I(),
+                     clip,
+                     "AllVerbsCulled_ClosingEdgeLeft_Closed"});
+    cases.push_back({SkPathBuilder()
+                             .moveTo(50, -20)
+                             .cubicTo(70, -60, 100, -60, 120, -20)  // Above
+                             .cubicTo(160, 20, 160, 80, 120, 120)   // Right
+                             .cubicTo(100, 160, 70, 160, 50, 120)   // Below
+                             .detach(),
+                     SkMatrix::I(),
+                     clip,
+                     "AllVerbsCulled_ClosingEdgeCrossesClip"});
+
+    // Exact inputs captured from the viewer.
+    const CullingRepros::Repro repro = CullingRepros::DeskTiger8Capture3Draw2();
+    cases.push_back({repro.fPath, repro.fCtm, repro.fClip, "DeskTiger8Capture3Draw2"});
+
+    for (const TestCase& testCase : cases) {
+        // Note: FastValidator only supports viewports anchored at the origin at this point.
+        SkASSERT(testCase.clip.fLeft == 0 && testCase.clip.fTop == 0);
+        SkString name;
+        name.printf(
+                "CulledGeometry_%s_(%dx%d)_%s", implName, kTileWidth, kTileHeight, testCase.name);
+        FastValidator<kTileWidth, kTileHeight>::ValidatePath(
+                reporter,
+                recorder,
+                testCase.path,
+                testCase.ctm,
+                static_cast<uint16_t>(testCase.clip.width()),
+                static_cast<uint16_t>(testCase.clip.height()),
+                name.c_str(),
+                lut,
+                stripFunc,
+                &minorErrors);
+    }
+}
+
 }  // namespace
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_CoverageScalar_4x4,
@@ -325,6 +409,33 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_CullingSimplifica
                                          CtsEnforcement::kToBeDetermined) {
     auto recorder = context->makeRecorder();
     run_culling_simplification_suite<4, 4>(
+            reporter, recorder.get(), &FastValidator<4, 4>::RunScalarWinding, "Scalar");
+}
+
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_CulledGeometry_SIMD_4x4,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kToBeDetermined) {
+    auto recorder = context->makeRecorder();
+    run_culled_geometry_suite<4, 4>(
+            reporter, recorder.get(), &FastValidator<4, 4>::RunSimdWinding, "SIMD");
+}
+
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_CulledGeometry_SIMD_8x8,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kToBeDetermined) {
+    auto recorder = context->makeRecorder();
+    run_culled_geometry_suite<8, 8>(
+            reporter, recorder.get(), &FastValidator<8, 8>::RunSimdWinding, "SIMD");
+}
+
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_CulledGeometry_Scalar_4x4,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kToBeDetermined) {
+    auto recorder = context->makeRecorder();
+    run_culled_geometry_suite<4, 4>(
             reporter, recorder.get(), &FastValidator<4, 4>::RunScalarWinding, "Scalar");
 }
 

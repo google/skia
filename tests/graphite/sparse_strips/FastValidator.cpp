@@ -32,6 +32,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <utility>
 #include <vector>
 
 namespace skgpu::graphite {
@@ -88,15 +89,224 @@ void collect_row_hits(int py,
         float dx = line.p1.fX - line.p0.fX;
         int32_t dir = dy > 0.0f ? 1 : -1;
 
-        skvx::float8 t = (vPy - line.p0.fY) * invDy;
-        auto valid = (t >= 0.0f) & (t < 1.0f);
+        // Each line covers the sub-scanlines in [minY, maxY) regardless of its direction, so a
+        // sub-scanline passing exactly through a vertex where the path turns vertically sees both
+        // or neither of its lines, rather than just one, which would leave a nonzero winding
+        // extending to the right of the path.
+        float minY = std::min(line.p0.fY, line.p1.fY);
+        float maxY = std::max(line.p0.fY, line.p1.fY);
+        auto valid = (vPy >= minY) & (vPy < maxY);
         if (any(valid)) {
+            skvx::float8 t = (vPy - line.p0.fY) * invDy;
             LineHit hit;
             hit.x = line.p0.fX + t * dx;
             hit.dir = if_then_else(valid, skvx::int8(dir), skvx::int8(0));
             rowHits->push_back(hit);
         }
     }
+}
+
+enum class TileKind : uint8_t { kEmpty, kEndCap, kWide };
+
+// EndCaps only cover the tiles that edges pass through, so this validates the rest of the viewport:
+// every tile whose subsamples are all inside the path must be covered by exactly one WideTile, and
+// every tile whose subsamples are all outside must be empty. A tile with subsamples on both sides
+// of the path must be an EndCap. Rather than evaluating every subsample, this relies on the winding
+// of each sub-scanline being constant between the crossings of the lines.
+template <uint16_t kTileWidth, uint16_t kTileHeight>
+bool validate_solid_tiles(skiatest::Reporter* reporter,
+                          const std::vector<std::vector<Line>>& lineBuckets,
+                          const WideTiles& wides,
+                          const EndCaps& ends,
+                          const skvx::float8& subX,
+                          uint16_t viewportWidth,
+                          uint16_t viewportHeight,
+                          bool isEvenOdd,
+                          bool isInverse,
+                          const char* testName) {
+    const int numTileCols = (viewportWidth + kTileWidth - 1) / kTileWidth;
+    const int numTileRows = (viewportHeight + kTileHeight - 1) / kTileHeight;
+
+    // Rasterize the strip output into the tile grid, verifying that each tile is emitted at most
+    // once and lies within the viewport.
+    std::vector<TileKind> tileKinds(numTileCols * numTileRows, TileKind::kEmpty);
+    auto markTiles = [&](uint16_t x, uint16_t y, uint16_t width, TileKind kind) {
+        const char* type = kind == TileKind::kWide ? "WideTile" : "EndCap";
+        const int right = x + width;
+        // Note: WideTiles may end at the right edge of the viewport rather than a tile boundary.
+        if (x % kTileWidth != 0 || y % kTileHeight != 0 || width == 0 ||
+            (right % kTileWidth != 0 && right != viewportWidth)) {
+            REPORTER_ASSERT(reporter,
+                            false,
+                            "[%s] %s (x:%d, y:%d, width:%d) is not tile aligned",
+                            testName,
+                            type,
+                            x,
+                            y,
+                            width);
+            return false;
+        }
+        const int row = y / kTileHeight;
+        const int startCol = x / kTileWidth;
+        const int endCol = (right + kTileWidth - 1) / kTileWidth;
+        if (row >= numTileRows || endCol > numTileCols) {
+            REPORTER_ASSERT(reporter,
+                            false,
+                            "[%s] %s (x:%d, y:%d, width:%d) lies outside of the %dx%d viewport",
+                            testName,
+                            type,
+                            x,
+                            y,
+                            width,
+                            viewportWidth,
+                            viewportHeight);
+            return false;
+        }
+        for (int col = startCol; col < endCol; ++col) {
+            TileKind& tileKind = tileKinds[row * numTileCols + col];
+            if (tileKind != TileKind::kEmpty) {
+                REPORTER_ASSERT(reporter,
+                                false,
+                                "[%s] %s (x:%d, y:%d, width:%d) overlaps another tile at "
+                                "tile(%d,%d)",
+                                testName,
+                                type,
+                                x,
+                                y,
+                                width,
+                                col,
+                                row);
+                return false;
+            }
+            tileKind = kind;
+        }
+        return true;
+    };
+    for (const EndCaps::EndCap& cap : ends.caps()) {
+        if (!markTiles(cap.fX, cap.fY, cap.fWidth, TileKind::kEndCap)) {
+            return false;
+        }
+    }
+    for (const WideTiles::WideTile& wide : wides.tiles()) {
+        if (!markTiles(wide.fX, wide.fY, wide.fWidth, TileKind::kWide)) {
+            return false;
+        }
+    }
+
+    // Per-row prefix counts of the WideTiles and EndCaps, so that each span of constant winding can
+    // be checked in constant time.
+    std::vector<int> widePrefix(numTileCols + 1, 0);
+    std::vector<int> endCapPrefix(numTileCols + 1, 0);
+
+    // Verifies that the tiles overlapping pixels [startX, endX) of pixel row `py`, across which the
+    // winding of subsample `k` is constant, are consistent with that winding.
+    auto checkSpan = [&](int row, int py, int k, int startX, int endX, int winding) {
+        if (startX >= endX) {
+            return true;
+        }
+        const int startCol = startX / kTileWidth;
+        const int endCol = (endX - 1) / kTileWidth + 1;
+        const int numWides = widePrefix[endCol] - widePrefix[startCol];
+        const int numEndCaps = endCapPrefix[endCol] - endCapPrefix[startCol];
+        bool inside = isEvenOdd ? (winding & 1) != 0 : winding != 0;
+        if (isInverse) {
+            inside = !inside;
+        }
+        if (inside ? numWides + numEndCaps == endCol - startCol : numWides == 0) {
+            return true;
+        }
+
+        const TileKind expectedKind = inside ? TileKind::kWide : TileKind::kEmpty;
+        for (int col = startCol; col < endCol; ++col) {
+            const TileKind kind = tileKinds[row * numTileCols + col];
+            if (kind != TileKind::kEndCap && kind != expectedKind) {
+                REPORTER_ASSERT(reporter,
+                                false,
+                                "[%s] tile(%d,%d) is %s, but subsample %d of pixel(%d,%d) is %s "
+                                "the path (winding %d)",
+                                testName,
+                                col,
+                                row,
+                                kind == TileKind::kWide ? "a WideTile" : "empty",
+                                k,
+                                std::max(startX, col * kTileWidth),
+                                py,
+                                inside ? "inside" : "outside",
+                                winding);
+                return false;
+            }
+        }
+        SkDEBUGFAIL("Mismatched tile counts without a mismatched tile");
+        return false;
+    };
+
+    std::vector<LineHit> rowHits;
+    std::vector<std::pair<float, int>> crossings;
+    for (int row = 0; row < numTileRows; ++row) {
+        const TileKind* rowKinds = &tileKinds[row * numTileCols];
+        for (int col = 0; col < numTileCols; ++col) {
+            widePrefix[col + 1] = widePrefix[col] + (rowKinds[col] == TileKind::kWide ? 1 : 0);
+            endCapPrefix[col + 1] =
+                    endCapPrefix[col] + (rowKinds[col] == TileKind::kEndCap ? 1 : 0);
+        }
+
+        const std::vector<Line>& candidateLines = lineBuckets[row];
+        if (candidateLines.empty()) {
+            // Nothing crosses this row, so the winding is zero everywhere.
+            if (!checkSpan(row, row * kTileHeight, /*k=*/0, 0, viewportWidth, /*winding=*/0)) {
+                return false;
+            }
+            continue;
+        }
+
+        const int endY = std::min<int>((row + 1) * kTileHeight, viewportHeight);
+        for (int py = row * kTileHeight; py < endY; ++py) {
+            collect_row_hits(py, candidateLines, &rowHits);
+            for (int k = 0; k < 8; ++k) {
+                crossings.clear();
+                for (const LineHit& hit : rowHits) {
+                    if (hit.dir[k] != 0) {
+                        crossings.push_back({hit.x[k], hit.dir[k]});
+                    }
+                }
+                std::sort(crossings.begin(), crossings.end());
+
+                // Returns the first pixel whose subsample `k` is affected by a crossing at `x`,
+                // which exactly matches the `vPx >= th.x` test of the EndCap validation.
+                const float sx = subX[k];
+                auto firstAffectedPixel = [&](float x) {
+                    // Clamp before converting, since crossings may lie far outside of the viewport.
+                    int px = static_cast<int>(
+                            std::clamp(std::ceil(x - sx), 0.0f, static_cast<float>(viewportWidth)));
+                    while (px > 0 && static_cast<float>(px - 1) + sx >= x) {
+                        --px;
+                    }
+                    while (px < viewportWidth && static_cast<float>(px) + sx < x) {
+                        ++px;
+                    }
+                    return px;
+                };
+
+                int winding = 0;
+                int spanStart = 0;
+                for (size_t i = 0; i < crossings.size();) {
+                    const int px = firstAffectedPixel(crossings[i].first);
+                    if (!checkSpan(row, py, k, spanStart, px, winding)) {
+                        return false;
+                    }
+                    while (i < crossings.size() && firstAffectedPixel(crossings[i].first) <= px) {
+                        winding += crossings[i].second;
+                        ++i;
+                    }
+                    spanStart = std::max(spanStart, px);
+                }
+                if (!checkSpan(row, py, k, spanStart, viewportWidth, winding)) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
 }
 
 }  // namespace
@@ -165,11 +375,9 @@ bool FastValidator<kTileWidth, kTileHeight>::ValidateStripOutput(
         SkPathFillType fillType,
         const char* testName,
         std::array<uint32_t, 3>* minorErrorCount) {
-    if (ends.empty()) {
-        bool bufferSizeMatch = exactMasks.empty();
-        REPORTER_ASSERT(
-                reporter, bufferSizeMatch, "[%s] No endcaps but mask observer has data.", testName);
-        return bufferSizeMatch;
+    if (ends.empty() && !exactMasks.empty()) {
+        REPORTER_ASSERT(reporter, false, "[%s] No endcaps but mask observer has data.", testName);
+        return false;
     }
 
     static const skvx::float8 kSubX =
@@ -258,8 +466,12 @@ bool FastValidator<kTileWidth, kTileHeight>::ValidateStripOutput(
                     int sampleDiff = 0;
                     int actualSamples = 0;
                     for (int k = 0; k < 8; ++k) {
-                        if (actualMask & (1 << k)) actualSamples++;
-                        if ((expectedMask & (1 << k)) != (actualMask & (1 << k))) sampleDiff++;
+                        if (actualMask & (1 << k)) {
+                            actualSamples++;
+                        }
+                        if ((expectedMask & (1 << k)) != (actualMask & (1 << k))) {
+                            sampleDiff++;
+                        }
                     }
 
                     uint8_t expectedAlphaFromMask =
@@ -326,7 +538,20 @@ bool FastValidator<kTileWidth, kTileHeight>::ValidateStripOutput(
                     testName,
                     maskIdx,
                     exactMasks.size());
-    return bufferSizeMatch;
+    if (!bufferSizeMatch) {
+        return false;
+    }
+
+    return validate_solid_tiles<kTileWidth, kTileHeight>(reporter,
+                                                         lineBuckets,
+                                                         wides,
+                                                         ends,
+                                                         kSubX,
+                                                         viewportWidth,
+                                                         viewportHeight,
+                                                         isEvenOdd,
+                                                         isInverse,
+                                                         testName);
 }
 
 template <uint16_t kTileWidth, uint16_t kTileHeight>
