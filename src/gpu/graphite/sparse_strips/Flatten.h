@@ -143,7 +143,8 @@ private:
         std::array<SkPoint, kMaxQuadsInCtx + 4> fEvenPts;
 
         // The off-curve control points (p1) of the approximated quadratic segments.
-        std::array<SkPoint, kMaxQuadsInCtx> fOddPts;
+        // Sized +4 to safely handle odd numQuads and SIMD padding.
+        std::array<SkPoint, kMaxQuadsInCtx + 4> fOddPts;
 
         // The starting value of the parabolic integral for each quadratic segment. Maps the start
         // of the curve into uniform arc-length space.

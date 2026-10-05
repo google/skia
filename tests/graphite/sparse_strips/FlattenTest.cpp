@@ -721,6 +721,12 @@ public:
                                    .close()
                                    .detach(),
                            "CulledEndQuadClosed");
+        CheckFlattenedPath(reporter,
+                           SkPathBuilder().moveTo(0, 0).cubicTo(50, 0, 100, 0, 100, 100).detach(),
+                           "CubicInflectionFlatStart");
+        CheckFlattenedPath(reporter,
+                           SkPathBuilder().moveTo(10, 10).conicTo(50, 10, 90, 10, 0.001f).detach(),
+                           "CollinearFlatConic");
 
         TestCulling(reporter);
         TestCulledContourClosingEdge(reporter);

@@ -149,7 +149,10 @@ SK_ALWAYS_INLINE FlattenParams estimate_lines_from_quad(const SkPoint pts[3],
 
     double x0 = SkPoint::DotProduct(d01, dd) / cross;
     double x2 = SkPoint::DotProduct(d12, dd) / cross;
-    double scale = std::abs(cross / (dd.length() * (x2 - x0)));
+
+    // Equivalent to |cross / (|dd| * (x2 - x0))|, but avoids a scenario where (x2 - x0) == 0.
+    double ddSq = SkPoint::DotProduct(dd, dd);
+    double scale = (cross * cross) / (std::sqrt(ddSq) * ddSq);
 
     double a0 = approx_parabola_integral(x0);
     double a2 = approx_parabola_integral(x2);
@@ -350,8 +353,8 @@ SK_ALWAYS_INLINE skvx::float8 approx_parabola_inv_integral_simd(skvx::float8 x) 
 }
 
 SK_ALWAYS_INLINE skvx::int4 is_finite_simd(skvx::float4 x) {
-    // x is guaranteed positive area/length, no abs() needed to clear sign bit
-    return sk_bit_cast<skvx::int4>(x) < skvx::int4(0x7f800000);
+    // Mask out the sign bit so negative NaNs and -Inf are correctly rejected
+    return (sk_bit_cast<skvx::int4>(x) & 0x7fffffff) < skvx::int4(0x7f800000);
 }
 
 template <bool kIsIdentity,
@@ -753,6 +756,8 @@ SK_ALWAYS_INLINE void Flatten::estimateLinesFromQuadSimd() {
         skvx::float4 uScale = 1.0f / (u2 - u0);
         u0 = skvx::if_then_else(collinearMask, skvx::float4(0.0f), u0);
         uScale = skvx::if_then_else(collinearMask, skvx::float4(1.0f), uScale);
+        a0 = skvx::if_then_else(collinearMask, skvx::float4(0.0f), a0);
+        da = skvx::if_then_else(collinearMask, skvx::float4(0.0f), da);
 
         a0.store(fContext.fA0.data() + i * 4);
         da.store(fContext.fDa.data() + i * 4);
