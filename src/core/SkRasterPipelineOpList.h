@@ -28,7 +28,7 @@
     M(alpha_to_red) M(alpha_to_red_dst)                               \
     M(bt709_luminance_or_luma_to_alpha)                               \
     M(bt709_luminance_or_luma_to_rgb)                                 \
-    M(bilerp_clamp_8888)                                              \
+    M(bilerp_clamp_8888) M(bilerp_clamp_8888_uniform_y)               \
     M(load_src) M(store_src) M(store_src_a)                           \
     M(load_dst) M(store_dst)                                          \
     M(scale_u8) M(scale_565) M(scale_1_float) M(scale_native)         \

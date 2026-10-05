@@ -516,10 +516,12 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixR
     MipLevelHelper upper;
     std::tie(upper.pm, upper.inv) = access->level();
 
+    const bool coordsAlreadySeeded = mRec.rasterPipelineCoordsAreSeeded();
+    const SkMatrix totalInv = SkMatrix::Concat(upper.inv, baseInv);
     if (!sampling.useCubic) {
         // TODO: can tweak_sampling sometimes for cubic too when B=0
         if (mRec.totalMatrixIsValid()) {
-            sampling = tweak_sampling(sampling, SkMatrix::Concat(upper.inv, baseInv));
+            sampling = tweak_sampling(sampling, totalInv);
         }
     }
 
@@ -712,8 +714,13 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixR
             }
         }
 
+        const bool uniformY = !coordsAlreadySeeded && mRec.totalMatrixIsValid() &&
+                              !mRec.totalMatrix().hasPerspective() && !totalInv.hasPerspective() &&
+                              totalInv.getSkewY() == 0;
         if (shouldUseHighPBilerp) {
             p->append(SkRasterPipelineOp::bilerp_clamp_8888_force_highp, upper.gather);
+        } else if (uniformY) {
+            p->append(SkRasterPipelineOp::bilerp_clamp_8888_uniform_y, upper.gather);
         } else {
             p->append(SkRasterPipelineOp::bilerp_clamp_8888, upper.gather);
         }

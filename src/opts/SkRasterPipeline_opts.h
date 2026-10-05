@@ -5386,6 +5386,10 @@ HIGHP_STAGE(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
     bilerp_clamp_large(ctx, &r, &g, &b, &a);
 }
 
+HIGHP_STAGE(bilerp_clamp_8888_uniform_y, const SkRasterPipelineContexts::GatherCtx* ctx) {
+    bilerp_clamp_large(ctx, &r, &g, &b, &a);
+}
+
 // A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
 // This version exists to allow a shader to force high precision.
 HIGHP_STAGE(bilerp_clamp_8888_force_highp, const SkRasterPipelineContexts::GatherCtx* ctx) {
@@ -6061,6 +6065,17 @@ SI F floor_(F x) {
 #endif
 }
 
+SI int32_t ifloor_(float x) {
+#if defined(SK_CPU_ARM64) || defined(SKRP_CPU_SSE41) || defined(SKRP_CPU_AVX) ||     \
+        defined(SKRP_CPU_AVX2) || defined(SKRP_CPU_ML4) || defined(SKRP_CPU_LASX) || \
+        defined(SKRP_CPU_LSX)
+    return (int32_t)floorf(x);
+#else
+    int32_t trunc = (int32_t)x;
+    return trunc - (trunc > x);
+#endif
+}
+
 // scaled_mult interprets a and b as number on [-1, 1) which are numbers in Q15 format. Functionally
 // this multiply is:
 //     (2 * a * b + (1 << 15)) >> 16
@@ -6345,21 +6360,6 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipelineContexts::GatherCtx* ctx, F x, 
 
     *ptr = (const T*)ctx->pixels;
     return trunc_(y)*ctx->stride + trunc_(x);
-}
-
-template <typename T>
-SI U32 ix_and_ptr(T** ptr, const SkRasterPipelineContexts::GatherCtx* ctx, I32 x, I32 y) {
-    // This flag doesn't make sense when the coords are integers.
-    SkASSERT(ctx->roundDownAtInteger == 0);
-    // Exclusive -> inclusive.
-    const I32 w = I32_( ctx->width - 1),
-              h = I32_(ctx->height - 1);
-
-    U32 ax = cast<U32>(min_intr(max_intr(0, x), w)),
-        ay = cast<U32>(min_intr(max_intr(0, y), h));
-
-    *ptr = (const T*)ctx->pixels;
-    return ay * ctx->stride + ax;
 }
 
 template <typename V, typename T>
@@ -7100,29 +7100,25 @@ LOWP_STAGE_GP(evenly_spaced_2_stop_gradient,
                    &r,&g,&b,&a);
 }
 
-LOWP_STAGE_GP(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
+template <bool kUniformY>
+SI void bilerp_clamp_8888_impl(
+        const SkRasterPipelineContexts::GatherCtx* ctx, F x, F y, U16* r, U16* g, U16* b, U16* a) {
     // Quantize sample point and transform into lerp coordinates converting them to 16.16 fixed
     // point number.
 #if defined(SKRP_CPU_LSX)
-    __m128 _01, _23, _45, _67;
+    __m128 _01, _23;
     v4f32 v_tmp1 = {0.5f, 0.5f, 0.5f, 0.5f};
     v4f32 v_tmp2 = {65536.0f, 65536.0f, 65536.0f, 65536.0f};
-    split(x, &_01,&_23);
-    split(y, &_45,&_67);
+    split(x, &_01, &_23);
     __m128 val1 = __lsx_vfmadd_s((__m128)v_tmp2, _01, (__m128)v_tmp1);
     __m128 val2 = __lsx_vfmadd_s((__m128)v_tmp2, _23, (__m128)v_tmp1);
-    __m128 val3 = __lsx_vfmadd_s((__m128)v_tmp2, _45, (__m128)v_tmp1);
-    __m128 val4 = __lsx_vfmadd_s((__m128)v_tmp2, _67, (__m128)v_tmp1);
-    I32 qx = cast<I32>((join<F>(__lsx_vfrintrm_s(val1), __lsx_vfrintrm_s(val2)))) - 32768,
-    qy = cast<I32>((join<F>(__lsx_vfrintrm_s(val3), __lsx_vfrintrm_s(val4)))) - 32768;
+    I32 qx = cast<I32>((join<F>(__lsx_vfrintrm_s(val1), __lsx_vfrintrm_s(val2)))) - 32768;
 #else
-    I32 qx = cast<I32>(floor_(65536.0f * x + 0.5f)) - 32768,
-        qy = cast<I32>(floor_(65536.0f * y + 0.5f)) - 32768;
+    I32 qx = cast<I32>(floor_(65536.0f * x + 0.5f)) - 32768;
 #endif
 
-    // Calculate screen coordinates sx & sy by flooring qx and qy.
-    I32 sx = qx >> 16,
-        sy = qy >> 16;
+    // Calculate screen coordinate sx by flooring qx (sy is floored below).
+    I32 sx = qx >> 16;
 
     // We are going to perform a change of parameters for qx on [0, 1) to tx on [-1, 1).
     // This will put tx in Q15 format for use with q_mult.
@@ -7135,20 +7131,14 @@ LOWP_STAGE_GP(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx)
     // is handled by the ^ 0x8000, dividing by 2 is deferred and handled in lerpX and lerpY in
     // order to use the full 16-bit resolution.
 #if defined(SKRP_CPU_LSX)
-    __m128i qx_lo, qx_hi, qy_lo, qy_hi;
+    __m128i qx_lo, qx_hi;
     split(qx, &qx_lo, &qx_hi);
-    split(qy, &qy_lo, &qy_hi);
     __m128i temp = __lsx_vreplgr2vr_w(0x8000);
     qx_lo = __lsx_vxor_v(qx_lo, temp);
     qx_hi = __lsx_vxor_v(qx_hi, temp);
-    qy_lo = __lsx_vxor_v(qy_lo, temp);
-    qy_hi = __lsx_vxor_v(qy_hi, temp);
-
     I16 tx = __lsx_vpickev_h(qx_hi, qx_lo);
-    I16 ty = __lsx_vpickev_h(qy_hi, qy_lo);
 #else
-    I16 tx = cast<I16>(qx ^ 0x8000),
-        ty = cast<I16>(qy ^ 0x8000);
+    I16 tx = cast<I16>(qx ^ 0x8000);
 #endif
 
     // Substituting the {qx} by the equation for tx from above into the lerp equation where v is
@@ -7182,26 +7172,80 @@ LOWP_STAGE_GP(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx)
         return v2 >> 1;
     };
 
-    const uint32_t* ptr;
-    U32 ix = ix_and_ptr(&ptr, ctx, sx, sy);
+    // `roundDownAtInteger` is only used by nearest-neighbor (`gather_*`) stages.
+    SkASSERT(ctx->roundDownAtInteger == 0);
+
+    // We inline and split the coordinate clamping from `ix_and_ptr`:
+    // The top row `(sx, sy)`, `(sx + 1, sy)` and bottom row `(sx, sy + 1)`, `(sx + 1, sy + 1)`
+    // share the exact same clamped X indices (`ax0` and `ax1`), so we clamp `sx` and `sx + 1`
+    // once up front instead of repeating the X clamp for both rows.
+    const uint32_t* ptr = (const uint32_t*)ctx->pixels;
+    const I32 w = I32_(ctx->width - 1);
+    U32 ax0 = cast<U32>(min_intr(max_intr(0, sx), w)),
+        ax1 = cast<U32>(min_intr(max_intr(0, sx + 1), w));
+
+    I16 ty;
+    U32 tl, tr, bl, br;
+    if constexpr (kUniformY) {
+        // Specialized fast path for horizontal scanlines (e.g. axis-aligned scale/translate with
+        // no Y-skew or perspective): all N lanes share the same `y` (`y[0]`), so we quantize Y,
+        // clamp `sy` and `sy + 1`, and multiply by `stride` in scalar registers once per vector
+        // iteration to pre-offset `row0` and `row1`. Gathering `ax0` for both rows before `ax1`
+        // keeps only one 8-lane index set live in GPRs at a time on platforms without hardware
+        // gather.
+        int32_t qy0 = ifloor_(65536.0f * y[0] + 0.5f) - 32768;
+        int32_t sy0 = qy0 >> 16;
+        ty = (I16)U16_(qy0 ^ 0x8000);
+
+        int h = ctx->height - 1;
+        const uint32_t* row0 = ptr + std::min(std::max(0, sy0), h) * ctx->stride;
+        const uint32_t* row1 = ptr + std::min(std::max(0, sy0 + 1), h) * ctx->stride;
+
+        tl = gather_unaligned<U32>(row0, ax0);
+        bl = gather_unaligned<U32>(row1, ax0);
+        tr = gather_unaligned<U32>(row0, ax1);
+        br = gather_unaligned<U32>(row1, ax1);
+    } else {
+        // General path (rotation, skew, perspective, or non-linear shader coords): each lane may
+        // sample from a different Y row, so we quantize and clamp Y per lane as vectors.
+#if defined(SKRP_CPU_LSX)
+        __m128 _45, _67;
+        split(y, &_45, &_67);
+        __m128 val3 = __lsx_vfmadd_s((__m128)v_tmp2, _45, (__m128)v_tmp1);
+        __m128 val4 = __lsx_vfmadd_s((__m128)v_tmp2, _67, (__m128)v_tmp1);
+        I32 qy = cast<I32>((join<F>(__lsx_vfrintrm_s(val3), __lsx_vfrintrm_s(val4)))) - 32768;
+        __m128i qy_lo, qy_hi;
+        split(qy, &qy_lo, &qy_hi);
+        qy_lo = __lsx_vxor_v(qy_lo, temp);
+        qy_hi = __lsx_vxor_v(qy_hi, temp);
+        ty = __lsx_vpickev_h(qy_hi, qy_lo);
+#else
+        I32 qy = cast<I32>(floor_(65536.0f * y + 0.5f)) - 32768;
+        ty = cast<I16>(qy ^ 0x8000);
+#endif
+        I32 sy = qy >> 16;
+        const I32 h = I32_(ctx->height - 1);
+        U32 ay0 = cast<U32>(min_intr(max_intr(0, sy), h)) * ctx->stride,
+            ay1 = cast<U32>(min_intr(max_intr(0, sy + 1), h)) * ctx->stride;
+
+        tl = gather_unaligned<U32>(ptr, ay0 + ax0);
+        tr = gather_unaligned<U32>(ptr, ay0 + ax1);
+        bl = gather_unaligned<U32>(ptr, ay1 + ax0);
+        br = gather_unaligned<U32>(ptr, ay1 + ax1);
+    }
+
     U16 leftR, leftG, leftB, leftA;
-    from_8888(gather_unaligned<U32>(ptr, ix), &leftR,&leftG,&leftB,&leftA);
-
-    ix = ix_and_ptr(&ptr, ctx, sx+1, sy);
     U16 rightR, rightG, rightB, rightA;
-    from_8888(gather_unaligned<U32>(ptr, ix), &rightR,&rightG,&rightB,&rightA);
 
+    from_8888(tl, &leftR, &leftG, &leftB, &leftA);
+    from_8888(tr, &rightR, &rightG, &rightB, &rightA);
     U16 topR = lerpX(leftR, rightR),
         topG = lerpX(leftG, rightG),
         topB = lerpX(leftB, rightB),
         topA = lerpX(leftA, rightA);
 
-    ix = ix_and_ptr(&ptr, ctx, sx, sy+1);
-    from_8888(gather_unaligned<U32>(ptr, ix), &leftR,&leftG,&leftB,&leftA);
-
-    ix = ix_and_ptr(&ptr, ctx, sx+1, sy+1);
-    from_8888(gather_unaligned<U32>(ptr, ix), &rightR,&rightG,&rightB,&rightA);
-
+    from_8888(bl, &leftR, &leftG, &leftB, &leftA);
+    from_8888(br, &rightR, &rightG, &rightB, &rightA);
     U16 bottomR = lerpX(leftR, rightR),
         bottomG = lerpX(leftG, rightG),
         bottomB = lerpX(leftB, rightB),
@@ -7218,10 +7262,18 @@ LOWP_STAGE_GP(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx)
         return blend >> 8;
     };
 
-    r = lerpY(topR, bottomR);
-    g = lerpY(topG, bottomG);
-    b = lerpY(topB, bottomB);
-    a = lerpY(topA, bottomA);
+    *r = lerpY(topR, bottomR);
+    *g = lerpY(topG, bottomG);
+    *b = lerpY(topB, bottomB);
+    *a = lerpY(topA, bottomA);
+}
+
+LOWP_STAGE_GP(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
+    bilerp_clamp_8888_impl</*kUniformY=*/false>(ctx, x, y, &r, &g, &b, &a);
+}
+
+LOWP_STAGE_GP(bilerp_clamp_8888_uniform_y, const SkRasterPipelineContexts::GatherCtx* ctx) {
+    bilerp_clamp_8888_impl</*kUniformY=*/true>(ctx, x, y, &r, &g, &b, &a);
 }
 
 LOWP_STAGE_GG(xy_to_unit_angle, NoCtx) {
