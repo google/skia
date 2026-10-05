@@ -8,7 +8,6 @@
 #include "src/codec/SkIcoCodec.h"
 
 #include "include/codec/SkIcoDecoder.h"
-#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
@@ -26,6 +25,19 @@
 #include <cstring>
 #include <memory>
 #include <utility>
+
+// Note: Both SK_CODEC_DECODES_PNG_WITH_LIBPNG and SK_CODEC_DECODES_PNG_WITH_RUST may be enabled at
+// the same time (e.g. in AOSP). We only need one of the headers here for the format-sniffing helper
+// (`IsPng`, which is identical in both) and for the last-resort fallback when no "png" decoder was
+// registered in `SkCodecs`. When a "png" decoder is registered, `SkCodec::MakeFromStream` is used
+// instead so the caller's runtime priority between libpng and Rust PNG is respected.
+#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
+#include "include/codec/SkPngDecoder.h"
+#elif defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+#include "include/codec/SkPngRustDecoder.h"
+#else
+#error "Must define either SK_CODEC_DECODES_PNG_WITH_LIBPNG or SK_CODEC_DECODES_PNG_WITH_RUST"
+#endif
 
 using namespace skia_private;
 
@@ -177,13 +189,25 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         // Check if the embedded codec is bmp or png and create the codec
         std::unique_ptr<SkCodec> codec;
         Result ignoredResult;
-        if (SkPngDecoder::IsPng(embeddedData->bytes(), embeddedData->size())) {
+#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
+        const bool isPng = SkPngDecoder::IsPng(embeddedData->bytes(), embeddedData->size());
+#elif defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+        const bool isPng = SkPngRustDecoder::IsPng(embeddedData->bytes(), embeddedData->size());
+#endif
+        if (isPng) {
+            // Prefer decoding via the global SkCodecs registry first. When both libpng and Rust PNG
+            // are compiled in, callers (such as AOSP or Chromium) can control which PNG decoder
+            // takes priority at runtime via SkCodecs::Register().
             codec = SkCodec::MakeFromStream(std::move(embeddedStream), &ignoredResult);
             if (!codec && !SkCodecs::HasDecoder("png")) {
-                // Fallback to the hardcoded C++ PNG decoder in case the caller did not register any
-                // PNG decoder in the global registry.
+                // Fallback to a compiled-in PNG decoder only when the caller did not register any
+                // "png" decoder in the global registry.
                 auto fallbackStream = SkMemoryStream::Make(embeddedData);
+#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
                 codec = SkPngDecoder::Decode(std::move(fallbackStream), &ignoredResult);
+#elif defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+                codec = SkPngRustDecoder::Decode(std::move(fallbackStream), &ignoredResult);
+#endif
             }
         } else {
             codec = SkBmpCodec::MakeFromIco(std::move(embeddedStream), &ignoredResult);

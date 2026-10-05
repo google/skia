@@ -2681,14 +2681,18 @@ DEF_TEST(Codec_Bmp_b511820841, r) {
         codec->getPixels(info, &unusedPixels, info.minRowBytes(), &opts) != SkCodec::kSuccess);
 }
 
-#if defined(SK_CODEC_DECODES_ICO) && defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
+#if defined(SK_CODEC_DECODES_ICO) && \
+        (defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG) || defined(SK_CODEC_DECODES_PNG_WITH_RUST))
 DEF_SERIAL_TEST(Ico_usesRegisteredPngDecoder, r) {
     sk_sp<SkData> icoData = make_ico_from_png_resource(r, "images/mandrill_128.png");
 
     ScopedCodecDecoders scopedDecoders;
     // Register a custom PNG decoder that returns a different image ("images/plane.png", 250x126)
     // than the embedded PNG ("images/mandrill_128.png", 128x128) to verify without static state
-    // that SkIcoCodec delegates to the registered PNG decoder rather than calling libpng directly.
+    // that SkIcoCodec delegates to the runtime-registered PNG decoder (allowing callers to choose
+    // priority when both libpng and Rust PNG are compiled in) rather than calling a compiled-in PNG
+    // decoder directly.
+#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
     SkCodecs::Register({
             "png",
             SkPngDecoder::IsPng,
@@ -2697,6 +2701,17 @@ DEF_SERIAL_TEST(Ico_usesRegisteredPngDecoder, r) {
                 return SkPngDecoder::Decode(GetResourceAsStream("images/plane.png"), result, ctx);
             },
     });
+#elif defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+    SkCodecs::Register({
+            "png",
+            SkPngRustDecoder::IsPng,
+            [](std::unique_ptr<SkStream>, SkCodec::Result* result, SkCodecs::DecodeContext ctx)
+                    -> std::unique_ptr<SkCodec> {
+                return SkPngRustDecoder::Decode(
+                        GetResourceAsStream("images/plane.png"), result, ctx);
+            },
+    });
+#endif
 
     std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(SkMemoryStream::Make(icoData));
     REPORTER_ASSERT(r, codec != nullptr);
@@ -2707,18 +2722,22 @@ DEF_SERIAL_TEST(Ico_usesRegisteredPngDecoder, r) {
     }
 }
 
-DEF_SERIAL_TEST(Ico_fallbackToLibpngWhenPngNotRegistered, r) {
+DEF_SERIAL_TEST(Ico_fallbackWhenPngNotRegistered, r) {
     ScopedCodecDecoders scopedDecoders;
     scopedDecoders.clear();
     SkCodecs::Register(SkIcoDecoder::Decoder());
 
     sk_sp<SkData> icoData = make_ico_from_png_resource(r, "images/mandrill_128.png");
 
-    // Even though no "png" decoder is registered, SkIcoCodec should fall back to libpng.
+    // Even though no "png" decoder is registered in SkCodecs, SkIcoCodec should fall back to a
+    // compiled-in PNG decoder (libpng or Rust PNG).
     std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(SkMemoryStream::Make(icoData));
-    REPORTER_ASSERT(r, codec != nullptr, "Expected fallback to libpng when PNG is not registered");
+    REPORTER_ASSERT(r,
+                    codec != nullptr,
+                    "Expected fallback to built-in PNG decoder when PNG is not registered");
 }
-#endif  // SK_CODEC_DECODES_ICO && SK_CODEC_DECODES_PNG_WITH_LIBPNG
+#endif  // SK_CODEC_DECODES_ICO && (SK_CODEC_DECODES_PNG_WITH_LIBPNG ||
+        // SK_CODEC_DECODES_PNG_WITH_RUST)
 
 DEF_TEST(Codec_budgeted_buffer, r) {
     std::unique_ptr<SkStream> stream(GetResourceAsStream("images/baby_tux.png"));
