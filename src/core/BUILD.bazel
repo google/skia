@@ -465,6 +465,7 @@ skia_filegroup(
         "SkRecordOpts.cpp",
         "SkRecordedDrawable.cpp",
         "SkRecordCanvas.cpp",
+        "SkRecorder.cpp",
         "SkRecords.cpp",
         "SkRect.cpp",
         "SkRegion.cpp",

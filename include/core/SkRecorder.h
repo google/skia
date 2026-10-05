@@ -34,6 +34,11 @@ public:
 
     virtual Type type() const = 0;
 
+    /** Returns a non-null global CPU recorder. Can be used as a means of transitioning onto
+     *  new APIs when a Context/Recorder has not been piped down into the code paths.
+     */
+    static SkRecorder* TODO();
+
     virtual skcpu::Recorder* cpuRecorder() = 0;
 
 protected:

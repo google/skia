@@ -518,6 +518,7 @@ skia_core_sources = [
   "$_src/core/SkRecordPattern.h",
   "$_src/core/SkRecordedDrawable.cpp",
   "$_src/core/SkRecordedDrawable.h",
+  "$_src/core/SkRecorder.cpp",
   "$_src/core/SkRecords.cpp",
   "$_src/core/SkRecords.h",
   "$_src/core/SkRect.cpp",
