@@ -500,12 +500,11 @@ def _CheckBannedAPIs(input_api, output_api):
     (r'std::stold\(', 'std::strtold(), which does not throw'),
     # go/cstyle#Disallowed_Stdlib
     (r'std::barrier', ''),
-    (r'std::condition_variable', '', 'PipelineManager'),
     (r'std::counting_semaphore', ''),
     (r'std::future', ''),
     (r'std::jthread', ''),
     (r'std::latch', ''),
-    (r'std::mutex', 'SkMutex', ['^example/', 'PipelineManager']),
+    (r'std::mutex', 'SkMutex', ['^example/']),
     (r'std::shared_mutex', 'SkSharedMutex'),
     (r'std::stop_token', ''),
     (r'std::thread', '', ['^tests/', 'SkExecutor']),
