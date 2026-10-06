@@ -265,7 +265,9 @@ TextRange OneLineShaper::normalizeTextRange(GlyphRange glyphRange) {
 }
 
 void OneLineShaper::addFullyResolved() {
-    if (this->fCurrentRun->size() == 0) {
+    // HarfBuzz hides default-ignorable codepoints, which can leave a non-empty text
+    // range with 0 glyphs; keep the run so its code units still map to a cluster
+    if (this->fCurrentRun->fTextRange.empty()) {
         return;
     }
     RunBlock resolved(fCurrentRun,
@@ -327,8 +329,16 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
         if ((fCurrentRun->leftToRight() ? gi > graphemeStart : gi < graphemeStart) || graphemeStart == EMPTY_INDEX) {
             // This is the Flutter change
             // Do not count control codepoints as unresolved
-            bool isControl8 = fParagraph->codeUnitHasProperty(ci,
-                                                              SkUnicode::CodeUnitFlags::kControl);
+            // HarfBuzz merges hidden default-ignorables into the adjacent glyph cluster,
+            // so a cluster is control-only only if every code unit in its text range is kControl
+            TextRange textRange = normalizeTextRange(GlyphRange(i, i + 1));
+            bool isControl8 = true;
+            for (TextIndex ch = textRange.start; ch < textRange.end; ++ch) {
+                if (!fParagraph->codeUnitHasProperty(ch, SkUnicode::CodeUnitFlags::kControl)) {
+                    isControl8 = false;
+                    break;
+                }
+            }
             // We only count glyph resolved if all the glyphs in its grapheme are resolved
             graphemeResolved = glyph != 0 || isControl8;
             graphemeStart = gi;

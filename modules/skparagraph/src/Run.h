@@ -222,6 +222,18 @@ private:
 
 template<typename Visitor>
 void Run::iterateThroughClustersInTextOrder(Visitor visitor) {
+    // A 0-glyph run (when HarfBuzz hides all default-ignorables) still needs a 0-width
+    // cluster so every code unit in fTextRange maps to a valid cluster index
+    if (this->size() == 0) {
+        SkASSERT(!fTextRange.empty());
+        visitor(0,
+                0,
+                fTextRange.start,
+                fTextRange.end,
+                0.0f,
+                this->calculateHeight(LineMetricStyle::CSS, LineMetricStyle::CSS));
+        return;
+    }
     // Can't figure out how to do it with one code for both cases without 100 ifs
     // Can't go through clusters because there are no cluster table yet
     if (leftToRight()) {

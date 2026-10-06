@@ -520,7 +520,8 @@ void ParagraphImpl::buildClusterTable() {
     // It's not the ideal solution and has to be revisited later
     int cluster_count = 1;
     for (auto& run : fRuns) {
-        cluster_count += run.isPlaceholder() ? 1 : run.size();
+        // A 0-glyph run still produces one 0-width cluster covering its text range
+        cluster_count += (run.isPlaceholder() || run.size() == 0) ? 1 : run.size();
         fCodeUnitProperties[run.fTextRange.start] |= SkUnicode::CodeUnitFlags::kGraphemeStart;
         fCodeUnitProperties[run.fTextRange.start] |= SkUnicode::CodeUnitFlags::kGlyphClusterStart;
     }
@@ -1426,6 +1427,10 @@ void ParagraphImpl::extendedVisit(const ExtendedVisitor& visitor) {
                 [&](TextRange textRange,
                     const TextStyle& style,
                     const TextLine::ClipContext& context) {
+                    // 0-glyph runs have no glyph or position entries to pass to the visitor
+                    if (context.size == 0) {
+                        return;
+                    }
                     SkScalar correctedBaseline = SkScalarFloorToScalar(
                         line.baseline() + style.getBaselineShift() + 0.5);
                     SkPoint offset =
@@ -1484,6 +1489,10 @@ int ParagraphImpl::getPath(int lineNumber, SkPath* dest) {
           [&](TextRange textRange,
               const TextStyle& style,
               const TextLine::ClipContext& context) {
+              // 0-glyph runs have no glyph or position entries to convert to paths
+              if (context.size == 0) {
+                  return;
+              }
               const SkFont& font = run->font();
               SkScalar correctedBaseline = SkScalarFloorToScalar(
                 line.baseline() + style.getBaselineShift() + 0.5);

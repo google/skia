@@ -14,14 +14,16 @@ class ParagraphImpl;
 class TextWrapper {
     class ClusterPos {
     public:
-        ClusterPos() : fCluster(nullptr), fPos(0) {}
+        // Default to EMPTY_INDEX because 0 is a valid end position for a 0-glyph cluster
+        ClusterPos() : fCluster(nullptr), fPos(EMPTY_INDEX) {}
         ClusterPos(Cluster* cluster, size_t pos) : fCluster(cluster), fPos(pos) {}
         inline Cluster* cluster() const { return fCluster; }
         inline size_t position() const { return fPos; }
         inline void setPosition(size_t pos) { fPos = pos; }
         void clean() {
             fCluster = nullptr;
-            fPos = 0;
+            // Mark position as uninitialized so an empty TextStretch is distinguishable from pos 0
+            fPos = EMPTY_INDEX;
         }
         void move(bool up) {
             fCluster += up ? 1 : -1;
@@ -55,7 +57,10 @@ class TextWrapper {
         inline Cluster* breakCluster() const { return fBreak.cluster(); }
         inline InternalLineMetrics& metrics() { return fMetrics; }
         inline size_t startPos() const { return fStart.position(); }
-        inline size_t endPos() const { return fEnd.position(); }
+        // An empty stretch stores EMPTY_INDEX in fEnd, so report fStart's position to callers
+        inline size_t endPos() const {
+            return this->empty() ? fStart.position() : fEnd.position();
+        }
         bool endOfCluster() { return fEnd.position() == fEnd.cluster()->endPos(); }
         bool endOfWord() {
             return endOfCluster() &&
@@ -69,8 +74,9 @@ class TextWrapper {
             stretch.clean();
         }
 
-        bool empty() { return fStart.cluster() == fEnd.cluster() &&
-                              fStart.position() == fEnd.position(); }
+        // A 0-glyph cluster has startPos == endPos == 0, so an empty stretch marks fEnd with EMPTY_INDEX
+        bool empty() const { return fStart.cluster() == fEnd.cluster() &&
+                                    fEnd.position() == EMPTY_INDEX; }
 
         void setMetrics(const InternalLineMetrics& metrics) { fMetrics = metrics; }
 
@@ -97,7 +103,8 @@ class TextWrapper {
 
         void startFrom(Cluster* cluster, size_t pos) {
             fStart = ClusterPos(cluster, pos);
-            fEnd = ClusterPos(cluster, pos);
+            // Leave fEnd at EMPTY_INDEX until at least one cluster is extended into this stretch
+            fEnd = ClusterPos(cluster, EMPTY_INDEX);
             if (auto r = cluster->runOrNull()) {
                 // In case of placeholder we should ignore the default text style -
                 // we will pick up the correct one from the placeholder
@@ -139,7 +146,8 @@ class TextWrapper {
                 fEnd.move(false);
                 fWidth -= cluster->width();
             } else {
-                fEnd.setPosition(fStart.position());
+                // Trimming the only cluster leaves the stretch empty
+                fEnd.setPosition(EMPTY_INDEX);
                 fWidth = 0;
             }
         }

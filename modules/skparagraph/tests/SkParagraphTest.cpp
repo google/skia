@@ -9248,3 +9248,107 @@ DEF_TEST(SkParagraph_InlineCapacityGrowthRelocation, reporter) {
     REPORTER_ASSERT(reporter, impl->styles()[2].fStyle.getShadowNumber() == 1);
 }
 
+// Fonts missing U+0020 (abc.ttf) combined with BiDi default-ignorable controls
+// produce both 0-glyph runs and merged clusters when shaped by HarfBuzz
+UNIX_ONLY_TEST(SkParagraph_ReproNoSpaceBidiCrash, reporter) {
+    sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
+    auto noSpaceTypeface = mgr->makeFromStream(GetResourceAsStream("fonts/abc/abc.ttf"), {});
+    auto robotoTypeface = mgr->makeFromStream(GetResourceAsStream("fonts/Roboto-Regular.ttf"), {});
+    if (!noSpaceTypeface || !robotoTypeface) {
+        return;
+    }
+
+    auto checkParagraph = [&](const char* text, bool enableFallback, bool expectAllResolved) {
+        auto fontCollection = sk_make_sp<FontCollection>();
+        auto fontProvider = sk_make_sp<TypefaceFontProvider>();
+        fontProvider->registerTypeface(noSpaceTypeface, SkString("NoSpaceFont"));
+        fontProvider->registerTypeface(robotoTypeface, SkString("Roboto"));
+        fontCollection->setAssetFontManager(fontProvider);
+        fontCollection->setDefaultFontManager(mgr);
+        if (enableFallback) {
+            fontCollection->enableFontFallback();
+        } else {
+            fontCollection->disableFontFallback();
+        }
+
+        ParagraphStyle paragraphStyle;
+        paragraphStyle.setTextDirection(TextDirection::kRtl);
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+
+        TextStyle style;
+        style.setFontFamilies({SkString("NoSpaceFont"), SkString("Roboto")});
+        style.setFontSize(20.0f);
+        builder.pushStyle(style);
+        size_t len = strlen(text);
+        builder.addText(text, len);
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(300.0f);
+
+        auto* impl = static_cast<ParagraphImpl*>(paragraph.get());
+        REPORTER_ASSERT(reporter, impl->lines().size() == 1);
+
+        SkBitmap bm;
+        bm.allocN32Pixels(300, 100);
+        SkCanvas canvas(bm);
+        paragraph->paint(&canvas, 0, 0);
+
+        auto rects = paragraph->getRectsForRange(0, len,
+                                                 RectHeightStyle::kTight,
+                                                 RectWidthStyle::kTight);
+        REPORTER_ASSERT(reporter, !rects.empty());
+
+        paragraph->getGlyphPositionAtCoordinate(10.0f, 10.0f);
+        for (size_t i = 0; i < len; ++i) {
+            Paragraph::GlyphClusterInfo clusterInfo;
+            REPORTER_ASSERT(reporter, paragraph->getGlyphClusterAt(i, &clusterInfo));
+            if (impl->lines().front().width() > 0) {
+                REPORTER_ASSERT(reporter,
+                                paragraph->getClosestGlyphClusterAt(10.0f, 10.0f, &clusterInfo));
+            }
+        }
+
+        int visitedRuns = 0;
+        paragraph->visit([&](int, const Paragraph::VisitorInfo* info) {
+            if (info) {
+                visitedRuns++;
+                if (expectAllResolved && info->font.getTypeface() == robotoTypeface.get()) {
+                    for (int i = 0; i < info->count; ++i) {
+                        REPORTER_ASSERT(reporter, info->glyphs[i] != 0);
+                    }
+                }
+            }
+        });
+        int extendedVisitedRuns = 0;
+        paragraph->extendedVisit([&](int, const Paragraph::ExtendedVisitorInfo* info) {
+            if (info) {
+                extendedVisitedRuns++;
+            }
+        });
+        REPORTER_ASSERT(reporter, visitedRuns == extendedVisitedRuns);
+
+        SkPath path;
+        paragraph->getPath(0, &path);
+
+        auto unresolved = impl->unresolvedCodepoints();
+        REPORTER_ASSERT(reporter, unresolved.find(0x200E) == unresolved.end());
+        REPORTER_ASSERT(reporter, unresolved.find(0x2068) == unresolved.end());
+        REPORTER_ASSERT(reporter, unresolved.find(0x2069) == unresolved.end());
+        REPORTER_ASSERT(reporter, unresolved.find(0x0020) == unresolved.end());
+        if (expectAllResolved) {
+            REPORTER_ASSERT(reporter, impl->unresolvedGlyphs() == 0);
+        }
+        return paragraph;
+    };
+
+    const char* flutterReproText = "أنت \u200e\u2068@wren\u2069 هنا";
+    auto p1 = checkParagraph(flutterReproText, true, false);
+    REPORTER_ASSERT(reporter, p1->getFontAt(21).getTypeface() == robotoTypeface.get());
+    auto p2 = checkParagraph(flutterReproText, false, false);
+    REPORTER_ASSERT(reporter, p2->getFontAt(21).getTypeface() == robotoTypeface.get());
+
+    checkParagraph("\u200e\u2068abc\u2069 a", true, true);
+    checkParagraph("\u200e", true, true);
+    checkParagraph("\u200e\u2068", false, true);
+}
