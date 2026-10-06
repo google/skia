@@ -129,9 +129,7 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     // CoverageMaskRenderStep because it is used for mask filters even when the path renderer
     // strategy wouldn't use it to sample an atlas.
     initFromStep(&fConvexTessellatedWedges,
-                 std::make_unique<TessellateWedgesRenderStep>(layout,
-                        RenderStep::RenderStepID::kTessellateWedges_Convex,
-                        infinitySupport, kDirectDepthLEqualPass, bufferManager),
+                 TessellateWedgesRenderStep::ConvexFill(layout, infinitySupport, bufferManager),
                  DrawTypeFlags::kNonSimpleShape);
     initFromStep(&fCoverageMask,
                  std::make_unique<CoverageMaskRenderStep>(layout),
@@ -169,9 +167,7 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                  std::make_unique<PerEdgeAAQuadRenderStep>(layout, bufferManager),
                  DrawTypeFlags::kPerEdgeAAQuad);
     initFromStep(&fNonAABoundsFill,
-                 std::make_unique<CoverBoundsRenderStep>(layout,
-                        RenderStep::RenderStepID::kCoverBounds_NonAAFill,
-                        kDirectDepthLEqualPass),
+                 CoverBoundsRenderStep::NonAAInnerFill(layout),
                  DrawTypeFlags::kNonAAFillRect);
     initFromStep(&fCircularArc,
                  std::make_unique<CircularArcRenderStep>(layout, bufferManager),
@@ -202,23 +198,16 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     initFromStep(&fMesh, std::make_unique<MeshRenderStep>(layout), DrawTypeFlags::kDrawMesh);
 
     // The tessellating path renderers that use stencil can share the cover steps.
-    auto coverFill = std::make_unique<CoverBoundsRenderStep>(
-            layout, RenderStep::RenderStepID::kCoverBounds_RegularCover, kRegularCoverPass);
-    auto coverInverse = std::make_unique<CoverBoundsRenderStep>(
-            layout, RenderStep::RenderStepID::kCoverBounds_InverseCover, kInverseCoverPass);
+    auto coverFill = CoverBoundsRenderStep::StencilCover(layout, /*inverseFill=*/false);
+    auto coverInverse = CoverBoundsRenderStep::StencilCover(layout, /*inverseFill=*/true);
 
     for (bool evenOdd : {false, true}) {
         // These steps can be shared by regular and inverse fills
         auto stencilFan = std::make_unique<MiddleOutFanRenderStep>(layout, evenOdd);
         auto stencilCurve = std::make_unique<TessellateCurvesRenderStep>(
                 layout, evenOdd, infinitySupport, bufferManager);
-        auto stencilWedge =
-                evenOdd ? std::make_unique<TessellateWedgesRenderStep>(layout,
-                                RenderStep::RenderStepID::kTessellateWedges_EvenOdd,
-                                infinitySupport, kEvenOddStencilPass, bufferManager)
-                        : std::make_unique<TessellateWedgesRenderStep>(layout,
-                                RenderStep::RenderStepID::kTessellateWedges_Winding,
-                                infinitySupport, kWindingStencilPass, bufferManager);
+        auto stencilWedge = TessellateWedgesRenderStep::StencilFill(
+                layout, evenOdd, infinitySupport, bufferManager);
 
         for (bool inverse : {false, true}) {
             static const char* kTessVariants[4] =

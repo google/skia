@@ -8,21 +8,19 @@
 #ifndef skgpu_graphite_render_CoverBoundsRenderStep_DEFINED
 #define skgpu_graphite_render_CoverBoundsRenderStep_DEFINED
 
-#include "src/core/SkVx.h"
 #include "src/gpu/graphite/Renderer.h"
-
-#include <string>
 
 namespace skgpu::graphite {
 
 class DrawParams;
 class DrawWriter;
 class PipelineDataGatherer;
-struct DepthStencilSettings;
 
 class CoverBoundsRenderStep final : public RenderStep {
 public:
-    CoverBoundsRenderStep(Layout, RenderStep::RenderStepID, DepthStencilSettings);
+    // Three variants of the CoverBoundsRenderStep differ in their depth/stencil settings.
+    static std::unique_ptr<CoverBoundsRenderStep> StencilCover(Layout, bool inverseFill);
+    static std::unique_ptr<CoverBoundsRenderStep> NonAAInnerFill(Layout);
 
     ~CoverBoundsRenderStep() override;
 
@@ -34,6 +32,7 @@ public:
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 
 private:
+    CoverBoundsRenderStep(Layout, RenderStepID, DepthStencilSettings);
 };
 
 }  // namespace skgpu::graphite
