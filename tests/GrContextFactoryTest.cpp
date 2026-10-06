@@ -9,6 +9,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
+#include "src/core/SkExecutors.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -88,7 +89,7 @@ DEF_GANESH_TEST(GrContextFactory_executorAndTaskGroup, reporter, options, CtsEnf
         contextOptions.fExecutor = nullptr;
         GrContextFactory serialFactory(contextOptions);
 
-        std::unique_ptr<SkExecutor> threadPool = SkExecutor::MakeFIFOThreadPool(1);
+        std::unique_ptr<SkExecutor> threadPool = SkExecutors::MakeFIFOThreadPool(1);
         contextOptions.fExecutor = threadPool.get();
         GrContextFactory threadedFactory(contextOptions);
 

@@ -25,6 +25,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkExecutors.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkReadBuffer.h"
@@ -136,7 +137,7 @@ DEF_TEST(SkStrikeMultiThread, Reporter) {
     SkStrikeCache strikeCache;
 
     // Make our own executor so the --threads parameter doesn't mess things up.
-    auto executor = SkExecutor::MakeFIFOThreadPool(kThreadCount);
+    auto executor = SkExecutors::MakeFIFOThreadPool(kThreadCount);
     for (int tries = 0; tries < 100; tries++) {
         SkStrike strike{&strikeCache, strikeSpec, strikeSpec.createScalerContext(), nullptr,
                         nullptr};
