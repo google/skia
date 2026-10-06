@@ -1024,7 +1024,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                                            std::move(immutableSamplers),
                                            step->renderStepID(),
                                            step->primitiveType(),
-                                           step->depthStencilSettings(),
+                                           shaderInfo->depthStencilSettings(),
                                            std::move(vertexBindingDescriptions),
                                            std::move(vertexAttributeDescriptions),
                                            hasPaintParamAttributes));
