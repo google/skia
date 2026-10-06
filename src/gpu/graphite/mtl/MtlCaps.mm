@@ -127,11 +127,7 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
         fMaxVaryings = 15;
     }
 
-    if (@available(macOS 10.12, iOS 14.0, tvOS 14.0, *)) {
-        fClampToBorderSupport = (this->isMac() || fGPUFamily >= MTLGPUFamilyApple7);
-    } else {
-        fClampToBorderSupport = false;
-    }
+    fClampToBorderSupport = (this->isMac() || fGPUFamily >= MTLGPUFamilyApple7);
 
     const bool isIntel = [device.name containsString:@"Intel"];
     if (isIntel) {

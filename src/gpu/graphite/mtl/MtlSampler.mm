@@ -33,13 +33,8 @@ static inline MTLSamplerAddressMode tile_mode_to_mtl_sampler_address(SkTileMode 
             // TODO: for textures with alpha, we could use ClampToZero if there's no
             // ClampToBorderColor as they'll clamp to (0,0,0,0).
             // Unfortunately textures without alpha end up clamping to (0,0,0,1).
-            if (@available(macOS 10.12, iOS 14.0, tvOS 14.0, *)) {
-                SkASSERT(caps.clampToBorderSupport());
-                return MTLSamplerAddressModeClampToBorderColor;
-            } else {
-                SkASSERT(false);
-                return MTLSamplerAddressModeClampToZero;
-            }
+            SkASSERT(caps.clampToBorderSupport());
+            return MTLSamplerAddressModeClampToBorderColor;
     }
     SkUNREACHABLE;
 }

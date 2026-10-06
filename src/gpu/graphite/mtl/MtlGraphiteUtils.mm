@@ -67,14 +67,7 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
         return nil;
     }
     MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
-
-    // Framebuffer fetch is supported in MSL 2.3 in MacOS 11+.
-    if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
-        options.languageVersion = MTLLanguageVersion2_3;
-    } else {
-        // Supported by iOS 13, Graphite's minimum iOS version
-        options.languageVersion = MTLLanguageVersion2_2;
-    }
+    options.languageVersion = MTLLanguageVersion2_3;
 
     NSError* error = nil;
     // TODO: do we need a version with a timeout?
