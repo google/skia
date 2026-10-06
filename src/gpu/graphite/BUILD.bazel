@@ -199,7 +199,6 @@ skia_cc_library_with_testutil(
     ],
     hdrs = [
         ":_graphite_hdrs",
-        "//include/cpu:public_hdrs",
         "//include/gpu:shared_gpu_hdrs",
         "//include/gpu/graphite:public_hdrs",
         "//src/gpu/graphite/compute:compute_hdrs",
