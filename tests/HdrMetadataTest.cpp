@@ -412,6 +412,22 @@ DEF_TEST(HdrMetadata_Agtm_Weighting, r) {
     test("base-2-alt0-alt1, target-0.25", 0.25f,
          {{0, 1},
           {0.75f, 0.25f}});
+
+    test("base-2-alt0-alt1, target-neg", -1.f,
+         {{0, skhdr::AgtmHelpers::Weighting::kInvalidIndex},
+          {1.f, 0.f}});
+
+    test("base-2-alt0-alt1, target-inf", SK_FloatInfinity,
+         {{skhdr::AgtmHelpers::Weighting::kInvalidIndex, skhdr::AgtmHelpers::Weighting::kInvalidIndex},
+          {0.f, 0.f}});
+
+    test("base-2-alt0-alt1, target-neg-inf", SK_FloatNegativeInfinity,
+         {{skhdr::AgtmHelpers::Weighting::kInvalidIndex, skhdr::AgtmHelpers::Weighting::kInvalidIndex},
+          {0.f, 0.f}});
+
+    test("base-2-alt0-alt1, target-nan", SK_FloatNaN,
+         {{skhdr::AgtmHelpers::Weighting::kInvalidIndex, skhdr::AgtmHelpers::Weighting::kInvalidIndex},
+          {0.f, 0.f}});
 }
 
 static void assert_agtms_equal(skiatest::Reporter* r,
@@ -1200,6 +1216,28 @@ DEF_TEST(HdrMetadata_ShaderParams, r) {
     REPORTER_ASSERT(r, toneMapAgtm.fHeadroomAdaptiveToneMap.has_value());
     REPORTER_ASSERT(r,
         toneMapAgtm.fHeadroomAdaptiveToneMap->fBaselineHdrHeadroom == std::log2(812.f / 100.f));
+
+    // Infinite peak luminance should clamp baseline headroom to 6.
+    {
+        skhdr::ContentLightLevelInformation clli;
+        clli.fMaxCLL = SK_FloatInfinity;
+        metadata.setContentLightLevelInformation(clli);
+        REPORTER_ASSERT(r, skhdr::AgtmHelpers::PopulateToneMapAgtmParams(
+            metadata, cs_pq100.get(), &toneMapAgtm, &scaleFactor));
+        REPORTER_ASSERT(r, toneMapAgtm.fHeadroomAdaptiveToneMap.has_value());
+        REPORTER_ASSERT(r, toneMapAgtm.fHeadroomAdaptiveToneMap->fBaselineHdrHeadroom == 6.f);
+    }
+
+    // NaN reference white should result in 0 baseline headroom.
+    {
+        skhdr::AdaptiveGlobalToneMap agtm;
+        agtm.fHdrReferenceWhite = SK_FloatNaN;
+        metadata.setAdaptiveGlobalToneMap(agtm);
+        REPORTER_ASSERT(r, skhdr::AgtmHelpers::PopulateToneMapAgtmParams(
+            metadata, cs_pq100.get(), &toneMapAgtm, &scaleFactor));
+        REPORTER_ASSERT(r, toneMapAgtm.fHeadroomAdaptiveToneMap.has_value());
+        REPORTER_ASSERT(r, toneMapAgtm.fHeadroomAdaptiveToneMap->fBaselineHdrHeadroom == 0.f);
+    }
 }
 
 DEF_TEST(HdrMetadata_Agtm_Invalid, r) {

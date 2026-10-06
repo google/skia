@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorFilter.h"
 #include "include/effects/SkRuntimeEffect.h"
@@ -410,6 +412,10 @@ void PopulateUsingRwtmo(AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm) {
 Weighting ComputeWeighting(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm,
                            float targetedHdrHeadroom) {
     Weighting result;
+    if (!std::isfinite(targetedHdrHeadroom)) {
+        return result;
+    }
+    targetedHdrHeadroom = std::clamp(targetedHdrHeadroom, kMinHdrHeadroom, kMaxHdrHeadroom);
 
     // Create the list of HDR headrooms including the baseline image and all alternate images, as
     // described Clause 6.2.5 Computation of the headroom-adaptive tone map.
@@ -598,8 +604,8 @@ sk_sp<SkColorFilter> MakeColorFilter(
     return filter->makeWithWorkingColorSpace(gainApplicationColorSpace);
 }
 
-// Return the maximum luminance from CLLI, MDCV, or a default.
-static float get_max_luminance(const Metadata& metadata) {
+// Return the peak luminance from CLLI, MDCV, or a default.
+static float get_peak_luminance(const Metadata& metadata) {
     if (metadata.getContentLightLevelInformation(nullptr)) {
         ContentLightLevelInformation clli;
         if (metadata.getContentLightLevelInformation(&clli) && clli.fMaxCLL > 0.f) {
@@ -660,9 +666,14 @@ bool PopulateToneMapAgtmParams(const Metadata& metadata,
     // If no tone mapping was specified, then use RWTMO with the baseline HDR headroom computed
     // from the CLLI and MDCV metadata.
     if (!hatm.has_value()) {
+        const float peak_luminance = get_peak_luminance(metadata);
+        float baseline_hdr_headroom = 0.f;
+        if (agtm.fHdrReferenceWhite > 0.f && peak_luminance > agtm.fHdrReferenceWhite) {
+            baseline_hdr_headroom =
+                    std::min(std::log2(peak_luminance / agtm.fHdrReferenceWhite), kMaxHdrHeadroom);
+        }
         hatm = {{
-            .fBaselineHdrHeadroom = std::log2(
-                std::max(get_max_luminance(metadata) / agtm.fHdrReferenceWhite, 1.f))
+            .fBaselineHdrHeadroom = baseline_hdr_headroom,
         }};
         AgtmHelpers::PopulateUsingRwtmo(hatm.value());
     }
