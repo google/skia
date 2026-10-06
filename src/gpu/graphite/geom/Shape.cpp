@@ -10,6 +10,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkStrokeRec.h"
 #include "include/private/SkAlign.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMalloc.h"
@@ -137,6 +138,21 @@ SkPath Shape::asPath() const {
         case Type::kArc:   SkUNREACHABLE;
     }
     return builder.detach();
+}
+
+float Shape::getInflationRadius(SkPaint::Join join,
+                                float miterLimit,
+                                SkPaint::Cap cap,
+                                float strokeWidth) const {
+    SkASSERT(miterLimit >= 0.f && strokeWidth >= 0.f);
+    // Rectangles, rounded rectangles, and lines do not produce miters so don't count the
+    // pessimistic limit against their draw bounds.
+    const float effectiveMiterLimit = this->isPath() ? miterLimit : 1.f;
+    // Rectangles and rounded rectangles don't have caps, so don't count that against their
+    // draw bounds (if we could efficiently know a path was a closed contour, it could
+    // be included here too).
+    const SkPaint::Cap effectiveCap = this->isRect() || this->isRRect() ? SkPaint::kButt_Cap : cap;
+    return SkStrokeRec::GetInflationRadius(join, effectiveMiterLimit, effectiveCap, strokeWidth);
 }
 
 namespace {

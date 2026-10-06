@@ -1135,11 +1135,7 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
             // TODO(michaelludwig): But for now set depthWrite=true when we perform shading since
             // there is no render pass detection logic yet. This can be relaxed to only write depth
             // when this is a depth-only draw or an occluder (no blending).
-            // TODO(michaelludwig): For now, also allow kLess to support scenarios where multiple
-            // recordDraws() depend on the Z value being the same; use presence of stencil to select
-            // LESS over LEQUAL.
-            depthSettings = {step->useNonAAInnerFill() || step->usesStencil() ? CompareOp::kLess
-                                                                              : CompareOp::kLEqual,
+            depthSettings = {step->useNonAAInnerFill() ? CompareOp::kLess : CompareOp::kLEqual,
                              /*write=*/step->performsShading()};
         }
     } else {

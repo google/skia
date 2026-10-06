@@ -8,10 +8,7 @@
 #ifndef skgpu_graphite_render_TessellateStrokesRenderStep_DEFINED
 #define skgpu_graphite_render_TessellateStrokesRenderStep_DEFINED
 
-#include "src/core/SkVx.h"
 #include "src/gpu/graphite/Renderer.h"
-
-#include <string>
 
 namespace skgpu::graphite {
 
@@ -21,7 +18,11 @@ class PipelineDataGatherer;
 
 class TessellateStrokesRenderStep final : public RenderStep {
 public:
-    explicit TessellateStrokesRenderStep(Layout, bool infinitySupport, bool inverseFill);
+    // Renders a filled, shaded stroke
+    static std::unique_ptr<TessellateStrokesRenderStep> Regular(Layout, bool infinitySupport);
+
+    // Renders a stroke's geometry into the stencil buffer
+    static std::unique_ptr<TessellateStrokesRenderStep> StencilOnly(Layout, bool infinitySupport);
 
     ~TessellateStrokesRenderStep() override;
 
@@ -33,6 +34,9 @@ public:
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 
 private:
+    TessellateStrokesRenderStep(Layout, RenderStepID, SkEnumBitMask<Flags> xtraFlags,
+                                bool infinitySupport, StencilSettings);
+
     bool fInfinitySupport;
 };
 

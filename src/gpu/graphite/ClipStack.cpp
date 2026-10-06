@@ -1374,18 +1374,8 @@ bool ClipStack::DrawShape::applyStyle(const SkStrokeRec& style, const Rect& devi
         // SkStrokeRec::GetInflationRadius() returns a device-space inflation for hairlines.
         float localOutset = 0.f;
         if (!style.isFillStyle() && !style.isHairlineStyle()) {
-            // Rectangles, rounded rectangles, and lines do not produce miters so don't count the
-            // pessimistic limit against their draw bounds.
-            const float effectiveMiterLimit = fShape.isPath() ? style.getMiter() : 1.f;
-            // Rectangles and rounded rectangles don't have caps, so don't count that against their
-            // draw bounds (if we could efficiently know a path was a closed contour, it could
-            // be included here too).
-            const SkPaint::Cap effectiveCap = fShape.isRect() || fShape.isRRect()
-                    ? SkPaint::kButt_Cap : style.getCap();
-            localOutset = SkStrokeRec::GetInflationRadius(style.getJoin(),
-                                                          effectiveMiterLimit,
-                                                          effectiveCap,
-                                                          style.getWidth());
+            localOutset = fShape.getInflationRadius(
+                    style.getJoin(), style.getMiter(), style.getCap(), style.getWidth());
         }
 
         if (style.isHairlineStyle() ||

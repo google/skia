@@ -175,6 +175,18 @@ public:
         return *fStroke;
     }
 
+    Rect styledBounds() const {
+        Rect localBounds = fGeometry.bounds();
+        if (this->isStroke() && fGeometry.isShape()) {
+            float localOutset = fGeometry.shape().getInflationRadius(fStroke->join(),
+                                                                     fStroke->miterLimit(),
+                                                                     fStroke->cap(),
+                                                                     fStroke->width());
+            localBounds.outset(localOutset);
+        }
+        return localBounds;
+    }
+
 private:
     friend class ClipStack; // For updating clip and order components on depth only draws
 

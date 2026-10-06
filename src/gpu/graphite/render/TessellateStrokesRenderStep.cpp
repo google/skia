@@ -89,29 +89,44 @@ static constexpr SkSpan<const Attribute> kAttributes[2] = {kAttributesWithCurveT
 
 }  // namespace
 
-// NOTE: The stroke geometry can self intersect, and when it is performing shading, this is not
-// desired. However, when it is an inverse fill, any self intersections are gracefully handled by
-// the stencil buffer and shading is a follow-up cover step so they can be allowed.
 TessellateStrokesRenderStep::TessellateStrokesRenderStep(Layout layout,
+                                                         RenderStepID renderStepId,
+                                                         SkEnumBitMask<Flags> xtraFlags,
                                                          bool infinitySupport,
-                                                         bool inverseFill)
+                                                         StencilSettings stencilSettings)
         : RenderStep(layout,
-                     inverseFill ? RenderStepID::kTessellateStrokes_InverseFill
-                                 : RenderStepID::kTessellateStrokes_Fill,
-                     (inverseFill ? Flags::kAllowsSelfIntersection : Flags::kPerformsShading)
-                            | Flags::kRequiresMSAA
-                            | Flags::kAppendDynamicInstances,
+                     renderStepId,
+                     Flags::kRequiresMSAA | Flags::kAppendDynamicInstances | xtraFlags,
                      /*uniforms=*/{{"affineMatrix", SkSLType::kFloat4},
                                    {"translate", SkSLType::kFloat2},
                                    {"maxScale", SkSLType::kFloat}},
                      PrimitiveType::kTriangleStrip,
-                     inverseFill ? kIncrementStencilPass : StencilSettings(),
-                     /*staticAttrs=*/{},
+                     stencilSettings,
+                     /*staticAttrs=*/ {},
                      /*appendAttrs=*/SK_UNSAFE_TODO(kAttributes[infinitySupport]),
                      /*storageUniforms=*/{})
         , fInfinitySupport(infinitySupport) {}
 
 TessellateStrokesRenderStep::~TessellateStrokesRenderStep() {}
+
+std::unique_ptr<TessellateStrokesRenderStep> TessellateStrokesRenderStep::Regular(
+        Layout layout, bool infinitySupport) {
+    // NOTE: The stroke geometry can self intersect and this step performs shading, so do not
+    // include `kAllowsSelfIntersection` or `kNoSelfIntersection`. This allows the depth test to
+    // eliminate double blending when a transparent stroke crosses over itself.
+    return std::unique_ptr<TessellateStrokesRenderStep>(new TessellateStrokesRenderStep(
+            layout, RenderStepID::kTessellateStrokes_Fill, Flags::kPerformsShading,
+            infinitySupport, /*stencilSettings=*/{}));
+}
+
+std::unique_ptr<TessellateStrokesRenderStep> TessellateStrokesRenderStep::StencilOnly(
+        Layout layout, bool infinitySupport) {
+    // Unlike `Regular()`, this variant can allow self intersections because overlap is gracefully
+    // handled by the stencil buffer updates and then any follow-up cover step will shade once.
+    return std::unique_ptr<TessellateStrokesRenderStep>(new TessellateStrokesRenderStep(
+            layout, RenderStepID::kTessellateStrokes_Stencil, Flags::kAllowsSelfIntersection,
+            infinitySupport, kIncrementStencilPass));
+}
 
 std::string TessellateStrokesRenderStep::vertexSkSL(const RootNodesInfo&) const {
     // TODO: Assumes vertex ID support for now, max edges must equal

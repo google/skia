@@ -107,6 +107,14 @@ public:
         return &fTessellatedStrokes[static_cast<size_t>(inverseFill)];
     }
 
+    // Path rendering for the combined stroke-and-fill style
+    const Renderer* strokeAndFillTessellatedCurvesAndTris(SkPathFillType type) const {
+        return &fStrokeAndFillTessellatedCurves[static_cast<int>(type)];
+    }
+    const Renderer* strokeAndFillTessellatedWedges(SkPathFillType type) const {
+        return &fStrokeAndFillTessellatedWedges[static_cast<int>(type)];
+    }
+
     // Coverage mask rendering. Used by the atlas path rendering strategies and rendering mask
     // filter results.
     const Renderer* coverageMask() const { return &fCoverageMask; }
@@ -147,9 +155,6 @@ public:
 
     const Renderer* analyticBlur() const { return &fAnalyticBlur; }
     const Renderer* analyticRRectBlur() const { return &fAnalyticRRectBlur; }
-
-    // TODO: May need to add support for inverse filled strokes (need to check SVG spec if this is a
-    // real thing).
 
     // Iterate over all available Renderers to combine with specified paint combinations when
     // pre-compiling pipelines.
@@ -208,6 +213,11 @@ private:
     Renderer fStencilTessellatedWedges[kPathTypeCount];
     Renderer fConvexTessellatedWedges;
     Renderer fTessellatedStrokes[2]; // bool inverseFill;
+
+    // The stroke-and-fill renderers reuse the same RenderSteps as regular fill and stroke
+    // tessellated path rendering.
+    Renderer fStrokeAndFillTessellatedCurves[kPathTypeCount];
+    Renderer fStrokeAndFillTessellatedWedges[kPathTypeCount];
 
     Renderer fCoverageMask;
 

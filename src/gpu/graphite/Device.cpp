@@ -1747,12 +1747,7 @@ void Device::drawGeometry(const Transform& localToDevice,
                 fRecorder->priv().rendererProvider()->sparseStripsWideTile()->numRenderSteps();
         } else
 #endif
-        if (styleType == SkStrokeRec::kStrokeAndFill_Style) {
-            SkASSERT(geometry.isShape());
-            numNewRenderSteps +=
-                fRecorder->priv().rendererProvider()->tessellatedStrokes(
-                        /*inverseFill=*/false)->numRenderSteps();
-        } else if (styleType == SkStrokeRec::kFill_Style && renderer->useNonAAInnerFill()) {
+        if (styleType == SkStrokeRec::kFill_Style && renderer->useNonAAInnerFill()) {
             numNewRenderSteps +=
                 fRecorder->priv().rendererProvider()->nonAABounds()->numRenderSteps();
         }
@@ -1978,30 +1973,10 @@ void Device::drawGeometry(const Transform& localToDevice,
     } else
 #endif
     {
-        if (styleType != SkStrokeRec::kFill_Style) {
-            SkASSERT(geometry.isShape());
-            // For inverse stroke-and-fill style, we perform a depth only draw of the stroke so when
-            // we perform our draw for the fill, we don't write over the stroked part. This ensures
-            // we keep the inverse fill outside of the entire shape including the stroke.
-            const bool isStrokeAndFill = styleType == SkStrokeRec::kStrokeAndFill_Style;
-            const bool depthOnlyStroke = isStrokeAndFill && geometry.shape().inverted();
-            const Renderer* strokeRenderer =
-                    isStrokeAndFill ? fRecorder->priv().rendererProvider()->tessellatedStrokes(
-                                              /*inverseFill=*/false)
-                                    : renderer;
-            UniquePaintParamsID strokePaintID = depthOnlyStroke ? UniquePaintParamsID::Invalid()
-                                                                : paintID;
-            DrawOrder strokeOrder = order;
-            if (depthOnlyStroke) {
-                order.dependsOnPaintersOrder(strokeOrder.paintOrder());
-            }
-
-            StrokeStyle stroke(style.getWidth(), style.getMiter(), style.getJoin(), style.getCap());
-            fDC->recordDraw(strokeRenderer, localToDevice, geometry, clip, strokeOrder,
-                            strokePaintID, dstUsage, scopedDrawBuilder.gatherer(), &stroke,
-                            clipLayer);
-        } else if ((dstUsage & DstUsage::kDstOnlyUsedByRenderer) && renderer->useNonAAInnerFill() &&
-                   !avoidDepthMode) {
+        if ((dstUsage & DstUsage::kDstOnlyUsedByRenderer) &&
+            styleType == SkStrokeRec::kFill_Style &&
+            renderer->useNonAAInnerFill() &&
+            !avoidDepthMode) {
             // Possibly record an additional draw using the non-AA bounds renderer to fill the
             // interior with a renderer that can disable blending entirely.
             Rect innerFillBounds = get_inner_bounds(geometry, localToDevice);
@@ -2023,11 +1998,11 @@ void Device::drawGeometry(const Transform& localToDevice,
             }
         }
 
-        if (styleType == SkStrokeRec::kFill_Style ||
-            styleType == SkStrokeRec::kStrokeAndFill_Style) {
-            fDC->recordDraw(renderer, localToDevice, geometry, clip, order, paintID, dstUsage,
-                            scopedDrawBuilder.gatherer(), /*stroke=*/nullptr, clipLayer);
-        }
+        StrokeStyle stroke(style.getWidth(), style.getMiter(), style.getJoin(), style.getCap());
+        fDC->recordDraw(renderer, localToDevice, geometry, clip, order, paintID, dstUsage,
+                        scopedDrawBuilder.gatherer(),
+                        styleType == SkStrokeRec::kFill_Style ? nullptr : &stroke,
+                        clipLayer);
     }
 
     if (!useDrawListLayer) {
@@ -2307,26 +2282,23 @@ const Renderer* Device::chooseMSAARenderer(const Shape& shape,
         // depth test prevents double-blending when there is transparency, thus we can HW stroke
         // any path regardless of its paint.
         return renderers->tessellatedStrokes(shape.inverted());
+    } else if (type == SkStrokeRec::kFill_Style && shape.convex() && !shape.inverted()) {
+        // Regular convex fills can avoid the stencil buffer and don't vary by fill type.
+        return renderers->convexTessellatedWedges();
     }
 
-    // 'type' could be kStrokeAndFill, but in that case chooseRenderer() is meant to return the
-    // fill renderer since tessellatedStrokes() will always be used for the stroke pass.
-    if (shape.convex() && !shape.inverted()) {
-        // TODO: Ganesh doesn't have a curve+middle-out triangles option for convex paths, but it
-        // would be pretty trivial to spin up.
-        return renderers->convexTessellatedWedges();
+    // At this point the MSAA path rendering will require use of the stencil buffer
+    const bool preferWedges =
+            // TODO: Combine this heuristic with what is used in PathStencilCoverOp to choose
+            // between wedges curves consistently in Graphite and Ganesh.
+            (shape.isPath() && shape.path().countVerbs() < 50) || drawBounds.area() <= (256 * 256);
+    const bool strokeAndFill = type == SkStrokeRec::kStrokeAndFill_Style;
+    if (preferWedges) {
+        return strokeAndFill ? renderers->strokeAndFillTessellatedWedges(shape.fillType())
+                             : renderers->stencilTessellatedWedges(shape.fillType());
     } else {
-        const bool preferWedges =
-                // TODO: Combine this heuristic with what is used in PathStencilCoverOp to choose
-                // between wedges curves consistently in Graphite and Ganesh.
-                (shape.isPath() && shape.path().countVerbs() < 50) ||
-                drawBounds.area() <= (256 * 256);
-
-        if (preferWedges) {
-            return renderers->stencilTessellatedWedges(shape.fillType());
-        } else {
-            return renderers->stencilTessellatedCurvesAndTris(shape.fillType());
-        }
+        return strokeAndFill ? renderers->strokeAndFillTessellatedCurvesAndTris(shape.fillType())
+                             : renderers->stencilTessellatedCurvesAndTris(shape.fillType());
     }
 }
 

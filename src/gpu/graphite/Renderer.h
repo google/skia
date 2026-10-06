@@ -72,7 +72,7 @@ enum class Coverage { kNone, kSingleChannel, kLCD };
         M2(TessellateCurves, EvenOdd)           \
         M2(TessellateCurves, Winding)           \
         M2(TessellateStrokes,Fill)              \
-        M2(TessellateStrokes,InverseFill)       \
+        M2(TessellateStrokes,Stencil)           \
         M2(TessellateWedges, Convex)            \
         M2(TessellateWedges, EvenOdd)           \
         M2(TessellateWedges, Winding)           \
