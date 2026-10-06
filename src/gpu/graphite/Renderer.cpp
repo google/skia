@@ -41,9 +41,45 @@ RenderStep::RenderStep(Layout layout,
         , fAppendDataStride(0)
         , fStorageUniformStride(0)
         , fStorageUniformAlignment(1) {
+    // If declaring storage uniforms, the flags must specify their visibility
     SkASSERT(fStorageUniforms.empty() ||
              SkToBool(fStorageBufferStages & (PipelineStageFlags::kVertexShader |
                                               PipelineStageFlags::kFragmentShader)));
+
+    // kAllowSelfIntersection and kNoSelfIntersection are mutually exclusive
+    SkASSERT(!(SkToBool(fFlags & Flags::kAllowsSelfIntersection) &&
+               SkToBool(fFlags & Flags::kNoSelfIntersections)));
+
+    // Ensure that the depth-related flags are consistent with the depth settings provided
+#if defined(SK_DEBUG)
+    if (this->requiresDepth()) {
+        // This mode requires the depth buffer to prevent double blending, so writes need to be
+        // enabled and the test needs to be LESS to fail subsequent pixel touches.
+        SkASSERT(depthStencilSettings.fDepthWriteEnabled &&
+                 depthStencilSettings.fDepthCompareOp == CompareOp::kLess);
+    } else if (this->useNonAAInnerFill()) {
+        // Currently, inner fill draws use the same z value as the main draw, so a render step
+        // opting into this feature needs to use LESS even if otherwise could use LEQUAL. This
+        // could be relaxed by changing how Device assigns z values but there's no pressing need.
+        // Opting into a non-aa inner fill does not require depth writes, since this step is being
+        // rendered after the inner fill (which would write depth).
+        SkASSERT(depthStencilSettings.fDepthCompareOp == CompareOp::kLess);
+    } else {
+        // These flags have the same effective behavior, which is that the test is LEQUAL
+        // (either necessary to show self-intersections, or desired to highlight bugs that indicate
+        // a violation of kNoSelfIntersection). They do not mandate depth writes being enabled.
+        // For now, also allow kLess to support scenarios where multiple recordDraws() depend on
+        // the Z value being the same.
+        SkASSERT(depthStencilSettings.fDepthCompareOp == CompareOp::kLEqual ||
+                 depthStencilSettings.fDepthCompareOp == CompareOp::kLess);
+    }
+
+    // Depth writing should be consistent with the shading policy; every Renderer needs to have
+    // at least one render step that performs shading, these are responsible for writing depth. The
+    // non-shading steps should only be testing (if required for the renderpass).
+    SkASSERT(depthStencilSettings.fDepthWriteEnabled == this->performsShading());
+#endif
+
     for (auto v : this->staticAttributes()) {
         fStaticDataStride += v.sizeAlign4();
     }

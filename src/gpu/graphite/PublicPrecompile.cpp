@@ -47,6 +47,7 @@ void compile(SharedContext* sharedContext,
     const RendererProvider* rendererProvider = sharedContext->rendererProvider();
     PipelineManager* pipelineManager = sharedContext->pipelineManager();
 
+    const TextureFormat dsFormat = renderPassDesc.fDepthStencilAttachment.fFormat;
     for (const Renderer* r : rendererProvider->renderers()) {
         if (!(r->drawTypes() & drawTypes)) {
             continue;
@@ -64,14 +65,12 @@ void compile(SharedContext* sharedContext,
             continue;
         }
 
-        if (SkToBool(r->depthStencilFlags() & DepthStencilFlags::kDepth) &&
-            !TextureFormatHasDepth(renderPassDesc.fDepthStencilAttachment.fFormat)) {
+        if (r->requiresDepth() && !TextureFormatHasDepth(dsFormat)) {
             // This renderer requires depth, which is incompatible with the requested render pass,
             // so skip it.
             continue;
         }
-        if (SkToBool(r->depthStencilFlags() & DepthStencilFlags::kStencil) &&
-            !TextureFormatHasStencil(renderPassDesc.fDepthStencilAttachment.fFormat)) {
+        if (r->usesStencil() && !TextureFormatHasStencil(dsFormat)) {
             // This renderer requires stencil, which is incompatible with the requested render pass,
             // so skip it.
             continue;

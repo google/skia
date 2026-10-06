@@ -226,8 +226,10 @@ AnalyticRRectBlurRenderStep::AnalyticRRectBlurRenderStep(Layout layout,
                                                          StaticBufferManager* bufferManager)
         : RenderStep(layout,
                      RenderStepID::kAnalyticRRectBlur,
-                     Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage |
-                     Flags::kAppendInstances,
+                     Flags::kPerformsShading | Flags::kHasTextures
+                                             | Flags::kEmitsCoverage
+                                             | Flags::kNoSelfIntersections
+                                             | Flags::kAppendInstances,
                      /*uniforms=*/
                      {{"rect", SkSLType::kFloat4},
                       {"drawPad", SkSLType::kFloat2},
@@ -235,7 +237,7 @@ AnalyticRRectBlurRenderStep::AnalyticRRectBlurRenderStep(Layout layout,
                       {"rrectRadii", SkSLType::kFloat4, 2},
                       {"blurRadius", SkSLType::kFloat2}},
                      PrimitiveType::kTriangles,
-                     kDirectDepthLessPass,
+                     kDirectDepthLEqualPass,
                      /*staticAttrs=*/
                      {{"gridAndBevel", VertexAttribType::kInt4, SkSLType::kInt4},
                       {"cellID", VertexAttribType::kUInt, SkSLType::kUInt}},

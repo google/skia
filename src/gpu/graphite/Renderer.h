@@ -192,6 +192,7 @@ public:
     bool appendsVertices()     const { return SkToBool(fFlags & Flags::kAppendVertices);      }
     bool vsUsesStorage()       const { return SkToBool(fFlags & Flags::kVsUsesStorage);       }
     bool fsUsesStorage()       const { return SkToBool(fFlags & Flags::kFsUsesStorage);       }
+
     SkEnumBitMask<PipelineStageFlags> storageBufferStages() const { return fStorageBufferStages; }
     SkEnumBitMask<RenderStateFlags>   getRenderStateFlags() const {
         SkEnumBitMask<RenderStateFlags> rs = RenderStateFlags::kNone;
@@ -233,13 +234,34 @@ public:
     SkSpan<const Uniform>   storageUniforms()   const { return SkSpan(fStorageUniforms); }
     SkSpan<const Varying>   varyings()          const { return SkSpan(fVaryings);        }
 
+    // RenderSteps have control over how they modify the stencil buffer, with the requirement that
+    // a Renderer must ensure such that their last step leaves the stencil set to 0.
+    //
+    // RenderSteps cannot control depth settings as the depth attachment is used more fluidly to
+    // ensure rendering correctness. Instead, the render step's flags are the source of truth for
+    // its depth behavior. These depth settings must be consistent with those flags under the
+    // assumption that they are used by a renderpass that has depth and is combined with a paint
+    // that is opaque. ShaderInfo inspects the flags to relax the settings and the renderpass
+    // when possible.
     const DepthStencilSettings& depthStencilSettings() const { return fDepthStencilSettings; }
 
+    bool usesStencil() const { return fDepthStencilSettings.stencilEnabled(); }
+    bool usesDepth() const { return fDepthStencilSettings.depthEnabled(); }
+
+    // This is true if the RenderStep forces a renderpass to have a depth attachment, which is
+    // stricter than the depthWrite and depthTest provided in `depthStencilSettings()`, as those
+    // represent what should be set *if* depth ends up being used.
+    bool requiresDepth() const {
+        // NOTE: kUseNonAAInnerFill in a RenderStep will likely trigger the use of depth for the
+        // renderpass, but that is a result of it producing a second draw that is ordered front
+        // to back, and not strictly-speaking a requirement of the RenderStep's internal behavior.
+        // In the event that the inner fill isn't recorded, we don't want to force depth.
+        return !SkToBool(fFlags & (Flags::kAllowsSelfIntersection | Flags::kNoSelfIntersections));
+    }
+
     SkEnumBitMask<DepthStencilFlags> depthStencilFlags() const {
-        return (fDepthStencilSettings.stencilEnabled()
-                        ? DepthStencilFlags::kStencil : DepthStencilFlags::kNone) |
-               (fDepthStencilSettings.depthEnabled()
-                        ? DepthStencilFlags::kDepth : DepthStencilFlags::kNone);
+        return (this->usesStencil() ? DepthStencilFlags::kStencil : DepthStencilFlags::kNone) |
+               (this->usesDepth()   ? DepthStencilFlags::kDepth   : DepthStencilFlags::kNone);
     }
 
     static const int kRenderStepIDVersion = 2;
@@ -269,23 +291,33 @@ public:
     //    - Does each DrawList::Draw have extra space (e.g. 8 bytes) that steps can cache data in?
 protected:
 enum class Flags : unsigned {
-    kNone                   = 0x0000,
-    kFixed                  = 0x0001, // Uses explicit DrawWriter::draw functions
-    kAppendVertices         = 0x0002, // Appends vertices
-    kAppendInstances        = 0x0004, // Appends instances with static vertex count
-    kAppendDynamicInstances = 0x0008, // Appends instances with a flexible vertex count
-    kRequiresMSAA           = 0x0010, // MSAA is required for anti-aliasing
-    kPerformsShading        = 0x0020, // This step is responsible for shading/color output
-    kHasTextures            = 0x0040, // Adds textures via overridden texturesAndSamplersSkSL()
-    kEmitsCoverage          = 0x0080, // Adds analytic coverage via fragmentCoverageSkSL()
-    kLCDCoverage            = 0x0100, // The added analytic coverage is LCD, not single channel
-    kEmitsPrimitiveColor    = 0x0200, // Injects primitive color via fragmentColorSkSL()
-    kOutsetBoundsForAA      = 0x0400, // Drawn geometry will be outset beyond shape's bounds for AA
-    kUseNonAAInnerFill      = 0x0800, // Opt into Device recording extra inner fill draws
-    kIgnoreInverseFill      = 0x1000, // Rasterization treats all shapes as non-inverted for scissor
-    kInverseFillsScissor    = 0x2000, // Rasterization of inverse fills scissor geometrically
-    kVsUsesStorage          = 0x4000, // Does the vertex shader require storage buffer access?
-    kFsUsesStorage          = 0x8000, // Does the fragment shader require storage buffer access?
+    kNone                   = 0,
+
+    // Attribute/uniform/layout properties
+    kFixed                  = 1 << 0,  // Uses explicit DrawWriter::draw functions
+    kAppendVertices         = 1 << 1,  // Appends vertices
+    kAppendInstances        = 1 << 2,  // Appends instances with static vertex count
+    kAppendDynamicInstances = 1 << 3,  // Appends instances with a flexible vertex count
+    kVsUsesStorage          = 1 << 4,  // Does the vertex shader require storage buffer access?
+    kFsUsesStorage          = 1 << 5,  // Does the fragment shader require storage buffer access?
+
+    // Shading behavior
+    kPerformsShading        = 1 << 6,  // This step is responsible for shading/color output
+    kHasTextures            = 1 << 7,  // Adds textures via overridden texturesAndSamplersSkSL()
+    kEmitsCoverage          = 1 << 8,  // Adds analytic coverage via fragmentCoverageSkSL()
+    kLCDCoverage            = 1 << 9,  // The added analytic coverage is LCD, not single channel
+    kEmitsPrimitiveColor    = 1 << 10, // Injects primitive color via fragmentColorSkSL()
+
+    // Rasterization/geometry properties
+    kRequiresMSAA           = 1 << 11, // MSAA is required for anti-aliasing
+    kAllowsSelfIntersection = 1 << 12, // Rendered triangles can self-intersect, but that's desired.
+    kNoSelfIntersections    = 1 << 13, // Rendered triangles will never self-intersect (if neither
+                                       // this nor kAllowsSelfIntersection is set, the depth test is
+                                       // used to avoid self intersections).
+    kOutsetBoundsForAA      = 1 << 14, // Drawn geometry will be outset beyond shape's bounds for AA
+    kUseNonAAInnerFill      = 1 << 15, // Opt into Device recording extra inner fill draws
+    kIgnoreInverseFill      = 1 << 16, // Rasterization treats all shapes as noninverted for scissor
+    kInverseFillsScissor    = 1 << 17, // Rasterization of inverse fills scissor geometrically
 };
 SK_DECL_BITMASK_OPS_FRIENDS(Flags)
 
@@ -369,6 +401,19 @@ public:
     bool useNonAAInnerFill() const {
         return SkToBool(fStepFlags & StepFlags::kUseNonAAInnerFill);
     }
+    bool usesStencil() const {
+        return SkToBool(fDepthStencilFlags & DepthStencilFlags::kStencil);
+    }
+    // TODO(michaelludwig): Once ShaderInfo controls basic depth settings,
+    // fDepthStencilFlags::kDepth will match requiresDepth() and this can be simplified.
+    bool requiresDepth() const {
+        for (int i = 0; i < fStepCount; ++i) {
+            if (fSteps[i]->requiresDepth()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     SkEnumBitMask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
 
@@ -407,10 +452,8 @@ private:
         // At least one step needs to actually shade.
         SkASSERT(fStepFlags & RenderStep::Flags::kPerformsShading);
         // A render step using non-AA inner fills with a second draw should not also be part of a
-        // multi-step renderer (to keep reasoning simple) and must use the LESS depth test.
-        SkASSERT(!this->useNonAAInnerFill() ||
-                 (fStepCount == 1 &&
-                  fSteps[0]->depthStencilSettings().fDepthCompareOp == CompareOp::kLess));
+        // multi-step renderer (to keep reasoning simple).
+        SkASSERT(!this->useNonAAInnerFill() || fStepCount == 1);
     }
 
     // For RendererProvider to manage initialization; it will never expose a Renderer that is only

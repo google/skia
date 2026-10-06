@@ -31,9 +31,9 @@ CoverBoundsRenderStep::CoverBoundsRenderStep(Layout layout,
                                              DepthStencilSettings dsSettings)
         : RenderStep(layout,
                      renderStepID,
-                     Flags::kPerformsShading |
-                     Flags::kAppendInstances |
-                     Flags::kInverseFillsScissor,
+                     Flags::kPerformsShading | Flags::kNoSelfIntersections
+                                             | Flags::kAppendInstances
+                                             | Flags::kInverseFillsScissor,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      dsSettings,

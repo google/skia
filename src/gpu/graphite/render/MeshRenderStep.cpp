@@ -45,11 +45,14 @@ static SkVertices::VertexMode vertex_mode(SkMesh::Mode mode) {
     }
 }
 
+// NOTE: Mesh geometry can emit triangles that self intersect, but it *wants* those to produce
+// double blending, so we always add Flags::kAllowSelfIntersection.
 MeshRenderStep::MeshRenderStep(Layout layout)
         : RenderStep(layout,
                      RenderStep::RenderStepID::kMesh,
                      Flags::kPerformsShading | Flags::kAppendVertices
-                                             | Flags::kEmitsPrimitiveColor,
+                                             | Flags::kEmitsPrimitiveColor
+                                             | Flags::kAllowsSelfIntersection,
                      kStepUniforms,
                      PrimitiveType::kTriangles,
                      kDirectDepthLEqualPass,

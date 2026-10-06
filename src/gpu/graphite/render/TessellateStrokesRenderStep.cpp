@@ -88,12 +88,16 @@ static constexpr SkSpan<const Attribute> kAttributes[2] = {kAttributesWithCurveT
 
 }  // namespace
 
-TessellateStrokesRenderStep::TessellateStrokesRenderStep(Layout layout, bool infinitySupport,
+// NOTE: The stroke geometry can self intersect, and when it is performing shading, this is not
+// desired. However, when it is an inverse fill, any self intersections are gracefully handled by
+// the stencil buffer and shading is a follow-up cover step so they can be allowed.
+TessellateStrokesRenderStep::TessellateStrokesRenderStep(Layout layout,
+                                                         bool infinitySupport,
                                                          bool inverseFill)
         : RenderStep(layout,
                      inverseFill ? RenderStepID::kTessellateStrokes_InverseFill
                                  : RenderStepID::kTessellateStrokes_Fill,
-                     (inverseFill ? Flags::kNone : Flags::kPerformsShading)
+                     (inverseFill ? Flags::kAllowsSelfIntersection : Flags::kPerformsShading)
                             | Flags::kRequiresMSAA | Flags::kAppendDynamicInstances,
                      /*uniforms=*/{{"affineMatrix", SkSLType::kFloat4},
                                    {"translate", SkSLType::kFloat2},

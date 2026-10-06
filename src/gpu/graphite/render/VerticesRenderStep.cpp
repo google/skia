@@ -86,11 +86,14 @@ RenderStep::RenderStepID variant_id(bool hasColor, bool hasTexCoords) {
 
 }  // namespace
 
+// NOTE: Mesh geometry can emit triangles that self intersect, but it *wants* those to produce
+// double blending, so we do always add Flags::kAllowSelfIntersection.
 VerticesRenderStep::VerticesRenderStep(Layout layout, bool hasColor, bool hasTexCoords)
         : RenderStep(layout,
                      variant_id(hasColor, hasTexCoords),
                      (hasColor ? Flags::kEmitsPrimitiveColor : Flags::kNone) |
-                     Flags::kPerformsShading | Flags::kAppendVertices,
+                     Flags::kPerformsShading | Flags::kAppendVertices
+                                             | Flags::kAllowsSelfIntersection,
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4},
                                    {"depth", SkSLType::kFloat}},
                      PrimitiveType::kTriangles,

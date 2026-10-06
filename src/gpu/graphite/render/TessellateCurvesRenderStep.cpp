@@ -77,6 +77,8 @@ static constexpr SkSpan<const Attribute> kAttributes[2] = {kAttributesWithCurveT
 
 }  // namespace
 
+// NOTE: This step doesn't perform shading and self-intersections are resolved by modifying the
+// stencil buffer, so Flags::kAllowSelfIntersection is added.
 TessellateCurvesRenderStep::TessellateCurvesRenderStep(Layout layout,
                                                        bool evenOdd,
                                                        bool infinitySupport,
@@ -84,9 +86,9 @@ TessellateCurvesRenderStep::TessellateCurvesRenderStep(Layout layout,
         : RenderStep(layout,
                      evenOdd ? RenderStepID::kTessellateCurves_EvenOdd
                              : RenderStepID::kTessellateCurves_Winding,
-                     Flags::kRequiresMSAA |
-                     Flags::kAppendDynamicInstances |
-                     Flags::kIgnoreInverseFill,
+                     Flags::kRequiresMSAA | Flags::kAppendDynamicInstances
+                                          | Flags::kIgnoreInverseFill
+                                          | Flags::kAllowsSelfIntersection,
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4}},
                      PrimitiveType::kTriangles,
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,

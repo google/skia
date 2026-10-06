@@ -131,7 +131,7 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     initFromStep(&fConvexTessellatedWedges,
                  std::make_unique<TessellateWedgesRenderStep>(layout,
                         RenderStep::RenderStepID::kTessellateWedges_Convex,
-                        infinitySupport, kDirectDepthLessPass, bufferManager),
+                        infinitySupport, kDirectDepthLEqualPass, bufferManager),
                  DrawTypeFlags::kNonSimpleShape);
     initFromStep(&fCoverageMask,
                  std::make_unique<CoverageMaskRenderStep>(layout),
@@ -171,7 +171,7 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     initFromStep(&fNonAABoundsFill,
                  std::make_unique<CoverBoundsRenderStep>(layout,
                         RenderStep::RenderStepID::kCoverBounds_NonAAFill,
-                        kDirectDepthLessPass),
+                        kDirectDepthLEqualPass),
                  DrawTypeFlags::kNonAAFillRect);
     initFromStep(&fCircularArc,
                  std::make_unique<CircularArcRenderStep>(layout, bufferManager),

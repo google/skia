@@ -27,11 +27,13 @@
 
 namespace skgpu::graphite {
 
+// NOTE: This step doesn't perform shading and self-intersections are resolved by modifying the
+// stencil buffer, so Flags::kAllowSelfIntersection is added.
 MiddleOutFanRenderStep::MiddleOutFanRenderStep(Layout layout, bool evenOdd)
         : RenderStep(layout,
                      evenOdd ? RenderStepID::kMiddleOutFan_EvenOdd
                              : RenderStepID::kMiddleOutFan_Winding,
-                     Flags::kRequiresMSAA | Flags::kAppendVertices,
+                     Flags::kRequiresMSAA | Flags::kAppendVertices | Flags::kAllowsSelfIntersection,
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4}},
                      PrimitiveType::kTriangles,
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,

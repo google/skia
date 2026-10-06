@@ -79,6 +79,10 @@ static constexpr SkSpan<const Attribute> kAttributes[2] = {kAttributesWithCurveT
 
 }  // namespace
 
+// When this is used for even-odd or winding fills, it's a non-shading step so any self
+// intersections are acceptable and handled gracefully with stencil buffer updates. When it's used
+// as the convex path renderer, none of its emitted geometry will have self-intersections because
+// the paths are known to be convex (and thus also a single contour).
 TessellateWedgesRenderStep::TessellateWedgesRenderStep(Layout layout,
                                                        RenderStepID renderStepID,
                                                        bool infinitySupport,
@@ -86,11 +90,12 @@ TessellateWedgesRenderStep::TessellateWedgesRenderStep(Layout layout,
                                                        StaticBufferManager* bufferManager)
         : RenderStep(layout,
                      renderStepID,
-                     Flags::kRequiresMSAA |
-                     Flags::kAppendDynamicInstances |
-                     Flags::kIgnoreInverseFill |
-                     (depthStencilSettings.fDepthWriteEnabled ? Flags::kPerformsShading
-                                                              : Flags::kNone),
+                     Flags::kRequiresMSAA | Flags::kAppendDynamicInstances
+                                          | Flags::kIgnoreInverseFill
+                                          | (renderStepID == RenderStepID::kTessellateWedges_Convex
+                                                    ? Flags::kPerformsShading
+                                                            | Flags::kNoSelfIntersections
+                                                    : Flags::kAllowsSelfIntersection),
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4}},
                      PrimitiveType::kTriangles,
                      depthStencilSettings,

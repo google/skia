@@ -56,10 +56,14 @@ RenderStep::RenderStepID variant_id(skgpu::MaskFormat variant) {
 
 }  // namespace
 
+// NOTE: Sub run glyphs can emit triangles that self intersect, and we need those to produce
+// double blending (although usually one glyph will have 0 coverage at that pixel), so we include
+// Flags::kAllowSelfIntersection.
 BitmapTextRenderStep::BitmapTextRenderStep(Layout layout, skgpu::MaskFormat variant)
         : RenderStep(layout,
                      variant_id(variant),
-                     Flags(variant) | Flags::kAppendInstances,
+                     Flags(variant) | Flags::kAppendInstances
+                                    | Flags::kAllowsSelfIntersection,
                      /*uniforms=*/{{"maskToDevice", SkSLType::kFloat4x4},
                                    {"localToDevice", SkSLType::kFloat4x4},
                                    {"atlasSizeInv", SkSLType::kFloat2}},

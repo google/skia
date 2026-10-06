@@ -126,14 +126,19 @@ static void write_vertex_buffer(VertexWriter writer) {
     } // otherwise static buffer creation failed, so do nothing; Context initialization will fail.
 }
 
+// NOTE: A circular arc with round caps can trigger can overlap when it's not quite a 360
+// degree arc and the stroke width is sufficient for the caps to overlap. However, this is handled
+// in the fragment shader and the emitted triangles do not produce self intersections.
 CircularArcRenderStep::CircularArcRenderStep(Layout layout, StaticBufferManager* bufferManager)
         : RenderStep(layout,
                      RenderStepID::kCircularArc,
-                     Flags::kPerformsShading | Flags::kEmitsCoverage | Flags::kOutsetBoundsForAA |
-                     Flags::kAppendInstances,
+                     Flags::kPerformsShading | Flags::kEmitsCoverage
+                                             | Flags::kOutsetBoundsForAA
+                                             | Flags::kAppendInstances
+                                             | Flags::kNoSelfIntersections,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthLessPass,
+                     kDirectDepthLEqualPass,
                      /*staticAttrs=*/{{
                              {"position", VertexAttribType::kFloat3, SkSLType::kFloat3},
                      }},

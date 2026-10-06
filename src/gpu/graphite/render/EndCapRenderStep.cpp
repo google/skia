@@ -36,11 +36,14 @@ namespace skgpu::graphite {
 EndCapRenderStep::EndCapRenderStep(Layout layout)
         : RenderStep(layout,
                      RenderStepID::kEndCap,
-                     Flags::kAppendInstances | Flags::kEmitsCoverage | Flags::kPerformsShading |
-                             Flags::kHasTextures | Flags::kOutsetBoundsForAA,
+                     Flags::kAppendInstances | Flags::kEmitsCoverage
+                                             | Flags::kPerformsShading
+                                             | Flags::kOutsetBoundsForAA
+                                             | Flags::kHasTextures
+                                             | Flags::kNoSelfIntersections,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthLessPass,
+                     kDirectDepthLEqualPass,
                      /*vertexAttrs=*/{},
                      /*instanceAttrs=*/
                      {{"tileBounds", VertexAttribType::kFloat4, SkSLType::kFloat4},

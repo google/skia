@@ -30,10 +30,11 @@ namespace skgpu::graphite {
 WideTileRenderStep::WideTileRenderStep(Layout layout)
         : RenderStep(layout,
                      RenderStepID::kWideTile,
-                     Flags::kAppendInstances | Flags::kPerformsShading,
+                     Flags::kAppendInstances | Flags::kPerformsShading
+                                             | Flags::kNoSelfIntersections,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthLessPass,
+                     kDirectDepthLEqualPass,
                      /*vertexAttrs=*/{},
                      /*instanceAttrs=*/
                      {{"tileBounds", VertexAttribType::kFloat4, SkSLType::kFloat4},
