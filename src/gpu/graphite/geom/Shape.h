@@ -97,7 +97,7 @@ public:
         if (fType == Type::kPath) {
             return fPath.getFillType(); // already incorporates invertedness
         } else {
-            return fInverted ? SkPathFillType::kInverseEvenOdd : SkPathFillType::kEvenOdd;
+            return fInverted ? SkPathFillType::kInverseWinding : SkPathFillType::kWinding;
         }
     }
 
