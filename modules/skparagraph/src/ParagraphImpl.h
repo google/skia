@@ -91,15 +91,15 @@ public:
 
     ParagraphImpl(const SkString& text,
                   ParagraphStyle style,
-                  skia_private::TArray<Block, true> blocks,
-                  skia_private::TArray<Placeholder, true> placeholders,
+                  skia_private::TArray<Block> blocks,
+                  skia_private::TArray<Placeholder> placeholders,
                   sk_sp<FontCollection> fonts,
                   sk_sp<SkUnicode> unicode);
 
     ParagraphImpl(const std::u16string& utf16text,
                   ParagraphStyle style,
-                  skia_private::TArray<Block, true> blocks,
-                  skia_private::TArray<Placeholder, true> placeholders,
+                  skia_private::TArray<Block> blocks,
+                  skia_private::TArray<Placeholder> placeholders,
                   sk_sp<FontCollection> fonts,
                   sk_sp<SkUnicode> unicode);
 
@@ -264,8 +264,8 @@ private:
     skia_private::TArray<StyleBlock<SkPaint>> fForegroundStyles;
     skia_private::TArray<StyleBlock<std::vector<TextShadow>>> fShadowStyles;
     skia_private::TArray<StyleBlock<Decoration>> fDecorationStyles;
-    skia_private::TArray<Block, true> fTextStyles; // TODO: take out only the font stuff
-    skia_private::TArray<Placeholder, true> fPlaceholders;
+    skia_private::TArray<Block> fTextStyles; // TODO: take out only the font stuff
+    skia_private::TArray<Placeholder> fPlaceholders;
     SkString fText;
 
     // Internal structures

@@ -98,9 +98,11 @@ protected:
     void finalize();
 
     SkString fUtf8;
-    skia_private::STArray<4, TextStyle, true> fTextStyles;
-    skia_private::STArray<4, Block, true> fStyledBlocks;
-    skia_private::STArray<4, Placeholder, true> fPlaceholders;
+    // TextStyle, Block, and Placeholder contain std::vector and std::optional, which poison
+    // disengaged storage under MSVC STL ASAN and must be relocated via move constructors
+    skia_private::STArray<4, TextStyle> fTextStyles;
+    skia_private::STArray<4, Block> fStyledBlocks;
+    skia_private::STArray<4, Placeholder> fPlaceholders;
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
 

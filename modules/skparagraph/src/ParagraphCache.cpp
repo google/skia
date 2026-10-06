@@ -102,8 +102,8 @@ private:
     uint32_t computeHash() const;
 
     SkString fText;
-    TArray<Placeholder, true> fPlaceholders;
-    TArray<Block, true> fTextStyles;
+    TArray<Placeholder> fPlaceholders;
+    TArray<Block> fTextStyles;
     ParagraphStyle fParagraphStyle;
     uint32_t fHash;
 };

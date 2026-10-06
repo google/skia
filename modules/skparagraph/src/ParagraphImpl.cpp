@@ -73,8 +73,8 @@ Paragraph::Paragraph(ParagraphStyle style, sk_sp<FontCollection> fonts)
 
 ParagraphImpl::ParagraphImpl(const SkString& text,
                              ParagraphStyle style,
-                             TArray<Block, true> blocks,
-                             TArray<Placeholder, true> placeholders,
+                             TArray<Block> blocks,
+                             TArray<Placeholder> placeholders,
                              sk_sp<FontCollection> fonts,
                              sk_sp<SkUnicode> unicode)
         : Paragraph(std::move(style), std::move(fonts))
@@ -97,8 +97,8 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              ParagraphStyle style,
-                             TArray<Block, true> blocks,
-                             TArray<Placeholder, true> placeholders,
+                             TArray<Block> blocks,
+                             TArray<Placeholder> placeholders,
                              sk_sp<FontCollection> fonts,
                              sk_sp<SkUnicode> unicode)
         : ParagraphImpl(SkString(),
