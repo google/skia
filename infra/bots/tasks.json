@@ -3188,6 +3188,11 @@
         "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit"
       ]
     },
+    "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-StandaloneWasm": {
+      "tasks": [
+        "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-StandaloneWasm"
+      ]
+    },
     "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {
       "tasks": [
         "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit"
@@ -60056,6 +60061,69 @@
       },
       "io_timeout_ns": 14400000000000,
       "max_attempts": 2,
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-StandaloneWasm": {
+      "caches": [
+        {
+          "name": "work",
+          "path": "cache/work"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:ed2f1af28c621f1d15a461cb8aa3c9ea8c8ce2a5"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:47"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:579"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "./run_wasm_dm",
+        "--local=false",
+        "--work_path",
+        "tmp",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-StandaloneWasm"
+      ],
+      "dependencies": [
+        "Build-Ubuntu24.04-EMCC-wasm-Release-StandaloneWasm",
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "machine_type:n1-standard-16",
+        "os:Ubuntu-24.04",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 1,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {

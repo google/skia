@@ -235,6 +235,9 @@ default_configs += [ "//gn/skia:extra_flags" ]
 
 set_defaults("executable") {
   configs = [ "//gn/skia:executable" ] + default_configs
+  if (is_wasm) {
+    configs += [ "//gn/skia:wasm_exe" ]
+  }
 }
 
 set_defaults("source_set") {

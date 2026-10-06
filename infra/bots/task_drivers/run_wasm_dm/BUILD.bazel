@@ -1,0 +1,24 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+go_library(
+    name = "run_wasm_dm_lib",
+    srcs = ["run_wasm_dm.go"],
+    importpath = "go.skia.org/skia/infra/bots/task_drivers/run_wasm_dm",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@org_skia_go_infra//task_driver/go/lib/os_steps",
+        "@org_skia_go_infra//task_driver/go/td",
+    ],
+)
+
+go_binary(
+    name = "run_wasm_dm",
+    embed = [":run_wasm_dm_lib"],
+    visibility = ["//visibility:public"],
+)

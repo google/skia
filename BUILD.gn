@@ -3538,6 +3538,8 @@ if (skia_enable_tools) {
         "GL",  # Used by raster window context, so cannot be behind skia_use_gl.
         "X11",
       ]
+    } else if (is_wasm) {
+      sources += [ "tools/sk_app/wasm/main_wasm.cpp" ]
     } else if (is_win) {
       sources += [
         "tools/sk_app/win/Window_win.cpp",
