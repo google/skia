@@ -644,7 +644,7 @@ config("warnings") {
     _supports_unsafe_buffers_mappings =
         exec_script("//gn/check_compiler_flag.py",
                     [
-                      cc,
+                      target_cc,
                       "--warning-suppression-mappings=" +
                           _unsafe_buffers_mappings,
                     ],
