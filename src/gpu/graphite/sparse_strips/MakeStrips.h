@@ -353,7 +353,7 @@ private:
 
                 // 3. Handle Row Breaks
                 if (rowStart) {
-                    if (shouldFill && isInverse) {
+                    if (shouldFill) {
                         if (viewportWidth > runEndX) {
                             wides->addTile(runEndX,
                                            prevTile.y * kTileHeight,
@@ -408,15 +408,15 @@ private:
         }
 
         bool shouldFill = processor->ShouldFill(processor->coarseWinding()) ^ isInverse;
-        if (isInverse) {
-            if (shouldFill) {
-                uint16_t runEndX = (prevTile.x + 1) * kTileWidth;
-                if (viewportWidth > runEndX) {
-                    wides->addTile(runEndX,
-                                   prevTile.y * kTileHeight,
-                                   viewportWidth - runEndX);
-                }
+        if (shouldFill) {
+            uint16_t runEndX = (prevTile.x + 1) * kTileWidth;
+            if (viewportWidth > runEndX) {
+                wides->addTile(runEndX,
+                               prevTile.y * kTileHeight,
+                               viewportWidth - runEndX);
             }
+        }
+        if (isInverse) {
             EmitBackground<kTileHeight>(
                     wides, (prevTile.y + 1) * kTileHeight, viewportHeight, viewportWidth);
         }
