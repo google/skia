@@ -6,7 +6,7 @@
  */
 #include "include/core/SkRecorder.h"
 
-#include "include/cpu/Recorder.h"
+#include "src/cpu/Recorder.h"
 
 SkRecorder* SkRecorder::TODO() {
     return skcpu::Recorder::TODO();

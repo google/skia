@@ -29,18 +29,14 @@
 #include <memory>
 #include <vector>
 
+class SkCapture;
 class SkColorInfo;
 class SkSurface;
-class SkCapture;
 enum SkYUVColorSpace : int;
 class SkColorSpace;
 class SkTraceMemoryDump;
 struct SkIRect;
 struct SkImageInfo;
-
-namespace skcpu {
-class Recorder;
-}  // namespace skcpu
 
 namespace skgpu {
 enum class BackendApi : unsigned int;
@@ -53,7 +49,6 @@ class BackendTexture;
 class Buffer;
 class ClientMappedBufferManager;
 class ContextPriv;
-struct ContextOptions;
 class PersistentPipelineStorage;
 class PrecompileContext;
 class QueueManager;
@@ -62,6 +57,7 @@ class SharedContext;
 class TextureFormatXferFn;
 class TextureProxy;
 class TextureProxyView;
+struct ContextOptions;
 
 class SK_API Context final {
 public:
@@ -75,7 +71,6 @@ public:
     BackendApi backend() const;
 
     std::unique_ptr<Recorder> makeRecorder(const RecorderOptions& = {});
-    std::unique_ptr<skcpu::Recorder> makeCPURecorder();
 
     /** Creates a helper object that can be moved to a different thread and used
      *  for precompilation.

@@ -1,0 +1,23 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "cpu_srcs",
+    srcs = [
+        "Recorder.cpp",
+    ],
+    visibility = ["//src/core:__pkg__"],
+)
+
+skia_filegroup(
+    name = "cpu_hdrs",
+    srcs = [
+        "Recorder.h",
+    ],
+    visibility = ["//src/core:__pkg__"],
+)

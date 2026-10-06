@@ -233,6 +233,7 @@ skia_filegroup(
         "//include/private:core_priv_hdrs",
         "//include/private/chromium:core_hdrs",
         "//src/capture:capture_hdrs",
+        "//src/cpu:cpu_hdrs",
         "//src/effects:core_priv_hdrs",
         "//src/image:image_hdrs",
         "//src/sfnt:sfnt_hdrs",
@@ -295,7 +296,6 @@ skia_filegroup(
     srcs = [
         # Implementation of public and private headers
         "RasterContext.cpp",
-        "Recorder.cpp",
         "SkAAClip.cpp",
         "SkATrace.cpp",
         "SkAlphaRuns.cpp",
@@ -574,6 +574,7 @@ skia_cc_library(
         ":core_priv_srcs",
         ":core_srcs",
         "//src/capture:capture_srcs",
+        "//src/cpu:cpu_srcs",
         "//src/effects:core_srcs",
         "//src/image:image_srcs",
         "//src/ports:core_srcs",
@@ -590,7 +591,6 @@ skia_cc_library(
     hdrs = [
         "//include/codec:core_hdrs",
         "//include/core:core_hdrs",
-        "//include/cpu:core_hdrs",
         "//include/effects:core_hdrs",
         "//include/private:private_hdrs",
         "//include/sksl:core_hdrs",

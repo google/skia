@@ -26,6 +26,7 @@
 #include "src/capture/SkCaptureManager.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/cpu/Recorder.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/Token.h"

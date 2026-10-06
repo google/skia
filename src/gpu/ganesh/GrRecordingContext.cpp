@@ -182,10 +182,6 @@ bool GrRecordingContext::supportsProtectedContent() const {
     return this->caps()->supportsProtectedContent();
 }
 
-std::unique_ptr<skcpu::Recorder> GrRecordingContext::makeCPURecorder() {
-    return std::make_unique<skcpu::Recorder>();
-}
-
 SkRecorder* GrRecordingContext::asRecorder() {
     return fRecorder.get();
 }
