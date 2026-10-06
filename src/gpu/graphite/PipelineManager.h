@@ -18,7 +18,6 @@ class UniqueKey;
 }
 
 class SkExecutor;
-class SkTaskGroup;
 
 namespace skgpu::graphite {
 
@@ -50,10 +49,10 @@ public:
 
     // Wait for any in-flight tasks to complete. Additionally, disable the addition of any
     // more threaded tasks.
-    void shutDown();
+    void shutDown() SK_EXCLUDES(fSpinLock);
 
 #if defined(GPU_TEST_UTILS)
-    void wait_TestOnly();
+    void wait_TestOnly() SK_EXCLUDES(fSpinLock);
 
     struct Stats {
         // The number of times we find a pre-existing task for a Pipeline
@@ -65,8 +64,6 @@ public:
 #endif
 
 private:
-    mutable SkSpinlock fSpinLock;
-
     enum class Priority { kHigh = 0, kLow = 1 };
 
     sk_sp<PipelineCreationTask> findOrCreateTask(
@@ -79,9 +76,18 @@ private:
 
     void addTaskToWorkList(SharedContext*,
                            sk_sp<PipelineCreationTask>,
-                           Priority);
+                           Priority) SK_EXCLUDES(fSpinLock);
 
-    void removeTask(PipelineCreationTask*) SK_EXCLUDES(fSpinLock);
+    void removeTask(const sk_sp<PipelineCreationTask>&) SK_EXCLUDES(fSpinLock);
+
+    void potentiallyWaitOn(const sk_sp<PipelineCreationTask>&) SK_EXCLUDES(fSpinLock);
+
+    sk_sp<PipelineCreationTask> getWork(bool inclInProgress) SK_EXCLUDES(fSpinLock);
+    void wait() SK_EXCLUDES(fSpinLock);
+
+    // Returns true if compilation occurred; false otherwise.
+    // All callers must hold a ref on the PipelineCreationTask.
+    static bool InlineCompile(const sk_sp<PipelineCreationTask>&) SK_EXCLUDES(fSpinLock);
 
     struct Traits {
         static const UniqueKey& GetKey(const sk_sp<PipelineCreationTask>&);
@@ -89,19 +95,18 @@ private:
     };
     using TaskMap = skia_private::THashTable<sk_sp<PipelineCreationTask>, UniqueKey, Traits>;
 
+    mutable SkSpinlock fSpinLock;
+
     TaskMap fActiveTasks SK_GUARDED_BY(fSpinLock);
 
 #if defined(GPU_TEST_UTILS)
     Stats fStats SK_GUARDED_BY(fSpinLock);
 #endif
 
-    std::unique_ptr<SkTaskGroup> fTaskGroup SK_GUARDED_BY(fSpinLock);
-
-    void potentiallyWaitOn(const sk_sp<PipelineCreationTask>&);
-
-    // Returns true if compilation occurred; false otherwise.
-    // All callers must hold a ref on the PipelineCreationTask.
-    static bool InlineCompile(const sk_sp<PipelineCreationTask>&);
+    // The executor is obtained from ContextOptions. It is up to the client to ensure it
+    // exists past the Context's destruction. The Context does call PipelineManager::shutDown
+    // from its destructor to end its use.
+    SkExecutor* fExecutor SK_GUARDED_BY(fSpinLock) = nullptr;
 };
 
 } // namespace skgpu::graphite
