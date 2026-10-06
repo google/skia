@@ -55,7 +55,7 @@ MeshRenderStep::MeshRenderStep(Layout layout)
                                              | Flags::kAllowsSelfIntersection,
                      kStepUniforms,
                      PrimitiveType::kTriangles,
-                     kDirectDepthLEqualPass,
+                     /*stencilSettings=*/{},
                      /*staticAttrs=*/{},
                      /*appendAttrs=*/{{"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}},
                      /*storageUniforms=*/{}) {}

@@ -245,8 +245,8 @@ public:
     // when possible.
     const DepthStencilSettings& depthStencilSettings() const { return fDepthStencilSettings; }
 
-    bool usesStencil() const { return fDepthStencilSettings.stencilEnabled(); }
-    bool usesDepth() const { return fDepthStencilSettings.depthEnabled(); }
+    bool usesStencil() const { return fDepthStencilSettings.second.enabled(); }
+    bool usesDepth() const { return fDepthStencilSettings.first.enabled(); }
 
     // This is true if the RenderStep forces a renderpass to have a depth attachment, which is
     // stricter than the depthWrite and depthTest provided in `depthStencilSettings()`, as those
@@ -329,7 +329,7 @@ SK_DECL_BITMASK_OPS_FRIENDS(Flags)
                SkEnumBitMask<Flags> flags,
                std::initializer_list<Uniform> uniforms,
                PrimitiveType primitiveType,
-               DepthStencilSettings depthStencilSettings,
+               StencilSettings stencilSettings,
                SkSpan<const Attribute> staticAttrs,
                SkSpan<const Attribute> appendAttrs,
                SkSpan<const Uniform> storageUniforms = {},

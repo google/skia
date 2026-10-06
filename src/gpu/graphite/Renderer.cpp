@@ -17,7 +17,7 @@ RenderStep::RenderStep(Layout layout,
                        SkEnumBitMask<Flags> flags,
                        std::initializer_list<Uniform> uniforms,
                        PrimitiveType primitiveType,
-                       DepthStencilSettings depthStencilSettings,
+                       StencilSettings stencilSettings,
                        SkSpan<const Attribute> staticAttrs,
                        SkSpan<const Attribute> appendAttrs,
                        SkSpan<const Uniform> storageUniforms,
@@ -30,7 +30,6 @@ RenderStep::RenderStep(Layout layout,
                   (SkToBool(flags & Flags::kFsUsesStorage) ? PipelineStageFlags::kFragmentShader
                                                            : PipelineStageFlags{}))
         , fPrimitiveType(primitiveType)
-        , fDepthStencilSettings(depthStencilSettings)
         , fUniforms(uniforms)
         , fStaticAttrs(staticAttrs.begin(), staticAttrs.end())
         , fAppendAttrs(appendAttrs.begin(), appendAttrs.end())
@@ -50,35 +49,38 @@ RenderStep::RenderStep(Layout layout,
     SkASSERT(!(SkToBool(fFlags & Flags::kAllowsSelfIntersection) &&
                SkToBool(fFlags & Flags::kNoSelfIntersections)));
 
+    // TODO(michaelludwig): Pull the depth settings out of RenderStep entirely as part of building
+    // the ShaderInfo's settings, combining flags with renderpass requirements. At that point,
+    // RenderStep can just store the stencil settings directly.
+    fDepthStencilSettings.second = stencilSettings;
+
     // Ensure that the depth-related flags are consistent with the depth settings provided
-#if defined(SK_DEBUG)
     if (this->requiresDepth()) {
         // This mode requires the depth buffer to prevent double blending, so writes need to be
         // enabled and the test needs to be LESS to fail subsequent pixel touches.
-        SkASSERT(depthStencilSettings.fDepthWriteEnabled &&
-                 depthStencilSettings.fDepthCompareOp == CompareOp::kLess);
+        fDepthStencilSettings.first = {CompareOp::kLess, /*write=*/true};
     } else if (this->useNonAAInnerFill()) {
         // Currently, inner fill draws use the same z value as the main draw, so a render step
         // opting into this feature needs to use LESS even if otherwise could use LEQUAL. This
         // could be relaxed by changing how Device assigns z values but there's no pressing need.
         // Opting into a non-aa inner fill does not require depth writes, since this step is being
         // rendered after the inner fill (which would write depth).
-        SkASSERT(depthStencilSettings.fDepthCompareOp == CompareOp::kLess);
+        // TODO(michaelludwig): But for now set depthWrite=true since there's no renderpass logic
+        // to detect when depth writes are necessary.
+        fDepthStencilSettings.first = {CompareOp::kLess, /*write=*/true};
     } else {
         // These flags have the same effective behavior, which is that the test is LEQUAL
         // (either necessary to show self-intersections, or desired to highlight bugs that indicate
         // a violation of kNoSelfIntersection). They do not mandate depth writes being enabled.
-        // For now, also allow kLess to support scenarios where multiple recordDraws() depend on
-        // the Z value being the same.
-        SkASSERT(depthStencilSettings.fDepthCompareOp == CompareOp::kLEqual ||
-                 depthStencilSettings.fDepthCompareOp == CompareOp::kLess);
+        // TODO(michaelludwig): For now, also allow kLess to support scenarios where multiple
+        // recordDraws() depend on the Z value being the same; use presence of stencil to select
+        // LESS over LEQUAL.
+        // TODO(michaelludwig): But for now set depthWrite=true when we perform shading since there
+        // is no render pass detection logic yet.
+        fDepthStencilSettings.first = {stencilSettings.enabled() ? CompareOp::kLess
+                                                                 : CompareOp::kLEqual,
+                                       /*write=*/this->performsShading()};
     }
-
-    // Depth writing should be consistent with the shading policy; every Renderer needs to have
-    // at least one render step that performs shading, these are responsible for writing depth. The
-    // non-shading steps should only be testing (if required for the renderpass).
-    SkASSERT(depthStencilSettings.fDepthWriteEnabled == this->performsShading());
-#endif
 
     for (auto v : this->staticAttributes()) {
         fStaticDataStride += v.sizeAlign4();

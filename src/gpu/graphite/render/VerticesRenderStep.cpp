@@ -97,7 +97,7 @@ VerticesRenderStep::VerticesRenderStep(Layout layout, bool hasColor, bool hasTex
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4},
                                    {"depth", SkSLType::kFloat}},
                      PrimitiveType::kTriangles,
-                     kDirectDepthLEqualPass,
+                     /*stencilSettings=*/{},
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/kAttributes[2*hasTexCoords + hasColor],
                      /*storageUniforms=*/{},

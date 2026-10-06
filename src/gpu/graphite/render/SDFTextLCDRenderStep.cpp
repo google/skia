@@ -66,7 +66,7 @@ SDFTextLCDRenderStep::SDFTextLCDRenderStep(Layout layout)
                                    {"pixelGeometryDelta", SkSLType::kHalf2},
                                    {"gammaParams", SkSLType::kHalf4}},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthLEqualPass,
+                     /*stencilSettings=*/{},
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
                      {{{"size", VertexAttribType::kUShort2, SkSLType::kUShort2},

@@ -237,7 +237,7 @@ AnalyticRRectBlurRenderStep::AnalyticRRectBlurRenderStep(Layout layout,
                       {"rrectRadii", SkSLType::kFloat4, 2},
                       {"blurRadius", SkSLType::kFloat2}},
                      PrimitiveType::kTriangles,
-                     kDirectDepthLEqualPass,
+                     /*stencilSettings=*/{},
                      /*staticAttrs=*/
                      {{"gridAndBevel", VertexAttribType::kInt4, SkSLType::kInt4},
                       {"cellID", VertexAttribType::kUInt, SkSLType::kUInt}},

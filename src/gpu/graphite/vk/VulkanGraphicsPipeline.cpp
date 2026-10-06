@@ -246,7 +246,7 @@ static VkCompareOp compare_op_to_vk_compare_op(CompareOp op) {
 }
 
 static void setup_stencil_op_state(VkStencilOpState* opState,
-                                   const DepthStencilSettings::Face& face,
+                                   const StencilSettings::Face& face,
                                    uint32_t referenceValue,
                                    uint32_t readMask,
                                    uint32_t writeMask) {
@@ -265,26 +265,29 @@ static void setup_stencil_op_state(VkStencilOpState* opState,
 }
 
 static void setup_depth_stencil_state(const Caps& caps,
-                                      const DepthStencilSettings& stencilSettings,
+                                      const DepthStencilSettings& depthStencilSettings,
                                       VkPipelineDepthStencilStateCreateInfo* stencilInfo) {
     *stencilInfo = {};
     stencilInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     if (!caps.useBasicDynamicState()) {
-        stencilInfo->depthTestEnable = stencilSettings.depthEnabled();
-        stencilInfo->depthWriteEnable = stencilSettings.fDepthWriteEnabled;
-        stencilInfo->depthCompareOp = compare_op_to_vk_compare_op(stencilSettings.fDepthCompareOp);
-        stencilInfo->stencilTestEnable = stencilSettings.stencilEnabled();
+        const auto& [depthSettings, stencilSettings] = depthStencilSettings;
+
+        stencilInfo->depthTestEnable = depthSettings.enabled();
+        stencilInfo->depthWriteEnable = depthSettings.fWriteEnabled;
+        stencilInfo->depthCompareOp = compare_op_to_vk_compare_op(depthSettings.fCompareOp);
+
+        stencilInfo->stencilTestEnable = stencilSettings.enabled();
         if (stencilInfo->stencilTestEnable) {
             setup_stencil_op_state(&stencilInfo->front,
-                                   stencilSettings.fFrontStencil,
-                                   stencilSettings.fStencilReferenceValue,
-                                   stencilSettings.fStencilReadMask,
-                                   stencilSettings.fStencilWriteMask);
+                                   stencilSettings.fFrontFace,
+                                   stencilSettings.fReferenceValue,
+                                   stencilSettings.fReadMask,
+                                   stencilSettings.fWriteMask);
             setup_stencil_op_state(&stencilInfo->back,
-                                   stencilSettings.fBackStencil,
-                                   stencilSettings.fStencilReferenceValue,
-                                   stencilSettings.fStencilReadMask,
-                                   stencilSettings.fStencilWriteMask);
+                                   stencilSettings.fBackFace,
+                                   stencilSettings.fReferenceValue,
+                                   stencilSettings.fReadMask,
+                                   stencilSettings.fWriteMask);
         }
 
         stencilInfo->depthBoundsTestEnable = VK_FALSE;
@@ -1369,76 +1372,64 @@ void VulkanGraphicsPipeline::updateDynamicState(const VulkanSharedContext* share
         }
 
         // Depth-stencil settings
-        const DepthStencilSettings& depthStencil = fDepthStencilSettings;
-        const DepthStencilSettings* pastDepthStencil =
-                previous ? &previous->fDepthStencilSettings : nullptr;
+        const auto& [depth, stencil] = fDepthStencilSettings;
+        const auto& [pastDepth, pastStencil] =
+                previous ? previous->fDepthStencilSettings
+                         : std::make_pair(DepthSettings(), StencilSettings()); // ignored
 
-        const bool depthCompareOpDirty =
-                previous == nullptr ||
-                pastDepthStencil->fDepthCompareOp != depthStencil.fDepthCompareOp;
+        const bool depthEnabledDirty = !previous || pastDepth.enabled() != depth.enabled();
+        if (depthEnabledDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetDepthTestEnable(commandBuffer, depth.enabled()));
+        }
+        const bool depthCompareOpDirty = !previous || pastDepth.fCompareOp != depth.fCompareOp;
         if (depthCompareOpDirty) {
             VULKAN_CALL(sharedContext->interface(),
-                        CmdSetDepthCompareOp(
-                                commandBuffer,
-                                compare_op_to_vk_compare_op(depthStencil.fDepthCompareOp)));
+                        CmdSetDepthCompareOp(commandBuffer,
+                                             compare_op_to_vk_compare_op(depth.fCompareOp)));
         }
-        const bool depthTestEnabledDirty =
-                previous == nullptr ||
-                pastDepthStencil->depthEnabled() != depthStencil.depthEnabled();
-        if (depthTestEnabledDirty) {
+        const bool depthWriteDirty = !previous || pastDepth.fWriteEnabled != depth.fWriteEnabled;
+        if (depthWriteDirty) {
             VULKAN_CALL(sharedContext->interface(),
-                        CmdSetDepthTestEnable(commandBuffer, depthStencil.depthEnabled()));
+                        CmdSetDepthWriteEnable(commandBuffer, depth.fWriteEnabled));
         }
-        const bool depthWriteEnabledDirty =
-                previous == nullptr ||
-                pastDepthStencil->fDepthWriteEnabled != depthStencil.fDepthWriteEnabled;
-        if (depthWriteEnabledDirty) {
+
+        const bool stencilEnabledDirty = !previous || pastStencil.enabled() != stencil.enabled();
+        if (stencilEnabledDirty) {
             VULKAN_CALL(sharedContext->interface(),
-                        CmdSetDepthWriteEnable(commandBuffer, depthStencil.fDepthWriteEnabled));
-        }
-        const bool stencilTestEnabledDirty =
-                previous == nullptr ||
-                pastDepthStencil->stencilEnabled() != depthStencil.stencilEnabled();
-        if (stencilTestEnabledDirty) {
-            VULKAN_CALL(sharedContext->interface(),
-                        CmdSetStencilTestEnable(commandBuffer, depthStencil.stencilEnabled()));
+                        CmdSetStencilTestEnable(commandBuffer, stencil.enabled()));
         }
 
         // The rest of the stencil state only needs to be checked if we have non-default state or
         // if the test state was dirty (in which case it needs to be set back to the default).
-        if (stencilTestEnabledDirty || depthStencil.stencilEnabled()) {
+        if (stencilEnabledDirty || stencil.enabled()) {
             // FRONT_AND_BACK
-            const bool stencilReadMaskDirty =
-                    previous == nullptr ||
-                    pastDepthStencil->fStencilReadMask != depthStencil.fStencilReadMask;
-            if (stencilReadMaskDirty) {
+            const bool readMaskDirty = !previous || pastStencil.fReadMask != stencil.fReadMask;
+            if (readMaskDirty) {
                 VULKAN_CALL(sharedContext->interface(),
                             CmdSetStencilCompareMask(commandBuffer,
                                                      VK_STENCIL_FACE_FRONT_AND_BACK,
-                                                     depthStencil.fStencilReadMask));
+                                                     stencil.fReadMask));
             }
-            const bool stencilWriteMaskDirty =
-                    previous == nullptr ||
-                    pastDepthStencil->fStencilWriteMask != depthStencil.fStencilWriteMask;
-            if (stencilWriteMaskDirty) {
+            const bool writeMaskDirty = !previous || pastStencil.fWriteMask != stencil.fWriteMask;
+            if (writeMaskDirty) {
                 VULKAN_CALL(sharedContext->interface(),
                             CmdSetStencilWriteMask(commandBuffer,
                                                    VK_STENCIL_FACE_FRONT_AND_BACK,
-                                                   depthStencil.fStencilWriteMask));
+                                                   stencil.fWriteMask));
             }
-            const bool stencilReferenceDirty =
-                    previous == nullptr ||
-                    pastDepthStencil->fStencilReferenceValue != depthStencil.fStencilReferenceValue;
-            if (stencilReferenceDirty) {
+            const bool referenceValueDirty =
+                    !previous || pastStencil.fReferenceValue != stencil.fReferenceValue;
+            if (referenceValueDirty) {
                 VULKAN_CALL(sharedContext->interface(),
                             CmdSetStencilReference(commandBuffer,
                                                    VK_STENCIL_FACE_FRONT_AND_BACK,
-                                                   depthStencil.fStencilReferenceValue));
+                                                   stencil.fReferenceValue));
             }
-
+\
             // FRONT-only
-            const DepthStencilSettings::Face& front = depthStencil.fFrontStencil;
-            const bool frontStencilOpsDirty = !previous || pastDepthStencil->fFrontStencil != front;
+            const StencilSettings::Face& front = stencil.fFrontFace;
+            const bool frontStencilOpsDirty = !previous || pastStencil.fFrontFace != front;
             if (frontStencilOpsDirty) {
                 VULKAN_CALL(
                         sharedContext->interface(),
@@ -1455,8 +1446,8 @@ void VulkanGraphicsPipeline::updateDynamicState(const VulkanSharedContext* share
             }
 
             // BACK-only
-            const DepthStencilSettings::Face& back = depthStencil.fBackStencil;
-            const bool backStencilOpsDirty = !previous || pastDepthStencil->fBackStencil != back;
+            const StencilSettings::Face& back = stencil.fBackFace;
+            const bool backStencilOpsDirty = !previous || pastStencil.fBackFace != back;
             if (backStencilOpsDirty) {
                 VULKAN_CALL(
                         sharedContext->interface(),

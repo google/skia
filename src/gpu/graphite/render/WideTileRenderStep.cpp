@@ -34,7 +34,7 @@ WideTileRenderStep::WideTileRenderStep(Layout layout)
                                              | Flags::kNoSelfIntersections,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthLEqualPass,
+                     /*stencilSettings=*/{},
                      /*vertexAttrs=*/{},
                      /*instanceAttrs=*/
                      {{"tileBounds", VertexAttribType::kFloat4, SkSLType::kFloat4},

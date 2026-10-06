@@ -93,7 +93,7 @@ TessellateCurvesRenderStep::TessellateCurvesRenderStep(Layout layout,
                      PrimitiveType::kTriangles,
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
                      /*staticAttrs=*/{{{"resolveLevel_and_idx",
-                                       VertexAttribType::kFloat2, SkSLType::kFloat2}}},
+                                        VertexAttribType::kFloat2, SkSLType::kFloat2}}},
                      /*appendAttrs=*/kAttributes[infinitySupport],
                      /*storageUniforms=*/{})
         , fInfinitySupport(infinitySupport) {

@@ -44,7 +44,7 @@ AnalyticBlurRenderStep::AnalyticBlurRenderStep(Layout layout)
                       {"shapeType", SkSLType::kInt},
                       {"depth", SkSLType::kFloat}},
                      PrimitiveType::kTriangles,
-                     kDirectDepthLEqualPass,
+                     /*stencilSettings=*/{},
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
                      {{{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},

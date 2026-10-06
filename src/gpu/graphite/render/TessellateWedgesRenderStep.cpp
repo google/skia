@@ -88,7 +88,7 @@ TessellateWedgesRenderStep::TessellateWedgesRenderStep(Layout layout,
                                                        RenderStepID renderStepID,
                                                        bool infinitySupport,
                                                        SkEnumBitMask<Flags> xtraFlags,
-                                                       DepthStencilSettings depthStencilSettings,
+                                                       StencilSettings stencilSettings,
                                                        StaticBufferManager* bufferManager)
         : RenderStep(layout,
                      renderStepID,
@@ -97,9 +97,9 @@ TessellateWedgesRenderStep::TessellateWedgesRenderStep(Layout layout,
                                           | xtraFlags,
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4}},
                      PrimitiveType::kTriangles,
-                     depthStencilSettings,
+                     stencilSettings,
                      /*staticAttrs=*/{{{"resolveLevel_and_idx",
-                                       VertexAttribType::kFloat2, SkSLType::kFloat2}}},
+                                        VertexAttribType::kFloat2, SkSLType::kFloat2}}},
                      /*appendAttrs=*/kAttributes[infinitySupport],
                      /*storageUniforms=*/{})
         , fInfinitySupport(infinitySupport) {
@@ -132,9 +132,9 @@ std::unique_ptr<TessellateWedgesRenderStep> TessellateWedgesRenderStep::StencilF
 
     RenderStepID id = evenOdd ? RenderStepID::kTessellateWedges_EvenOdd
                               : RenderStepID::kTessellateWedges_Winding;
-    auto dss = evenOdd ? kEvenOddStencilPass : kWindingStencilPass;
+    auto stencil = evenOdd ? kEvenOddStencilPass : kWindingStencilPass;
     return std::unique_ptr<TessellateWedgesRenderStep>(new TessellateWedgesRenderStep(
-            layout, id, infinitySupport, kStencilFlags, dss, bufferManager));
+            layout, id, infinitySupport, kStencilFlags, stencil, bufferManager));
 }
 
 std::unique_ptr<TessellateWedgesRenderStep> TessellateWedgesRenderStep::ConvexFill(
@@ -146,7 +146,7 @@ std::unique_ptr<TessellateWedgesRenderStep> TessellateWedgesRenderStep::ConvexFi
 
     return std::unique_ptr<TessellateWedgesRenderStep>(new TessellateWedgesRenderStep(
             layout, RenderStepID::kTessellateWedges_Convex, infinitySupport,
-            kConvexFlags, kDirectDepthLEqualPass, bufferManager));
+            kConvexFlags, /*stencilSettings=*/{}, bufferManager));
 }
 
 std::string TessellateWedgesRenderStep::vertexSkSL(const RootNodesInfo&) const {

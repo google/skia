@@ -205,7 +205,7 @@ PerEdgeAAQuadRenderStep::PerEdgeAAQuadRenderStep(Layout layout, StaticBufferMana
                                              | Flags::kAppendInstances,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthLessPass,
+                     /*stencilSettings=*/{},
                      /*staticAttrs=*/{{
                              {"cornerID", VertexAttribType::kUInt, SkSLType::kUInt },
                              {"normal", VertexAttribType::kFloat2, SkSLType::kFloat2},

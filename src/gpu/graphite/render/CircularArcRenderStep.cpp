@@ -138,7 +138,7 @@ CircularArcRenderStep::CircularArcRenderStep(Layout layout, StaticBufferManager*
                                              | Flags::kNoSelfIntersections,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthLEqualPass,
+                     /*stencilSettings=*/{},
                      /*staticAttrs=*/{{
                              {"position", VertexAttribType::kFloat3, SkSLType::kFloat3},
                      }},

@@ -98,12 +98,13 @@ TessellateStrokesRenderStep::TessellateStrokesRenderStep(Layout layout,
                      inverseFill ? RenderStepID::kTessellateStrokes_InverseFill
                                  : RenderStepID::kTessellateStrokes_Fill,
                      (inverseFill ? Flags::kAllowsSelfIntersection : Flags::kPerformsShading)
-                            | Flags::kRequiresMSAA | Flags::kAppendDynamicInstances,
+                            | Flags::kRequiresMSAA
+                            | Flags::kAppendDynamicInstances,
                      /*uniforms=*/{{"affineMatrix", SkSLType::kFloat4},
                                    {"translate", SkSLType::kFloat2},
                                    {"maxScale", SkSLType::kFloat}},
                      PrimitiveType::kTriangleStrip,
-                     inverseFill ? kIncrementStencilPass : kDirectDepthLessPass,
+                     inverseFill ? kIncrementStencilPass : StencilSettings(),
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/kAttributes[infinitySupport],
                      /*storageUniforms=*/{})

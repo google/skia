@@ -39,7 +39,7 @@ public:
 
 private:
     TessellateWedgesRenderStep(Layout, RenderStepID, bool infinitySupport,
-                               SkEnumBitMask<Flags> xtraFlags, DepthStencilSettings,
+                               SkEnumBitMask<Flags> xtraFlags, StencilSettings,
                                StaticBufferManager*);
 
     // Points to the static buffers holding the fixed indexed vertex template for drawing instances.

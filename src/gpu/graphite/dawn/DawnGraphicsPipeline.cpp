@@ -143,7 +143,7 @@ wgpu::StencilOperation stencil_op_to_dawn(StencilOp op) {
     SkUNREACHABLE;
 }
 
-wgpu::StencilFaceState stencil_face_to_dawn(DepthStencilSettings::Face face) {
+wgpu::StencilFaceState stencil_face_to_dawn(StencilSettings::Face face) {
     wgpu::StencilFaceState state;
     state.compare = compare_op_to_dawn(face.fCompareOp);
     state.failOp = stencil_op_to_dawn(face.fStencilFailOp);
@@ -458,28 +458,28 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     descriptor.fragment = &fragment;
 
     // Depth stencil state
-    const auto& depthStencilSettings = shaderInfo->depthStencilSettings();
+    const auto& [depthSettings, stencilSettings] = shaderInfo->depthStencilSettings();
 
     TextureFormat dsFormat = renderPassDesc.fDepthStencilAttachment.fFormat;
-    SkASSERT(dsFormat != TextureFormat::kUnsupported || !depthStencilSettings);
+    SkASSERT(dsFormat != TextureFormat::kUnsupported || !(depthSettings || stencilSettings));
 
     wgpu::DepthStencilState depthStencil;
     if (dsFormat != TextureFormat::kUnsupported) {
         SkASSERT(TextureFormatIsDepthOrStencil(dsFormat));
         depthStencil.format = TextureFormatToDawnFormat(dsFormat);
 
-        if (depthStencilSettings.depthEnabled()) {
+        if (depthSettings.enabled()) {
             SkASSERT(TextureFormatHasDepth(dsFormat));
-            depthStencil.depthWriteEnabled = depthStencilSettings.fDepthWriteEnabled;
-            depthStencil.depthCompare = compare_op_to_dawn(depthStencilSettings.fDepthCompareOp);
+            depthStencil.depthWriteEnabled = depthSettings.fWriteEnabled;
+            depthStencil.depthCompare = compare_op_to_dawn(depthSettings.fCompareOp);
         }
 
-        if (depthStencilSettings.stencilEnabled()) {
+        if (stencilSettings.enabled()) {
             SkASSERT(TextureFormatHasStencil(dsFormat));
-            depthStencil.stencilFront = stencil_face_to_dawn(depthStencilSettings.fFrontStencil);
-            depthStencil.stencilBack = stencil_face_to_dawn(depthStencilSettings.fBackStencil);
-            depthStencil.stencilReadMask = depthStencilSettings.fStencilReadMask;
-            depthStencil.stencilWriteMask = depthStencilSettings.fStencilWriteMask;
+            depthStencil.stencilFront = stencil_face_to_dawn(stencilSettings.fFrontFace);
+            depthStencil.stencilBack = stencil_face_to_dawn(stencilSettings.fBackFace);
+            depthStencil.stencilReadMask = stencilSettings.fReadMask;
+            depthStencil.stencilWriteMask = stencilSettings.fWriteMask;
             // NOTE: fStencilReferenceValue is dynamic state and set on the render encoder
         }
 
@@ -767,7 +767,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
                                      std::move(asyncCreation),
                                      std::move(groupLayouts),
                                      step->primitiveType(),
-                                     depthStencilSettings.fStencilReferenceValue,
+                                     stencilSettings.fReferenceValue,
                                      std::move(immutableSamplers)));
 }
 

@@ -31,12 +31,11 @@ namespace skgpu::graphite {
 
 class Attribute;
 class Context;
-class GraphicsPipelineDesc;
 class DawnResourceProvider;
 class DawnSharedContext;
-struct DepthStencilSettings;
-struct RenderPassDesc;
+class GraphicsPipelineDesc;
 class RuntimeEffectDictionary;
+struct RenderPassDesc;
 
 class DawnGraphicsPipeline final : public GraphicsPipeline {
 public:

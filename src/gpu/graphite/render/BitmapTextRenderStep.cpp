@@ -68,7 +68,7 @@ BitmapTextRenderStep::BitmapTextRenderStep(Layout layout, skgpu::MaskFormat vari
                                    {"localToDevice", SkSLType::kFloat4x4},
                                    {"atlasSizeInv", SkSLType::kFloat2}},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthLEqualPass,
+                     /*stencilSettings=*/{},
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
                      {{{"size", VertexAttribType::kUShort2, SkSLType::kUShort2},

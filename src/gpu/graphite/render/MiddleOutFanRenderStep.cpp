@@ -33,15 +33,16 @@ MiddleOutFanRenderStep::MiddleOutFanRenderStep(Layout layout, bool evenOdd)
         : RenderStep(layout,
                      evenOdd ? RenderStepID::kMiddleOutFan_EvenOdd
                              : RenderStepID::kMiddleOutFan_Winding,
-                     Flags::kRequiresMSAA | Flags::kAppendVertices | Flags::kAllowsSelfIntersection,
+                     Flags::kRequiresMSAA | Flags::kAppendVertices
+                                          | Flags::kAllowsSelfIntersection,
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4}},
                      PrimitiveType::kTriangles,
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
                      {{{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                     {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                     {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}}},
+                       {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
+                       {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}}},
                      /*storageUniforms=*/{}) {}
 
 MiddleOutFanRenderStep::~MiddleOutFanRenderStep() {}

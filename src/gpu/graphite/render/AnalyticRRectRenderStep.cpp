@@ -373,7 +373,7 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(Layout layout, StaticBufferMana
                                              | Flags::kAppendInstances,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthLessPass,
+                     /*stencilSettings=*/{},
                      /*staticAttrs=*/{{
                              {"cornerID", VertexAttribType::kUInt, SkSLType::kUInt},
                              {"position", VertexAttribType::kFloat2, SkSLType::kFloat2},

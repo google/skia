@@ -32,7 +32,7 @@ public:
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 
 private:
-    CoverBoundsRenderStep(Layout, RenderStepID, DepthStencilSettings);
+    CoverBoundsRenderStep(Layout, RenderStepID, StencilSettings);
 };
 
 }  // namespace skgpu::graphite

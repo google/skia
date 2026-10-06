@@ -310,7 +310,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
                shaderInfo->appendAttributes(),
                {fsLibrary.get(), "fragmentMain"},
                std::move(dss),
-               shaderInfo->depthStencilSettings().fStencilReferenceValue,
+               shaderInfo->depthStencilSettings().second.fReferenceValue,
                blendInfo,
                renderPassDesc);
 }

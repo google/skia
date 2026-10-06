@@ -20,7 +20,6 @@
 #include "src/gpu/graphite/ShaderInfo.h"
 #include "src/gpu/graphite/StorageContext.h"
 #include "src/gpu/graphite/Uniform.h"
-#include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 
 namespace skgpu::graphite {
 
@@ -35,7 +34,7 @@ public:
                       Flags::kPerformsShading | Flags::kFsUsesStorage,
                       /*uniforms=*/{},
                       PrimitiveType::kTriangleStrip,
-                      kDirectDepthLessPass,
+                      /*stencilSettings=*/{},
                       /*staticAttrs=*/{},
                       /*appendAttrs=*/{},
                       /*storageUniforms=*/SkSpan(storageUniforms.begin(), storageUniforms.size()),

@@ -66,7 +66,7 @@ SDFTextRenderStep::SDFTextRenderStep(Layout layout)
                                    {"atlasSizeInv", SkSLType::kFloat2},
                                    {"gammaParams", SkSLType::kHalf2}},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthLEqualPass,
+                     /*stencilSettings=*/{},
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
                      {{{"size", VertexAttribType::kUShort2, SkSLType::kUShort2},

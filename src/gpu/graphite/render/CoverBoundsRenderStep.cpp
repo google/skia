@@ -29,7 +29,7 @@ namespace skgpu::graphite {
 
 CoverBoundsRenderStep::CoverBoundsRenderStep(Layout layout,
                                              RenderStep::RenderStepID renderStepID,
-                                             DepthStencilSettings dsSettings)
+                                             StencilSettings stencilSettings)
         : RenderStep(layout,
                      renderStepID,
                      Flags::kPerformsShading | Flags::kNoSelfIntersections
@@ -37,7 +37,7 @@ CoverBoundsRenderStep::CoverBoundsRenderStep(Layout layout,
                                              | Flags::kInverseFillsScissor,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     dsSettings,
+                     stencilSettings,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/{{{"bounds", VertexAttribType::kFloat4, SkSLType::kFloat4},
                                        {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
@@ -51,15 +51,15 @@ CoverBoundsRenderStep::~CoverBoundsRenderStep() {}
 
 std::unique_ptr<CoverBoundsRenderStep> CoverBoundsRenderStep::NonAAInnerFill(Layout layout) {
     return std::unique_ptr<CoverBoundsRenderStep>(new CoverBoundsRenderStep(
-            layout, RenderStepID::kCoverBounds_NonAAFill, kDirectDepthLEqualPass));
+            layout, RenderStepID::kCoverBounds_NonAAFill, /*stencilSettings=*/{}));
 }
 
 std::unique_ptr<CoverBoundsRenderStep> CoverBoundsRenderStep::StencilCover(
         Layout layout, bool inverseFill) {
     RenderStepID id = inverseFill ? RenderStepID::kCoverBounds_InverseCover
                                   : RenderStepID::kCoverBounds_RegularCover;
-    DepthStencilSettings dss = inverseFill ? kInverseCoverPass : kRegularCoverPass;
-    return std::unique_ptr<CoverBoundsRenderStep>(new CoverBoundsRenderStep(layout, id, dss));
+    StencilSettings stencil = inverseFill ? kInverseCoverPass : kRegularCoverPass;
+    return std::unique_ptr<CoverBoundsRenderStep>(new CoverBoundsRenderStep(layout, id, stencil));
 }
 
 std::string CoverBoundsRenderStep::vertexSkSL(const RootNodesInfo&) const {
