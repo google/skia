@@ -16,10 +16,14 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "src/capture/SkCapture.h"
+#include "src/capture/SkCaptureCanvas.h"
+#include "src/capture/SkCaptureManager.h"
 #include "src/core/SkResourceCache.h"
 #include "tests/Test.h"
 
@@ -33,6 +37,61 @@ DEF_TEST(SkContext_CaptureDisabledByDefault, reporter) {
     ctx->startCapture();
     sk_sp<SkCapture> capture = ctx->endCapture();
     REPORTER_ASSERT(reporter, capture == nullptr);
+}
+
+DEF_TEST(SkCaptureCanvas_LazilyReattachAfterSnapPicture, reporter) {
+    sk_sp<SkCaptureManager> manager = sk_make_sp<SkCaptureManager>();
+    SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
+    sk_sp<SkSurface> surface = SkSurfaces::Raster(info);
+    SkCanvas* baseCanvas = surface->getCanvas();
+
+    SkCanvas* canvas = manager->makeCaptureCanvas(baseCanvas);
+    REPORTER_ASSERT(reporter, canvas != nullptr);
+
+    manager->toggleCapture(true);
+
+    // Draw something to trigger pollCapturingStatus() and attach a recording canvas.
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    canvas->drawRect(SkRect::MakeWH(50, 50), paint);
+
+    // Snapping the picture should return the recorded draw and reset fCapturing to false
+    // without immediately re-attaching a new recording canvas.
+    sk_sp<SkPicture> pic1 = manager->snapPicture(surface.get());
+    REPORTER_ASSERT(reporter, pic1 != nullptr);
+    REPORTER_ASSERT(reporter, pic1->approximateOpCount() > 0);
+
+    // A subsequent snapPicture() with no intervening draws should return nullptr rather than an
+    // empty SkPicture.
+    sk_sp<SkPicture> pic2 = manager->snapPicture(surface.get());
+    REPORTER_ASSERT(reporter, pic2 == nullptr);
+
+    // Ending capture without any new draws should not add an empty picture asset via
+    // captureUninsertedDrawTasks().
+    manager->toggleCapture(false);
+    sk_sp<SkCapture> capture = manager->getLastCapture();
+    REPORTER_ASSERT(reporter, capture != nullptr);
+    REPORTER_ASSERT(reporter, capture->getMetadata().numAssets == 0);
+
+    // Start a new capture and verify that a draw after snapPicture() lazily re-attaches a
+    // recording canvas.
+    manager->toggleCapture(true);
+    canvas->drawRect(SkRect::MakeWH(25, 25), paint);
+    sk_sp<SkPicture> pic3 = manager->snapPicture(surface.get());
+    REPORTER_ASSERT(reporter, pic3 != nullptr);
+
+    // Draw again after snapPicture() -> should re-attach and be captured on toggleCapture(false).
+    paint.setColor(SK_ColorBLUE);
+    canvas->drawRect(SkRect::MakeXYWH(25, 25, 50, 50), paint);
+
+    manager->toggleCapture(false);
+    capture = manager->getLastCapture();
+    REPORTER_ASSERT(reporter, capture != nullptr);
+    REPORTER_ASSERT(reporter, capture->getMetadata().numAssets == 1);
+    REPORTER_ASSERT(reporter, capture->getAsset(0) != nullptr);
+    REPORTER_ASSERT(reporter, capture->getAsset(0)->approximateOpCount() > 0);
+
+    manager->deregisterCaptureCanvas(canvas);
 }
 
 // TODO(alexisdavidc) Re-enable once the new SkContext / CPU Context & Recorder API is implemented.
