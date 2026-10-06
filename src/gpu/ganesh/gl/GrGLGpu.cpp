@@ -3206,9 +3206,6 @@ void GrGLGpu::unbindSurfaceFBOForPixelOps(GrSurface* surface, int mipLevel, GrGL
 }
 
 void GrGLGpu::onFBOChanged() {
-    if (this->caps()->workarounds().flush_on_framebuffer_change) {
-        this->flush(FlushType::kForce);
-    }
     if (fHasUnflushedQueries &&
         this->caps()->workarounds().flush_queries_before_deleting_or_unbinding_fbo) {
         this->forcefullyFlushQueries();
