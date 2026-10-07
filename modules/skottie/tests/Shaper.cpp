@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
+#include <iterator>
 #include <memory>
 
 #include "include/core/SkData.h"
@@ -513,6 +514,62 @@ DEF_TEST(Skottie_Shaper_fallback_metrics, reporter) {
 }
 
 #endif // SK_SHAPER_HARFBUZZ_AVAILABLE && !SK_BUILD_FOR_WIN
+
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
+
+DEF_TEST(Skottie_Shaper_ZeroGlyphRuns, r) {
+    // abc.ttf has no space glyph, so HarfBuzz deletes default-ignorable code points instead of
+    // replacing them with an invisible glyph. Bidi controls that end up in a run of their own
+    // then reach the RunHandler as runs with no glyphs
+    const sk_sp<SkTypeface> typeface = ToolUtils::CreateTypefaceFromResource("fonts/abc/abc.ttf");
+    if (!typeface) {
+        // Not every SkFontMgr can create typefaces from data
+        return;
+    }
+
+    static constexpr struct {
+        size_t      glyphs,
+                    missing;
+        const char* text;
+    } kTests[] = {
+        {  0,  0, "\u200e"                          },
+        {  0,  0, "\u200e\u2068"                    },
+        {  3,  0, "\u2068abc"                       },
+        { 13, 13, "أنت \u200e\u2068@wren\u2069 هنا" },
+        {  5,  1, "\u200e\u2068abc\u2069 a"         },
+    };
+
+    for (const auto flags : {Shaper::kNone, Shaper::kFragmentGlyphs}) {
+        const Shaper::TextDesc desc = {
+            .fTypeface  = typeface,
+            .fTextSize  = 20,
+            // Puts some of the empty runs at the visual end of the line
+            .fDirection = Shaper::Direction::kRTL,
+            .fFlags     = flags,
+        };
+
+        for (size_t i = 0; i < std::size(kTests); ++i) {
+            skiatest::ReporterContext ctx(r, SkStringPrintf("flags %u, test %zu",
+                                                            SkToU32(flags), i));
+
+            // Without fallback fonts the expected counts do not depend on the platform
+            const auto result = Shaper::Shape(SkString(kTests[i].text), desc, SkPoint::Make(0, 0),
+                                              SkFontMgr::RefEmpty(), SkShapers::BestAvailable());
+
+            size_t glyph_count = 0;
+            for (const auto& frag : result.fFragments) {
+                for (const auto& run : frag.fGlyphs.fRuns) {
+                    REPORTER_ASSERT(r, run.fSize > 0);
+                    glyph_count += run.fSize;
+                }
+            }
+            REPORTER_ASSERT(r, glyph_count == kTests[i].glyphs);
+            REPORTER_ASSERT(r, result.fMissingGlyphCount == kTests[i].missing);
+        }
+    }
+}
+
+#endif  // SK_SHAPER_HARFBUZZ_AVAILABLE && SK_SHAPER_UNICODE_AVAILABLE
 
 #if defined(SK_SHAPER_CORETEXT_AVAILABLE)
 #include "modules/skshaper/include/SkShaper_coretext.h"

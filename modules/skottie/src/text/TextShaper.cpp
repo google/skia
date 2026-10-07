@@ -99,6 +99,12 @@ public:
     void commitRunInfo() override {}
 
     Buffer runBuffer(const RunInfo& info) override {
+        // Skipping glyphless runs keeps every fLineRuns entry non-empty, which commitLine() and
+        // the trailing tracking discount below rely on
+        if (!info.glyphCount) {
+            return {};
+        }
+
         const auto run_start_index = fLineGlyphCount;
         fLineGlyphCount += info.glyphCount;
 

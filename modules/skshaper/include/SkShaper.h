@@ -218,6 +218,7 @@ public:
             Range utf8Range;
         };
 
+        // glyphs and positions may be null when RunInfo::glyphCount is 0, since nothing is written
         struct Buffer {
             SkGlyphID* glyphs;  // required
             SkPoint* positions; // required, if (!offsets) put glyphs[i] at positions[i]

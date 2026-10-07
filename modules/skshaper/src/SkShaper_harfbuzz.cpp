@@ -579,8 +579,10 @@ void append(SkShaper::RunHandler* handler, const SkShaper::RunHandler::RunInfo& 
     const size_t glyphLen = endGlyphIndex - startGlyphIndex;
 
     const auto buffer = handler->runBuffer(runInfo);
-    SkASSERT(buffer.glyphs);
-    SkASSERT(buffer.positions);
+    // A run may shape to zero glyphs (HarfBuzz deletes default-ignorables when the font has no
+    // space glyph), in which case nothing is written and handlers may return null storage
+    SkASSERT(glyphLen == 0 || buffer.glyphs);
+    SkASSERT(glyphLen == 0 || buffer.positions);
 
     SkVector advance = {0,0};
     for (size_t i = 0; i < glyphLen; i++) {

@@ -9,6 +9,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTo.h"
@@ -473,6 +474,63 @@ DEF_TEST(Shaper_LineBreaks, reporter) {
                 check_line_breaks(kText, {i0, i1}, expected_breaks);
             }
         }
+    }
+}
+
+DEF_TEST(Shaper_ZeroGlyphRuns, r) {
+    auto unicode = get_unicode();
+    if (!unicode) {
+        return;
+    }
+
+    auto shaper = SkShapers::HB::ShaperDrivenWrapper(unicode, SkFontMgr::RefEmpty());
+    if (!shaper) {
+        return;
+    }
+
+    // abc.ttf has no space glyph, so HarfBuzz deletes default-ignorable code points instead of
+    // replacing them with an invisible glyph. Bidi controls in a run of their own then shape to
+    // runs with no glyphs, and SkTextBlobBuilder allocates no storage for those
+    const sk_sp<SkTypeface> typeface = ToolUtils::CreateTypefaceFromResource("fonts/abc/abc.ttf");
+    if (!typeface) {
+        return;
+    }
+    const SkFont font(typeface, 20);
+
+    static constexpr struct {
+        int         glyphs;
+        const char* text;
+    } kTests[] = {
+        {  0, "\u200e\u2068"                    },
+        {  3, "\u2068abc"                       },
+        { 13, "أنت \u200e\u2068@wren\u2069 هنا" },
+    };
+
+    for (const auto& test : kTests) {
+        const char* utf8 = test.text;
+        const size_t utf8Bytes = strlen(utf8);
+
+        auto fontRuns = SkShaper::MakeFontMgrRunIterator(utf8, utf8Bytes, font,
+                                                         SkFontMgr::RefEmpty());
+        // ICU resolves LTR-only text in an LTR paragraph to a single level, while in an RTL
+        // paragraph the bidi controls end up in runs of their own
+        auto bidi = SkShapers::unicode::BidiRunIterator(unicode, utf8, utf8Bytes,
+                                                        SkBidiIterator::kRTL);
+        auto script = SkShapers::HB::ScriptRunIterator(utf8, utf8Bytes);
+        auto language = SkShaper::MakeStdLanguageRunIterator(utf8, utf8Bytes);
+
+        SkTextBlobBuilderRunHandler handler(utf8, {0, 0});
+        shaper->shape(utf8, utf8Bytes, *fontRuns, *bidi, *script, *language, nullptr, 0, 400,
+                      &handler);
+
+        int glyphs = 0;
+        if (const sk_sp<SkTextBlob> blob = handler.makeBlob()) {
+            SkTextBlob::Iter::Run run;
+            for (SkTextBlob::Iter it(*blob); it.next(&run);) {
+                glyphs += run.fGlyphCount;
+            }
+        }
+        REPORTER_ASSERT(r, glyphs == test.glyphs, "%d glyphs instead of %d", glyphs, test.glyphs);
     }
 }
 
