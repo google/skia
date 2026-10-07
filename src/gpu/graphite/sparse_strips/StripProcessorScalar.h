@@ -7,7 +7,7 @@
 #ifndef skgpu_graphite_sparse_strips_StripProcessorScalar_DEFINED
 #define skgpu_graphite_sparse_strips_StripProcessorScalar_DEFINED
 
-#include "include/private/SkTDArray.h"
+#include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsConfig.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
@@ -22,7 +22,7 @@ class StripProcessorScalar {
 public:
     StripProcessorScalar(bool isInverse,
                          const Polyline& polyline,
-                         const SkTDArray<uint8_t>& maskLut
+                         const SparseStripConfig::LUTArray& maskLut
 #if defined(GPU_TEST_UTILS)
                          , MsaaExactMaskObserver observer = nullptr
 #endif
@@ -1012,12 +1012,12 @@ private:
         // Find `s`, and get the row associated with it in the LUT
         float s = std::abs(normalY) * invD;
         int lutRowOffset = std::clamp(
-                static_cast<int>(std::floor(s * (SparseStripConfig::kLutMaskHeight / 2))),
+                static_cast<int>(std::floor(s * (SparseStripConfig::kLUTMaskHeight / 2))),
                 0,
-                (SparseStripConfig::kLutMaskHeight / 2) - 1);
+                (SparseStripConfig::kLUTMaskHeight / 2) - 1);
 
         // If the slope is positive, shift the index into the bottom half of the LUT.
-        int lutRow = hasPositiveSlope ? (lutRowOffset + SparseStripConfig::kLutMaskHeight / 2) :
+        int lutRow = hasPositiveSlope ? (lutRowOffset + SparseStripConfig::kLUTMaskHeight / 2) :
                                         lutRowOffset;
 
         // DDA Steps
@@ -1039,11 +1039,11 @@ private:
     // line's calculated trajectory (u, v). `u` is the column index, obtained by scaling the
     // translation parameter `t` (which ranges from 0.0 to 1.0) to the LUT's width (64) and flooring
     // the result.
-    SK_ALWAYS_INLINE uint8_t lutLookup(float t, int lutRow) {
-        int u = std::clamp(static_cast<int>(std::floor(t * SparseStripConfig::kLutMaskWidthF)),
+    SK_ALWAYS_INLINE SparseStripConfig::SubSampleType lutLookup(float t, int lutRow) {
+        int u = std::clamp(static_cast<int>(std::floor(t * SparseStripConfig::kLUTMaskWidthF)),
                            0,
-                           SparseStripConfig::kLutMaskWidthExcl);
-        int index = lutRow * SparseStripConfig::kLutMaskWidth + u;
+                           SparseStripConfig::kLUTMaskWidthExcl);
+        int index = lutRow * SparseStripConfig::kLUTMaskWidth + u;
         SkASSERT(index < fMaskLut.size());
         return fMaskLut[index];
     }
@@ -1058,7 +1058,7 @@ private:
     // Reference to the polyline container which holds the flattened paths
     const Polyline& fPolyline;
     // Reference to the slope intercept lookup table used to evaluate subsample winding.
-    const SkTDArray<uint8_t>& fMaskLut;
+    const SparseStripConfig::LUTArray& fMaskLut;
 #if defined(GPU_TEST_UTILS)
     // Hook, used to test the correctness of the coverage generation.
     MsaaExactMaskObserver fObserver;

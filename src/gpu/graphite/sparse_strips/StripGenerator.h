@@ -7,9 +7,9 @@
 #ifndef skgpu_graphite_sparse_strips_StripGenerator_DEFINED
 #define skgpu_graphite_sparse_strips_StripGenerator_DEFINED
 
-#include "include/private/SkTDArray.h"
 #include "src/gpu/graphite/geom/EndCaps.h"
 #include "src/gpu/graphite/geom/WideTiles.h"
+#include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
 
 #include <cstdint>
 
@@ -24,7 +24,7 @@ class StripGenerator {
 public:
     StripGenerator(int width,
                    int height,
-                   const SkTDArray<uint8_t>& maskLUT,
+                   const SparseStripConfig::LUTArray& maskLUT,
                    Recorder* recorder);
     ~StripGenerator();
 
@@ -39,7 +39,7 @@ public:
 private:
     int fWidth;
     int fHeight;
-    const SkTDArray<uint8_t>& fMaskLUT;
+    const SparseStripConfig::LUTArray& fMaskLUT;
     Recorder* fRecorder;
     EndCaps fEnds;
     WideTiles fWides;

@@ -92,7 +92,7 @@ bool SkpValidator::ValidatePath(skiatest::Reporter* reporter,
                                 Recorder* recorder,
                                 const SkPath& path,
                                 const char* testName,
-                                const SkTDArray<uint8_t>& maskLut,
+                                const SparseStripConfig::LUTArray& maskLut,
                                 std::array<uint32_t, 3>* minorErrorCount) {
     if (path.isEmpty() || !path.isFinite()) {
         return true;
@@ -178,7 +178,7 @@ template <uint16_t kTileWidth, uint16_t kTileHeight>
 bool SkpValidator::ValidateSkp(skiatest::Reporter* reporter,
                                Recorder* recorder,
                                const char* filepath,
-                               const SkTDArray<uint8_t>& maskLut) {
+                               const SparseStripConfig::LUTArray& maskLut) {
     auto paths = ExtractPaths(filepath);
     if (paths.empty()) {
         INFOF(reporter, "[SkpValidator] SKP file not found or empty: %s", filepath);
@@ -219,21 +219,21 @@ template bool SkpValidator::ValidatePath<4, 4>(skiatest::Reporter*,
                                                Recorder*,
                                                const SkPath&,
                                                const char*,
-                                               const SkTDArray<uint8_t>&,
+                                               const SparseStripConfig::LUTArray&,
                                                std::array<uint32_t, 3>*);
 template bool SkpValidator::ValidatePath<8, 8>(skiatest::Reporter*,
                                                Recorder*,
                                                const SkPath&,
                                                const char*,
-                                               const SkTDArray<uint8_t>&,
+                                               const SparseStripConfig::LUTArray&,
                                                std::array<uint32_t, 3>*);
 template bool SkpValidator::ValidateSkp<4, 4>(skiatest::Reporter*,
                                               Recorder*,
                                               const char*,
-                                              const SkTDArray<uint8_t>&);
+                                              const SparseStripConfig::LUTArray&);
 template bool SkpValidator::ValidateSkp<8, 8>(skiatest::Reporter*,
                                               Recorder*,
                                               const char*,
-                                              const SkTDArray<uint8_t>&);
+                                              const SparseStripConfig::LUTArray&);
 
 }  // namespace skgpu::graphite

@@ -8,10 +8,10 @@
 #define skgpu_graphite_sparse_strips_MakeStrips_DEFINED
 
 #include "include/core/SkPathTypes.h"
-#include "include/private/SkTDArray.h"
 #include "src/gpu/graphite/geom/EndCaps.h"
 #include "src/gpu/graphite/geom/WideTiles.h"
 #include "src/gpu/graphite/sparse_strips/AlphaAtlasManager.h"
+#include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsConfig.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
@@ -123,7 +123,7 @@ public:
                            AlphaAtlasManager* atlasManager,
                            SkPathFillType fillType,
                            const Polyline& polyline,
-                           const SkTDArray<uint8_t>& maskLut,
+                           const SparseStripConfig::LUTArray& maskLut,
                            uint16_t viewportWidth,
                            uint16_t viewportHeight
 #if defined(GPU_TEST_UTILS)
@@ -161,7 +161,7 @@ public:
                          AlphaAtlasManager* atlasManager,
                          SkPathFillType fillType,
                          const Polyline& polyline,
-                         const SkTDArray<uint8_t>& maskLut,
+                         const SparseStripConfig::LUTArray& maskLut,
                          uint16_t viewportWidth,
                          uint16_t viewportHeight
 #if defined(GPU_TEST_UTILS)

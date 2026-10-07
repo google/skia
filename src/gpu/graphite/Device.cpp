@@ -542,7 +542,7 @@ Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         fStripGenerator = std::make_unique<StripGenerator>(
                 this->width(),
                 this->height(),
-                recorder->priv().sharedContext()->globalCache()->getMSAA8MaskLUT(),
+                recorder->priv().sharedContext()->globalCache()->getLUTArray(),
                 recorder);
     }
 #endif

@@ -7,7 +7,7 @@
 #ifndef skgpu_graphite_sparse_strips_MSAA_LUT_DEFINED
 #define skgpu_graphite_sparse_strips_MSAA_LUT_DEFINED
 
-#include "include/private/SkTDArray.h"
+#include "src/gpu/graphite/sparse_strips/SparseStripsConfig.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
 
 #include <array>
@@ -81,91 +81,74 @@ namespace skgpu::graphite {
  * LUT Generation
  * ----------------------------------
  * * For each subsample location (x,y), we evaluate the final half-plane equation at discretized
- *   points, according to the resolution of the LUT. Empirical testing indicates that 64x64 is
- *   sufficient for almost all rendering scenarios.
+ *   points, according to the resolution of the LUT (configured via SparseStripConfig::kLUTMaskWidth
+ *   and SparseStripConfig::kLUTMaskHeight). Empirical testing indicates that 64x64 is sufficient
+ *   for almost all rendering scenarios.
  * * Since our mathematical derivation assumes a positive slope (m >= 0), we partition the LUT into
- *   two halves. The bottom half (v >= kHeight / 2) stores masks for positive slopes. The top half
- *   stores masks for negative slopes.
+ *   two halves. The bottom half (v >= SparseStripConfig::kLUTMaskHeight / 2) stores masks for
+ *   positive slopes. The top half stores masks for negative slopes.
  * * Because s and t are bounded by [0.0, 1.0], we quantize them into the discrete 2D grid. The grid
- *   has `kWidth` columns representing the translation t, and `kHeight / 2` rows representing the
- *   slope s.
+ *   has `SparseStripConfig::kLUTMaskWidth` columns representing the translation t, and
+ *   `SparseStripConfig::kLUTMaskHeight / 2` rows representing the slope s.
  * * For negative slopes, we reuse the exact same mathematical equation but geometrically flip the
  *   Y-axis of our sub-pixel sample points (y = 1.0 - y).
  * * To minimize maximum quantization error, we extract the continuous s and t values from the exact
- *   center of each grid cell (e.g., `(u + 0.5) / kWidth`).
- * * For each cell, we evaluate the half-plane equation against all N sub-pixel sample coordinates.
- *   If the result is >= 0.0, the sample is covered, and we set the corresponding bit in our integer
- *   mask using a bitwise OR (`mask |= (1 << k)`).
+ *   center of each grid cell (e.g., `(u + 0.5) / SparseStripConfig::kLUTMaskWidthF`).
+ * * For each cell, we evaluate the half-plane equation against all N sub-pixel sample coordinates
+ *   (SparseStripConfig::kNumSubSamples). If the result is >= 0.0, the sample is covered, and we set
+ *   the corresponding bit in our integer mask using a bitwise OR (`mask |= (1 << k)`).
  *
- * * The actual positions of the subsample points use the D3D11 standard multisample pattern:
+ * * The actual positions of the subsample points use the D3D11 standard multisample pattern
+ *   (provided by kMsaaPattern in SparseStripsTypes.h):
  *   https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels
  *
  * * For more on sampling patterns:
  *   https://web.cs.wpi.edu/~emmanuel/courses/cs563/S10/talks/wk3_p1_wadii_sampling_techniques.pdf
  */
 
-template <typename T> class MSAA_LUT {
-public:
-    static constexpr int32_t kWidth          = 64;
-    static constexpr int32_t kHeight         = 64;
-    static constexpr int32_t kHalfHeight     = kHeight / 2;
-    static constexpr size_t  kSampleCount    = sizeof(T) * 8;
-    using Pattern                            = std::array<uint8_t, kSampleCount>;
-    static constexpr const Pattern& kPattern = kMsaaPattern<T>;
+inline SparseStripConfig::LUTArray GenerateMSAALUT() {
+    constexpr float scale = 1.0f / static_cast<float>(SparseStripConfig::kNumSubSamples);
+    std::array<float, SparseStripConfig::kNumSubSamples> subX;
+    std::array<float, SparseStripConfig::kNumSubSamples> subY;
+    const auto& pattern = kMsaaPattern<SparseStripConfig::SubSampleType>;
 
-    static SkTDArray<T> Make() {
-        constexpr float scale = 1.0f / static_cast<float>(kSampleCount);
-        std::array<float, kSampleCount> subX;
-        std::array<float, kSampleCount> subY;
+    for (size_t k = 0; k < SparseStripConfig::kNumSubSamples; ++k) {
+        subX[k] = (static_cast<float>(pattern[k]) + 0.5f) * scale;
+        subY[k] = (static_cast<float>(k) + 0.5f) * scale;
+    }
 
-        for (size_t k = 0; k < kSampleCount; ++k) {
-            subX[k] = (static_cast<float>(kPattern[k]) + 0.5f) * scale;
-            subY[k] = (static_cast<float>(k) + 0.5f) * scale;
-        }
+    SparseStripConfig::LUTArray lut;
+    constexpr int32_t halfHeight = SparseStripConfig::kLUTMaskHeight / 2;
+    constexpr float halfHeightF = static_cast<float>(halfHeight);
 
-        SkTDArray<T> lut;
-        lut.reserve(kWidth * kHeight);
+    for (size_t i = 0; i < SparseStripConfig::kLUTSize; ++i) {
+        int32_t u = static_cast<int32_t>(i % SparseStripConfig::kLUTMaskWidth);
+        int32_t v = static_cast<int32_t>(i / SparseStripConfig::kLUTMaskWidth);
 
-        for (int32_t i = 0; i < kWidth * kHeight; ++i) {
-            int32_t u = i % kWidth;
-            int32_t v = i / kWidth;
+        bool isPos = v >= halfHeight;
 
-            bool isPos = v >= kHalfHeight;
+        // Extract continuous parameters from the center of the grid cells
+        float t = (static_cast<float>(u) + 0.5f) / SparseStripConfig::kLUTMaskWidthF;
+        float s = (static_cast<float>(v % halfHeight) + 0.5f) / halfHeightF;
 
-            // Extract continuous parameters from the center of the grid cells
-            float t = (static_cast<float>(u) + 0.5f) / static_cast<float>(kWidth);
-            float s = (static_cast<float>(v % kHalfHeight) + 0.5f) /
-                       static_cast<float>(kHalfHeight);
+        SparseStripConfig::SubSampleType mask = 0;
+        for (size_t k = 0; k < SparseStripConfig::kNumSubSamples; ++k) {
+            float x = subX[k];
+            float y = subY[k];
 
-            T mask = 0;
-            for (size_t k = 0; k < kSampleCount; ++k) {
-                float x = subX[k];
-                float y = subY[k];
-
-                if (!isPos) {
-                    y = 1.0f - y;
-                }
-
-                float val = (x - (1.0f - t)) * (1.0f - s) - (y - t) * s;
-
-                if (val >= 0.0f) {
-                    mask |= (static_cast<T>(1) << k);
-                }
+            if (!isPos) {
+                y = 1.0f - y;
             }
-            lut.push_back(mask);
-        }
-        return lut;
-    }
-};
 
-// TODO (thomsmit): Change the type of array to std::array
-template <typename T>
-SkTDArray<T> GenerateMSAALUT() {
-    if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, uint16_t>) {
-        return MSAA_LUT<T>::Make();
-    } else {
-        SkUNREACHABLE;
+            float val = (x - (1.0f - t)) * (1.0f - s) - (y - t) * s;
+
+            if (val >= 0.0f) {
+                mask |= (static_cast<SparseStripConfig::SubSampleType>(1) << k);
+            }
+        }
+        lut[i] = mask;
     }
+    return lut;
 }
 
 }  // namespace skgpu::graphite

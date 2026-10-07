@@ -56,7 +56,7 @@ GlobalCache::GlobalCache()
         , fComputePipelineCache(kGlobalComputePipelineCacheSizeLimit)
         , fDynamicSamplers({})
 #if defined(SK_ENABLE_SPARSE_STRIPS)
-        , fMSAAMaskLUT(GenerateMSAALUT<uint8_t>())
+        , fMSAAMaskLUT(GenerateMSAALUT())
 #endif
         {}
 

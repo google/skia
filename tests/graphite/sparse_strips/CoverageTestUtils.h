@@ -257,7 +257,7 @@ private:
                                     (side == 0) ? isExpectedActive(currX, currY, sy, cp)
                                                 : isActualActive(currX, currY, sy, localX, localY);
 
-                            if (MSAA_LUT<uint8_t>::kPattern[sy] == sx) {
+                            if (kMsaaPattern<SparseStripConfig::SubSampleType>[sy] == sx) {
                                 out->append(active ? (onLine ? "*#" : " #")
                                                    : (onLine ? "*o" : " o"));
                             } else {

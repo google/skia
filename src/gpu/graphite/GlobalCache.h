@@ -20,6 +20,10 @@
 
 #include <functional>
 
+#if defined(SK_ENABLE_SPARSE_STRIPS)
+#include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
+#endif
+
 namespace skgpu::graphite {
 
 class Caps;
@@ -144,7 +148,7 @@ public:
 
 #if defined(SK_ENABLE_SPARSE_STRIPS)
     // Retrieve the static MSAA 8x mask lookup table.
-    const SkTDArray<uint8_t>& getMSAA8MaskLUT() const {
+    const SparseStripConfig::LUTArray& getLUTArray() const {
         return fMSAAMaskLUT;
     }
 #endif
@@ -215,7 +219,7 @@ private:
 
 #if defined(SK_ENABLE_SPARSE_STRIPS)
     // Static MSAA mask lookup table.
-    SkTDArray<uint8_t> fMSAAMaskLUT;
+    const SparseStripConfig::LUTArray fMSAAMaskLUT;
 #endif
 
 #if defined(GPU_TEST_UTILS)

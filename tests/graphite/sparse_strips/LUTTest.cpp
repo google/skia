@@ -35,10 +35,11 @@ uint8_t compute_naive_mask(SkPoint p0, SkPoint p1) {
     }
     float c = nx * p0.fX + ny * p0.fY;
 
-    uint8_t mask = 0;
-    for (int i = 0; i < 8; ++i) {
-        float sx = (MSAA_LUT<uint8_t>::kPattern[i] + 0.5f) / 8.0f;
-        float sy = (i + 0.5f) / 8.0f;
+    SparseStripConfig::SubSampleType mask = 0;
+    for (int i = 0; i < SparseStripConfig::kNumSubSamples; ++i) {
+        float sx = (kMsaaPattern<SparseStripConfig::SubSampleType>[i] + 0.5f) /
+                   static_cast<float>(SparseStripConfig::kNumSubSamples);
+        float sy = (i + 0.5f) / static_cast<float>(SparseStripConfig::kNumSubSamples);
         if (nx * sx + ny * sy - c > 0.0f) {
             mask |= (1 << i);
         }
@@ -46,7 +47,8 @@ uint8_t compute_naive_mask(SkPoint p0, SkPoint p1) {
     return mask;
 }
 
-uint8_t lookup_LUT(SkPoint p0, SkPoint p1, const SkTDArray<uint8_t>& lut) {
+SparseStripConfig::SubSampleType lookup_LUT(SkPoint p0, SkPoint p1,
+                                            const SparseStripConfig::LUTArray& lut) {
     float dx = p1.fX - p0.fX;
     float dy = p1.fY - p0.fY;
 
@@ -71,8 +73,8 @@ uint8_t lookup_LUT(SkPoint p0, SkPoint p1, const SkTDArray<uint8_t>& lut) {
     float s = std::abs(ny) / D;
     float t = ((isPos ? nx : D) - c) / D;
 
-    static constexpr int kWidth = MSAA_LUT<uint8_t>::kWidth;
-    static constexpr int kHeight = MSAA_LUT<uint8_t>::kHeight;
+    static constexpr int kWidth = SparseStripConfig::kLUTMaskWidth;
+    static constexpr int kHeight = SparseStripConfig::kLUTMaskHeight;
     static constexpr int halfHeight = kHeight / 2;
 
     int u = std::clamp(static_cast<int>(std::floor(t * kWidth)), 0, kWidth - 1);
@@ -104,7 +106,7 @@ static SkPoint pick_random_square_point(SkRandom* rand) {
 template <typename LookupFunc>
 void test_LUT(skiatest::Reporter* reporter,
              const char* lutName,
-             const SkTDArray<uint8_t>& lut,
+             const SparseStripConfig::LUTArray& lut,
              uint32_t seed,
              LookupFunc lookupFunc) {
     SkRandom rand(seed);
@@ -159,7 +161,7 @@ DEF_TEST(SparseStrips_LUTTest, reporter) {
     auto now = std::chrono::high_resolution_clock::now();
     uint32_t seed = static_cast<uint32_t>(now.time_since_epoch().count());
 
-    const SkTDArray<uint8_t> msaaLUT = GenerateMSAALUT<uint8_t>();
+    const SparseStripConfig::LUTArray msaaLUT = GenerateMSAALUT();
     test_LUT(reporter, "SlopeBasedLUT", msaaLUT, seed, lookup_LUT);
 }
 

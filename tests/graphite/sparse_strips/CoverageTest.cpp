@@ -38,7 +38,7 @@ void run_coverage_suite(skiatest::Reporter* reporter,
     constexpr uint32_t kViewportWidth = 400;
     constexpr uint32_t kViewportHeight = 400;
 
-    const SkTDArray<uint8_t> lut = GenerateMSAALUT<uint8_t>();
+    const SparseStripConfig::LUTArray lut = GenerateMSAALUT();
     constexpr int kErrorLimit = 3;
     std::array<uint32_t, kErrorLimit> minorErrorCount = {0, 0, 0};
     int totalTestsRun = 0;
@@ -198,7 +198,7 @@ void run_culling_simplification_suite(
         Recorder* recorder,
         typename FastValidator<kTileWidth, kTileHeight>::StripFunc stripFunc,
         const char* implName) {
-    const SkTDArray<uint8_t> lut = GenerateMSAALUT<uint8_t>();
+    const SparseStripConfig::LUTArray lut = GenerateMSAALUT();
     constexpr uint16_t kVpWidth = 120;
     constexpr uint16_t kVpHeight = 120;
     std::array<uint32_t, 3> minorErrors = {0, 0, 0};
@@ -281,7 +281,7 @@ void run_culled_geometry_suite(skiatest::Reporter* reporter,
                                Recorder* recorder,
                                typename FastValidator<kTileWidth, kTileHeight>::StripFunc stripFunc,
                                const char* implName) {
-    const SkTDArray<uint8_t> lut = GenerateMSAALUT<uint8_t>();
+    const SparseStripConfig::LUTArray lut = GenerateMSAALUT();
     std::array<uint32_t, 3> minorErrors = {0, 0, 0};
 
     struct TestCase {
@@ -444,7 +444,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_SKP_SIMD_4x4,
                                          context,
                                          CtsEnforcement::kToBeDetermined) {
     auto recorder = context->makeRecorder();
-    const SkTDArray<uint8_t> lut = GenerateMSAALUT<uint8_t>();
+    const SparseStripConfig::LUTArray lut = GenerateMSAALUT();
     SkpValidator::ValidateSkp<4, 4>(reporter, recorder.get(), "skps/desk_tiger8svg.skp", lut);
 }
 
@@ -453,7 +453,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_SKP_SIMD_8x8,
                                          context,
                                          CtsEnforcement::kToBeDetermined) {
     auto recorder = context->makeRecorder();
-    const SkTDArray<uint8_t> lut = GenerateMSAALUT<uint8_t>();
+    const SparseStripConfig::LUTArray lut = GenerateMSAALUT();
     SkpValidator::ValidateSkp<8, 8>(reporter, recorder.get(), "skps/desk_tiger8svg.skp", lut);
 }
 

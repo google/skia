@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_sparse_strips_FastValidator_DEFINED
 #define skgpu_graphite_sparse_strips_FastValidator_DEFINED
 
+#include "src/gpu/graphite/sparse_strips/SparseStripsConfig.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
 #include "tests/Test.h"
 
@@ -46,7 +47,7 @@ public:
                                AlphaAtlasManager* atlasManager,
                                SkPathFillType fillType,
                                const Polyline& polyline,
-                               const SkTDArray<uint8_t>& msaaLut,
+                               const SparseStripConfig::LUTArray& msaaLut,
                                MsaaExactMaskObserver observer,
                                uint16_t viewportWidth,
                                uint16_t viewportHeight);
@@ -57,7 +58,7 @@ public:
                                  AlphaAtlasManager* atlasManager,
                                  SkPathFillType fillType,
                                  const Polyline& polyline,
-                                 const SkTDArray<uint8_t>& maskLut,
+                                 const SparseStripConfig::LUTArray& maskLut,
                                  MsaaExactMaskObserver observer,
                                  uint16_t viewportWidth,
                                  uint16_t viewportHeight);
@@ -68,7 +69,7 @@ public:
                                AlphaAtlasManager* atlasManager,
                                SkPathFillType fillType,
                                const Polyline& polyline,
-                               const SkTDArray<uint8_t>& maskLut,
+                               const SparseStripConfig::LUTArray& maskLut,
                                MsaaExactMaskObserver observer,
                                uint16_t viewportWidth,
                                uint16_t viewportHeight);
@@ -87,7 +88,7 @@ public:
                              uint16_t viewportWidth,
                              uint16_t viewportHeight,
                              const char* testName,
-                             const SkTDArray<uint8_t>& maskLut,
+                             const SparseStripConfig::LUTArray& maskLut,
                              StripFunc stripFunc = nullptr,
                              std::array<uint32_t, 3>* minorErrorCount = nullptr);
 

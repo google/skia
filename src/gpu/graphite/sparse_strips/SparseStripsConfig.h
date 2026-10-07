@@ -10,6 +10,8 @@
 
 #include "include/core/SkColorType.h"
 
+#include <array>
+#include <cstddef>
 #include <cstdint>
 
 namespace skgpu::graphite {
@@ -46,15 +48,20 @@ struct SparseStripConfig {
     static_assert(kAtlasWidth == 8192);
 
     // The number of MSAA SubSamples in SparseStrips rendering. We currently only support 8.
-    static constexpr int32_t   kNumSubSamples     = 8;
+    using SubSampleType                           = uint8_t;
+    static constexpr int32_t   kNumSubSamples     = sizeof(SubSampleType) * 8;
     static_assert(!((kNumSubSamples & (kNumSubSamples - 1))));
+    static_assert(sizeof(SubSampleType) * 8 == kNumSubSamples);
 
-    static constexpr int32_t kLutMaskWidth        = 64;
-    static constexpr int32_t kLutMaskHeight       = 64;
-    static constexpr int32_t kLutMaskWidthExcl    = kLutMaskWidth - 1;
-    static constexpr int32_t kLutMaskHeightExcl   = kLutMaskHeight - 1;
-    static constexpr float   kLutMaskWidthF       = static_cast<float>(kLutMaskWidth);
-    static constexpr float   kLutMaskHeightF      = static_cast<float>(kLutMaskHeight);
+    static constexpr int32_t kLUTMaskWidth        = 64;
+    static constexpr int32_t kLUTMaskHeight       = 64;
+    static constexpr int32_t kLUTMaskWidthExcl    = kLUTMaskWidth - 1;
+    static constexpr int32_t kLUTMaskHeightExcl   = kLUTMaskHeight - 1;
+    static constexpr float   kLUTMaskWidthF       = static_cast<float>(kLUTMaskWidth);
+    static constexpr float   kLUTMaskHeightF      = static_cast<float>(kLUTMaskHeight);
+    static constexpr size_t  kLUTSize             = kLUTMaskWidth * kLUTMaskHeight;
+
+    using LUTArray                                = std::array<SubSampleType, kLUTSize>;
 
     static constexpr float kStripEpsilon          = 1e-5f;
 };

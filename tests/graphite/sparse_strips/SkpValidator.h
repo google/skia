@@ -11,6 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/private/SkTDArray.h"
+#include "src/gpu/graphite/sparse_strips/SparseStripsConfig.h"
 #include "tests/Test.h"
 
 #include <array>
@@ -43,7 +44,7 @@ public:
             Recorder* recorder,
             const SkPath& path,
             const char* testName,
-            const SkTDArray<uint8_t>& maskLut,
+            const SparseStripConfig::LUTArray& maskLut,
             std::array<uint32_t, 3>* minorErrorCount = nullptr);
 
     template <uint16_t kTileWidth, uint16_t kTileHeight>
@@ -51,7 +52,7 @@ public:
             skiatest::Reporter* reporter,
             Recorder* recorder,
             const char* filepath,
-            const SkTDArray<uint8_t>& maskLut);
+            const SparseStripConfig::LUTArray& maskLut);
 };
 
 }  // namespace skgpu::graphite

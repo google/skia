@@ -22,7 +22,7 @@ namespace skgpu::graphite {
 
 StripGenerator::StripGenerator(int width,
                                int height,
-                               const SkTDArray<uint8_t>& maskLUT,
+                               const SparseStripConfig::LUTArray& maskLUT,
                                Recorder* recorder)
         : fWidth(width)
         , fHeight(height)
