@@ -2511,20 +2511,6 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, bool useMultisampleFBO
                             target->height(),
                             kTopLeft_GrSurfaceOrigin); // the origin is irrelevant in this case
     }
-    if (this->caps()->workarounds().force_update_scissor_state_when_binding_fbo0) {
-        // The driver forgets the correct scissor state when using FBO 0.
-        if (!fHWScissorSettings.fRect.isInvalid()) {
-            const GrNativeRect& r = fHWScissorSettings.fRect;
-            GL_CALL(Scissor(r.fX, r.fY, r.fWidth, r.fHeight));
-        }
-        if (fHWScissorSettings.fEnabled == kYes_TriState) {
-            GL_CALL(Disable(GR_GL_SCISSOR_TEST));
-            GL_CALL(Enable(GR_GL_SCISSOR_TEST));
-        } else if (fHWScissorSettings.fEnabled == kNo_TriState) {
-            GL_CALL(Enable(GR_GL_SCISSOR_TEST));
-            GL_CALL(Disable(GR_GL_SCISSOR_TEST));
-        }
-    }
 
     if (this->glCaps().srgbWriteControl()) {
         this->flushFramebufferSRGB(this->caps()->isFormatSRGB(target->backendFormat()));

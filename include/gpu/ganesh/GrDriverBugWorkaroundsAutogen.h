@@ -25,8 +25,6 @@
          ensure_previous_framebuffer_not_deleted)        \
   GPU_OP(FLUSH_QUERIES_BEFORE_DELETING_OR_UNBINDING_FBO, \
          flush_queries_before_deleting_or_unbinding_fbo) \
-  GPU_OP(FORCE_UPDATE_SCISSOR_STATE_WHEN_BINDING_FBO0,   \
-         force_update_scissor_state_when_binding_fbo0)   \
   GPU_OP(GL_CLEAR_BROKEN,                                \
          gl_clear_broken)                                \
   GPU_OP(MAX_FRAGMENT_UNIFORM_VECTORS_32,                \
