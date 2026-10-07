@@ -210,6 +210,9 @@ filegroup(
 filegroup(
     name = "compile_mac_files",
     srcs = [
+        # Needed by the "unsafe_buffer_usage" feature, which passes this file to Clang via
+        # --warning-suppression-mappings. See //toolchain/mac_toolchain_config.bzl.
+        "//tools/unsafe_buffers:unsafe_buffers_mappings.txt",
         "@clang_mac//:compile_files",
     ],
 )
@@ -240,6 +243,9 @@ filegroup(
 filegroup(
     name = "compile_windows_files",
     srcs = [
+        # Needed by the "unsafe_buffer_usage" feature, which passes this file to Clang via
+        # --warning-suppression-mappings. See //toolchain/windows_toolchain_config.bzl.
+        "//tools/unsafe_buffers:unsafe_buffers_mappings.txt",
         "@clang_windows_amd64//:compile_files",
     ],
 )

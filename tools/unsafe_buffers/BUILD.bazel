@@ -1,0 +1,12 @@
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+# Consumed by the "unsafe_buffer_usage" feature of the Mac and Windows toolchains, which pass this
+# file to Clang via --warning-suppression-mappings. See //toolchain/mac_toolchain_config.bzl.
+exports_files(
+    ["unsafe_buffers_mappings.txt"],
+    visibility = ["//visibility:public"],
+)
