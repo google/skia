@@ -64,11 +64,11 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromCodec(std::unique_ptr<Sk
         // SkAndroidCodecAdapter for both these formats.
         case SkEncodedImageFormat::kAVIF:
         case SkEncodedImageFormat::kHEIF:
+        case SkEncodedImageFormat::kJPEGXL:
             return std::make_unique<SkAndroidCodecAdapter>(codec.release());
         case SkEncodedImageFormat::kPKM:
         case SkEncodedImageFormat::kKTX:
         case SkEncodedImageFormat::kASTC:
-        case SkEncodedImageFormat::kJPEGXL:
             return nullptr;
     }
     SkUNREACHABLE;
@@ -106,8 +106,8 @@ SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorTyp
             }
             break;
         case kRGBA_1010102_SkColorType:
-            if (colorDepth == 10) {
-              return kRGBA_1010102_SkColorType;
+            if (colorDepth == 10 && kOpaque_SkAlphaType == this->getInfo().alphaType()) {
+                return kRGBA_1010102_SkColorType;
             }
             break;
         case kRGBA_F16_SkColorType:
@@ -116,9 +116,12 @@ SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorTyp
             break;
     }
 
+    if (colorDepth == 10 && kOpaque_SkAlphaType == this->getInfo().alphaType()) {
+        return kRGBA_1010102_SkColorType;
+    }
+
     // F16 is the Android default for high precision images.
-    return highPrecision ? kRGBA_F16_SkColorType :
-        (colorDepth == 10 ? kRGBA_1010102_SkColorType : kN32_SkColorType);
+    return highPrecision ? kRGBA_F16_SkColorType : kN32_SkColorType;
 }
 
 SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {

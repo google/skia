@@ -8,10 +8,10 @@
 #ifndef SkJpegxlCodec_DEFINED
 #define SkJpegxlCodec_DEFINED
 
+#include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
-#include "src/codec/SkScalingCodec.h"
 
 #include <cstddef>
 #include <memory>
@@ -28,7 +28,7 @@ struct SkImageInfo;
  * This class implements the decoding for jpegxl images
  *
  */
-class SkJpegxlCodec : public SkScalingCodec {
+class SkJpegxlCodec : public SkCodec {
 public:
     static bool IsJpegxl(const void*, size_t);
 
@@ -102,7 +102,7 @@ private:
                   std::unique_ptr<SkStream> stream,
                   sk_sp<const SkData> data);
 
-    using INHERITED = SkScalingCodec;
+    using INHERITED = SkCodec;
 };
 
 #endif

@@ -22,6 +22,7 @@
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkFrameHolder.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkStreamPriv.h"
 #include "src/core/SkSwizzlePriv.h"
 
@@ -80,7 +81,7 @@ SkJpegxlCodec::SkJpegxlCodec(std::unique_ptr<SkJpegxlCodecPriv> codec,
                              SkEncodedInfo&& info,
                              std::unique_ptr<SkStream> stream,
                              sk_sp<const SkData> data)
-        : INHERITED(std::move(info), skcms_PixelFormat_RGBA_16161616LE, std::move(stream))
+        : INHERITED(std::move(info), skcms_PixelFormat_RGBA_hhhh, std::move(stream))
         , fCodec(std::move(codec))
         , fData(std::move(data)) {}
 
@@ -105,8 +106,14 @@ std::unique_ptr<SkCodec> SkJpegxlCodec::MakeFromStream(std::unique_ptr<SkStream>
     auto priv = std::make_unique<SkJpegxlCodecPriv>();
     JxlDecoder* dec = priv->fDecoder.get();
 
+    auto status = JxlDecoderSetUnpremultiplyAlpha(dec, JXL_TRUE);
+    if (status != JXL_DEC_SUCCESS) {
+        SkDEBUGFAIL("libjxl returned unexpected status");
+        return nullptr;
+    }
+
     // Only query metadata this time.
-    auto status = JxlDecoderSubscribeEvents(dec, JXL_DEC_BASIC_INFO | JXL_DEC_COLOR_ENCODING);
+    status = JxlDecoderSubscribeEvents(dec, JXL_DEC_BASIC_INFO | JXL_DEC_COLOR_ENCODING);
     if (status != JXL_DEC_SUCCESS) {
         // Fresh instance must accept request for subscription.
         SkDEBUGFAIL("libjxl returned unexpected status");
@@ -184,11 +191,11 @@ std::unique_ptr<SkCodec> SkJpegxlCodec::MakeFromStream(std::unique_ptr<SkStream>
         profile = SkCodecs::ColorProfile::MakeICCProfile(std::move(icc));
     }
 
-    int bitsPerChannel = 16;
+    const int bitsPerComponent = info.bits_per_sample > 8 ? 16 : 8;
 
     *result = kSuccess;
-    SkEncodedInfo encodedInfo =
-            SkEncodedInfo::Make(width, height, color, alpha, bitsPerChannel, std::move(profile));
+    SkEncodedInfo encodedInfo = SkEncodedInfo::Make(
+            width, height, color, alpha, bitsPerComponent, std::move(profile), info.bits_per_sample);
 
     return std::unique_ptr<SkCodec>(new SkJpegxlCodec(
             std::move(priv), std::move(encodedInfo), std::move(stream), std::move(data)));
@@ -199,6 +206,9 @@ SkCodec::Result SkJpegxlCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst
     // TODO(eustas): implement
     if (options.fSubset) {
         return kUnimplemented;
+    }
+    if (dstInfo.dimensions() != this->dimensions()) {
+        return kInvalidScale;
     }
     auto& codec = *fCodec.get();
     const int index = options.fFrameIndex;
@@ -243,6 +253,7 @@ SkCodec::Result SkJpegxlCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst
     codec.fDst = dst;
     codec.fRowBytes = rowBytes;
     codec.fPixelShift = dstInfo.shiftPerPixel();
+    codec.fDstColorType = dstInfo.colorType();
 
     // TODO(eustas): consider grayscale.
     uint32_t numColorChannels = 3;
@@ -297,24 +308,28 @@ bool SkJpegxlCodec::onRewind() {
 
 bool SkJpegxlCodec::conversionSupported(const SkImageInfo& dstInfo, bool srcIsOpaque,
                                         bool needsColorXform) {
+    if (!SkCodecPriv::ValidAlpha(dstInfo.alphaType(), srcIsOpaque)) {
+        return false;
+    }
     fCodec->fDstColorType = dstInfo.colorType();
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
-            return true;  // memcpy
+            return true;  // memcpy or RGBA_to_rgbA
         case kBGRA_8888_SkColorType:
-            return true;  // rgba->bgra
+            return true;  // RGBA_to_BGRA or RGBA_to_bgrA
+        case kRGBA_1010102_SkColorType:
+            return true;
 
         case kRGBA_F16_SkColorType:
-            SkASSERT(needsColorXform);  // TODO(eustas): not necessary for JXL.
             return true;  // memcpy
 
-        // TODO(eustas): implement
         case kRGB_565_SkColorType:
-            return false;
+            return srcIsOpaque;
+
         case kGray_8_SkColorType:
-            return false;
+            return this->getEncodedInfo().color() == SkEncodedInfo::kGray_Color;
         case kAlpha_8_SkColorType:
-            return false;
+            return this->getEncodedInfo().color() == SkEncodedInfo::kGray_Color && !needsColorXform;
 
         default:
             return false;
@@ -326,22 +341,62 @@ void SkJpegxlCodec::imageOutCallback(void* opaque, size_t x, size_t y,
                                      size_t num_pixels, const void* pixels) {
     SkJpegxlCodec* instance = reinterpret_cast<SkJpegxlCodec*>(opaque);
     auto& codec = *instance->fCodec.get();
+    if (y >= (size_t)instance->dimensions().height() ||
+        x >= (size_t)instance->dimensions().width()) {
+        return;
+    }
+    if (num_pixels > (size_t)instance->dimensions().width() - x) {
+        num_pixels = instance->dimensions().width() - x;
+    }
     size_t offset = y * codec.fRowBytes + (x << codec.fPixelShift);
     void* dst = SkTAddOffset<void>(codec.fDst, offset);
     if (instance->colorXform()) {
         instance->applyColorXform(dst, pixels, num_pixels);
         return;
     }
+    const bool premul = !instance->getEncodedInfo().opaque() &&
+                        instance->dstInfo().alphaType() == kPremul_SkAlphaType;
     switch (codec.fDstColorType) {
         case kRGBA_8888_SkColorType:
-            memcpy(dst, pixels, 4 * num_pixels);
+            if (premul) {
+                SkOpts::RGBA_to_rgbA(reinterpret_cast<uint32_t*>(dst),
+                                     reinterpret_cast<const uint32_t*>(pixels),
+                                     num_pixels);
+            } else {
+                memcpy(dst, pixels, 4 * num_pixels);
+            }
             return;
         case kBGRA_8888_SkColorType:
-            SkOpts::RGBA_to_bgrA((uint32_t*) dst, (const uint32_t*)(pixels), num_pixels);
+            if (premul) {
+                SkOpts::RGBA_to_bgrA(reinterpret_cast<uint32_t*>(dst),
+                                     reinterpret_cast<const uint32_t*>(pixels),
+                                     num_pixels);
+            } else {
+                SkOpts::RGBA_to_BGRA(reinterpret_cast<uint32_t*>(dst),
+                                     reinterpret_cast<const uint32_t*>(pixels),
+                                     num_pixels);
+            }
             return;
         case kRGBA_F16_SkColorType:
             memcpy(dst, pixels, 8 * num_pixels);
             return;
+        case kRGB_565_SkColorType: {
+            const uint8_t* src = reinterpret_cast<const uint8_t*>(pixels);
+            uint16_t* dst16 = reinterpret_cast<uint16_t*>(dst);
+            for (size_t i = 0; i < num_pixels; ++i) {
+                dst16[i] = SkPack888ToRGB16(src[4 * i + 0], src[4 * i + 1], src[4 * i + 2]);
+            }
+            return;
+        }
+        case kGray_8_SkColorType:
+        case kAlpha_8_SkColorType: {
+            const uint8_t* src = reinterpret_cast<const uint8_t*>(pixels);
+            uint8_t* dst8 = reinterpret_cast<uint8_t*>(dst);
+            for (size_t i = 0; i < num_pixels; ++i) {
+                dst8[i] = src[4 * i + 0];
+            }
+            return;
+        }
         default:
             SK_ABORT("Selected output format is not supported yet");
             return;
