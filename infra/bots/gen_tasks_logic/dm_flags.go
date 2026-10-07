@@ -749,11 +749,6 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "ProcessorOptimizationValidationTest")
 		}
 
-		if b.Model("GalaxyS20") {
-			// skbug.com/40041940
-			skip(ALL, "test", ALL, "ProcessorCloneTest")
-		}
-
 		if b.Model("MotoG73") {
 			// https://g-issues.skia.org/issues/370739986
 			skip(ALL, "test", ALL, "SkSLSwizzleIndexStore_Ganesh")
@@ -1740,10 +1735,6 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~^GrMeshTest$")
 	}
 
-	if b.ExtraConfig("Vulkan") && b.Model("GalaxyS20") {
-		// skbug.com/40041601
-		match = append(match, "~VkPrepareForExternalIOQueueTransitionTest")
-	}
 	if b.MatchExtraConfig("Graphite") {
 		// skbug.com/40043905
 		match = append(match, "~async_rescale_and_read")

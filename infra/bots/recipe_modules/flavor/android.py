@@ -48,7 +48,6 @@ class AndroidFlavor(default.DefaultFlavor):
     self.cant_root = [
       'GalaxyS7_G930FD',
       'GalaxyS9',
-      'GalaxyS20',
       'GalaxyS24',
       'GalaxyS25Plus',
       'JioNext',
@@ -304,7 +303,7 @@ class AndroidFlavor(default.DefaultFlavor):
     self.wait_for_device()
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
-    if self.m.vars.builder_cfg.get('model') in ('GalaxyS20', 'GalaxyS9'):
+    if self.m.vars.builder_cfg.get('model') in ('GalaxyS9'):
       # See skbug.com/40041532, should be moot once upgraded to Android 11?
       self._adb('cp libGLES_mali.so to ' + self.device_dirs.bin_dir,
                  'shell', 'cp',

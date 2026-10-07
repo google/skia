@@ -206,19 +206,6 @@ test:GCE_x86_Win2019_Rome --test_arg=Rome
 test:GCE_x86_Win2019_Rome --test_arg=--gpuName
 test:GCE_x86_Win2019_Rome --test_arg=SwiftShader
 
-test:GalaxyS20 --strategy=TestRunner=local
-test:GalaxyS20 --test_arg=--device-specific-bazel-config
-test:GalaxyS20 --test_arg=GalaxyS20
-test:GalaxyS20 --test_arg=--key
-test:GalaxyS20 --test_arg=arch
-test:GalaxyS20 --test_arg=arm64
-test:GalaxyS20 --test_arg=model
-test:GalaxyS20 --test_arg=GalaxyS20
-test:GalaxyS20 --test_arg=os
-test:GalaxyS20 --test_arg=Android
-test:GalaxyS20 --test_arg=--gpuName
-test:GalaxyS20 --test_arg=MaliG77
-
 test:GalaxyS7_G930FD --strategy=TestRunner=local
 test:GalaxyS7_G930FD --test_arg=--device-specific-bazel-config
 test:GalaxyS7_G930FD --test_arg=GalaxyS7_G930FD

@@ -234,15 +234,6 @@ var Configs = map[string]Config{
 		CPU: "Rome",
 		GPU: "SwiftShader",
 	},
-	"GalaxyS20": {
-		Name: "GalaxyS20",
-		Keys: map[string]string{
-			"arch":  "arm64",
-			"model": "GalaxyS20",
-			"os":    "Android",
-		},
-		GPU: "MaliG77",
-	},
 	"GalaxyS7_G930FD": {
 		Name: "GalaxyS7_G930FD",
 		Keys: map[string]string{
