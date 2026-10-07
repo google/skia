@@ -2152,6 +2152,7 @@ skia_component("skia") {
   sources += skia_ports_sources
   sources += skia_android_core_srcs
   sources += [
+    "src/android/SkAndroidFrameworkTraceUtils.cpp",
     "src/android/SkAndroidFrameworkUtils.cpp",
     "src/codec/SkAndroidCodec.cpp",
     "src/codec/SkAndroidCodecAdapter.cpp",
@@ -2270,7 +2271,6 @@ skia_component("skia") {
   # Currently only supported in Android framework.
   if (skia_android_framework_use_perfetto) {
     defines += [ "SK_ANDROID_FRAMEWORK_USE_PERFETTO" ]
-    sources += [ "src/android/SkAndroidFrameworkPerfettoStaticStorage.cpp" ]
   }
 }
 

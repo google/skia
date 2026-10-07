@@ -63,16 +63,16 @@
 // ---
 // 1. If SK_ANDROID_FRAMEWORK_USE_PERFETTO is not defined, then all tracing macros map to no-ops.
 // This is only relevant to host-mode builds, where ATrace isn't supported anyway, and tracing with
-// Perfetto seems unnecessary. Note that SkAndroidFrameworkTraceUtil is still defined (assuming
+// Perfetto seems unnecessary. Note that SkAndroidFrameworkTraceUtils is still defined (assuming
 // SK_BUILD_FOR_ANDROID_FRAMEWORK is defined) to support HWUI referencing it in host-mode builds.
 //
 // 2. If SK_ANDROID_FRAMEWORK_USE_PERFETTO *is* defined, then the tracing backend can be switched
 // between ATrace and Perfetto at runtime. This is currently *only* supported in Android framework.
-// SkAndroidFrameworkTraceUtil::setEnableTracing(bool) will still control broad tracing overall, but
-// SkAndroidFrameworkTraceUtil::setUsePerfettoTrackEvents(bool) will now determine whether that
-// tracing is done with ATrace (default/false) or Perfetto (true).
+// SkAndroidFrameworkTraceUtils::SetEnableDetailedTracing(bool) will still control broad tracing
+// overall, but SkAndroidFrameworkTraceUtils::SetUsePerfettoTrackEvents(bool) will now determine
+// whether that tracing is done with ATrace (default/false) or Perfetto (true).
 //
-// Note: if setUsePerfettoTrackEvents(true) is called, then Perfetto will remain initialized until
+// Note: if SetUsePerfettoTrackEvents(true) is called, then Perfetto will remain initialized until
 // the process ends. This means some minimal state overhead will remain even after subseqently
 // switching the process back to ATrace, but individual trace events will be correctly routed to
 // whichever system is active in the moment. However, trace events which have begun but have not yet
@@ -146,68 +146,13 @@ PERFETTO_DEFINE_CATEGORIES(
 #endif // SK_ANDROID_FRAMEWORK_USE_PERFETTO
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-
-#ifdef SK_DISABLE_TRACING
-#error SK_DISABLE_TRACING and SK_BUILD_FOR_ANDROID_FRAMEWORK are mutually exclusive.
-#endif // SK_DISABLE_TRACING [&& SK_BUILD_FOR_ANDROID_FRAMEWORK]
+#include "include/android/SkAndroidFrameworkTraceUtils.h"
 
 #define SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE 512
 
-class SkAndroidFrameworkTraceUtil {
-public:
-    SkAndroidFrameworkTraceUtil() = delete;
-
-    // Controls whether broad tracing is enabled. Warning: not thread-safe!
-    //
-    // Some key trace events may still be recorded when this is disabled, if a relevant tracing
-    // session is active.
-    //
-    // ATrace is used by default, but can be replaced with Perfetto by calling
-    // setUsePerfettoTrackEvents(true)
-    static void setEnableTracing(bool enableAndroidTracing) {
-        gEnableAndroidTracing = enableAndroidTracing;
-    }
-
-    // Controls whether tracing uses Perfetto instead of ATrace. Warning: not thread-safe!
-    //
-    // Returns true if Skia was built with Perfetto, false otherwise.
-    static bool setUsePerfettoTrackEvents(bool usePerfettoTrackEvents) {
-#ifdef SK_ANDROID_FRAMEWORK_USE_PERFETTO
-        // Ensure Perfetto is initialized if it wasn't already the preferred tracing backend.
-        if (!gUsePerfettoTrackEvents && usePerfettoTrackEvents) {
-            initPerfetto();
-        }
-        gUsePerfettoTrackEvents = usePerfettoTrackEvents;
-        return true;
-#else // !SK_ANDROID_FRAMEWORK_USE_PERFETTO
-        return false;
-#endif // SK_ANDROID_FRAMEWORK_USE_PERFETTO
-    }
-
-    static bool getEnableTracing() {
-        return gEnableAndroidTracing;
-    }
-
-    static bool getUsePerfettoTrackEvents() {
-        return gUsePerfettoTrackEvents;
-    }
-
-private:
-    static bool gEnableAndroidTracing;
-    static bool gUsePerfettoTrackEvents;
-
-#ifdef SK_ANDROID_FRAMEWORK_USE_PERFETTO
-    // Initializes tracing systems, and establishes a connection to the 'traced' daemon.
-    //
-    // Can be called multiple times.
-    static void initPerfetto() {
-        ::perfetto::TracingInitArgs perfettoArgs;
-        perfettoArgs.backends |= perfetto::kSystemBackend;
-        ::perfetto::Tracing::Initialize(perfettoArgs);
-        ::skia::TrackEvent::Register();
-    }
-#endif // SK_ANDROID_FRAMEWORK_USE_PERFETTO
-};
+#ifdef SK_DISABLE_TRACING
+#error SK_DISABLE_TRACING and SK_BUILD_FOR_ANDROID_FRAMEWORK are mutually exclusive.
+#endif // SK_DISABLE_TRACING
 #endif // SK_BUILD_FOR_ANDROID_FRAMEWORK
 
 #ifdef SK_DEBUG
@@ -395,9 +340,9 @@ namespace skia_private {
     }
 
 // Assuming there is an active tracing session, this call will create a trace event if tracing is
-// enabled (with SkAndroidFrameworkTraceUtil::setEnableTracing(true)) or if force_always_trace is
-// true. The event goes through ATrace by default, but can be routed to Perfetto instead by calling
-// SkAndroidFrameworkTraceUtil::setUsePerfettoTrackEvents(true).
+// enabled (with SkAndroidFrameworkTraceUtils::SetEnableDetailedTracing(true)) or if
+// force_always_trace is true. The event goes through ATrace by default, but can be routed to
+// Perfetto instead by calling SkAndroidFrameworkTraceUtils::SetUsePerfettoTrackEvents(true).
 //
 // If ATrace is used, then additional sub-events will be created for each trace event argument
 // <name, value> pair (up to a max of two argument pairs). If Perfetto is used, then any arguments
@@ -408,68 +353,70 @@ namespace skia_private {
 // If force_always_trace = true, then the caller *must* append the ".always" suffix to the provided
 // category. This allows Perfetto tracing sessions to optionally filter to just the "skia.always"
 // category tag. This requirement is enforced at compile time.
-#define TRACE_EVENT_ATRACE_OR_PERFETTO_FORCEABLE(force_always_trace, category, name, ...)       \
-    struct SK_PERFETTO_UID(ScopedEvent) {                                                       \
-        struct EventFinalizer {                                                                 \
-            /* The ... parameter slot is an implementation detail. It allows the */             \
-            /* anonymous struct to use aggregate initialization to invoke the    */             \
-            /* lambda (which emits the BEGIN event and returns an integer)       */             \
-            /* with the proper reference capture for any                         */             \
-            /* TrackEventArgumentFunction in |__VA_ARGS__|. This is required so  */             \
-            /* that the scoped event is exactly ONE line and can't escape the    */             \
-            /* scope if used in a single line if statement.                      */             \
-            EventFinalizer(...) {}                                                              \
-            ~EventFinalizer() {                                                                 \
-                if (force_always_trace ||                                                       \
-                        CC_UNLIKELY(SkAndroidFrameworkTraceUtil::getEnableTracing())) {         \
-                    if (SkAndroidFrameworkTraceUtil::getUsePerfettoTrackEvents()) {             \
-                        TRACE_EVENT_END(category);                                              \
-                    } else {                                                                    \
-                        SK_INTERNAL_ATRACE_ARGS_END(__VA_ARGS__);                               \
-                    }                                                                           \
-                }                                                                               \
-            }                                                                                   \
-                                                                                                \
-            EventFinalizer(const EventFinalizer&) = delete;                                     \
-            EventFinalizer& operator=(const EventFinalizer&) = delete;                          \
-                                                                                                \
-            EventFinalizer(EventFinalizer&&) = default;                                         \
-            EventFinalizer& operator=(EventFinalizer&&) = delete;                               \
-        } finalizer;                                                                            \
-    } SK_PERFETTO_UID(scoped_event) {                                                           \
-        [&]() {                                                                                 \
-            static_assert(!force_always_trace ||                                                \
-                        ::skia_private::StrEndsWithAndLongerThan(category, ".always"),          \
-                    "[force_always_trace == true] requires [category] to end in '.always'");    \
-            if (force_always_trace ||                                                           \
-                    CC_UNLIKELY(SkAndroidFrameworkTraceUtil::getEnableTracing())) {             \
-                if (SkAndroidFrameworkTraceUtil::getUsePerfettoTrackEvents()) {                 \
-                    TRACE_EVENT_BEGIN(category, name, ##__VA_ARGS__);                           \
-                } else {                                                                        \
-                    SK_INTERNAL_ATRACE_ARGS_BEGIN(name, ##__VA_ARGS__);                         \
-                }                                                                               \
-            }                                                                                   \
-            return 0;                                                                           \
-        }()                                                                                     \
+#define TRACE_EVENT_ATRACE_OR_PERFETTO_FORCEABLE(force_always_trace, category, name, ...)          \
+    struct SK_PERFETTO_UID(ScopedEvent) {                                                          \
+        struct EventFinalizer {                                                                    \
+            /* The ... parameter slot is an implementation detail. It allows the */                \
+            /* anonymous struct to use aggregate initialization to invoke the    */                \
+            /* lambda (which emits the BEGIN event and returns an integer)       */                \
+            /* with the proper reference capture for any                         */                \
+            /* TrackEventArgumentFunction in |__VA_ARGS__|. This is required so  */                \
+            /* that the scoped event is exactly ONE line and can't escape the    */                \
+            /* scope if used in a single line if statement.                      */                \
+            EventFinalizer(...) {}                                                                 \
+            ~EventFinalizer() {                                                                    \
+                if (force_always_trace ||                                                          \
+                    CC_UNLIKELY(SkAndroidFrameworkTraceUtils::GetEnableDetailedTracing())) {       \
+                    if (SkAndroidFrameworkTraceUtils::GetUsePerfettoTrackEvents()) {               \
+                        TRACE_EVENT_END(category);                                                 \
+                    } else {                                                                       \
+                        SK_INTERNAL_ATRACE_ARGS_END(__VA_ARGS__);                                  \
+                    }                                                                              \
+                }                                                                                  \
+            }                                                                                      \
+                                                                                                   \
+            EventFinalizer(const EventFinalizer&) = delete;                                        \
+            EventFinalizer& operator=(const EventFinalizer&) = delete;                             \
+                                                                                                   \
+            EventFinalizer(EventFinalizer&&) = default;                                            \
+            EventFinalizer& operator=(EventFinalizer&&) = delete;                                  \
+        } finalizer;                                                                               \
+    } SK_PERFETTO_UID(scoped_event) {                                                              \
+        [&]() {                                                                                    \
+            static_assert(!force_always_trace ||                                                   \
+                                  ::skia_private::StrEndsWithAndLongerThan(category, ".always"),   \
+                          "[force_always_trace == true] requires [category] to end in '.always'"); \
+            if (force_always_trace ||                                                              \
+                CC_UNLIKELY(SkAndroidFrameworkTraceUtils::GetEnableDetailedTracing())) {           \
+                if (SkAndroidFrameworkTraceUtils::GetUsePerfettoTrackEvents()) {                   \
+                    TRACE_EVENT_BEGIN(category, name, ##__VA_ARGS__);                              \
+                } else {                                                                           \
+                    SK_INTERNAL_ATRACE_ARGS_BEGIN(name, ##__VA_ARGS__);                            \
+                }                                                                                  \
+            }                                                                                      \
+            return 0;                                                                              \
+        }()                                                                                        \
     }
 
 // Records an event with the current tracing backend if overall tracing is enabled, and Skia's
-// "broad" tracing is enabled with SkAndroidFrameworkTraceUtil::setEnableTracing(true).
+// "broad" tracing is enabled with SkAndroidFrameworkTraceUtils::SetEnableDetailedTracing(true).
 #define TRACE_EVENT_ATRACE_OR_PERFETTO(category, name, ...)                     \
     TRACE_EVENT_ATRACE_OR_PERFETTO_FORCEABLE(                                   \
             /* force_always_trace = */ false, category, name, ##__VA_ARGS__)
 
 // Traces a formatted string if overall tracing is enabled, and Skia's "broad" tracing is enabled
-// with SkAndroidFrameworkTraceUtil::setEnableTracing(true).
+// with SkAndroidFrameworkTraceUtils::SetEnableDetailedTracing(true).
 // No-op outside of Android framework builds.
 // WARNING: this macro expands to a multi-line statement, and must not be used in a single line
 // control statement!
-#define ATRACE_ANDROID_FRAMEWORK(fmt, ...)                                                  \
-    char SK_PERFETTO_UID(skTraceStrBuf)[SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE];           \
-    if (SkAndroidFrameworkTraceUtil::getEnableTracing()) {                                  \
-        snprintf(SK_PERFETTO_UID(skTraceStrBuf), SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE,   \
-                 fmt, ##__VA_ARGS__);                                                       \
-    }                                                                                       \
+#define ATRACE_ANDROID_FRAMEWORK(fmt, ...)                                        \
+    char SK_PERFETTO_UID(skTraceStrBuf)[SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE]; \
+    if (SkAndroidFrameworkTraceUtils::GetEnableDetailedTracing()) {               \
+        snprintf(SK_PERFETTO_UID(skTraceStrBuf),                                  \
+                 SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE,                         \
+                 fmt,                                                             \
+                 ##__VA_ARGS__);                                                  \
+    }                                                                             \
     TRACE_EVENT0("skia.android", TRACE_STR_COPY(SK_PERFETTO_UID(skTraceStrBuf)))
 
 // Traces a formatted string as long as overall tracing is enabled, even if Skia's "broad" tracing
@@ -485,7 +432,7 @@ namespace skia_private {
 
 // Records a pair of begin and end events called "name" (with 0-2 associated arguments) for the
 // current scope as long as overall tracing is enabled, and Skia's "broad" tracing is enabled with
-// SkAndroidFrameworkTraceUtil::setEnableTracing(true).
+// SkAndroidFrameworkTraceUtils::SetEnableDetailedTracing(true).
 // Note that ATrace does not natively support trace arguments, so arguments are recorded as separate
 // sub-events when ATrace is set as the current tracing backend. The Perfetto tracing backend
 // associates any arguments with a single event / slice.
@@ -554,19 +501,19 @@ namespace skia_private {
 
 // Records the value of a counter called "name" immediately. Value
 // must be representable as a 32 bit integer.
-#define TRACE_COUNTER1(category_group, name, value)                     \
-    if (CC_UNLIKELY(SkAndroidFrameworkTraceUtil::getEnableTracing())) { \
-        if (SkAndroidFrameworkTraceUtil::getUsePerfettoTrackEvents()) { \
-            TRACE_COUNTER(category_group, name, value);                 \
-        } else {                                                        \
-            ATRACE_INT(name, value);                                    \
-        }                                                               \
+#define TRACE_COUNTER1(category_group, name, value)                              \
+    if (CC_UNLIKELY(SkAndroidFrameworkTraceUtils::GetEnableDetailedTracing())) { \
+        if (SkAndroidFrameworkTraceUtils::GetUsePerfettoTrackEvents()) {         \
+            TRACE_COUNTER(category_group, name, value);                          \
+        } else {                                                                 \
+            ATRACE_INT(name, value);                                             \
+        }                                                                        \
     }
-#define TRACE_COUNTER1_ALWAYS(category_group, name, value)          \
-    if (SkAndroidFrameworkTraceUtil::getUsePerfettoTrackEvents()) { \
-        TRACE_COUNTER(category_group ".always", name, value);       \
-    } else {                                                        \
-        ATRACE_INT(name, value);                                    \
+#define TRACE_COUNTER1_ALWAYS(category_group, name, value)           \
+    if (SkAndroidFrameworkTraceUtils::GetUsePerfettoTrackEvents()) { \
+        TRACE_COUNTER(category_group ".always", name, value);        \
+    } else {                                                         \
+        ATRACE_INT(name, value);                                     \
     }
 
 // ATrace has no object tracking, and would require a legacy shim for Perfetto (which likely no-ops
@@ -580,12 +527,12 @@ namespace skia_private {
 
 // Macro to efficiently determine if a given category group is enabled. Only works with Perfetto.
 // This is only used for some shader text logging that isn't supported in ATrace anyway.
-#define TRACE_EVENT_CATEGORY_GROUP_ENABLED(category_group, ret)                     \
-    if (CC_UNLIKELY(SkAndroidFrameworkTraceUtil::getEnableTracing() &&              \
-                    SkAndroidFrameworkTraceUtil::getUsePerfettoTrackEvents)) {      \
-        *ret = TRACE_EVENT_CATEGORY_ENABLED(category_group);                        \
-    } else {                                                                        \
-        *ret = false;                                                               \
+#define TRACE_EVENT_CATEGORY_GROUP_ENABLED(category_group, ret)                 \
+    if (CC_UNLIKELY(SkAndroidFrameworkTraceUtils::GetEnableDetailedTracing() && \
+                    SkAndroidFrameworkTraceUtils::GetUsePerfettoTrackEvents)) { \
+        *ret = TRACE_EVENT_CATEGORY_ENABLED(category_group);                    \
+    } else {                                                                    \
+        *ret = false;                                                           \
     }
 
 #else // Route through SkEventTracer (!SK_DISABLE_TRACING && !SK_ANDROID_FRAMEWORK_USE_PERFETTO)
