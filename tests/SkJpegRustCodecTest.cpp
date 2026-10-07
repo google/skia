@@ -568,6 +568,42 @@ DEF_TEST(RustJpegCodec_incomplete_input, r) {
     (void)decodeResult;
 }
 
+DEF_TEST(RustJpegCodec_short_input_classification, r) {
+    const auto decode = [](sk_sp<SkData> data, SkCodec::Result* result) {
+        return SkJpegRustDecoder::Decode(SkMemoryStream::Make(std::move(data)), result);
+    };
+
+    SkCodec::Result result;
+    std::unique_ptr<SkCodec> codec = decode(SkData::MakeEmpty(), &result);
+    REPORTER_ASSERT(r, !codec);
+    REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
+
+    constexpr uint8_t kPartialSignature[] = {0xFF};
+    codec = decode(SkData::MakeWithCopy(kPartialSignature, sizeof(kPartialSignature)), &result);
+    REPORTER_ASSERT(r, !codec);
+    REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
+
+    constexpr uint8_t kInvalidSignature[] = {0x00};
+    codec = decode(SkData::MakeWithCopy(kInvalidSignature, sizeof(kInvalidSignature)), &result);
+    REPORTER_ASSERT(r, !codec);
+    REPORTER_ASSERT(r, result == SkCodec::kErrorInInput);
+
+    constexpr uint8_t kStartOfImage[] = {0xFF, 0xD8};
+    codec = decode(SkData::MakeWithCopy(kStartOfImage, sizeof(kStartOfImage)), &result);
+    REPORTER_ASSERT(r, !codec);
+    REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
+
+    sk_sp<SkData> data = GetResourceAsData("images/color_wheel.jpg");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+
+    codec = decode(std::move(data), &result);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    REPORTER_ASSERT(r, codec);
+}
+
 DEF_TEST(RustJpegCodec_reject_non_jpeg, r) {
     sk_sp<SkData> data = GetResourceAsData("images/color_wheel.png");
     if (!data) {
