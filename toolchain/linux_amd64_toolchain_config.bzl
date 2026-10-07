@@ -297,6 +297,24 @@ def _make_default_flags(external_toolchain):
                 cpp20_flags,
             ],
         ),
+        # Bazel automatically enables the "opt" feature when --compilation_mode=opt is set.
+        feature(
+            name = "opt",
+            enabled = False,
+            flag_sets = [
+                flag_set(
+                    actions = [
+                        ACTION_NAMES.c_compile,
+                        ACTION_NAMES.cpp_compile,
+                    ],
+                    flag_groups = [
+                        flag_group(
+                            flags = ["-DNDEBUG"],
+                        ),
+                    ],
+                ),
+            ],
+        ),
     ]
 
 def _make_diagnostic_flags():

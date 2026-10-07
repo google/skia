@@ -376,16 +376,38 @@ def _make_default_flags():
         ],
     )
 
-    return [feature(
-        "default_flags",
-        enabled = True,
-        flag_sets = [
-            cpp_compile_flags,
-            cxx_compile_includes,
-            link_exe_flags,
-            objc_compile_flags,
-        ],
-    )]
+    return [
+        feature(
+            "default_flags",
+            enabled = True,
+            flag_sets = [
+                cpp_compile_flags,
+                cxx_compile_includes,
+                link_exe_flags,
+                objc_compile_flags,
+            ],
+        ),
+        # Bazel automatically enables the "opt" feature when --compilation_mode=opt is set.
+        feature(
+            "opt",
+            enabled = False,
+            flag_sets = [
+                flag_set(
+                    actions = [
+                        ACTION_NAMES.c_compile,
+                        ACTION_NAMES.cpp_compile,
+                        ACTION_NAMES.objc_compile,
+                        ACTION_NAMES.objcpp_compile,
+                    ],
+                    flag_groups = [
+                        flag_group(
+                            flags = ["-DNDEBUG"],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ]
 
 def _make_diagnostic_flags():
     """Here we define the flags that can be turned on via features to yield debug info."""

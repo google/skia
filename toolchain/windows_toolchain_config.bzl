@@ -409,16 +409,36 @@ def _make_default_flags(clang_toolchain):
             ),
         ],
     )
-    return [feature(
-        "default_flags",
-        enabled = True,
-        flag_sets = [
-            cxx_compile_includes,
-            cpp_compile_flags,
-            link_exe_flags_cpp,
-            link_exe_flags_rust,
-        ],
-    )]
+    return [
+        feature(
+            "default_flags",
+            enabled = True,
+            flag_sets = [
+                cxx_compile_includes,
+                cpp_compile_flags,
+                link_exe_flags_cpp,
+                link_exe_flags_rust,
+            ],
+        ),
+        # Bazel automatically enables the "opt" feature when --compilation_mode=opt is set.
+        feature(
+            "opt",
+            enabled = False,
+            flag_sets = [
+                flag_set(
+                    actions = [
+                        ACTION_NAMES.c_compile,
+                        ACTION_NAMES.cpp_compile,
+                    ],
+                    flag_groups = [
+                        flag_group(
+                            flags = ["-DNDEBUG"],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ]
 
 def _make_diagnostic_flags():
     """Here we define the flags that can be turned on via features to yield debug info."""

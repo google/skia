@@ -73,11 +73,6 @@ load(
     "WIRE_SRCS",
 )
 
-config_setting(
-    name = "debug_build",
-    values = {"compilation_mode": "dbg"},
-)
-
 # These are hardcoded to avoid the complexity of linking in the gl xml inputs used by the generator.
 NATIVE_OPENGL_AUTOGEN_SRCS = [
     "src/dawn/native/opengl/OpenGLFunctionsBase_autogen.cpp",
@@ -271,11 +266,6 @@ genrule(
 
 #### Dawn and Tint Configuration
 
-DAWN_DEBUG_DEFINES = select({
-    ":debug_build": ["DAWN_ENABLE_ASSERTS"],
-    "//conditions:default": [],
-})
-
 TINT_WGSL_DEFINES = [
     "TINT_BUILD_WGSL_READER=1",
     "TINT_BUILD_WGSL_WRITER=1",
@@ -361,7 +351,6 @@ cc_library(
     srcs = COMMON_WIN32_SRCS,
     hdrs = COMMON_WIN32_PRIV_HDRS,
     copts = DAWN_COPTS,
-    defines = DAWN_DEBUG_DEFINES,
     deps = [
         ":dawn_common_headers",
     ],
@@ -371,7 +360,6 @@ cc_library(
     name = "dawn_common",
     srcs = COMMON_SRCS + GPU_INFO_AUTOGEN_SRCS,
     copts = DAWN_COPTS,
-    defines = DAWN_DEBUG_DEFINES,
     deps = [
         ":dawn_common_headers",
     ] + select({
@@ -386,7 +374,6 @@ objc_library(
     name = "dawn_common_objc",
     srcs = COMMON_APPLE_SRCS + COMMON_APPLE_PRIV_HDRS,
     copts = DAWN_COPTS,
-    defines = DAWN_DEBUG_DEFINES,
     sdk_frameworks = [
         "CoreFoundation",
         "IOKit",
