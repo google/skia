@@ -18,7 +18,6 @@
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/precompile/PaintOptions.h"
 #include "include/gpu/graphite/precompile/Precompile.h"
-#include "src/core/SkExecutors.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "tools/graphite/GraphiteTestContext.h"
 #include "tools/graphite/TestOptions.h"
@@ -77,9 +76,9 @@ void run_test(skiatest::Reporter* reporter, GraphiteTestContext* testContext,
     std::unique_ptr<SkExecutor> executor;
     if (allowThreads) {
         // Ensure the threaded PipelineManager will be used
-        executor = SkExecutors::MakeMultiListFIFOThreadPool(/* numWorkLists= */ 2,
-                                                            /* threads= */ 1,
-                                                            /* allowBorrowing= */ false);
+        executor = SkExecutor::MakeMultiListFIFOThreadPool(/* numWorkLists= */ 2,
+                                                           /* threads= */ 1,
+                                                           /* allowBorrowing= */ false);
     }
 
     TestOptions newOptions(origOptions);

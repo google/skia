@@ -101,17 +101,17 @@ void priority_test(skiatest::Reporter* reporter, std::unique_ptr<SkExecutor> exe
 }
 
 std::unique_ptr<SkExecutor> make_2x_FIFO() {
-    return SkExecutors::MakeMultiListFIFOThreadPool(
+    return SkExecutor::MakeMultiListFIFOThreadPool(
         kNumWorkLists, kNumThreads, /* allowBorrowing= */ false);
 }
 
 std::unique_ptr<SkExecutor> make_2x_LIFO() {
-    return SkExecutors::MakeMultiListLIFOThreadPool(
+    return SkExecutor::MakeMultiListLIFOThreadPool(
         kNumWorkLists, kNumThreads, /* allowBorrowing= */ false);
 }
 
 std::unique_ptr<SkExecutor> make_1x_FIFO() {
-    return SkExecutors::MakeFIFOThreadPool(kNumThreads, /* allowBorrowing= */ false);
+    return SkExecutor::MakeFIFOThreadPool(kNumThreads, /* allowBorrowing= */ false);
 }
 
 } // anonymous namespace

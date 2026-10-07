@@ -340,8 +340,6 @@ skia_core_sources = [
   "$_src/core/SkEndian.h",
   "$_src/core/SkEnumerate.h",
   "$_src/core/SkExecutor.cpp",
-  "$_src/core/SkExecutors.cpp",
-  "$_src/core/SkExecutors.h",
   "$_src/core/SkFDot6.h",
   "$_src/core/SkFixedArray.h",
   "$_src/core/SkFlattenable.cpp",

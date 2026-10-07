@@ -1821,8 +1821,8 @@ Result GaneshPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStrea
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& ctxOptions)
         : INHERITED(config, ctxOptions)
-        , fRecordingExecutor(SkExecutors::MakeLIFOThreadPool(1))
-        , fGPUExecutor(SkExecutors::MakeFIFOThreadPool(1, /* allowBorrowing= */ false)) {
+        , fRecordingExecutor(SkExecutor::MakeLIFOThreadPool(1))
+        , fGPUExecutor(SkExecutor::MakeFIFOThreadPool(1, false)) {
 }
 
 Result GPUDDLSink::ddlDraw(const Src& src,

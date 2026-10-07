@@ -40,9 +40,9 @@
 #include "include/private/SkMacros.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkExecutors.h"
 #include "src/core/SkLeanWindows.h"
 #include "src/core/SkOSFile.h"
+#include "src/core/SkTaskGroup.h"
 #include "src/core/SkTime.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/utils/SkJSONWriter.h"
@@ -1428,7 +1428,7 @@ int main(int argc, char** argv) {
     SkCodecs::Register(SkJpegDecoder::Decoder());
 #endif
 
-    SkExecutors::Enabler enabled(FLAGS_threads);
+    SkTaskGroup::Enabler enabled(FLAGS_threads);
 
     CommonFlags::SetCtxOptions(&grContextOpts);
 

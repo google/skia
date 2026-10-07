@@ -32,7 +32,6 @@
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"
 #include "modules/skshaper/utils/FactoryHelpers.h"
-#include "src/core/SkExecutors.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/utils/SkOSPath.h"
@@ -590,7 +589,7 @@ int main(int argc, char** argv) {
     std::vector<double> frames_ms(frame_count);
 
     const auto thread_count = FLAGS_gpu ? 0 : FLAGS_threads - 1;
-    SkExecutors::Enabler enabler(thread_count);
+    SkTaskGroup::Enabler enabler(thread_count);
 
     SkTaskGroup tg;
     {
@@ -605,7 +604,7 @@ int main(int argc, char** argv) {
 
         for (int frame = 0; frame < frame_count; ++frame) {
             tg.add([&, frame]() {
-                // SkExecutors::Enabler creates a LIFO work pool,
+                // SkTaskGroup::Enabler creates a LIFO work pool,
                 // but we want our early frames to start first.
                 int i = frame_count - 1 - frame;
 

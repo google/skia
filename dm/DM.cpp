@@ -18,7 +18,6 @@
 #include "src/core/SkChecksum.h"
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkExecutors.h"
 #include "src/core/SkHalf.h"
 #include "src/core/SkLeanWindows.h"
 #include "src/core/SkMD5.h"
@@ -1693,7 +1692,7 @@ int main(int argc, char** argv) {
 #if defined(SK_ENABLE_SVG)
     SkGraphics::SetOpenTypeSVGDecoderFactory(SkSVGOpenTypeSVGDecoder::Make);
 #endif
-    SkExecutors::Enabler enabled(FLAGS_threads);
+    SkTaskGroup::Enabler enabled(FLAGS_threads);
     CodecUtils::RegisterAllAvailable();
     ToolUtils::RegisterAvailableTypefaceFactories();
 

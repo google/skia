@@ -300,10 +300,9 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext,
     std::unique_ptr<SkExecutor> recordingThreadPool;
     std::unique_ptr<SkTaskGroup> recordingTaskGroup;
     if (!FLAGS_comparableDDL && !FLAGS_comparableSKP) {
-        gpuThread = SkExecutors::MakeFIFOThreadPool(1, /* allowBorrowing= */ false);
+        gpuThread = SkExecutor::MakeFIFOThreadPool(1, false);
         gpuTaskGroup = std::make_unique<SkTaskGroup>(*gpuThread);
-        recordingThreadPool = SkExecutors::MakeFIFOThreadPool(FLAGS_ddlNumRecordingThreads,
-                                                              /* allowBorrowing= */ false);
+        recordingThreadPool = SkExecutor::MakeFIFOThreadPool(FLAGS_ddlNumRecordingThreads, false);
         recordingTaskGroup = std::make_unique<SkTaskGroup>(*recordingThreadPool);
         testContext->makeNotCurrent();
         gpuTaskGroup->add([=]{ testContext->makeCurrent(); });
