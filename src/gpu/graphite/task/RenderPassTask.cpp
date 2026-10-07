@@ -293,7 +293,11 @@ Task::Status RenderPassTask::addCommands(Context* context,
 bool RenderPassTask::visitPipelines(const std::function<bool(const GraphicsPipeline*)>& visitor) {
     for (const std::unique_ptr<DrawPass>& pass : fDrawPasses) {
         for (const GraphicsPipelineHandle& pipelineHandle : pass->pipelineHandles()) {
-            if (!visitor(pipelineHandle.pipelineOrNull().get())) {
+            sk_sp<GraphicsPipeline> pipeline = pipelineHandle.pipelineOrNull();
+            if (!pipeline) {
+                return false;
+            }
+            if (!visitor(pipeline.get())) {
                 return false;
             }
         }
