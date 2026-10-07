@@ -1012,7 +1012,8 @@ pub fn encode_jpeg(
     let quality = quality.min(100).max(1) as u8;
 
     let mut buf: Vec<u8> = Vec::new();
-    let encoder = jpeg_encoder::Encoder::new(&mut buf, quality);
+    let mut encoder = jpeg_encoder::Encoder::new(&mut buf, quality);
+    encoder.set_optimized_huffman_tables(true);
 
     match encoder.encode(&rgb_data, w16, h16, jpeg_color) {
         Ok(()) => {
@@ -1060,6 +1061,33 @@ mod tests {
         );
         assert_eq!(result, EncodingResult::Success);
         assert!(is_jpeg_data(&output));
+    }
+
+    #[test]
+    fn test_encode_jpeg_uses_optimized_huffman_tables() {
+        let pixels = [0, 255, 0].repeat(100 * 100);
+
+        let mut output = Vec::new();
+        assert_eq!(
+            encode_jpeg(
+                &pixels,
+                100,
+                100,
+                100 * 3,
+                JpegEncodeColor::RGB,
+                JpegEncodeAlpha::Ignore,
+                30,
+                &mut output,
+            ),
+            EncodingResult::Success
+        );
+
+        let mut default_output = Vec::new();
+        jpeg_encoder::Encoder::new(&mut default_output, 30)
+            .encode(&pixels, 100, 100, jpeg_encoder::ColorType::Rgb)
+            .unwrap();
+
+        assert!(output.len() < default_output.len());
     }
 
     #[test]
