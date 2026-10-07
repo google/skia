@@ -26,6 +26,13 @@
 
 #include <android/hardware_buffer.h>
 
+#if __has_include(<vndk/hardware_buffer.h>)
+    // When building for the Android framework, there are formats defined outside of those publicly
+    // available in android/hardware_buffer.h.
+    #include <vndk/hardware_buffer.h>
+    #define HAS_AHB_BGRA8_UNORM
+#endif
+
 #define VK_CALL(X) gpu->vkInterface()->fFunctions.f##X
 
 namespace GrAHardwareBufferUtils {
@@ -73,6 +80,12 @@ GrBackendFormat GetVulkanBackendFormat(GrDirectContext* dContext, AHardwareBuffe
 #if __ANDROID_API__ >= 33
         case AHARDWAREBUFFER_FORMAT_R8_UNORM: {
             bufferVkFormat = VK_FORMAT_R8_UNORM;
+            break;
+        }
+#endif
+#ifdef HAS_AHB_BGRA8_UNORM
+        case AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM: {
+            bufferVkFormat = VK_FORMAT_B8G8R8A8_UNORM;
             break;
         }
 #endif
