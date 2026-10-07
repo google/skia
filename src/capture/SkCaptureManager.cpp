@@ -48,24 +48,32 @@ void SkCaptureManager::deregisterCaptureCanvas(SkCanvas* canvas) {
 }
 
 sk_sp<SkPicture> SkCaptureManager::snapAndIncrement(SkCaptureCanvas* canvas) {
-    auto picture = canvas->snapPicture();
-    if (picture) {
-        if (auto storage = asSB(canvas->getBaseCanvasSurface())->getPixelStorage()) {
-            storage->incrementContentId();
-        }
-    }
+    sk_sp<SkPicture> picture = canvas->snapPicture();
+    if (!picture) return nullptr;
+
+    SkSurface* surface = canvas->getBaseCanvasSurface();
+    if (!surface) return picture;
+
+    sk_sp<SkPixelStorage> storage = asSB(surface)->getPixelStorage();
+    if (!storage) return picture;
+
+    storage->incrementContentId();
     return picture;
 }
 
 void SkCaptureManager::captureUninsertedDrawTasks() {
+    skia_private::TArray<sk_sp<SkPicture>> uninserted;
     for (auto& canvas : fTrackedCanvases) {
-        if (canvas) {
-            auto picture = this->snapAndIncrement(canvas.get());
-            if (picture && fActiveCapture) {
-                fActiveCapture->addAsset(std::move(picture));
-            }
-        }
+        if (!canvas) continue;
+        sk_sp<SkPicture> picture = this->snapAndIncrement(canvas.get());
+
+        if (!picture) continue;
+        uninserted.push_back(std::move(picture));
     }
+
+    if (uninserted.empty()) return;
+
+    this->onInsertRecording(uninserted);
 }
 
 // TODO: make thread safe by using exchange() and a mutex.
