@@ -487,7 +487,7 @@ static sk_app::Window::BackendType get_backend_type(const char* str) {
     } else
 #endif
 
-#if defined(SK_VULKAN)
+#if defined(SK_VULKAN) && !defined(SK_BUILD_FOR_MAC)
 #   if defined(SK_GANESH)
     if (0 == strcmp(str, "vk")) {
         return sk_app::Window::BackendType::kVulkan;
@@ -620,7 +620,7 @@ static const Window::BackendType kSupportedBackends[] = {
 #endif
 #endif
 
-#if defined(SK_VULKAN)
+#if defined(SK_VULKAN) && !defined(SK_BUILD_FOR_MAC)
 #   if defined(SK_GANESH)
         sk_app::Window::BackendType::kVulkan,
 #   endif
