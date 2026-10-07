@@ -2215,6 +2215,15 @@ static void add_image_to_key(const KeyContext& keyContext,
     auto view = AsView(imageToDraw.get());
     SkASSERT(newSampling.mipmap == SkMipmapMode::kNone || view.mipmapped() == Mipmapped::kYes);
 
+    if (view.origin() == Origin::kBottomLeft) {
+        // The origin flip is folded into the local matrix (see get_image_origin_matrix()), so
+        // sample coords reaching the image shader are texture-space (y' = H - y). The subset is
+        // clamped in that same space, so it must be flipped too.
+        const float top = subset.fTop;
+        subset.fTop = view.height() - subset.fBottom;
+        subset.fBottom = view.height() - top;
+    }
+
     ImageShaderBlock::ImageData imgData(newSampling,
                                         tileModeX,
                                         tileModeY,
