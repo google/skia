@@ -123,33 +123,3 @@ selects.config_setting_group(
     ],
     visibility = ["//:__subpackages__"],
 )
-
-# Matches when building with one of Skia's hermetic toolchains whose Clang (20+) supports
-# --warning-suppression-mappings, i.e. Mac and Windows. Those toolchains enable
-# -Wunsafe-buffer-usage themselves (see //toolchain/mac_toolchain_config.bzl and
-# //toolchain/windows_toolchain_config.bzl), so copts must not suppress it.
-# TODO(b/532990050): Add Linux once its hermetic Clang is upgraded to 20+.
-selects.config_setting_group(
-    name = "enforces_unsafe_buffer_usage",
-    match_any = [
-        ":hermetic_mac",
-        ":hermetic_windows",
-    ],
-    visibility = ["//:__subpackages__"],
-)
-
-config_setting(
-    name = "hermetic_mac",
-    constraint_values = [
-        "@platforms//os:macos",
-        "//bazel/platform:use_hermetic_toolchain",
-    ],
-)
-
-config_setting(
-    name = "hermetic_windows",
-    constraint_values = [
-        "@platforms//os:windows",
-        "//bazel/platform:use_hermetic_toolchain",
-    ],
-)

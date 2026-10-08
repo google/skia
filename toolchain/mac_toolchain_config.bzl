@@ -47,7 +47,6 @@ def _mac_toolchain_info(ctx):
     features += make_layering_check_features()
     features += _make_diagnostic_flags()
     features += _make_target_specific_flags(ctx)
-    features += _make_unsafe_buffer_usage_flags(ctx.file.unsafe_buffers_mappings.path)
 
     # https://bazel.build/rules/lib/cc_common#create_cc_toolchain_config_info
     # Note, this rule is defined in Java code, not Starlark
@@ -96,9 +95,6 @@ def _import_platform_constraints():
     )
     rule_attributes["clang_mac"] = attr.label(
         default = "@clang_mac//:compile_files",
-    )
-    rule_attributes["unsafe_buffers_mappings"] = attr.label(
-        default = "//tools/unsafe_buffers:unsafe_buffers_mappings.txt",
     )
     return rule_attributes
 
@@ -525,42 +521,3 @@ def _make_target_specific_flags(ctx):
         )
 
     return target_specific_features
-
-# Enforces -Wunsafe-buffer-usage, except in the paths suppressed by the mappings file. Requires
-# Clang 20+ for --warning-suppression-mappings. //include/config/copts.bzl stops passing
-# -Wno-unsafe-buffer-usage for this toolchain via
-# //bazel/common_config_settings:enforces_unsafe_buffer_usage. The mappings file must be in this
-# toolchain's compiler_files (see //toolchain/BUILD.bazel) so it is available to compile actions.
-# https://clang.llvm.org/docs/WarningSuppressionMappings.html
-def _make_unsafe_buffer_usage_flags(mappings_file):
-    return [
-        feature(
-            "unsafe_buffer_usage",
-            enabled = True,
-            flag_sets = [
-                flag_set(
-                    actions = [
-                        ACTION_NAMES.c_compile,
-                        ACTION_NAMES.cpp_compile,
-                        ACTION_NAMES.objc_compile,
-                        ACTION_NAMES.objcpp_compile,
-                    ],
-                    flag_groups = [
-                        flag_group(
-                            flags = [
-                                "-Wunsafe-buffer-usage",
-                                # TODO(skbug.com/571083401): Remove this warning once Skia's string story is improved
-                                # Temporarily don't flag calls to printf-like (SK_PRINTF_LIKE) functions such as
-                                # SkDebugf, SkStringPrintf, SkLog, and SkSL::String::printf/appendf.
-                                # The warning fires at every call site whose %s arguments aren't provably
-                                # null-terminated, and it cannot be suppressed from within the function or a
-                                # wrapping macro.
-                                "-Wno-unsafe-buffer-usage-in-format-attr-call",
-                                "--warning-suppression-mappings=" + mappings_file,
-                            ],
-                        ),
-                    ],
-                ),
-            ],
-        ),
-    ]

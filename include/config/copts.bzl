@@ -87,6 +87,7 @@ WARNINGS = [
     "-Wno-undefined-func-template",
     "-Wno-unused-parameter",  # It is common to have unused parameters in src/
     "-Wno-zero-as-null-pointer-constant",  # VK_NULL_HANDLE is defined as 0
+    "-Wno-unsafe-buffer-usage",
     #### Warnings we would like to fix ####
     "-Wno-abstract-vbase-init",
     "-Wno-cast-align",
@@ -172,15 +173,6 @@ WARNINGS = [
         "-D_CRT_USE_BUILTIN_OFFSETOF",
     ],
     "//conditions:default": [],
-}) + select({
-    # -Wunsafe-buffer-usage (part of -Weverything) is enforced only by the hermetic Mac and Windows
-    # toolchains, whose Clang (20+) supports the --warning-suppression-mappings file listing the
-    # directories spanified so far. Copts come after toolchain flags, so suppressing it here would
-    # override that. Everywhere else the warning stays off (b/532990050).
-    "//bazel/common_config_settings:enforces_unsafe_buffer_usage": [],
-    "//conditions:default": [
-        "-Wno-unsafe-buffer-usage",
-    ],
 })
 
 DEFAULT_COPTS = CORE_COPTS + OPT_LEVEL + WARNINGS
