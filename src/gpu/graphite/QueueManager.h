@@ -17,17 +17,22 @@
 #include <memory>
 #include <vector>
 
+namespace skgpu {
+class MutableTextureState;
+}
+
 namespace skgpu::graphite {
 
+class BackendTexture;
 class Buffer;
 class CommandBuffer;
 class Context;
 class GpuWorkSubmission;
-struct InsertRecordingInfo;
 class ResourceProvider;
 class SharedContext;
 class Task;
 class UploadBufferManager;
+struct InsertRecordingInfo;
 
 /**
  * QueueManager class manages all our command buffers and making sure they are submitted to the GPU
@@ -62,6 +67,11 @@ public:
     [[nodiscard]] bool addFinishInfo(const InsertFinishInfo&,
                                      ResourceProvider*,
                                      SkSpan<const sk_sp<Buffer>> buffersToAsyncMap = {});
+
+    // Transitions the layout and queue family of the passed in BackendTexture
+    [[nodiscard]] bool prepareBackendTextureForStateUpdate(const BackendTexture&,
+                                                           const skgpu::MutableTextureState*,
+                                                           ResourceProvider*);
 
     [[nodiscard]] bool submitToGpu(const SubmitInfo&);
     [[nodiscard]] bool hasUnfinishedGpuWork();

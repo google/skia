@@ -206,102 +206,34 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
                                                 VkAccessFlags dstAccessMask,
                                                 VkPipelineStageFlags dstStageMask,
                                                 uint32_t newQueueFamilyIndex) const {
-
-    SkASSERT(newLayout == this->currentLayout() ||
-             (VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
-              VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout));
-    VkImageLayout currentLayout = this->currentLayout();
-    uint32_t currentQueueIndex = this->currentQueueFamilyIndex();
-
-    const auto& textureInfo = this->vulkanTextureInfo();
     auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());
+    VkImageLayout currentLayout = this->currentLayout();
 
-    // Enable the following block on new devices to test that their lazy images stay at 0 memory use
-#if 0
-    auto device = sharedContext->device();
-    if (fAlloc.fFlags & skgpu::VulkanAlloc::kLazilyAllocated_Flag) {
-        VkDeviceSize size;
-        VULKAN_CALL(sharedContext->interface(),
-                    GetDeviceMemoryCommitment(device, fAlloc.fMemory, &size));
-        SkDebugf("Lazy Image. This: %p, image: %d, size: %d\n", this, fImage, size);
-    }
-#endif
-#ifdef SK_DEBUG
-    if (textureInfo.fSharingMode == VK_SHARING_MODE_CONCURRENT) {
-        if (newQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) {
-            SkASSERT(currentQueueIndex == VK_QUEUE_FAMILY_IGNORED ||
-                     currentQueueIndex == VK_QUEUE_FAMILY_EXTERNAL ||
-                     currentQueueIndex == VK_QUEUE_FAMILY_FOREIGN_EXT);
-        } else {
-            SkASSERT(newQueueFamilyIndex == VK_QUEUE_FAMILY_EXTERNAL ||
-                     newQueueFamilyIndex == VK_QUEUE_FAMILY_FOREIGN_EXT);
-            SkASSERT(currentQueueIndex == VK_QUEUE_FAMILY_IGNORED);
-        }
-    } else {
-        SkASSERT(textureInfo.fSharingMode == VK_SHARING_MODE_EXCLUSIVE);
-        if (newQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED ||
-            currentQueueIndex == sharedContext->queueIndex()) {
-            SkASSERT(currentQueueIndex == VK_QUEUE_FAMILY_IGNORED ||
-                     currentQueueIndex == VK_QUEUE_FAMILY_EXTERNAL ||
-                     currentQueueIndex == VK_QUEUE_FAMILY_FOREIGN_EXT ||
-                     currentQueueIndex == sharedContext->queueIndex());
-        } else if (newQueueFamilyIndex == VK_QUEUE_FAMILY_EXTERNAL ||
-                   newQueueFamilyIndex == VK_QUEUE_FAMILY_FOREIGN_EXT) {
-            SkASSERT(currentQueueIndex == VK_QUEUE_FAMILY_IGNORED ||
-                     currentQueueIndex == sharedContext->queueIndex());
-        }
-    }
-#endif
-
-    if (textureInfo.fSharingMode == VK_SHARING_MODE_EXCLUSIVE) {
-        if (newQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) {
-            newQueueFamilyIndex = sharedContext->queueIndex();
-        }
-        if (currentQueueIndex == VK_QUEUE_FAMILY_IGNORED) {
-            currentQueueIndex = sharedContext->queueIndex();
-        }
-    }
-
-    // If the old and new layout are the same and the layout is a read only layout, there is no need
-    // to put in a barrier unless we also need to switch queues.
-    if (newLayout == currentLayout && currentQueueIndex == newQueueFamilyIndex &&
-        (VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == currentLayout ||
-         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == currentLayout ||
-         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == currentLayout)) {
+    std::optional<VkImageMemoryBarrier> imageMemoryBarrier =
+            CreateVulkanImageMemoryBarrier(*sharedContext,
+                                           fImage,
+                                           this->vulkanTextureInfo(),
+                                           currentLayout,
+                                           this->currentQueueFamilyIndex(),
+                                           newLayout,
+                                           dstAccessMask,
+                                           newQueueFamilyIndex);
+    if (!imageMemoryBarrier) {
+        // If we don't get a barrier, that means a barrier doesn't need to be issued so we can skip
+        // it. It does not mean creating the barrier failed.
         return;
     }
 
-    VkAccessFlags srcAccessMask =
-            VulkanTexture::LayoutToSrcAccessMask(currentLayout, textureInfo.fImageUsageFlags);
     VkPipelineStageFlags srcStageMask =
-            VulkanTexture::LayoutToPipelineSrcStageFlags(currentLayout,
-                                                         sharedContext->vulkanCaps());
+            VkImageLayoutToPipelineSrcStageFlags(currentLayout,
+                                                 sharedContext->vulkanCaps());
+    cmdBuffer->addImageMemoryBarrier(srcStageMask, dstStageMask, /*byRegion=*/false,
+                                     &imageMemoryBarrier.value());
 
-    VkImageAspectFlags aspectFlags =
-            GetVkImageAspectFlags(TextureInfoPriv::ViewFormat(this->textureInfo()));
-    uint32_t numMipLevels = 1;
-    SkISize dimensions = this->dimensions();
-    if (this->mipmapped() == Mipmapped::kYes) {
-        numMipLevels = SkMipmap::ComputeLevelCount(dimensions) + 1;
-    }
-    VkImageMemoryBarrier imageMemoryBarrier = {
-        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
-        nullptr,                                         // pNext
-        srcAccessMask,                                   // srcAccessMask
-        dstAccessMask,                                   // dstAccessMask
-        currentLayout,                                   // oldLayout
-        newLayout,                                       // newLayout
-        currentQueueIndex,                               // srcQueueFamilyIndex
-        newQueueFamilyIndex,                             // dstQueueFamilyIndex
-        fImage,                                          // image
-        { aspectFlags, 0, numMipLevels, 0, 1 }           // subresourceRange
-    };
-    SkASSERT(srcAccessMask == imageMemoryBarrier.srcAccessMask);
-    cmdBuffer->addImageMemoryBarrier(this, srcStageMask, dstStageMask, /*byRegion=*/false,
-                                     &imageMemoryBarrier);
-
-    skgpu::MutableTextureStates::SetVkImageLayout(this->mutableState(), newLayout);
-    skgpu::MutableTextureStates::SetVkQueueFamilyIndex(this->mutableState(), newQueueFamilyIndex);
+    skgpu::MutableTextureStates::SetVkImageLayout(this->mutableState(),
+                                                  imageMemoryBarrier->newLayout);
+    skgpu::MutableTextureStates::SetVkQueueFamilyIndex(this->mutableState(),
+                                                       imageMemoryBarrier->dstQueueFamilyIndex);
 }
 
 namespace {
@@ -366,61 +298,6 @@ VkImageLayout VulkanTexture::currentLayout() const {
 
 uint32_t VulkanTexture::currentQueueFamilyIndex() const {
     return skgpu::MutableTextureStates::GetVkQueueFamilyIndex(this->mutableState());
-}
-
-VkPipelineStageFlags VulkanTexture::LayoutToPipelineSrcStageFlags(const VkImageLayout layout,
-                                                                  const VulkanCaps& caps) {
-    if (VK_IMAGE_LAYOUT_GENERAL == layout) {
-        return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-    } else if (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == layout ||
-               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL == layout) {
-        return VK_PIPELINE_STAGE_TRANSFER_BIT;
-    } else if (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == layout) {
-        return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    } else if (VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL == layout ||
-               VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == layout) {
-        return VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-    } else if (VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == layout) {
-        return caps.shaderReadOnlySrcStageMask();
-    } else if (VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
-        return VK_PIPELINE_STAGE_HOST_BIT;
-    } else if (VK_IMAGE_LAYOUT_PRESENT_SRC_KHR == layout) {
-        return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    }
-
-    SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED == layout);
-    return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-}
-
-VkAccessFlags VulkanTexture::LayoutToSrcAccessMask(const VkImageLayout layout,
-                                                   VkImageUsageFlags usageFlags) {
-    // We can only directly access the host memory if we are in preinitialized or general layout,
-    // and the image is linear. However, device access to images written by the host happens after
-    // vkQueueSubmit, which implicitly makes host writes _visible_ to the device, i.e.
-    // VK_ACCESS_HOST_WRITE_BIT is unnecessary. Host data is made _available_ to the device via
-    // vkFlushMappedMemoryRanges.
-    VkAccessFlags flags = 0;
-    if (VK_IMAGE_LAYOUT_GENERAL == layout) {
-        flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
-                VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                VK_ACCESS_TRANSFER_WRITE_BIT;
-        if (usageFlags & VK_IMAGE_USAGE_STORAGE_BIT) {
-            flags |= VK_ACCESS_SHADER_WRITE_BIT;
-        }
-    } else if (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == layout) {
-        flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    } else if (VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL == layout) {
-        flags = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-    } else if (VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL == layout) {
-        flags = VK_ACCESS_TRANSFER_WRITE_BIT;
-    } else if (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == layout ||
-               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == layout ||
-               VK_IMAGE_LAYOUT_PRESENT_SRC_KHR == layout ||
-               VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
-        // There are no writes that need to be made available
-        flags = 0;
-    }
-    return flags;
 }
 
 const VulkanImageView* VulkanTexture::getImageView(VulkanImageView::Usage usage) const {

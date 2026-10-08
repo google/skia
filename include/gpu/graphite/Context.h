@@ -29,9 +29,9 @@
 #include <memory>
 #include <vector>
 
+class SkCapture;
 class SkColorInfo;
 class SkSurface;
-class SkCapture;
 enum SkYUVColorSpace : int;
 class SkColorSpace;
 class SkTraceMemoryDump;
@@ -45,6 +45,7 @@ class Recorder;
 namespace skgpu {
 enum class BackendApi : unsigned int;
 enum class GpuStatsFlags : uint32_t;
+class MutableTextureState;
 }
 
 namespace skgpu::graphite {
@@ -53,7 +54,6 @@ class BackendTexture;
 class Buffer;
 class ClientMappedBufferManager;
 class ContextPriv;
-struct ContextOptions;
 class PersistentPipelineStorage;
 class PrecompileContext;
 class QueueManager;
@@ -62,6 +62,7 @@ class SharedContext;
 class TextureFormatXferFn;
 class TextureProxy;
 class TextureProxyView;
+struct ContextOptions;
 
 class SK_API Context final {
 public:
@@ -308,6 +309,12 @@ public:
      * Ends the SkCapture and returns the collected draws and surface creation.
      */
     sk_sp<SkCapture> endCapture();
+
+    /**
+     * Updates the backend texture's mutable state (e.g. Vulkan layout and queue family index)
+     * and records the necessary barriers/transitions on the active command buffer.
+     */
+    bool setMutableState(const BackendTexture& texture, const skgpu::MutableTextureState& state);
 
     // Provides access to functions that aren't part of the public API.
     ContextPriv priv();

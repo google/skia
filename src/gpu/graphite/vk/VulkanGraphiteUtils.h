@@ -16,6 +16,7 @@
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/sksl/codegen/SkSLNativeShader.h"
 
+#include <optional>
 #include <string>
 
 class SkStream;
@@ -72,6 +73,7 @@ class SkWStream;
     } while (false)
 namespace skgpu::graphite {
 
+class VulkanCaps;
 class VulkanSharedContext;
 struct RenderPassDesc;
 enum class TextureFormat : uint8_t;
@@ -79,6 +81,21 @@ enum class TextureFormat : uint8_t;
 VkShaderModule CreateVulkanShaderModule(const VulkanSharedContext*,
                                         const SkSL::NativeShader& spirv,
                                         VkShaderStageFlagBits);
+
+std::optional<VkImageMemoryBarrier> CreateVulkanImageMemoryBarrier(
+        const VulkanSharedContext& sharedContext,
+        VkImage image,
+        const VulkanTextureInfo& textureInfo,
+        VkImageLayout currentLayout,
+        uint32_t currentQueueIndex,
+        VkImageLayout newLayout,
+        VkAccessFlags dstAccessMask,
+        uint32_t newQueueFamilyIndex);
+
+VkPipelineStageFlags VkImageLayoutToPipelineSrcStageFlags(const VkImageLayout layout,
+                                                          const VulkanCaps& caps);
+VkAccessFlags VkImageLayoutToSrcAccessMask(const VkImageLayout layout,
+                                           VkImageUsageFlags usageFlags);
 
 VkDescriptorType DsTypeEnumToVkDs(DescriptorType);
 void DescriptorDataToVkDescSetLayout(const VulkanSharedContext*,

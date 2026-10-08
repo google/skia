@@ -32,6 +32,7 @@
 #include "src/gpu/graphite/vk/VulkanSampler.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/graphite/vk/VulkanTexture.h"
+#include "src/gpu/vk/VulkanMutableTextureStatePriv.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
 using namespace skia_private;
@@ -390,24 +391,27 @@ void VulkanCommandBuffer::addSignalSemaphores(size_t numSignalSemaphores,
     }
 }
 
-void VulkanCommandBuffer::prepareSurfaceForStateUpdate(SkSurface* targetSurface,
-                                                       const MutableTextureState* newState) {
-    TextureProxy* textureProxy = static_cast<Surface*>(targetSurface)->target().proxy();
-    VulkanTexture* texture = static_cast<VulkanTexture*>(textureProxy->texture());
+namespace {
 
+struct ImageStateUpdateInfo {
+    VkImageLayout fNewLayout;
+    VkAccessFlags fDstAccess;
+    VkPipelineStageFlags fDstStage;
+    uint32_t fNewQueueFamilyIndex;
+};
+
+std::optional<ImageStateUpdateInfo> get_state_update_info(const VulkanCaps& caps,
+                                                          VkImageLayout currentLayout,
+                                                          uint32_t currentQueueFamilyIndex,
+                                                          VkImageUsageFlags usageFlags,
+                                                          const MutableTextureState* newState) {
     // Even though internally we use this helper for getting src access flags and stages they
     // can also be used for general dst flags since we don't know exactly what the client
     // plans on using the image for.
     VkImageLayout newLayout = skgpu::MutableTextureStates::GetVkImageLayout(newState);
     if (newLayout == VK_IMAGE_LAYOUT_UNDEFINED) {
-        newLayout = texture->currentLayout();
+        newLayout = currentLayout;
     }
-    VkPipelineStageFlags dstStage =
-            VulkanTexture::LayoutToPipelineSrcStageFlags(newLayout, fSharedContext->vulkanCaps());
-    VkAccessFlags dstAccess = VulkanTexture::LayoutToSrcAccessMask(
-            newLayout, texture->vulkanTextureInfo().fImageUsageFlags);
-
-    uint32_t currentQueueFamilyIndex = texture->currentQueueFamilyIndex();
     uint32_t newQueueFamilyIndex = skgpu::MutableTextureStates::GetVkQueueFamilyIndex(newState);
     auto isSpecialQueue = [](uint32_t queueFamilyIndex) {
         return queueFamilyIndex == VK_QUEUE_FAMILY_EXTERNAL ||
@@ -416,16 +420,81 @@ void VulkanCommandBuffer::prepareSurfaceForStateUpdate(SkSurface* targetSurface,
     if (isSpecialQueue(currentQueueFamilyIndex) && isSpecialQueue(newQueueFamilyIndex)) {
         // It is illegal to have both the new and old queue be special queue families (i.e. external
         // or foreign).
+        return std::nullopt;
+    }
+
+    return ImageStateUpdateInfo{
+            newLayout,
+            VkImageLayoutToSrcAccessMask(newLayout, usageFlags),
+            VkImageLayoutToPipelineSrcStageFlags(newLayout, caps),
+            newQueueFamilyIndex};
+}
+
+} // anonymous namespace
+
+void VulkanCommandBuffer::prepareSurfaceForStateUpdate(SkSurface* targetSurface,
+                                                       const MutableTextureState* newState) {
+    TextureProxy* textureProxy = static_cast<Surface*>(targetSurface)->target().proxy();
+    VulkanTexture* texture = static_cast<VulkanTexture*>(textureProxy->texture());
+
+    std::optional<ImageStateUpdateInfo> update =
+            get_state_update_info(fSharedContext->vulkanCaps(),
+                                  texture->currentLayout(),
+                                  texture->currentQueueFamilyIndex(),
+                                  texture->vulkanTextureInfo().fImageUsageFlags,
+                                  newState);
+    if (!update) {
         return;
     }
 
     this->trackResource(sk_ref_sp(texture));
-
     texture->setImageLayoutAndQueueIndex(this,
-                                         newLayout,
-                                         dstAccess,
-                                         dstStage,
-                                         newQueueFamilyIndex);
+                                         update->fNewLayout,
+                                         update->fDstAccess,
+                                         update->fDstStage,
+                                         update->fNewQueueFamilyIndex);
+}
+
+void VulkanCommandBuffer::prepareBackendTextureForStateUpdate(
+        const BackendTexture& texture,
+        const MutableTextureState* newState) {
+    const auto& vulkanTextureInfo = TextureInfoPriv::Get<VulkanTextureInfo>(texture.info());
+    VkImageLayout currentLayout = BackendTextures::GetVkImageLayout(texture);
+    uint32_t currentQueueIndex = BackendTextures::GetVkQueueFamilyIndex(texture);
+
+    std::optional<ImageStateUpdateInfo> update =
+            get_state_update_info(fSharedContext->vulkanCaps(),
+                                  currentLayout,
+                                  currentQueueIndex,
+                                  vulkanTextureInfo.fImageUsageFlags,
+                                  newState);
+    if (!update) {
+        return;
+    }
+
+    std::optional<VkImageMemoryBarrier> imageMemoryBarrier =
+            CreateVulkanImageMemoryBarrier(*fSharedContext,
+                                           BackendTextures::GetVkImage(texture),
+                                           vulkanTextureInfo,
+                                           currentLayout,
+                                           currentQueueIndex,
+                                           update->fNewLayout,
+                                           update->fDstAccess,
+                                           update->fNewQueueFamilyIndex);
+    if (!imageMemoryBarrier) {
+        return;
+    }
+
+    VkPipelineStageFlags srcStageMask =
+            VkImageLayoutToPipelineSrcStageFlags(currentLayout,
+                                                 fSharedContext->vulkanCaps());
+    this->addImageMemoryBarrier(srcStageMask, update->fDstStage,
+                                /*byRegion=*/false, &imageMemoryBarrier.value());
+
+    MutableTextureState* mutableState = BackendTextures::GetMutableState(texture).get();
+    skgpu::MutableTextureStates::SetVkImageLayout(mutableState, imageMemoryBarrier->newLayout);
+    skgpu::MutableTextureStates::SetVkQueueFamilyIndex(mutableState,
+                                                       imageMemoryBarrier->dstQueueFamilyIndex);
 }
 
 // Requests a sampler. Dynamic samplers live in the global cache, requiring no tracking, but
@@ -1260,8 +1329,7 @@ void VulkanCommandBuffer::addBarrier(BarrierType type) {
             /*dstQueueFamilyIndex=*/VK_QUEUE_FAMILY_IGNORED,
             fTargetTexture->vkImage(),
             /*subresourceRange=*/{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }};
-    this->addImageMemoryBarrier(fTargetTexture,
-                                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+    this->addImageMemoryBarrier(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                                 dstStage,
                                 /*byRegion=*/true,
                                 &imageMemoryBarrier);
@@ -2158,50 +2226,28 @@ bool VulkanCommandBuffer::onClearBuffer(const Buffer* buffer, size_t offset, siz
     return true;
 }
 
-void VulkanCommandBuffer::addBufferMemoryBarrier(const Resource* resource,
-                                                 VkPipelineStageFlags srcStageMask,
-                                                 VkPipelineStageFlags dstStageMask,
-                                                 VkBufferMemoryBarrier* barrier) {
-    SkASSERT(resource);
-    this->pipelineBarrier(resource,
-                          srcStageMask,
-                          dstStageMask,
-                          /*byRegion=*/false,
-                          kBufferMemory_BarrierType,
-                          barrier);
-}
-
 void VulkanCommandBuffer::addBufferMemoryBarrier(VkPipelineStageFlags srcStageMask,
                                                  VkPipelineStageFlags dstStageMask,
                                                  VkBufferMemoryBarrier* barrier) {
-    // We don't pass in a resource here to the command buffer. The command buffer only is using it
-    // to hold a ref, but every place where we add a buffer memory barrier we are doing some other
-    // command with the buffer on the command buffer. Thus those other commands will already cause
-    // the command buffer to be holding a ref to the buffer.
-    this->pipelineBarrier(/*resource=*/nullptr,
-                          srcStageMask,
+    this->pipelineBarrier(srcStageMask,
                           dstStageMask,
                           /*byRegion=*/false,
                           kBufferMemory_BarrierType,
                           barrier);
 }
 
-void VulkanCommandBuffer::addImageMemoryBarrier(const Resource* resource,
-                                                VkPipelineStageFlags srcStageMask,
+void VulkanCommandBuffer::addImageMemoryBarrier(VkPipelineStageFlags srcStageMask,
                                                 VkPipelineStageFlags dstStageMask,
                                                 bool byRegion,
                                                 VkImageMemoryBarrier* barrier) {
-    SkASSERT(resource);
-    this->pipelineBarrier(resource,
-                          srcStageMask,
+    this->pipelineBarrier(srcStageMask,
                           dstStageMask,
                           byRegion,
                           kImageMemory_BarrierType,
                           barrier);
 }
 
-void VulkanCommandBuffer::pipelineBarrier(const Resource* resource,
-                                          VkPipelineStageFlags srcStageMask,
+void VulkanCommandBuffer::pipelineBarrier(VkPipelineStageFlags srcStageMask,
                                           VkPipelineStageFlags dstStageMask,
                                           bool byRegion,
                                           PipelineBarrierType barrierType,

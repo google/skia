@@ -17,6 +17,7 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/TextureFormat.h"
+#include "src/gpu/graphite/vk/VulkanCaps.h"
 #include "src/gpu/graphite/vk/VulkanQueueManager.h"
 #include "src/gpu/graphite/vk/VulkanSampler.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
@@ -78,6 +79,136 @@ VkShaderModule CreateVulkanShaderModule(const VulkanSharedContext* context,
         return VK_NULL_HANDLE;
     }
     return shaderModule;
+}
+
+std::optional<VkImageMemoryBarrier> CreateVulkanImageMemoryBarrier(
+        const VulkanSharedContext& sharedContext,
+        VkImage image,
+        const VulkanTextureInfo& textureInfo,
+        VkImageLayout currentLayout,
+        uint32_t currentQueueIndex,
+        VkImageLayout newLayout,
+        VkAccessFlags dstAccessMask,
+        uint32_t newQueueFamilyIndex) {
+    SkASSERT(newLayout == currentLayout ||
+             (VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
+              VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout));
+
+#ifdef SK_DEBUG
+    if (textureInfo.fSharingMode == VK_SHARING_MODE_CONCURRENT) {
+        if (newQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) {
+            SkASSERT(currentQueueIndex == VK_QUEUE_FAMILY_IGNORED ||
+                     currentQueueIndex == VK_QUEUE_FAMILY_EXTERNAL ||
+                     currentQueueIndex == VK_QUEUE_FAMILY_FOREIGN_EXT);
+        } else {
+            SkASSERT(newQueueFamilyIndex == VK_QUEUE_FAMILY_EXTERNAL ||
+                     newQueueFamilyIndex == VK_QUEUE_FAMILY_FOREIGN_EXT);
+            SkASSERT(currentQueueIndex == VK_QUEUE_FAMILY_IGNORED);
+        }
+    } else {
+        SkASSERT(textureInfo.fSharingMode == VK_SHARING_MODE_EXCLUSIVE);
+        if (newQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED ||
+            currentQueueIndex == sharedContext.queueIndex()) {
+            SkASSERT(currentQueueIndex == VK_QUEUE_FAMILY_IGNORED ||
+                     currentQueueIndex == VK_QUEUE_FAMILY_EXTERNAL ||
+                     currentQueueIndex == VK_QUEUE_FAMILY_FOREIGN_EXT ||
+                     currentQueueIndex == sharedContext.queueIndex());
+        } else if (newQueueFamilyIndex == VK_QUEUE_FAMILY_EXTERNAL ||
+                   newQueueFamilyIndex == VK_QUEUE_FAMILY_FOREIGN_EXT) {
+            SkASSERT(currentQueueIndex == VK_QUEUE_FAMILY_IGNORED ||
+                     currentQueueIndex == sharedContext.queueIndex());
+        }
+    }
+#endif
+
+    if (textureInfo.fSharingMode == VK_SHARING_MODE_EXCLUSIVE) {
+        if (newQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) {
+            newQueueFamilyIndex = sharedContext.queueIndex();
+        }
+        if (currentQueueIndex == VK_QUEUE_FAMILY_IGNORED) {
+            currentQueueIndex = sharedContext.queueIndex();
+        }
+    }
+
+    // If the old and new layout are the same and the layout is a read only layout, there is no need
+    // to put in a barrier unless we also need to switch queues.
+    if (newLayout == currentLayout && currentQueueIndex == newQueueFamilyIndex &&
+        (VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == currentLayout ||
+         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == currentLayout ||
+         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == currentLayout)) {
+        return std::nullopt;
+    }
+
+    VkAccessFlags srcAccessMask =
+            VkImageLayoutToSrcAccessMask(currentLayout, textureInfo.fImageUsageFlags);
+
+    return VkImageMemoryBarrier{
+        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,                       // sType
+        nullptr,                                                      // pNext
+        srcAccessMask,                                                // srcAccessMask
+        dstAccessMask,                                                // dstAccessMask
+        currentLayout,                                                // oldLayout
+        newLayout,                                                    // newLayout
+        currentQueueIndex,                                            // srcQueueFamilyIndex
+        newQueueFamilyIndex,                                          // dstQueueFamilyIndex
+        image,                                                        // image
+        { textureInfo.fAspectMask, 0, VK_REMAINING_MIP_LEVELS, 0, 1 } // subresourceRange
+    };
+}
+
+VkPipelineStageFlags VkImageLayoutToPipelineSrcStageFlags(const VkImageLayout layout,
+                                                          const VulkanCaps& caps) {
+    if (VK_IMAGE_LAYOUT_GENERAL == layout) {
+        return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    } else if (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == layout ||
+               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL == layout) {
+        return VK_PIPELINE_STAGE_TRANSFER_BIT;
+    } else if (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == layout) {
+        return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    } else if (VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL == layout ||
+               VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == layout) {
+        return VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+    } else if (VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == layout) {
+        return caps.shaderReadOnlySrcStageMask();
+    } else if (VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
+        return VK_PIPELINE_STAGE_HOST_BIT;
+    } else if (VK_IMAGE_LAYOUT_PRESENT_SRC_KHR == layout) {
+        return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    }
+
+    SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED == layout);
+    return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+}
+
+VkAccessFlags VkImageLayoutToSrcAccessMask(const VkImageLayout layout,
+                                           VkImageUsageFlags usageFlags) {
+    // We can only directly access the host memory if we are in preinitialized or general layout,
+    // and the image is linear. However, device access to images written by the host happens after
+    // vkQueueSubmit, which implicitly makes host writes _visible_ to the device, i.e.
+    // VK_ACCESS_HOST_WRITE_BIT is unnecessary. Host data is made _available_ to the device via
+    // vkFlushMappedMemoryRanges.
+    VkAccessFlags flags = 0;
+    if (VK_IMAGE_LAYOUT_GENERAL == layout) {
+        flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                VK_ACCESS_TRANSFER_WRITE_BIT;
+        if (usageFlags & VK_IMAGE_USAGE_STORAGE_BIT) {
+            flags |= VK_ACCESS_SHADER_WRITE_BIT;
+        }
+    } else if (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == layout) {
+        flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    } else if (VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL == layout) {
+        flags = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    } else if (VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL == layout) {
+        flags = VK_ACCESS_TRANSFER_WRITE_BIT;
+    } else if (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == layout ||
+               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == layout ||
+               VK_IMAGE_LAYOUT_PRESENT_SRC_KHR == layout ||
+               VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
+        // There are no writes that need to be made available
+        flags = 0;
+    }
+    return flags;
 }
 
 void DescriptorDataToVkDescSetLayout(const VulkanSharedContext* ctxt,
