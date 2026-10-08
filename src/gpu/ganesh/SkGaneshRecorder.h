@@ -10,9 +10,9 @@
 
 #include "include/core/SkRecorder.h"
 #include "include/core/SkSurface.h"
+#include "include/cpu/Recorder.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "src/capture/SkCaptureManager.h"
-#include "src/cpu/Recorder.h"
 
 class GrDirectContext;
 

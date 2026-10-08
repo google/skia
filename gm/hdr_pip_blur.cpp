@@ -12,9 +12,9 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
+#include "include/cpu/Recorder.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkImageFilters.h"
-#include "src/cpu/Recorder.h"
 #include "tools/DecodeUtils.h"
 
 #if defined(SK_GANESH)

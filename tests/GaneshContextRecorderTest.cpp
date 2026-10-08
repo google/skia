@@ -22,6 +22,29 @@
 
 #include <memory>
 
+// TODO(alexisdavidc) Re-enable once the new SkContext / CPU Context & Recorder API is implemented.
+#if 0
+DEF_GANESH_TEST_FOR_ALL_CONTEXTS(CPUSurface_UsesGaneshContextAndRasterRecorderToDraw_DrawsPixels,
+                                 reporter,
+                                 ctxInfo,
+                                 CtsEnforcement::kApiLevel_202604) {
+    std::unique_ptr<skcpu::Recorder> recorder = ctxInfo.directContext()->makeCPURecorder();
+
+    SkImageInfo imageInfo =
+            SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    auto surface = recorder->makeBitmapSurface(imageInfo, imageInfo.minRowBytes(), {});
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(SkBlurStyle::kNormal_SkBlurStyle, 3.1f));
+    surface->getCanvas()->drawRRect(SkRRect::MakeRectXY(SkRect::MakeWH(50, 50), 10, 15), paint);
+
+    SkPixmap pmap;
+    REPORTER_ASSERT(reporter, surface->peekPixels(&pmap));
+    REPORTER_ASSERT(reporter, pmap.getColor(25, 25) == SK_ColorRED);
+}
+#endif  // 0
+
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageMakeColorSpace_GaneshImageWithContext_Success,
                                  reporter,
                                  ctxInfo,

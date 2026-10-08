@@ -16,6 +16,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
+#include "include/cpu/Recorder.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkPixelStorage.h"
@@ -23,7 +24,6 @@
 #include "src/core/SkDevice.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkSurfacePriv.h"
-#include "src/cpu/Recorder.h"
 #include "src/image/SkImage_Raster.h"
 
 #include <cstdint>

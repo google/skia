@@ -15,10 +15,10 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
+#include "include/cpu/Recorder.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkClipStackDevice.h"
 #include "src/core/SkTHash.h"
-#include "src/cpu/Recorder.h"
 #include "src/pdf/SkKeyedImage.h"
 #include "src/pdf/SkPDFGraphicStackState.h"
 #include "src/pdf/SkPDFTag.h"
@@ -32,11 +32,11 @@ class SkData;
 class SkDevice;
 class SkImage;
 class SkMesh;
-class SkPDFDocument;
 class SkPaint;
 class SkPath;
-class SkRRect;
+class SkPDFDocument;
 class SkRecorder;
+class SkRRect;
 class SkSpecialImage;
 class SkSurface;
 class SkSurfaceProps;

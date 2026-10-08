@@ -234,6 +234,12 @@ std::unique_ptr<Recorder> Context::makeRecorder(const RecorderOptions& options) 
     return recorder;
 }
 
+std::unique_ptr<skcpu::Recorder> Context::makeCPURecorder() {
+    ASSERT_SINGLE_OWNER
+
+    return std::make_unique<skcpu::Recorder>();
+}
+
 std::unique_ptr<PrecompileContext> Context::makePrecompileContext() {
     ASSERT_SINGLE_OWNER
 
