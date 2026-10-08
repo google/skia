@@ -566,6 +566,10 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphit
     using Renderable = skgpu::Renderable;
     using TextureInfo = skgpu::graphite::TextureInfo;
 
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     // The test textures are small (16x16), so disable the CPU fallback to ensure
     // the GPU conversion path is tested.
     skgpu::graphite::ContextPriv::disableSmallSizeReadCPUFallback_ForTesting(true);
@@ -658,6 +662,10 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixelsGraph
                                                      CtsEnforcement::kApiLevel_202404) {
     using Surface = sk_sp<SkSurface>;
 
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
     auto reader = std::function<GraphiteReadSrcFn<Surface>>([context, testContext](
                                                                     const Surface& surface,
                                                                     const SkIPoint& offset,
@@ -728,6 +736,10 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncRescaleReadPixels
                                                      true,
                                                      CtsEnforcement::kNextRelease) {
     using Renderable = skgpu::Renderable;
+
+    if (context->supportsProtectedContent()) {
+        return;
+    }
 
     static constexpr int kW = 128;
     static constexpr int kH = 128;
