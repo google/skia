@@ -21,6 +21,7 @@ SPARSE_STRIPS_FILES = [
     "StripProcessorScalar.h",
     "StripProcessorSimd.h",
     "Tiler.h",
+    "WindingHistogram.h",
 ]
 
 split_srcs_and_hdrs(
