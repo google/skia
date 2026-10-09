@@ -85,6 +85,7 @@ skia_cc_library(
     ],
     features = ["layering_check"],
     visibility = [
+        "//bench:__pkg__",
         "//src/gpu:__pkg__",
         "//src/gpu/ganesh/gl:__pkg__",
         "//src/gpu/ganesh/vk:__pkg__",
@@ -129,6 +130,7 @@ skia_cc_library(
     ],
     features = ["layering_check"],
     visibility = [
+        "//bench:__pkg__",
         "//src/pdf:__pkg__",
     ],
     deps = [
@@ -176,6 +178,7 @@ skia_cc_library(
     hdrs = ["SkCharToGlyphCache.h"],
     features = ["layering_check"],
     visibility = [
+        "//bench:__pkg__",
         "//dm:__pkg__",
         "//src/ports:__pkg__",
         "//tests:__pkg__",

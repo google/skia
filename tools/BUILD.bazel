@@ -33,6 +33,21 @@ exports_files([
 ])
 
 skia_cc_library(
+    name = "crash_handler",
+    srcs = ["CrashHandler.cpp"],
+    hdrs = ["CrashHandler.h"],
+    visibility = [
+        "//bench:__pkg__",
+        "//dm:__pkg__",
+        "//tools:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//src/core:core_priv",
+    ],
+)
+
+skia_cc_library(
     name = "registry",
     hdrs = ["Registry.h"],
     visibility = [
@@ -129,7 +144,10 @@ skia_cc_library(
     testonly = True,
     srcs = ["MSKPPlayer.cpp"],
     hdrs = ["MSKPPlayer.h"],
-    visibility = ["//tools/viewer:__pkg__"],
+    visibility = [
+        "//bench:__pkg__",
+        "//tools/viewer:__pkg__",
+    ],
     deps = [
         ":sk_sharing_proc",
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
@@ -198,6 +216,7 @@ skia_cc_library(
         "EncodeUtils.h",
     ],
     visibility = [
+        "//bench:__pkg__",
         "//dm:__pkg__",
         "//gm:__subpackages__",
         "//tools/viewer:__pkg__",
@@ -208,6 +227,22 @@ skia_cc_library(
         "//:png_encode_codec",
         "//src/core:core_priv",
         "//tools:resources",
+    ],
+)
+
+skia_cc_library(
+    name = "text_blob_trace",
+    testonly = True,
+    srcs = ["text/SkTextBlobTrace.cpp"],
+    hdrs = ["text/SkTextBlobTrace.h"],
+    visibility = [
+        "//bench:__pkg__",
+        "//dm:__pkg__",
+        "//tools:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//src/core:core_priv",
     ],
 )
 

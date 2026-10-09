@@ -27,6 +27,7 @@
 #include "include/codec/SkJpegDecoder.h"
 #endif
 #include "include/core/SkBBHFactory.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkGraphics.h"
@@ -59,11 +60,14 @@
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/flags/CommonFlagsGanesh.h"
 #include "tools/fonts/FontToolUtils.h"
-#include "tools/ios_utils.h"
 #include "tools/trace/EventTracingPriv.h"
 #include "tools/trace/SkDebugfTracer.h"
 
 #include <ctype.h>
+
+#if defined(SK_BUILD_FOR_IOS)
+#include "tools/ios_utils.h"
+#endif
 
 #if defined(SK_ENABLE_SVG)
 #include "modules/skshaper/utils/FactoryHelpers.h"

@@ -27,6 +27,7 @@ skia_cc_library(
     ],
     hdrs = ["gm.h"],
     visibility = [
+        "//bench:__pkg__",
         "//dm:__pkg__",
         "//tools/viewer:__pkg__",
     ],

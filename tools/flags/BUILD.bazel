@@ -71,6 +71,7 @@ skia_filegroup(
         "CommonFlagsConfig.h",
     ],
     visibility = [
+        "//bench:__pkg__",
         "//dm:__pkg__",
         "//tools/viewer:__pkg__",
     ],
