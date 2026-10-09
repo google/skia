@@ -10,7 +10,6 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
-#include "include/private/chromium/SkExifChromium.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkTiffUtility.h"
 #include "src/core/SkStreamPriv.h"
@@ -26,12 +25,11 @@
 #include <memory>
 #include <utility>
 
-[[maybe_unused]]
-static bool gForceSkExifCpp = true;
-
 namespace SkExif {
 
 constexpr uint16_t kSubIFDOffsetTag = 0x8769;
+
+#if !defined(SK_EXIF_PARSE_WITH_RUST)
 constexpr uint16_t kMarkerNoteTag = 0x927c;
 
 static std::optional<float> get_maker_note_hdr_headroom(sk_sp<SkData> data) {
@@ -190,20 +188,18 @@ static void parse_ifd(Metadata& exif,
         }
     }
 }
+#endif
 
 void Parse(Metadata& metadata, const SkData* data) {
 #if defined(SK_EXIF_PARSE_WITH_RUST)
-    if (!gForceSkExifCpp) {
-        if (data) {
-            rust_exif::ExifMetadata rustMeta;
-            if (rust_exif::parse_exif(
-                        rust::Slice<const uint8_t>(data->bytes(), data->size()), rustMeta)) {
-                rust_exif::ToSkExifMetadata(rustMeta, &metadata);
-            }
+    if (data) {
+        rust_exif::ExifMetadata rustMeta;
+        if (rust_exif::parse_exif(
+                    rust::Slice<const uint8_t>(data->bytes(), data->size()), rustMeta)) {
+            rust_exif::ToSkExifMetadata(rustMeta, &metadata);
         }
-        return;
     }
-#endif
+#else
     bool littleEndian = false;
     uint32_t ifdOffset = 0;
     if (data && SkTiff::ImageFileDirectory::ParseHeader(data, &littleEndian, &ifdOffset)) {
@@ -212,10 +208,7 @@ void Parse(Metadata& metadata, const SkData* data) {
                 dataRef, littleEndian, ifdOffset, /*allowTruncated=*/true);
         parse_ifd(metadata, std::move(dataRef), std::move(ifd), littleEndian, /*isRoot=*/true);
     }
-}
-
-void ForceSkExif(bool forceSkExif) {
-    gForceSkExifCpp = forceSkExif;
+#endif
 }
 
 // Helper function to write a single IFD entry.

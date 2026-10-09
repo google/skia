@@ -23,16 +23,8 @@ class SK_API ICCProfileChromium {
 public:
     virtual ~ICCProfileChromium() = default;
 
-    // Force all ICC profile parsing to use skcms instead of the build-default
-    // parser. This is intended for Chromium to have a kill-switch to fall back
-    // to skcms if the Rust parser causes issues in the field.
-    //
-    // This is a global setting and is NOT thread-safe with respect to concurrent
-    // codec operations. It should be called once early during process startup.
-    static void ForceSkcms(bool forceSkcms);
-
-    // Returns nullptr if parsing fails. May retain `data`. Uses the parser
-    // selected by ForceSkcms (defaults to the build-default parser).
+    // Returns nullptr if parsing fails. May retain `data`. Uses the
+    // build-default parser.
     static std::unique_ptr<ICCProfileChromium> Make(sk_sp<SkData> data);
 
     // Return the parsed profile. The pointers in the structure are guaranteed

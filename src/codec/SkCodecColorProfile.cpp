@@ -14,8 +14,6 @@
 #include "src/codec/SkCodecColorProfileRust.h"
 #endif
 
-static bool gForceSkcmsForICCProfiles = true;
-
 namespace SkCodecs {
 
 namespace {
@@ -70,15 +68,8 @@ std::unique_ptr<ColorProfile> ColorProfile::MakeICCProfileWithSkCMS(
     return nullptr;
 }
 
-void ICCProfileChromium::ForceSkcms(bool forceSkcms) {
-    gForceSkcmsForICCProfiles = forceSkcms;
-}
-
 std::unique_ptr<ColorProfile> ColorProfile::MakeICCProfile(
         sk_sp<const SkData> data) {
-    if (gForceSkcmsForICCProfiles) {
-        return MakeICCProfileWithSkCMS(data);
-    }
 #if defined(SK_CODEC_COLOR_PROFILE_PARSE_WITH_RUST)
     return MakeICCProfileWithRust(data);
 #else
