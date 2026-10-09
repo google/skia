@@ -40,10 +40,25 @@ skia_objc_library(
 )
 
 skia_objc_library(
+    name = "cf_utils",
+    hdrs = [
+        "SkUniqueCFRef.h",
+    ],
+    sdk_frameworks = ["CoreFoundation"],
+    target_compatible_with = supports_platforms(
+        "@platforms//os:macos",
+        "@platforms//os:ios",
+    ),
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:core",
+    ],
+)
+
+skia_objc_library(
     name = "mac_utils",
     srcs = [
         "SkCreateCGImageRef.cpp",
-        "SkUniqueCFRef.h",
     ],
     hdrs = [
         "//include/utils/mac:public_hdrs",
@@ -55,6 +70,7 @@ skia_objc_library(
     ),
     visibility = ["//:__subpackages__"],
     deps = [
+        ":cf_utils",
         "//:core",
         "//src/encode:icc_encode",
     ],

@@ -17,6 +17,7 @@
 #include "modules/skunicode/src/SkUnicode_icu_bidi.h"
 #include "src/core/SkBitmaskEnum.h"
 #include "src/core/SkUTF.h"
+#include "src/utils/mac/SkUniqueCFRef.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 
@@ -39,35 +40,30 @@ bool Tokenize(CFStringRef str,
     if (len16 <= 0 || !str) {
         return true;
     }
-    CFLocaleRef cfLoc = nullptr;
+    SkUniqueCFRef<CFLocaleRef> cfLoc;
     if (locale != nullptr && locale[0] != '\0') {
-        CFStringRef locStr =
-                CFStringCreateWithCString(kCFAllocatorDefault, locale, kCFStringEncodingUTF8);
+        SkUniqueCFRef<CFStringRef> locStr(
+                CFStringCreateWithCString(kCFAllocatorDefault, locale, kCFStringEncodingUTF8));
         if (locStr) {
-            cfLoc = CFLocaleCreate(kCFAllocatorDefault, locStr);
-            CFRelease(locStr);
+            cfLoc.reset(CFLocaleCreate(kCFAllocatorDefault, locStr.get()));
         }
     }
 
-    CFStringTokenizerRef tokenizer =
-            CFStringTokenizerCreate(kCFAllocatorDefault, str, CFRangeMake(0, len16), unit, cfLoc);
-    if (cfLoc) {
-        CFRelease(cfLoc);
-    }
+    SkUniqueCFRef<CFStringTokenizerRef> tokenizer(CFStringTokenizerCreate(
+            kCFAllocatorDefault, str, CFRangeMake(0, len16), unit, cfLoc.get()));
     if (!tokenizer) {
         return false;
     }
 
-    CFStringTokenizerTokenType tokenType = CFStringTokenizerAdvanceToNextToken(tokenizer);
+    CFStringTokenizerTokenType tokenType = CFStringTokenizerAdvanceToNextToken(tokenizer.get());
     CFIndex guard = 0;
     const CFIndex maxSteps = 2 * len16 + 2;
     while (tokenType != kCFStringTokenizerTokenNone && ++guard <= maxSteps) {
-        CFRange r = CFStringTokenizerGetCurrentTokenRange(tokenizer);
+        CFRange r = CFStringTokenizerGetCurrentTokenRange(tokenizer.get());
         callback(r);
-        tokenType = CFStringTokenizerAdvanceToNextToken(tokenizer);
+        tokenType = CFStringTokenizerAdvanceToNextToken(tokenizer.get());
     }
 
-    CFRelease(tokenizer);
     return true;
 }
 
@@ -75,6 +71,8 @@ class SkBreakIterator_apple : public SkBreakIterator {
 public:
     SkBreakIterator_apple(SkUnicode::BreakType type, const char* locale)
             : fType(type), fLocale(locale ? locale : "") {}
+
+    ~SkBreakIterator_apple() override = default;
 
     Position first() override { return fBreaks.empty() ? 0 : fBreaks[(fIndex = 0)]; }
     Position current() override { return fBreaks.empty() ? 0 : fBreaks[fIndex]; }
@@ -113,60 +111,68 @@ public:
 
         CFIndex len16 = CFStringGetLength(str);
         const char* loc = fLocale.empty() ? nullptr : fLocale.c_str();
+
+        STArray<256, size_t> u16ToU8;
+        SkUnicode::extractUtfConversionMapping(
+                SkSpan<const char>(utftext8, utf8Units),
+                [&](size_t u8) { u16ToU8.push_back(u8); },
+                [&](size_t u16) {});
+
         if (fType == SkUnicode::BreakType::kLines) {
             fBreaks.push_back(0);
             fStatuses.push_back(SkUnicode::CodeUnitFlags::kSoftLineBreakBefore);
-            Tokenize(str, len16, kCFStringTokenizerUnitLineBreak, loc, [&](CFRange r) {
-                fBreaks.push_back(r.location + r.length);
-                fStatuses.push_back(SkUnicode::CodeUnitFlags::kSoftLineBreakBefore);
+            this->tokenize(str, len16, kCFStringTokenizerUnitLineBreak, loc, [&](CFRange r) {
+                CFIndex boundary16 = r.location + r.length;
+                if (SkToInt(boundary16) < u16ToU8.size()) {
+                    fBreaks.push_back(u16ToU8[boundary16]);
+                    fStatuses.push_back(SkUnicode::CodeUnitFlags::kSoftLineBreakBefore);
+                }
             });
 
             const char* current = utftext8;
             const char* end = utftext8 + utf8Units;
-            std::vector<size_t> u8ToU16;
-            SkUnicode::extractUtfConversionMapping(
-                    SkSpan<const char>(utftext8, utf8Units),
-                    [&](size_t u8) {},
-                    [&](size_t u16) { u8ToU16.push_back(u16); });
             while (current < end) {
                 SkUnichar unichar = SkUTF::NextUTF8(&current, end);
                 if (unichar == '\n' || unichar == u'\u2028') {
-                    auto after = current - utftext8;
-                    if (SkToSizeT(after) < u8ToU16.size()) {
-                        Position pos16 = u8ToU16[after];
-                        auto it = std::find(fBreaks.begin(), fBreaks.end(), pos16);
-                        if (it != fBreaks.end()) {
-                            auto idx = std::distance(fBreaks.begin(), it);
-                            fStatuses[idx] |= SkUnicode::CodeUnitFlags::kHardLineBreakBefore;
-                        } else {
-                            fBreaks.push_back(pos16);
-                            fStatuses.push_back(SkUnicode::CodeUnitFlags::kHardLineBreakBefore |
-                                                SkUnicode::CodeUnitFlags::kSoftLineBreakBefore);
-                        }
+                    Position after = SkTo<Position>(current - utftext8);
+                    auto it = std::lower_bound(fBreaks.begin(), fBreaks.end(), after);
+                    if (it != fBreaks.end() && *it == after) {
+                        auto idx = std::distance(fBreaks.begin(), it);
+                        fStatuses[idx] |= SkUnicode::CodeUnitFlags::kHardLineBreakBefore;
+                    } else {
+                        auto idx = std::distance(fBreaks.begin(), it);
+                        fBreaks.insert(it, after);
+                        fStatuses.insert(fStatuses.begin() + idx,
+                                         SkUnicode::CodeUnitFlags::kHardLineBreakBefore |
+                                                 SkUnicode::CodeUnitFlags::kSoftLineBreakBefore);
                     }
                 }
             }
         } else if (fType == SkUnicode::BreakType::kGraphemes) {
             CFIndex idx = 0;
             while (idx < len16) {
-                fBreaks.push_back(idx);
-                fStatuses.push_back(0);
+                if (idx < u16ToU8.size()) {
+                    fBreaks.push_back(u16ToU8[idx]);
+                    fStatuses.push_back(0);
+                }
                 CFRange r = CFStringGetRangeOfComposedCharactersAtIndex(str, idx);
                 CFIndex advance = std::max<CFIndex>(r.length, 1);
                 idx = std::max(idx + 1, r.location + advance);
             }
-            fBreaks.push_back(len16);
+            fBreaks.push_back(utf8Units);
             fStatuses.push_back(0);
         } else {
             CFOptionFlags unit = (fType == SkUnicode::BreakType::kWords)
                                          ? kCFStringTokenizerUnitWordBoundary
                                          : kCFStringTokenizerUnitSentence;
-            Tokenize(str, len16, unit, loc, [&](CFRange r) {
-                fBreaks.push_back(r.location);
-                fStatuses.push_back(0);
+            this->tokenize(str, len16, unit, loc, [&](CFRange r) {
+                if (SkToInt(r.location) < u16ToU8.size()) {
+                    fBreaks.push_back(u16ToU8[r.location]);
+                    fStatuses.push_back(0);
+                }
             });
             if (!fBreaks.empty()) {
-                fBreaks.push_back(len16);
+                fBreaks.push_back(utf8Units);
                 fStatuses.push_back(0);
             }
         }
@@ -176,13 +182,126 @@ public:
     }
 
     bool setText(const char16_t utftext16[], int utf16Units) override {
-        SkString utf8 = SkUnicode::convertUtf16ToUtf8(utftext16, utf16Units);
-        return this->setText(utf8.c_str(), utf8.size());
+        fBreaks.clear();
+        fStatuses.clear();
+        fIndex = 0;
+        if (utf16Units <= 0) {
+            return true;
+        }
+
+        CFStringRef str = CFStringCreateWithCharactersNoCopy(
+                kCFAllocatorDefault, (const UniChar*)utftext16, utf16Units, kCFAllocatorNull);
+        if (!str) {
+            return false;
+        }
+
+        const char* loc = fLocale.empty() ? nullptr : fLocale.c_str();
+        if (fType == SkUnicode::BreakType::kLines) {
+            fBreaks.push_back(0);
+            fStatuses.push_back(SkUnicode::CodeUnitFlags::kSoftLineBreakBefore);
+            this->tokenize(str, utf16Units, kCFStringTokenizerUnitLineBreak, loc, [&](CFRange r) {
+                fBreaks.push_back(r.location + r.length);
+                fStatuses.push_back(SkUnicode::CodeUnitFlags::kSoftLineBreakBefore);
+            });
+
+            const auto* u16 = reinterpret_cast<const uint16_t*>(utftext16);
+            const uint16_t* current = u16;
+            const uint16_t* end = u16 + utf16Units;
+            while (current < end) {
+                SkUnichar unichar = SkUTF::NextUTF16(&current, end);
+                if (unichar < 0) {
+                    unichar = 0xFFFD;
+                }
+                if (unichar == '\n' || unichar == u'\u2028') {
+                    Position after = SkTo<Position>(current - u16);
+                    auto it = std::lower_bound(fBreaks.begin(), fBreaks.end(), after);
+                    if (it != fBreaks.end() && *it == after) {
+                        auto idx = std::distance(fBreaks.begin(), it);
+                        fStatuses[idx] |= SkUnicode::CodeUnitFlags::kHardLineBreakBefore;
+                    } else {
+                        auto idx = std::distance(fBreaks.begin(), it);
+                        fBreaks.insert(it, after);
+                        fStatuses.insert(fStatuses.begin() + idx,
+                                         SkUnicode::CodeUnitFlags::kHardLineBreakBefore |
+                                                 SkUnicode::CodeUnitFlags::kSoftLineBreakBefore);
+                    }
+                }
+            }
+        } else if (fType == SkUnicode::BreakType::kGraphemes) {
+            CFIndex idx = 0;
+            while (idx < utf16Units) {
+                fBreaks.push_back(idx);
+                fStatuses.push_back(0);
+                CFRange r = CFStringGetRangeOfComposedCharactersAtIndex(str, idx);
+                CFIndex advance = std::max<CFIndex>(r.length, 1);
+                idx = std::max(idx + 1, r.location + advance);
+            }
+            fBreaks.push_back(utf16Units);
+            fStatuses.push_back(0);
+        } else {
+            CFOptionFlags unit = (fType == SkUnicode::BreakType::kWords)
+                                         ? kCFStringTokenizerUnitWordBoundary
+                                         : kCFStringTokenizerUnitSentence;
+            this->tokenize(str, utf16Units, unit, loc, [&](CFRange r) {
+                fBreaks.push_back(r.location);
+                fStatuses.push_back(0);
+            });
+            if (!fBreaks.empty()) {
+                fBreaks.push_back(utf16Units);
+                fStatuses.push_back(0);
+            }
+        }
+
+        CFRelease(str);
+        return true;
     }
 
 private:
+    template <typename Callback>
+    bool tokenize(CFStringRef str,
+                  CFIndex len16,
+                  CFOptionFlags unit,
+                  const char* locale,
+                  Callback&& callback) {
+        if (len16 <= 0 || !str) {
+            return true;
+        }
+        if (!fTokenizer) {
+            SkUniqueCFRef<CFLocaleRef> cfLoc;
+            if (locale != nullptr && locale[0] != '\0') {
+                SkUniqueCFRef<CFStringRef> locStr(CFStringCreateWithCString(
+                        kCFAllocatorDefault, locale, kCFStringEncodingUTF8));
+                if (locStr) {
+                    cfLoc.reset(CFLocaleCreate(kCFAllocatorDefault, locStr.get()));
+                }
+            }
+            fTokenizer.reset(CFStringTokenizerCreate(
+                    kCFAllocatorDefault, str, CFRangeMake(0, len16), unit, cfLoc.get()));
+        } else {
+            CFStringTokenizerSetString(fTokenizer.get(), str, CFRangeMake(0, len16));
+        }
+        if (!fTokenizer) {
+            return false;
+        }
+
+        CFStringTokenizerTokenType tokenType =
+                CFStringTokenizerAdvanceToNextToken(fTokenizer.get());
+        CFIndex guard = 0;
+        const CFIndex maxSteps = 2 * len16 + 2;
+        while (tokenType != kCFStringTokenizerTokenNone && ++guard <= maxSteps) {
+            CFRange r = CFStringTokenizerGetCurrentTokenRange(fTokenizer.get());
+            callback(r);
+            tokenType = CFStringTokenizerAdvanceToNextToken(fTokenizer.get());
+        }
+
+        // Unbind the temporary string to release non-owning byte references
+        CFStringTokenizerSetString(fTokenizer.get(), CFSTR(""), CFRangeMake(0, 0));
+        return true;
+    }
+
     SkUnicode::BreakType fType;
     std::string fLocale;
+    SkUniqueCFRef<CFStringTokenizerRef> fTokenizer;
     std::vector<Position> fBreaks;
     std::vector<Status> fStatuses;
     Position fIndex = 0;
@@ -194,6 +313,25 @@ class SkUnicode_apple : public SkUnicodeHardCodedCharProperties {
 public:
     SkUnicode_apple() = default;
     ~SkUnicode_apple() override = default;
+
+    bool isControl(SkUnichar unichar) override {
+        return CFCharacterSetIsLongCharacterMember(
+                CFCharacterSetGetPredefined(kCFCharacterSetControl), unichar);
+    }
+
+    bool isWhitespace(SkUnichar unichar) override {
+        // Non-breaking spaces and line controls must not be treated as soft break opportunities
+        if (unichar == 0x00A0 || unichar == 0x2007 || unichar == 0x202F || unichar == 0x0085) {
+            return false;
+        }
+        return CFCharacterSetIsLongCharacterMember(
+                CFCharacterSetGetPredefined(kCFCharacterSetWhitespaceAndNewline), unichar);
+    }
+
+    bool isSpace(SkUnichar unichar) override {
+        return CFCharacterSetIsLongCharacterMember(
+                CFCharacterSetGetPredefined(kCFCharacterSetWhitespaceAndNewline), unichar);
+    }
 
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const uint16_t text[],
                                                      int count,
@@ -330,7 +468,7 @@ public:
             return false;
         }
 
-        std::vector<size_t> u16ToU8;
+        STArray<256, size_t> u16ToU8;
         extractUtfConversionMapping(
                 SkSpan<const char>(utf8, utf8Units),
                 [&](size_t u8) { u16ToU8.push_back(u8); },
@@ -338,7 +476,7 @@ public:
 
         results->reserve(u16Words.size());
         for (auto w16 : u16Words) {
-            if (SkToSizeT(w16) < u16ToU8.size()) {
+            if (SkToInt(w16) < u16ToU8.size()) {
                 results->push_back(u16ToU8[w16]);
             }
         }
@@ -365,14 +503,14 @@ public:
         }
 
         CFIndex len16 = CFStringGetLength(str);
-        std::vector<size_t> u16ToU8;
+        STArray<256, size_t> u16ToU8;
         extractUtfConversionMapping(
                 SkSpan<const char>(utf8, utf8Units),
                 [&](size_t u8) { u16ToU8.push_back(u8); },
                 [&](size_t u16) {});
 
         bool ok = Tokenize(str, len16, kCFStringTokenizerUnitSentence, locale, [&](CFRange r) {
-            if (SkToSizeT(r.location) < u16ToU8.size()) {
+            if (SkToInt(r.location) < u16ToU8.size()) {
                 results->push_back(u16ToU8[r.location]);
             }
         });
@@ -405,7 +543,7 @@ public:
         }
 
         CFIndex len16 = CFStringGetLength(str);
-        std::vector<size_t> u16ToU8;
+        STArray<256, size_t> u16ToU8;
         extractUtfConversionMapping(
                 SkSpan<const char>(utf8, utf8Units),
                 [&](size_t u8) { u16ToU8.push_back(u8); },
@@ -414,7 +552,7 @@ public:
         CFIndex idx = 0;
         while (idx < len16) {
             CFRange r = CFStringGetRangeOfComposedCharactersAtIndex(str, idx);
-            if (SkToSizeT(r.location) < u16ToU8.size()) {
+            if (r.location < u16ToU8.size()) {
                 (*results)[u16ToU8[r.location]] |= CodeUnitFlags::kGraphemeStart;
             }
             CFIndex advance = std::max<CFIndex>(r.length, 1);
@@ -423,12 +561,31 @@ public:
         (*results)[utf8Units] |= CodeUnitFlags::kGraphemeStart;
 
         (*results)[0] |= CodeUnitFlags::kSoftLineBreakBefore;
-        Tokenize(str, len16, kCFStringTokenizerUnitLineBreak, nullptr, [&](CFRange r) {
-            CFIndex boundary16 = r.location + r.length;
-            if (SkToSizeT(boundary16) < u16ToU8.size()) {
-                (*results)[u16ToU8[boundary16]] |= CodeUnitFlags::kSoftLineBreakBefore;
+        if (!fLineTokenizer) {
+            fLineTokenizer.reset(CFStringTokenizerCreate(kCFAllocatorDefault,
+                                                         str,
+                                                         CFRangeMake(0, len16),
+                                                         kCFStringTokenizerUnitLineBreak,
+                                                         nullptr));
+        } else {
+            CFStringTokenizerSetString(fLineTokenizer.get(), str, CFRangeMake(0, len16));
+        }
+
+        if (fLineTokenizer) {
+            CFStringTokenizerTokenType tokenType =
+                    CFStringTokenizerAdvanceToNextToken(fLineTokenizer.get());
+            CFIndex guard = 0;
+            const CFIndex maxSteps = 2 * len16 + 2;
+            while (tokenType != kCFStringTokenizerTokenNone && ++guard <= maxSteps) {
+                CFRange r = CFStringTokenizerGetCurrentTokenRange(fLineTokenizer.get());
+                CFIndex boundary16 = r.location + r.length;
+                if (SkToInt(boundary16) < u16ToU8.size()) {
+                    (*results)[u16ToU8[boundary16]] |= CodeUnitFlags::kSoftLineBreakBefore;
+                }
+                tokenType = CFStringTokenizerAdvanceToNextToken(fLineTokenizer.get());
             }
-        });
+            CFStringTokenizerSetString(fLineTokenizer.get(), CFSTR(""), CFRangeMake(0, 0));
+        }
         (*results)[utf8Units] |= CodeUnitFlags::kSoftLineBreakBefore;
 
         CFRelease(str);
@@ -451,19 +608,22 @@ public:
                 utf8[before] = ' ';
             }
 
+            CodeUnitFlags flags = CodeUnitFlags::kNoCodeUnitFlag;
+            if (this->isSpace(unichar)) {
+                flags |= CodeUnitFlags::kPartOfIntraWordBreak;
+            }
+            if (this->isWhitespace(unichar)) {
+                flags |= CodeUnitFlags::kPartOfWhiteSpaceBreak;
+            }
+            if (this->isControl(unichar)) {
+                flags |= CodeUnitFlags::kControl;
+            }
+            if (this->isIdeographic(unichar)) {
+                flags |= CodeUnitFlags::kIdeographic;
+            }
+
             for (auto i = before; i < after; ++i) {
-                if (this->isSpace(unichar)) {
-                    results->at(i) |= CodeUnitFlags::kPartOfIntraWordBreak;
-                }
-                if (this->isWhitespace(unichar)) {
-                    results->at(i) |= CodeUnitFlags::kPartOfWhiteSpaceBreak;
-                }
-                if (this->isControl(unichar)) {
-                    results->at(i) |= CodeUnitFlags::kControl;
-                }
-                if (this->isIdeographic(unichar)) {
-                    results->at(i) |= CodeUnitFlags::kIdeographic;
-                }
+                results->at(i) |= flags;
             }
         }
 
@@ -496,9 +656,28 @@ public:
         (*results)[utf16Units] |= CodeUnitFlags::kGraphemeStart;
 
         (*results)[0] |= CodeUnitFlags::kSoftLineBreakBefore;
-        Tokenize(str, utf16Units, kCFStringTokenizerUnitLineBreak, nullptr, [&](CFRange r) {
-            (*results)[r.location + r.length] |= CodeUnitFlags::kSoftLineBreakBefore;
-        });
+        if (!fLineTokenizer) {
+            fLineTokenizer.reset(CFStringTokenizerCreate(kCFAllocatorDefault,
+                                                         str,
+                                                         CFRangeMake(0, utf16Units),
+                                                         kCFStringTokenizerUnitLineBreak,
+                                                         nullptr));
+        } else {
+            CFStringTokenizerSetString(fLineTokenizer.get(), str, CFRangeMake(0, utf16Units));
+        }
+
+        if (fLineTokenizer) {
+            CFStringTokenizerTokenType tokenType =
+                    CFStringTokenizerAdvanceToNextToken(fLineTokenizer.get());
+            CFIndex guard = 0;
+            const CFIndex maxSteps = 2 * utf16Units + 2;
+            while (tokenType != kCFStringTokenizerTokenNone && ++guard <= maxSteps) {
+                CFRange r = CFStringTokenizerGetCurrentTokenRange(fLineTokenizer.get());
+                (*results)[r.location + r.length] |= CodeUnitFlags::kSoftLineBreakBefore;
+                tokenType = CFStringTokenizerAdvanceToNextToken(fLineTokenizer.get());
+            }
+            CFStringTokenizerSetString(fLineTokenizer.get(), CFSTR(""), CFRangeMake(0, 0));
+        }
         (*results)[utf16Units] |= CodeUnitFlags::kSoftLineBreakBefore;
 
         CFRelease(str);
@@ -511,24 +690,26 @@ public:
                                        (*results)[end] |= (CodeUnitFlags::kHardLineBreakBefore |
                                                            CodeUnitFlags::kSoftLineBreakBefore);
                                    }
+                                   if (replaceTabs && this->isTabulation(unichar)) {
+                                       results->at(start) |= CodeUnitFlags::kTabulation;
+                                       unichar = ' ';
+                                       utf16[start] = ' ';
+                                   }
+                                   CodeUnitFlags flags = CodeUnitFlags::kNoCodeUnitFlag;
+                                   if (this->isSpace(unichar)) {
+                                       flags |= CodeUnitFlags::kPartOfIntraWordBreak;
+                                   }
+                                   if (this->isWhitespace(unichar)) {
+                                       flags |= CodeUnitFlags::kPartOfWhiteSpaceBreak;
+                                   }
+                                   if (this->isControl(unichar)) {
+                                       flags |= CodeUnitFlags::kControl;
+                                   }
+                                   if (this->isIdeographic(unichar)) {
+                                       flags |= CodeUnitFlags::kIdeographic;
+                                   }
                                    for (auto i = start; i < end; ++i) {
-                                       if (replaceTabs && this->isTabulation(unichar)) {
-                                           results->at(i) |= CodeUnitFlags::kTabulation;
-                                           unichar = ' ';
-                                           utf16[start] = ' ';
-                                       }
-                                       if (this->isSpace(unichar)) {
-                                           results->at(i) |= CodeUnitFlags::kPartOfIntraWordBreak;
-                                       }
-                                       if (this->isWhitespace(unichar)) {
-                                           results->at(i) |= CodeUnitFlags::kPartOfWhiteSpaceBreak;
-                                       }
-                                       if (this->isControl(unichar)) {
-                                           results->at(i) |= CodeUnitFlags::kControl;
-                                       }
-                                       if (this->isIdeographic(unichar)) {
-                                           results->at(i) |= CodeUnitFlags::kIdeographic;
-                                       }
+                                       results->at(i) |= flags;
                                    }
                                });
 
@@ -537,6 +718,7 @@ public:
 
 private:
     sk_sp<SkBidiFactory> fBidiFact = sk_make_sp<SkBidiSubsetFactory>();
+    SkUniqueCFRef<CFStringTokenizerRef> fLineTokenizer;
 };
 
 namespace SkUnicodes::Apple {

@@ -238,6 +238,142 @@ DEF_TEST(SkUnicode_Apple_GetSentences, reporter) {
         REPORTER_ASSERT(reporter, results[i] == mixedExpected[i]);
     }
 }
+
+DEF_TEST(SkUnicode_Apple_BreakIterator_Utf8_Hostile, reporter) {
+    auto apple = SkUnicodes::Apple::Make();
+    REPORTER_ASSERT(reporter, apple);
+    if (!apple) {
+        return;
+    }
+
+    auto collectBreaks = [](SkBreakIterator* iter) {
+        std::vector<SkBreakIterator::Position> breaks;
+        for (auto pos = iter->first(); !iter->isDone(); pos = iter->next()) {
+            breaks.push_back(pos);
+        }
+        return breaks;
+    };
+
+    {
+        SkString text("Привет мир");
+        auto wordIter = apple->makeBreakIterator("ru", SkUnicode::BreakType::kWords);
+        REPORTER_ASSERT(reporter, wordIter);
+        REPORTER_ASSERT(reporter, wordIter->setText(text.data(), text.size()));
+        std::vector<SkBreakIterator::Position> expectedWords = {0, 12, 13, 19};
+        REPORTER_ASSERT(reporter, collectBreaks(wordIter.get()) == expectedWords);
+
+        auto graphemeIter = apple->makeBreakIterator("ru", SkUnicode::BreakType::kGraphemes);
+        REPORTER_ASSERT(reporter, graphemeIter);
+        REPORTER_ASSERT(reporter, graphemeIter->setText(text.data(), text.size()));
+        std::vector<SkBreakIterator::Position> expectedGraphemes = {
+            0, 2, 4, 6, 8, 10, 12, 13, 15, 17, 19
+        };
+        REPORTER_ASSERT(reporter, collectBreaks(graphemeIter.get()) == expectedGraphemes);
+    }
+
+    {
+        SkString text("你好世界");
+        auto graphemeIter = apple->makeBreakIterator("zh", SkUnicode::BreakType::kGraphemes);
+        REPORTER_ASSERT(reporter, graphemeIter);
+        REPORTER_ASSERT(reporter, graphemeIter->setText(text.data(), text.size()));
+        std::vector<SkBreakIterator::Position> expectedGraphemes = {0, 3, 6, 9, 12};
+        REPORTER_ASSERT(reporter, collectBreaks(graphemeIter.get()) == expectedGraphemes);
+    }
+
+    {
+        SkString text("😀😃😄");
+        auto graphemeIter = apple->makeBreakIterator(SkUnicode::BreakType::kGraphemes);
+        REPORTER_ASSERT(reporter, graphemeIter);
+        REPORTER_ASSERT(reporter, graphemeIter->setText(text.data(), text.size()));
+        std::vector<SkBreakIterator::Position> expectedGraphemes = {0, 4, 8, 12};
+        REPORTER_ASSERT(reporter, collectBreaks(graphemeIter.get()) == expectedGraphemes);
+    }
+
+    {
+        SkString text("Привет\nмир");
+        auto lineIter = apple->makeBreakIterator(SkUnicode::BreakType::kLines);
+        REPORTER_ASSERT(reporter, lineIter);
+        REPORTER_ASSERT(reporter, lineIter->setText(text.data(), text.size()));
+        std::vector<SkBreakIterator::Position> expectedLines = {0, 13, 19};
+        REPORTER_ASSERT(reporter, collectBreaks(lineIter.get()) == expectedLines);
+    }
+}
+
+DEF_TEST(SkUnicode_Apple_BreakIterator_Utf16_Hostile, reporter) {
+    auto apple = SkUnicodes::Apple::Make();
+    REPORTER_ASSERT(reporter, apple);
+    if (!apple) {
+        return;
+    }
+
+    auto collectBreaks = [](SkBreakIterator* iter) {
+        std::vector<SkBreakIterator::Position> breaks;
+        for (auto pos = iter->first(); !iter->isDone(); pos = iter->next()) {
+            breaks.push_back(pos);
+        }
+        return breaks;
+    };
+
+    {
+        std::u16string u16Text = u"Привет мир";
+        auto wordIter = apple->makeBreakIterator("ru", SkUnicode::BreakType::kWords);
+        REPORTER_ASSERT(reporter, wordIter);
+        REPORTER_ASSERT(reporter, wordIter->setText(u16Text.data(), u16Text.size()));
+        std::vector<SkBreakIterator::Position> expectedWords = {0, 6, 7, 10};
+        REPORTER_ASSERT(reporter, collectBreaks(wordIter.get()) == expectedWords);
+
+        auto graphemeIter = apple->makeBreakIterator("ru", SkUnicode::BreakType::kGraphemes);
+        REPORTER_ASSERT(reporter, graphemeIter);
+        REPORTER_ASSERT(reporter, graphemeIter->setText(u16Text.data(), u16Text.size()));
+        std::vector<SkBreakIterator::Position> expectedGraphemes = {
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+        };
+        REPORTER_ASSERT(reporter, collectBreaks(graphemeIter.get()) == expectedGraphemes);
+    }
+
+    {
+        std::u16string u16Text = u"😀😃😄";
+        auto graphemeIter = apple->makeBreakIterator(SkUnicode::BreakType::kGraphemes);
+        REPORTER_ASSERT(reporter, graphemeIter);
+        REPORTER_ASSERT(reporter, graphemeIter->setText(u16Text.data(), u16Text.size()));
+        std::vector<SkBreakIterator::Position> expectedGraphemes = {0, 2, 4, 6};
+        REPORTER_ASSERT(reporter, collectBreaks(graphemeIter.get()) == expectedGraphemes);
+    }
+}
+
+DEF_TEST(SkUnicode_Apple_CharProperties, reporter) {
+    auto apple = SkUnicodes::Apple::Make();
+    REPORTER_ASSERT(reporter, apple);
+    if (!apple) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, apple->isControl(0x00));
+    REPORTER_ASSERT(reporter, apple->isControl(0x1F));
+    REPORTER_ASSERT(reporter, apple->isControl(0x7F));
+    REPORTER_ASSERT(reporter, apple->isControl(0x200D));
+    REPORTER_ASSERT(reporter, apple->isControl(0x202E));
+    REPORTER_ASSERT(reporter, !apple->isControl('A'));
+    REPORTER_ASSERT(reporter, !apple->isControl(' '));
+
+    REPORTER_ASSERT(reporter, apple->isSpace(' '));
+    REPORTER_ASSERT(reporter, apple->isSpace('\t'));
+    REPORTER_ASSERT(reporter, apple->isSpace('\n'));
+    REPORTER_ASSERT(reporter, apple->isSpace(0x00A0));
+    REPORTER_ASSERT(reporter, apple->isSpace(0x202F));
+    REPORTER_ASSERT(reporter, apple->isSpace(0x3000));
+    REPORTER_ASSERT(reporter, !apple->isSpace('A'));
+
+    REPORTER_ASSERT(reporter, apple->isWhitespace(' '));
+    REPORTER_ASSERT(reporter, apple->isWhitespace('\t'));
+    REPORTER_ASSERT(reporter, apple->isWhitespace('\n'));
+    REPORTER_ASSERT(reporter, apple->isWhitespace(0x3000));
+    REPORTER_ASSERT(reporter, !apple->isWhitespace(0x00A0));
+    REPORTER_ASSERT(reporter, !apple->isWhitespace(0x2007));
+    REPORTER_ASSERT(reporter, !apple->isWhitespace(0x202F));
+    REPORTER_ASSERT(reporter, !apple->isWhitespace(0x0085));
+    REPORTER_ASSERT(reporter, !apple->isWhitespace('A'));
+}
 #endif
 
 bool hasWordFlag(SkUnicode::CodeUnitFlags flags) {

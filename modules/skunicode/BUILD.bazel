@@ -94,6 +94,7 @@ skia_objc_library(
         ":skunicode_core",
         "//:core",
         "//src/core:core_priv",
+        "//src/utils/mac:cf_utils",
         "@icu",
     ],
 )
