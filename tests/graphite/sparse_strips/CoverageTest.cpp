@@ -14,7 +14,15 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkTDArray.h"
+#include "src/gpu/graphite/geom/EndCaps.h"
+#include "src/gpu/graphite/geom/WideTiles.h"
+#include "src/gpu/graphite/sparse_strips/AlphaAtlasManager.h"
+#include "src/gpu/graphite/sparse_strips/Flatten.h"
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
+#include "src/gpu/graphite/sparse_strips/Polyline.h"
+#include "src/gpu/graphite/sparse_strips/StripGenerator.h"
+#include "src/gpu/graphite/sparse_strips/Tiler.h"
+#include "src/gpu/graphite/sparse_strips/WindingHistogram.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/graphite/sparse_strips/CullingRepros.h"
@@ -22,6 +30,7 @@
 #include "tests/graphite/sparse_strips/SkpValidator.h"
 
 #include <array>
+#include <cmath>
 #include <vector>
 
 namespace skgpu::graphite {
@@ -192,6 +201,42 @@ SkPath make_cubic_conic_culling_shape(float vpWidth, float vpHeight) {
     return b.detach();
 }
 
+// A sliver whose right side is a line that only crosses the right edge of a 64 pixel wide clip at
+// the origin, and ends exactly on the clip's left edge, just below y = 24 (a tile row boundary for
+// both 4x4 and 8x8 tiles). Tiler computes the x at which the line enters its last tile row as
+// roughly -1e-6 tiles, i.e. left of the clip, whether or not that computation is fused.
+SkPath make_right_crossing_sliver() {
+    return SkPathBuilder()
+            .moveTo(72.0f, -256.0f)
+            .lineTo(0.0f, std::nextafter(24.0f, 25.0f))
+            .lineTo(0.0f, -256.0f)
+            .close()
+            .detach();
+}
+
+// A frame around a 100x100 `clip`, with two circles inside of it: a hole on the left, and a circle
+// with winding 2 on the right. The left side of the frame crosses the clip's left edge a little
+// under halfway down. Above that, its tiles enter through their top. Below that, it is culled into
+// the WindingHistogram (partially as a cubic that Flatten simplifies to its chord), so each row
+// through the circles starts with a WideTile from the clip's left edge to its first EndCap if the
+// culled winding is filled, and the rows between and below the circles have no tiles at all.
+SkPath make_frame_with_circles(const SkIRect& clip) {
+    const float l = static_cast<float>(clip.fLeft);
+    const float t = static_cast<float>(clip.fTop);
+    const float r = static_cast<float>(clip.fRight);
+    const float b = static_cast<float>(clip.fBottom);
+    SkPathBuilder builder;
+    builder.moveTo(l + 30.0f, t - 20.0f)
+            .lineTo(r + 20.0f, t - 20.0f)
+            .lineTo(r + 20.0f, b + 20.0f)
+            .lineTo(l - 30.0f, b + 20.0f)
+            .cubicTo(l - 45.0f, b - 5.0f, l - 40.0f, t + 70.0f, l - 8.0f, t + 64.0f)
+            .close();
+    builder.addCircle(l + 30.0f, t + 72.0f, 13.0f, SkPathDirection::kCCW);
+    builder.addCircle(l + 68.0f, t + 75.0f, 16.0f, SkPathDirection::kCW);
+    return builder.detach();
+}
+
 template <uint16_t kTileWidth, uint16_t kTileHeight>
 void run_culling_simplification_suite(
         skiatest::Reporter* reporter,
@@ -209,6 +254,8 @@ void run_culling_simplification_suite(
     const SkPathFillType fillTypes[] = {
             SkPathFillType::kWinding,
             SkPathFillType::kEvenOdd,
+            SkPathFillType::kInverseWinding,
+            SkPathFillType::kInverseEvenOdd,
     };
 
     const float angles[] = {0.0f, 45.0f, 90.0f, 135.0f, 180.0f, 225.0f, 270.0f};
@@ -275,7 +322,8 @@ void run_culling_simplification_suite(
 
 // Draws whose verbs lie (almost) entirely outside of the viewport, and are therefore culled, but
 // whose fill still covers the viewport. Since that coverage consists solely of WideTiles, this
-// relies on FastValidator validating the tiles outside of the EndCaps.
+// relies on FastValidator validating the tiles outside of the EndCaps. Also covers draws that
+// combine culled winding with EndCaps inside of the clip, and clips away from the origin.
 template <uint16_t kTileWidth, uint16_t kTileHeight>
 void run_culled_geometry_suite(skiatest::Reporter* reporter,
                                Recorder* recorder,
@@ -293,8 +341,9 @@ void run_culled_geometry_suite(skiatest::Reporter* reporter,
     std::vector<TestCase> cases;
 
     // A quad that covers all of a tall clip from outside of it. Its left side is split into two
-    // lines that meet halfway through tile row 32, and its other sides are above, right of, and
-    // below the clip.
+    // lines that meet halfway through tile row 32, so the upper line is culled into the
+    // WindingHistogram rows [0, 32), an entire 32-row word. Its other sides are above, right of,
+    // and below the clip.
     const SkIRect tallClip = SkIRect::MakeWH(8 * kTileWidth, 64 * kTileHeight);
     const float l = static_cast<float>(tallClip.fLeft);
     const float t = static_cast<float>(tallClip.fTop);
@@ -332,27 +381,208 @@ void run_culled_geometry_suite(skiatest::Reporter* reporter,
                      clip,
                      "AllVerbsCulled_ClosingEdgeCrossesClip"});
 
+    // All verbs and closing edges are above/right/below the clip, so Flatten culls everything and
+    // produces an empty Polyline. Inverse fills must still emit WideTiles covering the clip.
+    cases.push_back({SkPathBuilder()
+                             .moveTo(10, -50)
+                             .cubicTo(30, -60, 70, -60, 90, -50)
+                             .cubicTo(90, -30, 30, -30, 10, -50)
+                             .close()
+                             .detach(),
+                     SkMatrix::I(),
+                     clip,
+                     "AllVerbsCulled_EmptyPolyline_AboveClip"});
+
+    // Closed contour completely to the left of the clip: both vertical edges are culled into the
+    // WindingHistogram, cancelling out to net 0 winding with no tiles emitted.
+    cases.push_back(
+            {SkPathBuilder().addRect(SkRect::MakeLTRB(-40.0f, 16.0f, -10.0f, 80.0f)).detach(),
+             SkMatrix::I(),
+             clip,
+             "ClosedContour_CompletelyLeft"});
+
+    // Two overlapping contours whose left edges are culled to the left of the clip and right edges
+    // are culled to the right of the clip, producing winding 2 in rows [24, 72) and winding 1 in
+    // rows [0, 24) and [72, 100), distinguishing kWinding/kInverseWinding from
+    // kEvenOdd/kInverseEvenOdd in ProcessEmptyTileRows.
+    {
+        SkPathBuilder doubleLeft;
+        doubleLeft.addRect(SkRect::MakeLTRB(-20.0f, -10.0f, 120.0f, 110.0f), SkPathDirection::kCW);
+        doubleLeft.addRect(SkRect::MakeLTRB(-15.0f, 24.0f, 125.0f, 72.0f), SkPathDirection::kCW);
+        cases.push_back({doubleLeft.detach(), SkMatrix::I(), clip, "DoubleWinding_LeftEdges"});
+    }
+
     // Exact inputs captured from the viewer.
     const CullingRepros::Repro repro = CullingRepros::DeskTiger8Capture3Draw2();
     cases.push_back({repro.fPath, repro.fCtm, repro.fClip, "DeskTiger8Capture3Draw2"});
 
+    // The line that crosses only the right edge of the clip must keep its winding in its tile
+    // rather than moving it into the WindingHistogram: Since no line crosses the left edge, Tiler
+    // reports no culling event, and MakeStrips ignores the histogram.
+    cases.push_back({make_right_crossing_sliver(),
+                     SkMatrix::I(),
+                     SkIRect::MakeWH(64, 32),
+                     "RightCrossingSliver_EndsOnClipLeft"});
+
+    // Combines EndCaps, winding culled into the WindingHistogram, and the WideTiles that lead from
+    // the clip's left edge to the first EndCap of a row.
+    cases.push_back({make_frame_with_circles(clip), SkMatrix::I(), clip, "FrameWithCircles"});
+
+    const SkPathFillType fillTypes[] = {
+            SkPathFillType::kWinding,
+            SkPathFillType::kEvenOdd,
+            SkPathFillType::kInverseWinding,
+            SkPathFillType::kInverseEvenOdd,
+    };
+
+    // Each case is also drawn with its clip (and geometry) translated away from the origin, since
+    // StripGenerator draws most paths with such a clip. Translating by whole tiles preserves the
+    // tiling of each draw, and moves most of the geometry that is culled left of the clip to
+    // positive device coordinates.
+    constexpr SkIVector kClipOffset = {64, 48};
+    static_assert(kClipOffset.fX % kTileWidth == 0 && kClipOffset.fY % kTileHeight == 0);
+
     for (const TestCase& testCase : cases) {
-        // Note: FastValidator only supports viewports anchored at the origin at this point.
-        SkASSERT(testCase.clip.fLeft == 0 && testCase.clip.fTop == 0);
-        SkString name;
-        name.printf(
-                "CulledGeometry_%s_(%dx%d)_%s", implName, kTileWidth, kTileHeight, testCase.name);
-        FastValidator<kTileWidth, kTileHeight>::ValidatePath(
-                reporter,
-                recorder,
-                testCase.path,
-                testCase.ctm,
-                static_cast<uint16_t>(testCase.clip.width()),
-                static_cast<uint16_t>(testCase.clip.height()),
-                name.c_str(),
-                lut,
-                stripFunc,
-                &minorErrors);
+        for (bool translate : {false, true}) {
+            const SkIRect drawClip =
+                    translate ? testCase.clip.makeOffset(kClipOffset) : testCase.clip;
+            const SkMatrix drawCtm =
+                    translate ? SkMatrix::Translate(kClipOffset) * testCase.ctm : testCase.ctm;
+            for (SkPathFillType ft : fillTypes) {
+                SkPath pathWithFill = testCase.path;
+                pathWithFill.setFillType(ft);
+                SkString name;
+                name.printf("CulledGeometry_%s_(%dx%d)_%s_Clip(%d,%d)_Fill(%d)",
+                            implName,
+                            kTileWidth,
+                            kTileHeight,
+                            testCase.name,
+                            drawClip.fLeft,
+                            drawClip.fTop,
+                            static_cast<int>(ft));
+                if (!FastValidator<kTileWidth, kTileHeight>::ValidatePath(reporter,
+                                                                          recorder,
+                                                                          pathWithFill,
+                                                                          drawCtm,
+                                                                          drawClip,
+                                                                          name.c_str(),
+                                                                          lut,
+                                                                          stripFunc,
+                                                                          &minorErrors)) {
+                    return;
+                }
+            }
+        }
+    }
+
+    // Also verify sub-viewport clip bounds (non-zero left/top and bottom < deviceHeight) with a
+    // WindingHistogram sized to the full device height, as used by StripGenerator.
+    constexpr uint16_t kDeviceWidth = 16 * kTileWidth;
+    constexpr uint16_t kDeviceHeight = 16 * kTileHeight;
+    constexpr uint16_t kDeviceRows = kDeviceHeight / kTileHeight;
+    const SkIRect subClip =
+            SkIRect::MakeLTRB(2 * kTileWidth, 3 * kTileHeight, 10 * kTileWidth, 11 * kTileHeight);
+    const uint16_t expectedSubClipRows = static_cast<uint16_t>((subClip.height()) / kTileHeight);
+
+    struct SubClipCase {
+        SkPath path;
+        uint16_t expectedWideRows;
+        const char* label;
+    };
+    SkPath invAbove = SkPathBuilder()
+                              .moveTo(20.0f, -40.0f)
+                              .cubicTo(30.0f, -50.0f, 50.0f, -50.0f, 60.0f, -40.0f)
+                              .close()
+                              .detach();
+    invAbove.setFillType(SkPathFillType::kInverseWinding);
+
+    SkPath invLeftClosed = SkPathBuilder()
+                                   .addRect(SkRect::MakeLTRB(
+                                           -30.0f, 4.0f * kTileHeight, -10.0f, 8.0f * kTileHeight))
+                                   .detach();
+    invLeftClosed.setFillType(SkPathFillType::kInverseEvenOdd);
+
+    SkPath regEnclosing =
+            SkPathBuilder()
+                    .addRect(SkRect::MakeLTRB(
+                            -20.0f, -20.0f, kDeviceWidth + 20.0f, kDeviceHeight + 20.0f))
+                    .detach();
+    regEnclosing.setFillType(SkPathFillType::kWinding);
+
+    const SubClipCase subClipCases[] = {
+            {invAbove, expectedSubClipRows, "SubClip_InverseAbove_EmptyPolyline"},
+            {invLeftClosed, expectedSubClipRows, "SubClip_InverseLeftClosed_CulledZeroWinding"},
+            {regEnclosing, expectedSubClipRows, "SubClip_RegularEnclosing_CulledFullFill"},
+    };
+
+    for (const SubClipCase& sc : subClipCases) {
+        Flatten flattener;
+        Polyline polyline;
+        flattener.processPaths<FlattenMode::kSimd>(sc.path, SkMatrix::I(), subClip, &polyline);
+
+        WindingHistogram windingHistogram(kDeviceRows);
+        windingHistogram.resize(kDeviceRows);
+        windingHistogram.clear();
+
+        Tiles<kTileWidth, kTileHeight> tiler;
+        bool isCulled = tiler.makeTilesMSAA(polyline, subClip, &windingHistogram);
+        tiler.sortTiles();
+
+        WideTiles wides;
+        EndCaps ends;
+        AlphaAtlasManager atlasManager(recorder);
+        auto observer = [](uint8_t, skvx::int8) {};
+
+        stripFunc(tiler,
+                  &wides,
+                  &ends,
+                  &atlasManager,
+                  sc.path.getFillType(),
+                  polyline,
+                  lut,
+                  isCulled,
+                  windingHistogram,
+                  subClip,
+                  observer);
+
+        REPORTER_ASSERT(reporter,
+                        ends.empty(),
+                        "[%s_%s] Expected 0 EndCaps, got %zu",
+                        implName,
+                        sc.label,
+                        ends.size());
+        REPORTER_ASSERT(reporter,
+                        wides.size() == sc.expectedWideRows,
+                        "[%s_%s] Expected %u WideTiles, got %zu",
+                        implName,
+                        sc.label,
+                        sc.expectedWideRows,
+                        wides.size());
+        for (size_t i = 0; i < wides.size(); ++i) {
+            const auto& wide = wides.tiles()[static_cast<int>(i)];
+            const uint16_t expectedY = static_cast<uint16_t>(subClip.top() + i * kTileHeight);
+            REPORTER_ASSERT(reporter,
+                            wide.fX == subClip.left() && wide.fY == expectedY &&
+                                    wide.fWidth == subClip.width(),
+                            "[%s_%s] WideTile[%zu] got (%u, %u, %u), want (%d, %u, %d)",
+                            implName,
+                            sc.label,
+                            i,
+                            wide.fX,
+                            wide.fY,
+                            wide.fWidth,
+                            subClip.left(),
+                            expectedY,
+                            subClip.width());
+        }
+
+        if constexpr (kTileWidth == SparseStripConfig::kTileWidth &&
+                      kTileHeight == SparseStripConfig::kTileHeight) {
+            StripGenerator gen(kDeviceWidth, kDeviceHeight, lut, recorder);
+            REPORTER_ASSERT(reporter, gen.processGeometry(sc.path, SkMatrix::I(), subClip));
+            REPORTER_ASSERT(reporter, gen.ends().empty());
+            REPORTER_ASSERT(reporter, gen.wides().size() == sc.expectedWideRows);
+        }
     }
 }
 
@@ -437,6 +667,43 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_CulledGeometry_Sc
     auto recorder = context->makeRecorder();
     run_culled_geometry_suite<4, 4>(
             reporter, recorder.get(), &FastValidator<4, 4>::RunScalarWinding, "Scalar");
+}
+
+// StripGenerator reuses its WindingHistogram across draws, and only clears it after a draw that
+// culled geometry into it. So a draw that does not cull must leave the histogram untouched, or its
+// winding leaks into the next draw that culls.
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_StripGeneratorHistogramReuse,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kToBeDetermined) {
+    auto recorder = context->makeRecorder();
+    const SparseStripConfig::LUTArray lut = GenerateMSAALUT();
+    constexpr int kDeviceSize = 64;
+    constexpr size_t kDeviceRows = kDeviceSize / SparseStripConfig::kTileHeight;
+    const SkIRect clip = SkIRect::MakeWH(kDeviceSize, kDeviceSize);
+    StripGenerator gen(kDeviceSize, kDeviceSize, lut, recorder.get());
+
+    // The sliver does not cross the clip's left edge, and does not entirely cover any tile.
+    const SkPath sliver = make_right_crossing_sliver();
+    REPORTER_ASSERT(reporter, gen.processGeometry(sliver, SkMatrix::I(), clip));
+    REPORTER_ASSERT(reporter,
+                    gen.wides().empty(),
+                    "Expected no WideTiles for the sliver, got %zu",
+                    gen.wides().size());
+
+    // The left edge of a rect enclosing the device is culled, so each row is a single WideTile.
+    const SkPath enclosing =
+            SkPathBuilder()
+                    .addRect(SkRect::MakeLTRB(
+                            -20.0f, -20.0f, kDeviceSize + 20.0f, kDeviceSize + 20.0f))
+                    .detach();
+    REPORTER_ASSERT(reporter, gen.processGeometry(enclosing, SkMatrix::I(), clip));
+    REPORTER_ASSERT(reporter, gen.ends().empty());
+    REPORTER_ASSERT(reporter,
+                    gen.wides().size() == kDeviceRows,
+                    "Expected %zu WideTiles for the enclosing rect, got %zu",
+                    kDeviceRows,
+                    gen.wides().size());
 }
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_SKP_SIMD_4x4,

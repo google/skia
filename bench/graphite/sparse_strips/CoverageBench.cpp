@@ -9,6 +9,7 @@
 #include "bench/BenchmarkDataset.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkTDArray.h"
 #include "src/gpu/graphite/geom/EndCaps.h"
@@ -18,6 +19,7 @@
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
 #include "src/gpu/graphite/sparse_strips/MakeStrips.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
+#include "src/gpu/graphite/sparse_strips/WindingHistogram.h"
 
 namespace skgpu::graphite {
 
@@ -31,8 +33,9 @@ public:
                                   SkPathFillType,
                                   const Polyline&,
                                   const SparseStripConfig::LUTArray&,
-                                  uint16_t viewportWidth,
-                                  uint16_t viewportHeight,
+                                  bool isCulled,
+                                  const WindingHistogram&,
+                                  const SkIRect& clipRect,
                                   MsaaExactMaskObserver);
 
     CoverageBench(const char* name, MakeStripsFn func) : fFunc(func), fLUT(GenerateMSAALUT()) {
@@ -56,20 +59,21 @@ protected:
                                                        DatasetInfo::kWidthF, DatasetInfo::kHeightF,
                                                        &fPolyline);
         }
-        fTiles.makeTilesMSAA(fPolyline, DatasetInfo::kWidth, DatasetInfo::kHeight);
+        fClip = SkIRect::MakeWH(DatasetInfo::kWidth, DatasetInfo::kHeight);
+        fHistogram.resize((fClip.height() + kTileHeight - 1) / kTileHeight);
+        fHistogram.clear();
+        fCulled = fTiles.makeTilesMSAA(fPolyline, fClip, &fHistogram);
         fTiles.sortTiles();
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        using DatasetInfo = BenchmarkDatasetInfo<kDataset>;
         WideTiles wides;
         EndCaps ends;
         std::unique_ptr<AlphaAtlasManager> atlasMgr =
                 std::make_unique<AlphaAtlasManager>(canvas->recorder());
         for (int i = 0; i < loops; ++i) {
-            fFunc(fTiles, &wides, &ends, atlasMgr.get(), SkPathFillType::kDefault,
-                  fPolyline, fLUT, DatasetInfo::kWidth, DatasetInfo::kHeight,
-                  /*MsaaExactMaskObserver=*/nullptr);
+            fFunc(fTiles, &wides, &ends, atlasMgr.get(), SkPathFillType::kDefault, fPolyline, fLUT,
+                  fCulled, fHistogram, fClip, /*MsaaExactMaskObserver=*/nullptr);
             wides.clear();
             ends.clear();
             atlasMgr->freeGpuResources();
@@ -81,6 +85,9 @@ private:
     MakeStripsFn fFunc;
     Polyline fPolyline;
     Tiles<kTileWidth, kTileHeight> fTiles;
+    WindingHistogram fHistogram;
+    SkIRect fClip;
+    bool fCulled = false;
     const SparseStripConfig::LUTArray fLUT;
 };
 

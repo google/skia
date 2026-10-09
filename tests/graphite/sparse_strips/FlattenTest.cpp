@@ -481,13 +481,7 @@ template <FlattenMode kMode> class FlattenTestRunner {
                                         const char* testName) {
             Flatten flattener;
             Polyline polyline;
-            // Note: Flatten only supports clips anchored at the origin at this point.
-            SkASSERT(clip.fLeft == 0 && clip.fTop == 0);
-            flattener.processPaths<kMode>(path,
-                                          ctm,
-                                          static_cast<float>(clip.width()),
-                                          static_cast<float>(clip.height()),
-                                          &polyline);
+            flattener.processPaths<kMode>(path, ctm, clip, &polyline);
 
             const SkPoint startPt = ctm.mapPoint(path.getPoint(0));
             const SkPoint lastPt = ctm.mapPoint(path.getPoint(path.countPoints() - 1));

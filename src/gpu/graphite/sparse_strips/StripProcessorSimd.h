@@ -126,13 +126,6 @@ public:
             fCoarseWinding ^= static_cast<int32_t>(windingBit);
         }
 
-        // TODO (thomsmit): remove once culling lands
-        // Cull lines that exist entirely to the left of the tile.
-        float rightEdge = canonicalXDir ? line.p1.fX : line.p0.fX;
-        if (rightEdge < 0.0f) {
-            return;
-        }
-
         float dx = line.p1.fX - line.p0.fX;
         float dy = line.p1.fY - line.p0.fY;
         float invDx = (std::abs(dx) <= SparseStripConfig::kStripEpsilon) ? 0.0f : 1.0f / dx;
@@ -318,7 +311,10 @@ private:
     //     accumulation bytes and moves the total subsample count into the lowest byte.
     //  6) Alpha Conversion: The total is multiplied by the maximum alpha value (255), summed by
     //     subsampleCount / 2 for rounding, and right-shifted by log2(subsampleCount). This keeps
-    //     the entire conversion in integer math and avoids division.
+    //     the entire conversion in integer math and avoids division. Inverse fills then XOR the
+    //     result with all ones (255 - alpha), which flips the direction ties round, so they add
+    //     subsampleCount / 2 - 1 instead (round half down). This matches the scalar path,
+    //     which inverts the subsample count before rounding half up.
     template <int kChunkSize>
     SK_ALWAYS_INLINE void processChunk(int32_t row,
                                        int32_t column,
@@ -339,8 +335,10 @@ private:
 
         auto combinedBytes = activeLo + activeHi;
         skvx::Vec<kChunkSize, uint32_t> activeSamples = (combinedBytes * 0x01010101u) >> 24;
+        const uint32_t rounding = fIsInverse ? 3 : 4;  // Round half down if inverse, else half up.
         const uint32_t invMask32 = fIsInverse ? 0xffffffff : 0;
-        skvx::Vec<kChunkSize, uint32_t> alpha32 = ((activeSamples * 255 + 4) >> 3) ^ invMask32;
+        skvx::Vec<kChunkSize, uint32_t> alpha32 =
+                ((activeSamples * 255 + rounding) >> 3) ^ invMask32;
         skvx::cast<uint8_t>(alpha32).store(tileAlphaBase);
 #if defined(GPU_TEST_UTILS)
         if (fObserver) {

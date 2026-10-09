@@ -27,13 +27,29 @@ StripGenerator::StripGenerator(int width,
         : fWidth(width)
         , fHeight(height)
         , fMaskLUT(maskLUT)
-        , fRecorder(recorder) {}
+        , fRecorder(recorder)
+        , fWindingHistogram((height + SparseStripConfig::kTileHeight - 1) /
+                            SparseStripConfig::kTileHeight)
+        , fCulled(true) {}
 
 StripGenerator::~StripGenerator() = default;
 
 bool StripGenerator::processGeometry(const SkPath& path, const SkMatrix& ctm) {
+    return this->processGeometry(path, ctm, SkIRect::MakeWH(fWidth, fHeight));
+}
+
+bool StripGenerator::processGeometry(const SkPath& path, const SkMatrix& ctm, const SkIRect& clip) {
     fEnds.clear();
     fWides.clear();
+
+    SkIRect tileClip = clip;
+    if (!tileClip.intersect(SkIRect::MakeWH(fWidth, fHeight))) {
+        return true;
+    }
+    tileClip.fLeft =
+            (tileClip.fLeft / SparseStripConfig::kTileWidth) * SparseStripConfig::kTileWidth;
+    tileClip.fTop =
+            (tileClip.fTop / SparseStripConfig::kTileHeight) * SparseStripConfig::kTileHeight;
 
     AlphaAtlasManager* atlasManager =
             fRecorder->priv().getOrCreateAtlasProvider()->alphaAtlasManager();
@@ -43,41 +59,49 @@ bool StripGenerator::processGeometry(const SkPath& path, const SkMatrix& ctm) {
 
     Flatten flattener;
     Polyline polyline;
-    flattener.processPaths<FlattenMode::kSimd>(path,
-                                               ctm,
-                                               static_cast<float>(fWidth),
-                                               static_cast<float>(fHeight),
-                                               &polyline);
+    flattener.processPaths<FlattenMode::kSimd>(path, ctm, tileClip, &polyline);
 
-    if (polyline.count() == 0) {
+    if (polyline.count() == 0 && !path.isInverseFillType()) {
         return true;
     }
+
+    fWindingHistogram.resize((fHeight + SparseStripConfig::kTileHeight - 1) /
+                             SparseStripConfig::kTileHeight);
+    if (fCulled) {
+        fWindingHistogram.clear();
+    }
+#if defined(SK_DEBUG)
+    // Tiler only writes to the histogram when it reports a culling event, so if the previous draw
+    // did not cull, the histogram must still be zero from the last time it was cleared.
+    for (int16_t winding : fWindingHistogram.data()) {
+        SkASSERT(winding == 0);
+    }
+#endif
 
     Tiles<SparseStripConfig::kTileWidth, SparseStripConfig::kTileHeight> tiler;
-    tiler.makeTilesMSAA(polyline, fWidth, fHeight);
+    fCulled = tiler.makeTilesMSAA(polyline, tileClip, &fWindingHistogram);
     tiler.sortTiles();
 
-    if (tiler.getTiles().empty()) {
-        return true;
-    }
-
-    bool success = MakeStrips::MsaaSimd<SparseStripConfig::kTileWidth,
-                                        SparseStripConfig::kTileHeight>(
-            tiler,
-            &fWides,
-            &fEnds,
-            atlasManager,
-            path.getFillType(),
-            polyline,
-            fMaskLUT,
-            fWidth,
-            fHeight);
+    bool success =
+            MakeStrips::MsaaSimd<SparseStripConfig::kTileWidth, SparseStripConfig::kTileHeight>(
+                    tiler,
+                    &fWides,
+                    &fEnds,
+                    atlasManager,
+                    path.getFillType(),
+                    polyline,
+                    fMaskLUT,
+                    fCulled,
+                    fWindingHistogram,
+                    tileClip);
 
     if (!success) {
         return false;
     }
 
-    atlasManager->populateProxies(&fEnds);
+    if (!fEnds.empty()) {
+        atlasManager->populateProxies(&fEnds);
+    }
     return true;
 }
 

@@ -18,6 +18,7 @@
 class SkMatrix;
 class SkPath;
 enum class SkPathFillType : uint8_t;
+struct SkIRect;
 template <typename T> class SkTDArray;
 
 namespace skgpu::graphite {
@@ -27,6 +28,7 @@ class EndCaps;
 class Polyline;
 class Recorder;
 class WideTiles;
+class WindingHistogram;
 template <uint16_t kTileWidth, uint16_t kTileHeight> class Tiles;
 
 // The FastValidator is a faster alternative to the Oracle that is intended to run on CQ. Like the
@@ -48,9 +50,10 @@ public:
                                SkPathFillType fillType,
                                const Polyline& polyline,
                                const SparseStripConfig::LUTArray& msaaLut,
-                               MsaaExactMaskObserver observer,
-                               uint16_t viewportWidth,
-                               uint16_t viewportHeight);
+                               bool isCulled,
+                               const WindingHistogram& windingHistogram,
+                               const SkIRect& clipRect,
+                               MsaaExactMaskObserver observer);
 
     static void RunScalarWinding(const Tiles<kTileWidth, kTileHeight>& tileContainer,
                                  WideTiles* wides,
@@ -59,9 +62,10 @@ public:
                                  SkPathFillType fillType,
                                  const Polyline& polyline,
                                  const SparseStripConfig::LUTArray& maskLut,
-                                 MsaaExactMaskObserver observer,
-                                 uint16_t viewportWidth,
-                                 uint16_t viewportHeight);
+                                 bool isCulled,
+                                 const WindingHistogram& windingHistogram,
+                                 const SkIRect& clipRect,
+                                 MsaaExactMaskObserver observer);
 
     static void RunSimdWinding(const Tiles<kTileWidth, kTileHeight>& tileContainer,
                                WideTiles* wides,
@@ -70,9 +74,10 @@ public:
                                SkPathFillType fillType,
                                const Polyline& polyline,
                                const SparseStripConfig::LUTArray& maskLut,
-                               MsaaExactMaskObserver observer,
-                               uint16_t viewportWidth,
-                               uint16_t viewportHeight);
+                               bool isCulled,
+                               const WindingHistogram& windingHistogram,
+                               const SkIRect& clipRect,
+                               MsaaExactMaskObserver observer);
 
     // Validates a single path end-to-end:
     // 1. Flattens using unculled Flatten::processPathsSimdTest to get ground-truth polyline.
@@ -92,6 +97,20 @@ public:
                              StripFunc stripFunc = nullptr,
                              std::array<uint32_t, 3>* minorErrorCount = nullptr);
 
+    // As above, but for a draw restricted to `clipRect` rather than a viewport anchored at the
+    // origin. Like the clips passed by StripGenerator, `clipRect` must have a tile aligned left and
+    // top. Only the pixels inside of `clipRect` are validated, and every tile outside of it must be
+    // empty.
+    static bool ValidatePath(skiatest::Reporter* reporter,
+                             Recorder* recorder,
+                             const SkPath& path,
+                             const SkMatrix& ctm,
+                             const SkIRect& clipRect,
+                             const char* testName,
+                             const SparseStripConfig::LUTArray& maskLut,
+                             StripFunc stripFunc = nullptr,
+                             std::array<uint32_t, 3>* minorErrorCount = nullptr);
+
     // Validates precomputed strip output against an unculled reference polyline.
     static bool ValidateStripOutput(skiatest::Reporter* reporter,
                                     const SkPath& path,
@@ -102,8 +121,7 @@ public:
                                     const EndCaps& ends,
                                     const AlphaAtlasManager& atlasManager,
                                     const SkTDArray<uint8_t>& exactMasks,
-                                    uint16_t viewportWidth,
-                                    uint16_t viewportHeight,
+                                    const SkIRect& clip,
                                     SkPathFillType fillType,
                                     const char* testName,
                                     std::array<uint32_t, 3>* minorErrorCount = nullptr);

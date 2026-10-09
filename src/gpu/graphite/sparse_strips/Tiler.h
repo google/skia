@@ -620,24 +620,35 @@ private:
         uint16_t xEndVal;
 
         if constexpr (kCrossesEdge) {
+            // Clamp the row's crossings to the extent of the line, since the computed crossings
+            // may drift slightly past it.
+            lx = std::clamp(std::fmin(rowTopX, rowBottomX), ctx.lineLeftX, ctx.lineRightX);
+            rx = std::clamp(std::fmax(rowTopX, rowBottomX), ctx.lineLeftX, ctx.lineRightX);
+
             // When the line crosses the clip's left boundary, the portion of the segment left of
             // the boundary contributes winding but no visible tiles. If the entire segment is left
             // of clip, early-out. Otherwise, clear the winding flag from interior tiles so winding
             // is not double-counted.
-            if (rowTopX < ctx.clipLeftTile) {
+            //
+            // Note: This tests the clamped crossing at the top of the row rather than `rowTopX`.
+            // Otherwise, a line ending exactly on the clip's left edge could drift left of it, and
+            // move its winding into the histogram even though:
+            //  - It does not cross the left edge, so no culling event is reported for it, and the
+            //    histogram is ignored, dropping its winding from the rest of the row.
+            //  - Its leftmost tile, classified from `lx` below, still enters through the top (T)
+            //    rather than the left (L), so honoring the histogram would count it twice.
+            const float rowTopCrossX = kXDir ? lx : rx;
+            if (rowTopCrossX < ctx.clipLeftTile) {
                 if (wMask & W) {
                     histogram->addWinding(yIdx, ctx.windingDir);
                 }
 
-                if (rowBottomX < ctx.clipLeftTile) {
+                if (rx < ctx.clipLeftTile) {
                     return;
                 } else {
                     wMask &= ~W;
                 }
             }
-
-            lx = std::fmax(std::fmin(rowTopX, rowBottomX), ctx.lineLeftX);
-            rx = std::fmin(std::fmax(rowTopX, rowBottomX), ctx.lineRightX);
 
             xEndVal = std::min(f32ToU16Sat(rx),
                                static_cast<uint16_t>(ctx.maxTileX > 0 ? ctx.maxTileX - 1 : 0));

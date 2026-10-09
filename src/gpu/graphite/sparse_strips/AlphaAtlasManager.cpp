@@ -329,6 +329,9 @@ bool AlphaAtlasManager::resolveNullCaps(EndCaps* ends) {
 }
 
 void AlphaAtlasManager::populateProxies(EndCaps* ends) const {
+    if (ends->empty()) {
+        return;
+    }
     int32_t startSlot = 0;
     while (startSlot < SparseStripConfig::kMaxTexturePages && !fPages[startSlot].isValid()) {
         startSlot++;

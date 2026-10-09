@@ -7,9 +7,11 @@
 #ifndef skgpu_graphite_sparse_strips_StripGenerator_DEFINED
 #define skgpu_graphite_sparse_strips_StripGenerator_DEFINED
 
+#include "include/core/SkRect.h"
 #include "src/gpu/graphite/geom/EndCaps.h"
 #include "src/gpu/graphite/geom/WideTiles.h"
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
+#include "src/gpu/graphite/sparse_strips/WindingHistogram.h"
 
 #include <cstdint>
 
@@ -29,6 +31,7 @@ public:
     ~StripGenerator();
 
     bool processGeometry(const SkPath& path, const SkMatrix& ctm);
+    bool processGeometry(const SkPath& path, const SkMatrix& ctm, const SkIRect& clip);
 
     const EndCaps& ends() const { return fEnds; }
     const WideTiles& wides() const { return fWides; }
@@ -43,6 +46,8 @@ private:
     Recorder* fRecorder;
     EndCaps fEnds;
     WideTiles fWides;
+    WindingHistogram fWindingHistogram;
+    bool fCulled;
 };
 
 } // namespace skgpu::graphite

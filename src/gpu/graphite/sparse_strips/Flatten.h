@@ -9,6 +9,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkGeometry.h"
@@ -120,15 +121,23 @@ public:
     template <FlattenMode kMode>
     SK_ALWAYS_INLINE void processPaths(const SkPath& path,
                                        const SkMatrix& ctm,
-                                       float width,
-                                       float height,
+                                       const SkIRect& clip,
                                        Polyline* polyline) {
         SkASSERT(!ctm.hasPerspective());
         if constexpr (kMode == FlattenMode::kSimd) {
-            this->processPathsSimd(path, ctm, width, height, polyline);
+            this->processPathsSimd(path, ctm, clip, polyline);
         } else {
-            this->processPathsScalar(path, ctm, width, height, polyline);
+            this->processPathsScalar(path, ctm, clip, polyline);
         }
+    }
+
+    template <FlattenMode kMode>
+    SK_ALWAYS_INLINE void processPaths(const SkPath& path,
+                                       const SkMatrix& ctm,
+                                       float width,
+                                       float height,
+                                       Polyline* polyline) {
+        this->processPaths<kMode>(path, ctm, SkIRect::MakeWH(width, height), polyline);
     }
 
 private:
@@ -174,15 +183,15 @@ private:
         SkTDArray<SkPoint> fFlattenedCubics;
     };
 
-    void processPathsSimd(const SkPath& path, const SkMatrix& ctm, float width, float height,
+    void processPathsSimd(const SkPath& path, const SkMatrix& ctm, const SkIRect& clip,
                           Polyline* polyline);
-    void processPathsScalar(const SkPath& path, const SkMatrix& ctm, float width, float height,
+    void processPathsScalar(const SkPath& path, const SkMatrix& ctm, const SkIRect& clip,
                             Polyline* polyline);
     template <bool kShouldCull, bool kShouldSimplify>
-    void processPathsSimdImpl(const SkPath& path, const SkMatrix& ctm, float width, float height,
+    void processPathsSimdImpl(const SkPath& path, const SkMatrix& ctm, const SkIRect& clip,
                               Polyline* polyline);
     template <bool kShouldCull, bool kShouldSimplify>
-    void processPathsScalarImpl(const SkPath& path, const SkMatrix& ctm, float width, float height,
+    void processPathsScalarImpl(const SkPath& path, const SkMatrix& ctm, const SkIRect& clip,
                                 Polyline* polyline);
 
     void flattenQuadSimd(const SkPoint pts[3], Polyline* polyline);
@@ -202,6 +211,10 @@ private:
     // Stubs for non-simplifying, non-culling flattening to be used as a source of truth.
 #if defined(GPU_TEST_UTILS)
     template <uint16_t, uint16_t> friend class FastValidator;
+    void processPathsSimdTest(const SkPath& path, const SkMatrix& ctm, const SkIRect& clip,
+                              Polyline* polyline);
+    void processPathsScalarTest(const SkPath& path, const SkMatrix& ctm, const SkIRect& clip,
+                                Polyline* polyline);
     void processPathsSimdTest(const SkPath& path, const SkMatrix& ctm, float width, float height,
                               Polyline* polyline);
     void processPathsScalarTest(const SkPath& path, const SkMatrix& ctm, float width,

@@ -26,6 +26,7 @@
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
+#include "src/gpu/graphite/sparse_strips/WindingHistogram.h"
 #include "tests/Test.h"
 #include "tests/graphite/sparse_strips/CoverageTestUtils.h"
 
@@ -46,9 +47,9 @@ struct LineHit {
 
 template <uint16_t kTileHeight>
 std::vector<std::vector<Line>> build_tile_row_line_buckets(const Polyline& polyline,
-                                                           uint16_t viewportHeight) {
+                                                           int clipBottom) {
     constexpr float kTileHeightF = static_cast<float>(kTileHeight);
-    uint16_t numTileRows = (viewportHeight + kTileHeight - 1) / kTileHeight;
+    uint16_t numTileRows = (clipBottom + kTileHeight - 1) / kTileHeight;
     std::vector<std::vector<Line>> buckets(numTileRows);
 
     for (auto it = polyline.begin(); it != polyline.end(); ++it) {
@@ -56,7 +57,7 @@ std::vector<std::vector<Line>> build_tile_row_line_buckets(const Polyline& polyl
         float minY = std::min(line.p0.fY, line.p1.fY);
         float maxY = std::max(line.p0.fY, line.p1.fY);
 
-        if (maxY < 0.0f || minY >= static_cast<float>(viewportHeight)) {
+        if (maxY < 0.0f || minY >= static_cast<float>(clipBottom)) {
             continue;
         }
 
@@ -108,34 +109,38 @@ void collect_row_hits(int py,
 
 enum class TileKind : uint8_t { kEmpty, kEndCap, kWide };
 
-// EndCaps only cover the tiles that edges pass through, so this validates the rest of the viewport:
+// EndCaps only cover the tiles that edges pass through, so this validates the rest of the clip:
 // every tile whose subsamples are all inside the path must be covered by exactly one WideTile, and
 // every tile whose subsamples are all outside must be empty. A tile with subsamples on both sides
 // of the path must be an EndCap. Rather than evaluating every subsample, this relies on the winding
-// of each sub-scanline being constant between the crossings of the lines.
+// of each sub-scanline being constant between the crossings of the lines. Every tile outside of the
+// clip must be empty.
 template <uint16_t kTileWidth, uint16_t kTileHeight>
 bool validate_solid_tiles(skiatest::Reporter* reporter,
                           const std::vector<std::vector<Line>>& lineBuckets,
                           const WideTiles& wides,
                           const EndCaps& ends,
                           const skvx::float8& subX,
-                          uint16_t viewportWidth,
-                          uint16_t viewportHeight,
+                          const SkIRect& clip,
                           bool isEvenOdd,
                           bool isInverse,
                           const char* testName) {
-    const int numTileCols = (viewportWidth + kTileWidth - 1) / kTileWidth;
-    const int numTileRows = (viewportHeight + kTileHeight - 1) / kTileHeight;
+    // The grid spans from the origin to the clip, so that tiles left of or above the clip can be
+    // detected. The clip's left and top are tile aligned.
+    const int minTileCol = clip.left() / kTileWidth;
+    const int minTileRow = clip.top() / kTileHeight;
+    const int numTileCols = (clip.right() + kTileWidth - 1) / kTileWidth;
+    const int numTileRows = (clip.bottom() + kTileHeight - 1) / kTileHeight;
 
     // Rasterize the strip output into the tile grid, verifying that each tile is emitted at most
-    // once and lies within the viewport.
+    // once and lies within the clip.
     std::vector<TileKind> tileKinds(numTileCols * numTileRows, TileKind::kEmpty);
     auto markTiles = [&](uint16_t x, uint16_t y, uint16_t width, TileKind kind) {
         const char* type = kind == TileKind::kWide ? "WideTile" : "EndCap";
         const int right = x + width;
-        // Note: WideTiles may end at the right edge of the viewport rather than a tile boundary.
+        // Note: WideTiles may end at the right edge of the clip rather than a tile boundary.
         if (x % kTileWidth != 0 || y % kTileHeight != 0 || width == 0 ||
-            (right % kTileWidth != 0 && right != viewportWidth)) {
+            (right % kTileWidth != 0 && right != clip.right())) {
             REPORTER_ASSERT(reporter,
                             false,
                             "[%s] %s (x:%d, y:%d, width:%d) is not tile aligned",
@@ -149,17 +154,21 @@ bool validate_solid_tiles(skiatest::Reporter* reporter,
         const int row = y / kTileHeight;
         const int startCol = x / kTileWidth;
         const int endCol = (right + kTileWidth - 1) / kTileWidth;
-        if (row >= numTileRows || endCol > numTileCols) {
+        if (row < minTileRow || row >= numTileRows || startCol < minTileCol ||
+            endCol > numTileCols) {
             REPORTER_ASSERT(reporter,
                             false,
-                            "[%s] %s (x:%d, y:%d, width:%d) lies outside of the %dx%d viewport",
+                            "[%s] %s (x:%d, y:%d, width:%d) lies outside of the clip "
+                            "(l:%d, t:%d, r:%d, b:%d)",
                             testName,
                             type,
                             x,
                             y,
                             width,
-                            viewportWidth,
-                            viewportHeight);
+                            clip.left(),
+                            clip.top(),
+                            clip.right(),
+                            clip.bottom());
             return false;
         }
         for (int col = startCol; col < endCol; ++col) {
@@ -242,7 +251,7 @@ bool validate_solid_tiles(skiatest::Reporter* reporter,
 
     std::vector<LineHit> rowHits;
     std::vector<std::pair<float, int>> crossings;
-    for (int row = 0; row < numTileRows; ++row) {
+    for (int row = minTileRow; row < numTileRows; ++row) {
         const TileKind* rowKinds = &tileKinds[row * numTileCols];
         for (int col = 0; col < numTileCols; ++col) {
             widePrefix[col + 1] = widePrefix[col] + (rowKinds[col] == TileKind::kWide ? 1 : 0);
@@ -253,13 +262,18 @@ bool validate_solid_tiles(skiatest::Reporter* reporter,
         const std::vector<Line>& candidateLines = lineBuckets[row];
         if (candidateLines.empty()) {
             // Nothing crosses this row, so the winding is zero everywhere.
-            if (!checkSpan(row, row * kTileHeight, /*k=*/0, 0, viewportWidth, /*winding=*/0)) {
+            if (!checkSpan(row,
+                           row * kTileHeight,
+                           /*k=*/0,
+                           clip.left(),
+                           clip.right(),
+                           /*winding=*/0)) {
                 return false;
             }
             continue;
         }
 
-        const int endY = std::min<int>((row + 1) * kTileHeight, viewportHeight);
+        const int endY = std::min<int>((row + 1) * kTileHeight, clip.bottom());
         for (int py = row * kTileHeight; py < endY; ++py) {
             collect_row_hits(py, candidateLines, &rowHits);
             for (int k = 0; k < 8; ++k) {
@@ -272,23 +286,25 @@ bool validate_solid_tiles(skiatest::Reporter* reporter,
                 std::sort(crossings.begin(), crossings.end());
 
                 // Returns the first pixel whose subsample `k` is affected by a crossing at `x`,
-                // which exactly matches the `vPx >= th.x` test of the EndCap validation.
+                // which exactly matches the `vPx >= th.x` test of the EndCap validation. Crossings
+                // left of the clip affect its leftmost pixel.
                 const float sx = subX[k];
                 auto firstAffectedPixel = [&](float x) {
-                    // Clamp before converting, since crossings may lie far outside of the viewport.
-                    int px = static_cast<int>(
-                            std::clamp(std::ceil(x - sx), 0.0f, static_cast<float>(viewportWidth)));
-                    while (px > 0 && static_cast<float>(px - 1) + sx >= x) {
+                    // Clamp before converting, since crossings may lie far outside of the clip.
+                    int px = static_cast<int>(std::clamp(std::ceil(x - sx),
+                                                         static_cast<float>(clip.left()),
+                                                         static_cast<float>(clip.right())));
+                    while (px > clip.left() && static_cast<float>(px - 1) + sx >= x) {
                         --px;
                     }
-                    while (px < viewportWidth && static_cast<float>(px) + sx < x) {
+                    while (px < clip.right() && static_cast<float>(px) + sx < x) {
                         ++px;
                     }
                     return px;
                 };
 
                 int winding = 0;
-                int spanStart = 0;
+                int spanStart = clip.left();
                 for (size_t i = 0; i < crossings.size();) {
                     const int px = firstAffectedPixel(crossings[i].first);
                     if (!checkSpan(row, py, k, spanStart, px, winding)) {
@@ -300,7 +316,7 @@ bool validate_solid_tiles(skiatest::Reporter* reporter,
                     }
                     spanStart = std::max(spanStart, px);
                 }
-                if (!checkSpan(row, py, k, spanStart, viewportWidth, winding)) {
+                if (!checkSpan(row, py, k, spanStart, clip.right(), winding)) {
                     return false;
                 }
             }
@@ -320,9 +336,10 @@ void FastValidator<kTileWidth, kTileHeight>::RunScalarWinding(
         SkPathFillType fillType,
         const Polyline& polyline,
         const SparseStripConfig::LUTArray& maskLut,
-        MsaaExactMaskObserver observer,
-        uint16_t viewportWidth,
-        uint16_t viewportHeight) {
+        bool isCulled,
+        const WindingHistogram& windingHistogram,
+        const SkIRect& clipRect,
+        MsaaExactMaskObserver observer) {
     MakeStrips::MsaaScalar<kTileWidth, kTileHeight>(tileContainer,
                                                     wides,
                                                     ends,
@@ -330,8 +347,9 @@ void FastValidator<kTileWidth, kTileHeight>::RunScalarWinding(
                                                     fillType,
                                                     polyline,
                                                     maskLut,
-                                                    viewportWidth,
-                                                    viewportHeight,
+                                                    isCulled,
+                                                    windingHistogram,
+                                                    clipRect,
                                                     observer);
 }
 
@@ -344,9 +362,10 @@ void FastValidator<kTileWidth, kTileHeight>::RunSimdWinding(
         SkPathFillType fillType,
         const Polyline& polyline,
         const SparseStripConfig::LUTArray& maskLut,
-        MsaaExactMaskObserver observer,
-        uint16_t viewportWidth,
-        uint16_t viewportHeight) {
+        bool isCulled,
+        const WindingHistogram& windingHistogram,
+        const SkIRect& clipRect,
+        MsaaExactMaskObserver observer) {
     MakeStrips::MsaaSimd<kTileWidth, kTileHeight>(tileContainer,
                                                   wides,
                                                   ends,
@@ -354,8 +373,9 @@ void FastValidator<kTileWidth, kTileHeight>::RunSimdWinding(
                                                   fillType,
                                                   polyline,
                                                   maskLut,
-                                                  viewportWidth,
-                                                  viewportHeight,
+                                                  isCulled,
+                                                  windingHistogram,
+                                                  clipRect,
                                                   observer);
 }
 
@@ -370,8 +390,7 @@ bool FastValidator<kTileWidth, kTileHeight>::ValidateStripOutput(
         const EndCaps& ends,
         const AlphaAtlasManager& atlasManager,
         const SkTDArray<uint8_t>& exactMasks,
-        uint16_t viewportWidth,
-        uint16_t viewportHeight,
+        const SkIRect& clip,
         SkPathFillType fillType,
         const char* testName,
         std::array<uint32_t, 3>* minorErrorCount) {
@@ -386,7 +405,7 @@ bool FastValidator<kTileWidth, kTileHeight>::ValidateStripOutput(
     bool isEvenOdd = SkPathFillType_IsEvenOdd(fillType);
     bool isInverse = SkPathFillType_IsInverse(fillType);
 
-    auto lineBuckets = build_tile_row_line_buckets<kTileHeight>(unculledPolyline, viewportHeight);
+    auto lineBuckets = build_tile_row_line_buckets<kTileHeight>(unculledPolyline, clip.bottom());
 
     int32_t maskIdx = 0;
     int cachedPy = -1;
@@ -501,7 +520,10 @@ bool FastValidator<kTileWidth, kTileHeight>::ValidateStripOutput(
                         return false;
                     }
 
-                    if (sampleDiff > 3) {
+                    // Pixels outside of the clip are never drawn, and the geometry that only
+                    // affects them may have been culled, so only their alpha reduction is checked.
+                    const bool inClip = clip.contains(tileStartX + x, py);
+                    if (inClip && sampleDiff > 3) {
                         CoverageTestUtils::PrintCoverageDiagnostics(reporter,
                                                                     polyline,
                                                                     tiler,
@@ -519,7 +541,7 @@ bool FastValidator<kTileWidth, kTileHeight>::ValidateStripOutput(
                                         actualSamples,
                                         actualAlpha);
                         return false;
-                    } else if (sampleDiff > 0) {
+                    } else if (inClip && sampleDiff > 0) {
                         if (minorErrorCount) {
                             (*minorErrorCount)[sampleDiff - 1]++;
                         }
@@ -542,16 +564,8 @@ bool FastValidator<kTileWidth, kTileHeight>::ValidateStripOutput(
         return false;
     }
 
-    return validate_solid_tiles<kTileWidth, kTileHeight>(reporter,
-                                                         lineBuckets,
-                                                         wides,
-                                                         ends,
-                                                         kSubX,
-                                                         viewportWidth,
-                                                         viewportHeight,
-                                                         isEvenOdd,
-                                                         isInverse,
-                                                         testName);
+    return validate_solid_tiles<kTileWidth, kTileHeight>(
+            reporter, lineBuckets, wides, ends, kSubX, clip, isEvenOdd, isInverse, testName);
 }
 
 template <uint16_t kTileWidth, uint16_t kTileHeight>
@@ -566,30 +580,65 @@ bool FastValidator<kTileWidth, kTileHeight>::ValidatePath(
         const SparseStripConfig::LUTArray& maskLut,
         StripFunc stripFunc,
         std::array<uint32_t, 3>* minorErrorCount) {
+    return ValidatePath(reporter,
+                        recorder,
+                        path,
+                        ctm,
+                        SkIRect::MakeWH(viewportWidth, viewportHeight),
+                        testName,
+                        maskLut,
+                        stripFunc,
+                        minorErrorCount);
+}
+
+template <uint16_t kTileWidth, uint16_t kTileHeight>
+bool FastValidator<kTileWidth, kTileHeight>::ValidatePath(
+        skiatest::Reporter* reporter,
+        Recorder* recorder,
+        const SkPath& path,
+        const SkMatrix& ctm,
+        const SkIRect& clipRect,
+        const char* testName,
+        const SparseStripConfig::LUTArray& maskLut,
+        StripFunc stripFunc,
+        std::array<uint32_t, 3>* minorErrorCount) {
     if (path.isEmpty() || !path.isFinite()) {
         return true;
+    }
+
+    if (clipRect.isEmpty() || clipRect.fLeft < 0 || clipRect.fTop < 0 ||
+        clipRect.fLeft % kTileWidth != 0 || clipRect.fTop % kTileHeight != 0) {
+        REPORTER_ASSERT(reporter,
+                        false,
+                        "[%s] Clip (l:%d, t:%d, r:%d, b:%d) must be non-empty, with a tile aligned "
+                        "left and top",
+                        testName,
+                        clipRect.fLeft,
+                        clipRect.fTop,
+                        clipRect.fRight,
+                        clipRect.fBottom);
+        return false;
     }
 
     Flatten flattener;
 
     // 1. Unculled ground-truth polyline (computes true topology without culling)
     Polyline unculledPolyline;
-    flattener.processPathsSimdTest(path,
-                                   ctm,
-                                   static_cast<float>(viewportWidth),
-                                   static_cast<float>(viewportHeight),
-                                   &unculledPolyline);
+    flattener.processPathsSimdTest(path, ctm, clipRect, &unculledPolyline);
 
     // 2. Production culled polyline for the pipeline under test
     Polyline testPolyline;
-    flattener.processPaths<FlattenMode::kSimd>(path,
-                                               ctm,
-                                               static_cast<float>(viewportWidth),
-                                               static_cast<float>(viewportHeight),
-                                               &testPolyline);
+    flattener.processPaths<FlattenMode::kSimd>(path, ctm, clipRect, &testPolyline);
+
+    // Like StripGenerator's, the histogram is indexed by the tile rows of the device, so it must
+    // cover every row down to the bottom of the clip.
+    uint16_t numTileRows = (clipRect.bottom() + kTileHeight - 1) / kTileHeight;
+    WindingHistogram windingHistogram(numTileRows);
+    windingHistogram.resize(numTileRows);
+    windingHistogram.clear();
 
     Tiles<kTileWidth, kTileHeight> tiler;
-    tiler.makeTilesMSAA(testPolyline, viewportWidth, viewportHeight);
+    bool isCulled = tiler.makeTilesMSAA(testPolyline, clipRect, &windingHistogram);
     tiler.sortTiles();
 
     WideTiles wides;
@@ -607,9 +656,10 @@ bool FastValidator<kTileWidth, kTileHeight>::ValidatePath(
                   path.getFillType(),
                   testPolyline,
                   maskLut,
-                  observer,
-                  viewportWidth,
-                  viewportHeight);
+                  isCulled,
+                  windingHistogram,
+                  clipRect,
+                  observer);
     } else {
         RunSimdWinding(tiler,
                        &wides,
@@ -618,9 +668,10 @@ bool FastValidator<kTileWidth, kTileHeight>::ValidatePath(
                        path.getFillType(),
                        testPolyline,
                        maskLut,
-                       observer,
-                       viewportWidth,
-                       viewportHeight);
+                       isCulled,
+                       windingHistogram,
+                       clipRect,
+                       observer);
     }
 
     return ValidateStripOutput(reporter,
@@ -632,8 +683,7 @@ bool FastValidator<kTileWidth, kTileHeight>::ValidatePath(
                                ends,
                                atlasManager,
                                exactMasks,
-                               viewportWidth,
-                               viewportHeight,
+                               clipRect,
                                path.getFillType(),
                                testName,
                                minorErrorCount);
