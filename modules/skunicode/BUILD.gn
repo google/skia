@@ -13,7 +13,7 @@ declare_args() {
 }
 
 if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
-    skia_use_bidi || skia_use_icu4x) {
+    skia_use_bidi || skia_use_icu4x || skia_use_apple_unicode) {
   config("public_config") {
     defines = [ "SK_UNICODE_AVAILABLE" ]
     if (skia_use_icu) {
@@ -30,6 +30,9 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
     }
     if (skia_use_bidi) {
       defines += [ "SK_UNICODE_BIDI_IMPLEMENTATION" ]
+    }
+    if (skia_use_apple_unicode) {
+      defines += [ "SK_UNICODE_APPLE_IMPLEMENTATION" ]
     }
   }
 
@@ -203,6 +206,33 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
     }
   }
 
+  if (skia_use_apple_unicode) {
+    skia_component("skunicode_apple") {
+      check_includes = false
+      deps = [
+        ":skunicode_core",
+        "../..:skia",
+      ]
+      configs = [
+        ":module",
+        "../../:skia_private",
+        "../../third_party/icu/config:no_cxx",
+      ]
+      defines = [
+        "U_DISABLE_RENAMING=0",
+        "U_USING_ICU_NAMESPACE=0",
+        "U_LIB_SUFFIX_C_NAME=_skia",
+        "U_HAVE_LIB_SUFFIX=1",
+        "U_DISABLE_VERSION_SUFFIX=1",
+      ]
+      frameworks = [ "CoreFoundation.framework" ]
+      sources = skia_unicode_icu_bidi_sources
+      sources += skia_unicode_bidi_subset_sources
+      sources += skia_unicode_apple_sources
+      deps += [ skia_icu_bidi_third_party_dir ]
+    }
+  }
+
   group("skunicode") {
     public_configs = [ ":public_config" ]
     public_deps = [ ":skunicode_core" ]
@@ -224,12 +254,16 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
     if (skia_use_icu4x) {
       public_deps += [ ":skunicode_icu4x" ]
     }
+    if (skia_use_apple_unicode) {
+      public_deps += [ ":skunicode_apple" ]
+    }
   }
 
   if (defined(is_skia_standalone) && skia_enable_tools) {
     skia_source_set("tests") {
       if (skunicode_tests_enabled &&
-          (skia_use_icu || skia_use_libgrapheme || skia_use_icu4x)) {
+          (skia_use_icu || skia_use_libgrapheme || skia_use_icu4x ||
+           skia_use_apple_unicode)) {
         testonly = true
         deps = [
           ":skunicode",

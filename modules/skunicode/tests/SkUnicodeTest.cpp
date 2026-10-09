@@ -26,6 +26,9 @@
 #if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
 #include "modules/skunicode/include/SkUnicode_client.h"
 #endif
+#if defined(SK_UNICODE_APPLE_IMPLEMENTATION)
+#include "modules/skunicode/include/SkUnicode_apple.h"
+#endif
 
 #include <vector>
 
@@ -50,6 +53,13 @@
 #define DEF_TEST_LIBGRAPHEME(name, reporter)
 #endif
 
+#ifdef SK_UNICODE_APPLE_IMPLEMENTATION
+#define DEF_TEST_APPLE(name, reporter) \
+    DEF_TEST(name##Apple, reporter) { name(reporter, SkUnicodes::Apple::Make()); }
+#else
+#define DEF_TEST_APPLE(name, reporter)
+#endif
+
 #define DEF_TEST_NOIMPL(name, reporter)
 
 #define DEF_TEST_UNICODES(name, reporter) \
@@ -57,6 +67,7 @@
     DEF_TEST_ICU(name, reporter) \
     DEF_TEST_ICU4X(name, reporter) \
     DEF_TEST_LIBGRAPHEME(name, reporter) \
+    DEF_TEST_APPLE(name, reporter) \
     DEF_TEST_NOIMPL(name, reporter) \
     void name(skiatest::Reporter* reporter, sk_sp<SkUnicode> unicode)
 
@@ -64,6 +75,7 @@
     static void name(skiatest::Reporter* reporter, sk_sp<SkUnicode> unicode); \
     DEF_TEST_ICU(name, reporter) \
     DEF_TEST_ICU4X(name, reporter) \
+    DEF_TEST_APPLE(name, reporter) \
     DEF_TEST_NOIMPL(name, reporter) \
     void name(skiatest::Reporter* reporter, sk_sp<SkUnicode> unicode)
 
@@ -101,6 +113,23 @@ UNIX_ONLY_TEST(SkUnicode_Compiled_Native, reporter) {
 }
 #endif
 
+#if defined(SK_UNICODE_APPLE_IMPLEMENTATION)
+DEF_TEST(SkUnicode_Apple_Native, reporter) {
+    auto apple = SkUnicodes::Apple::Make();
+    if (!apple) {
+        REPORTER_ASSERT(reporter, apple);
+        return;
+    }
+    std::u16string text = u"\U000f2008";
+    auto utf8 = SkUnicode::convertUtf16ToUtf8(text.data(), text.size());
+    skia_private::TArray<SkUnicode::CodeUnitFlags, true> results;
+    apple->computeCodeUnitFlags(utf8.data(), utf8.size(), false, &results);
+    for (auto flag : results) {
+        REPORTER_ASSERT(reporter, !SkUnicode::hasPartOfWhiteSpaceBreakFlag(flag));
+    }
+}
+#endif
+
 #if defined(SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION)
 UNIX_ONLY_TEST(SkUnicode_GetUtf8Words, reporter) {
     SkString text("1 22 333 4444 55555 666666 7777777");
@@ -131,6 +160,82 @@ UNIX_ONLY_TEST(SkUnicode_Compiled_GetSentences, reporter) {
     REPORTER_ASSERT(reporter, results.size() == expected.size());
     for (auto i = 0ul; i < results.size(); ++i) {
         REPORTER_ASSERT(reporter, results[i] == expected[i]);
+    }
+}
+#endif
+
+#if defined(SK_UNICODE_APPLE_IMPLEMENTATION)
+DEF_TEST(SkUnicode_Apple_GetUtf8Words, reporter) {
+    SkString text("1 22 333 4444 55555 666666 7777777");
+    std::vector<SkUnicode::Position> expected = { 0, 1, 2, 4, 5, 8, 9, 13, 14, 19, 20, 26, 27, 34 };
+    auto apple = SkUnicodes::Apple::Make();
+    if (!apple) {
+        REPORTER_ASSERT(reporter, apple);
+        return;
+    }
+    std::vector<SkUnicode::Position> results;
+    auto result = apple->getUtf8Words(text.data(), text.size(), "en", &results);
+    REPORTER_ASSERT(reporter, result);
+    REPORTER_ASSERT(reporter, results.size() == expected.size());
+    for (auto i = 0ul; i < results.size(); ++i) {
+        REPORTER_ASSERT(reporter, results[i] == expected[i]);
+    }
+
+    SkString cyrillic("Привет мир");
+    std::vector<SkUnicode::Position> cyrillicExpected = {0, 12, 13, 19};
+    results.clear();
+    result = apple->getUtf8Words(cyrillic.data(), cyrillic.size(), "ru", &results);
+    REPORTER_ASSERT(reporter, result);
+    REPORTER_ASSERT(reporter, results.size() == cyrillicExpected.size());
+    for (auto i = 0ul; i < results.size(); ++i) {
+        REPORTER_ASSERT(reporter, results[i] == cyrillicExpected[i]);
+    }
+
+    SkString mixed("Hello مرحبا World بالعالم");
+    std::vector<SkUnicode::Position> mixedExpected = {0, 5, 6, 16, 17, 22, 23, 37};
+    results.clear();
+    result = apple->getUtf8Words(mixed.data(), mixed.size(), nullptr, &results);
+    REPORTER_ASSERT(reporter, result);
+    REPORTER_ASSERT(reporter, results.size() == mixedExpected.size());
+    for (auto i = 0ul; i < results.size(); ++i) {
+        REPORTER_ASSERT(reporter, results[i] == mixedExpected[i]);
+    }
+}
+
+DEF_TEST(SkUnicode_Apple_GetSentences, reporter) {
+    auto apple = SkUnicodes::Apple::Make();
+    if (!apple) {
+        REPORTER_ASSERT(reporter, apple);
+        return;
+    }
+    SkString text("Hello world! Hello world? Hello world... Not a sentence end: 3.1415926");
+    std::vector<SkUnicode::Position> expected = {0, 13, 26, 41, 70};
+    std::vector<SkUnicode::Position> results;
+    auto result = apple->getSentences(text.data(), text.size(), nullptr, &results);
+    REPORTER_ASSERT(reporter, result);
+    REPORTER_ASSERT(reporter, results.size() == expected.size());
+    for (auto i = 0ul; i < results.size(); ++i) {
+        REPORTER_ASSERT(reporter, results[i] == expected[i]);
+    }
+
+    SkString cyrillic("Привет мир! Как дела? Все хорошо.");
+    std::vector<SkUnicode::Position> cyrillicExpected = {0, 21, 38, 58};
+    results.clear();
+    result = apple->getSentences(cyrillic.data(), cyrillic.size(), "ru", &results);
+    REPORTER_ASSERT(reporter, result);
+    REPORTER_ASSERT(reporter, results.size() == cyrillicExpected.size());
+    for (auto i = 0ul; i < results.size(); ++i) {
+        REPORTER_ASSERT(reporter, results[i] == cyrillicExpected[i]);
+    }
+
+    SkString mixed("Hello world! مرحبا بالعالم؟ How are you?");
+    std::vector<SkUnicode::Position> mixedExpected = {0, 13, 41, 53};
+    results.clear();
+    result = apple->getSentences(mixed.data(), mixed.size(), nullptr, &results);
+    REPORTER_ASSERT(reporter, result);
+    REPORTER_ASSERT(reporter, results.size() == mixedExpected.size());
+    for (auto i = 0ul; i < results.size(); ++i) {
+        REPORTER_ASSERT(reporter, results[i] == mixedExpected[i]);
     }
 }
 #endif
@@ -334,6 +439,17 @@ UNIX_ONLY_TEST(SkUnicode_ICU4X_Emoji, reporter) {
 }
 #endif
 
+#ifdef SK_UNICODE_APPLE_IMPLEMENTATION
+DEF_TEST(SkUnicode_Apple_Emoji, reporter) {
+    auto apple = SkUnicodes::Apple::Make();
+    if (!apple) {
+        REPORTER_ASSERT(reporter, apple);
+        return;
+    }
+    SkUnicode_Emoji(apple.get(), reporter);
+}
+#endif
+
 [[maybe_unused]] static void SkUnicode_Ideographic(SkUnicode* icu, skiatest::Reporter* reporter) {
     std::u32string ideographic(U"満毎行昼本可");
     std::u32string not_ideographic(U"😄😁😆😅😂🤣");
@@ -364,5 +480,16 @@ UNIX_ONLY_TEST(SkUnicode_ICU4X_Ideographic, reporter) {
         return;
     }
     SkUnicode_Ideographic(icu.get(), reporter);
+}
+#endif
+
+#ifdef SK_UNICODE_APPLE_IMPLEMENTATION
+DEF_TEST(SkUnicode_Apple_Ideographic, reporter) {
+    auto apple = SkUnicodes::Apple::Make();
+    if (!apple) {
+        REPORTER_ASSERT(reporter, apple);
+        return;
+    }
+    SkUnicode_Ideographic(apple.get(), reporter);
 }
 #endif

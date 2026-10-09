@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_objc_library", "supports_platforms")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -63,4 +63,37 @@ skia_cc_library(
         "@platforms//os:android": ["@icu//:icu_headers"],
         "//conditions:default": ["@icu"],
     }),
+)
+
+skia_objc_library(
+    name = "skunicode_apple",
+    srcs = [
+        "//modules/skunicode/src:apple_srcs",
+        "//modules/skunicode/src:bidi_subset_srcs",
+        "//modules/skunicode/src:icu_bidi_srcs",
+    ],
+    hdrs = [
+        "//modules/skunicode/include:apple_hdrs",
+        "//modules/skunicode/include:core_hdrs",
+    ],
+    defines = [
+        "SK_UNICODE_AVAILABLE",
+        "SK_UNICODE_APPLE_IMPLEMENTATION",
+    ],
+    ios_frameworks = ["CoreFoundation"],
+    mac_frameworks = ["CoreFoundation"],
+    target_compatible_with = supports_platforms(
+        "@platforms//os:macos",
+        "@platforms//os:ios",
+    ),
+    visibility = [
+        "//:__pkg__",
+        "//modules:__subpackages__",
+    ],
+    deps = [
+        ":skunicode_core",
+        "//:core",
+        "//src/core:core_priv",
+        "@icu",
+    ],
 )

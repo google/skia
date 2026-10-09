@@ -109,3 +109,13 @@ skia_filegroup(
     ],
     visibility = ["//modules/skunicode:__pkg__"],
 )
+
+# In own group for export to //modules/skunicode/skunicode.gni:skia_unicode_apple_sources.
+skia_filegroup(
+    name = "apple_srcs",
+    srcs = [
+        "SkUnicode_apple.cpp",
+    ],
+    visibility = ["//modules/skunicode:__pkg__"],
+)
+

@@ -986,6 +986,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{"//modules/skunicode/src:runtime_srcs"}},
 		{Var: "skia_unicode_libgrapheme_sources",
 			Rules: []string{"//modules/skunicode/src:libgrapheme_srcs"}},
+		{Var: "skia_unicode_apple_sources",
+			Rules: []string{"//modules/skunicode/src:apple_srcs"}},
 		{Var: "skia_unicode_tests",
 			Rules: []string{"//modules/skunicode/tests:tests"}},
 	}},

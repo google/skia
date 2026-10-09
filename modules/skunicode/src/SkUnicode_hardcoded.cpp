@@ -86,28 +86,43 @@ bool SkUnicodeHardCodedCharProperties::isHardBreak(SkUnichar utf8) {
 }
 
 bool SkUnicodeHardCodedCharProperties::isEmoji(SkUnichar unichar) {
-    SkDEBUGFAIL("isEmoji Not implemented");
+    if (unichar == '#' || unichar == '*' || (unichar >= '0' && unichar <= '9')) {
+        return true;
+    }
+    static constexpr std::pair<SkUnichar, SkUnichar> emojiRanges[] = {
+        {0x203C, 0x203C}, {0x2049, 0x2049}, {0x2122, 0x2122}, {0x2139, 0x2139},
+        {0x2194, 0x2199}, {0x21A9, 0x21AA}, {0x2300, 0x23FF}, {0x25AA, 0x25AB},
+        {0x25B6, 0x25B6}, {0x25C0, 0x25C0}, {0x25FB, 0x25FE}, {0x2600, 0x27BF},
+        {0x2934, 0x2935}, {0x2B05, 0x2B07}, {0x2B1B, 0x2B1C}, {0x2B50, 0x2B50},
+        {0x2B55, 0x2B55}, {0x3030, 0x3030}, {0x303D, 0x303D}, {0x3297, 0x3297},
+        {0x3299, 0x3299}, {0x1F000, 0x1F02F}, {0x1F0A0, 0x1F0FF}, {0x1F100, 0x1F64F},
+        {0x1F680, 0x1F6FF}, {0x1F700, 0x1F77F}, {0x1F780, 0x1F7FF}, {0x1F800, 0x1F8FF},
+        {0x1F900, 0x1FAFF}
+    };
+    for (const auto& r : emojiRanges) {
+        if (unichar >= r.first && unichar <= r.second) {
+            return true;
+        }
+    }
     return false;
 }
 
-bool SkUnicodeHardCodedCharProperties::isEmojiComponent(SkUnichar utf8)  {
-    SkDEBUGFAIL("isEmojiComponent Not implemented");
-    return false;
+bool SkUnicodeHardCodedCharProperties::isEmojiComponent(SkUnichar unichar) {
+    return (unichar >= 0x1F3FB && unichar <= 0x1F3FF) ||
+           (unichar >= 0x1F1E6 && unichar <= 0x1F1FF) ||
+           unichar == 0x200D || unichar == 0xFE0F;
 }
 
-bool SkUnicodeHardCodedCharProperties::isEmojiModifier(SkUnichar utf8)  {
-    SkDEBUGFAIL("isEmojiModifier Not implemented");
-    return false;
+bool SkUnicodeHardCodedCharProperties::isEmojiModifier(SkUnichar unichar) {
+    return unichar >= 0x1F3FB && unichar <= 0x1F3FF;
 }
 
-bool SkUnicodeHardCodedCharProperties::isEmojiModifierBase(SkUnichar utf8) {
-    SkDEBUGFAIL("isEmojiModifierBase Not implemented");
-    return false;
+bool SkUnicodeHardCodedCharProperties::isEmojiModifierBase(SkUnichar unichar) {
+    return this->isEmoji(unichar) && !this->isEmojiModifier(unichar);
 }
 
 bool SkUnicodeHardCodedCharProperties::isRegionalIndicator(SkUnichar unichar) {
-    SkDEBUGFAIL("isRegionalIndicator Not implemented");
-    return false;
+    return unichar >= 0x1F1E6 && unichar <= 0x1F1FF;
 }
 
 bool SkUnicodeHardCodedCharProperties::isIdeographic(SkUnichar unichar) {
