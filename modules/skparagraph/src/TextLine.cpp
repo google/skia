@@ -88,6 +88,50 @@ int compareRound(SkScalar a, SkScalar b, bool applyRoundingHack) {
     }
 }
 
+bool shouldIsolateCluster(const ParagraphImpl* owner, const Cluster* cluster) {
+    int graphemes = 0;
+    for (size_t i = cluster->textRange().start; i < cluster->textRange().end; ++i) {
+        if (owner->codeUnitHasProperty(i, SkUnicode::CodeUnitFlags::kGraphemeStart)) {
+            ++graphemes;
+        }
+    }
+    return graphemes <= 1;
+}
+
+std::pair<size_t, size_t> isolateClusterGlyphs(const ParagraphImpl* owner,
+                                               const Run* run,
+                                               const Cluster* cluster,
+                                               TextRange originalTextRange,
+                                               bool isStart) {
+    const char* textStr = owner->text().data();
+    const char* ptr = textStr + cluster->textRange().start;
+    const char* endPtr = textStr + cluster->textRange().end;
+    if (cluster->size() > 1 &&
+        cluster->size() == SkToSizeT(SkUTF::CountUTF8(ptr, cluster->textRange().width()))) {
+        size_t g0 = cluster->endPos();
+        size_t g1 = cluster->startPos();
+        for (size_t k = 0; ptr < endPtr; ++k) {
+            size_t idx = ptr - textStr;
+            SkUTF::NextUTF8(&ptr, endPtr);
+            if (idx < originalTextRange.start || idx >= originalTextRange.end) {
+                continue;
+            }
+            size_t g = run->leftToRight() ? (cluster->startPos() + k)
+                                          : (cluster->endPos() - 1 - k);
+            g0 = std::min(g0, g);
+            g1 = std::max(g1, g + 1);
+        }
+        if (g0 < g1) {
+            return {g0, g1};
+        }
+    } else if (cluster->textRange().start >= originalTextRange.start) {
+        return {cluster->startPos(), cluster->endPos()};
+    }
+    size_t fallback =
+            (isStart == run->leftToRight()) ? cluster->endPos() : cluster->startPos();
+    return {fallback, fallback};
+}
+
 }  // namespace
 
 TextLine::TextLine(ParagraphImpl* owner,
@@ -891,12 +935,55 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
                              run->calculateWidth(result.pos, result.pos + result.size, false),
                              run->calculateHeight(this->fAscentStyle,this->fDescentStyle));
 
-    // Correct the width in case the text edges don't match clusters
-    // TODO: This is where we get smart about selecting a part of a cluster
-    //  by shaping each grapheme separately and then use the result sizes
-    //  to calculate the proportions
-    auto leftCorrection = start->sizeToChar(originalTextRange.start);
-    auto rightCorrection = end->sizeFromChar(originalTextRange.end - 1);
+    // When a style boundary splits a grapheme cluster (base + combining marks), isolate
+    // the glyphs belonging to originalTextRange instead of geometrically slicing the
+    // cluster's bounding box; proportional clipping is reserved for multi-grapheme ligatures
+    SkScalar leftCorrection = 0;
+    SkScalar rightCorrection = 0;
+    bool startSplit = originalTextRange.start > start->textRange().start;
+    bool endSplit = originalTextRange.end < end->textRange().end;
+    if (startSplit || endSplit) {
+        size_t startG0 = start->startPos();
+        size_t startG1 = start->endPos();
+        size_t endG0 = end->startPos();
+        size_t endG1 = end->isHardBreak() ? end->startPos() : end->endPos();
+        bool isolated = false;
+
+        if (startSplit) {
+            if (shouldIsolateCluster(fOwner, start)) {
+                std::tie(startG0, startG1) =
+                        isolateClusterGlyphs(fOwner, run, start, originalTextRange, true);
+                isolated = true;
+            } else {
+                leftCorrection = start->sizeToChar(originalTextRange.start);
+            }
+        }
+        if (endSplit) {
+            if (start == end && isolated) {
+                endG0 = startG0;
+                endG1 = startG1;
+            } else if (shouldIsolateCluster(fOwner, end)) {
+                std::tie(endG0, endG1) =
+                        isolateClusterGlyphs(fOwner, run, end, originalTextRange, false);
+                isolated = true;
+            } else {
+                rightCorrection = end->sizeFromChar(originalTextRange.end - 1);
+            }
+        }
+
+        if (isolated) {
+            result.pos = run->leftToRight() ? startG0 : endG0;
+            size_t endPos = run->leftToRight() ? endG1 : startG1;
+            result.size = endPos > result.pos ? (endPos - result.pos) : 0;
+            result.clip = SkRect::MakeXYWH(
+                    0,
+                    sizes().runTop(run, this->fAscentStyle),
+                    run->calculateWidth(result.pos, result.pos + result.size, false),
+                    run->calculateHeight(this->fAscentStyle, this->fDescentStyle));
+            textStartInRun = run->positionX(result.pos);
+        }
+    }
+
     /*
     SkDebugf("[%d: %d) => [%d: %d), @%d, %d: [%f:%f) + [%f:%f) = ", // جَآَهُ
              originalTextRange.start, originalTextRange.end, textRange.start, textRange.end,

@@ -292,9 +292,45 @@ void Run::updateMetrics(InternalLineMetrics* endlineMetrics) {
 }
 
 SkScalar Cluster::sizeToChar(TextIndex ch) const {
-    if (ch < fTextRange.start || ch >= fTextRange.end) {
+    if (ch <= fTextRange.start || ch >= fTextRange.end) {
         return 0;
     }
+    if (fOwner != nullptr && fRunIndex != EMPTY_RUN && fWidth > 0) {
+        // Scale cluster width by standalone glyph advances so multi-character
+        // ligatures (such as "ffi") split proportionally to their component characters.
+        // Combining marks lack kGraphemeStart and contribute zero horizontal advance
+        const Run& run = fOwner->run(fRunIndex);
+        const SkFont& font = run.font();
+        const char* text = fOwner->text().data();
+        const char* ptr = text + fTextRange.start;
+        const char* end = text + fTextRange.end;
+        const char* split = text + ch;
+
+        SkScalar prefixWidth = 0;
+        SkScalar totalWidth = 0;
+        while (ptr < end) {
+            const char* charStart = ptr;
+            SkUnichar u = SkUTF::NextUTF8(&ptr, end);
+            if (u < 0) {
+                break;
+            }
+            if (!fOwner->codeUnitHasProperty(charStart - text,
+                                             SkUnicode::CodeUnitFlags::kGraphemeStart)) {
+                continue;
+            }
+            SkScalar w = font.measureText(charStart, ptr - charStart, SkTextEncoding::kUTF8);
+            if (charStart < split) {
+                prefixWidth += w;
+            }
+            totalWidth += w;
+        }
+
+        if (totalWidth > 0) {
+            return SkDoubleToScalar(fWidth * (prefixWidth / totalWidth));
+        }
+        return 0;
+    }
+
     auto shift = ch - fTextRange.start;
     auto ratio = shift * 1.0 / fTextRange.width();
 
@@ -302,13 +338,10 @@ SkScalar Cluster::sizeToChar(TextIndex ch) const {
 }
 
 SkScalar Cluster::sizeFromChar(TextIndex ch) const {
-    if (ch < fTextRange.start || ch >= fTextRange.end) {
+    if (ch < fTextRange.start || ch + 1 >= fTextRange.end) {
         return 0;
     }
-    auto shift = fTextRange.end - ch - 1;
-    auto ratio = shift * 1.0 / fTextRange.width();
-
-    return SkDoubleToScalar(fWidth * ratio);
+    return fWidth - sizeToChar(ch + 1);
 }
 
 size_t Cluster::roundPos(SkScalar s) const {
