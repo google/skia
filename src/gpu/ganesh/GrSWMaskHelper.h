@@ -12,6 +12,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"
@@ -45,6 +46,8 @@ struct SkRect;
  */
 class GrSWMaskHelper : SkNoncopyable {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     GrSWMaskHelper(SkAutoPixmapStorage* pixels = nullptr)
             : fPixels(pixels ? pixels : &fPixelsStorage) { }
 

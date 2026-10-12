@@ -11,6 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
@@ -44,6 +45,8 @@ public:
         PathDrawList* fNext;
 
         struct Iter {
+            SK_ONLY_STACK_ALLOCATABLE;
+
             void operator++() { fHead = fHead->fNext; }
             bool operator!=(const Iter& b) const { return fHead != b.fHead; }
             std::tuple<const SkMatrix&, const SkPath&, const SkPMColor4f&> operator*() const {

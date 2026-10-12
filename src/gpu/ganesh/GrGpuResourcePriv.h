@@ -9,6 +9,7 @@
 #define GrGpuResourcePriv_DEFINED
 
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
@@ -19,6 +20,8 @@
  */
 class GrGpuResource::ResourcePriv {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     /**
      * Sets a unique key for the resource. If the resource was previously cached as scratch it will
      * be converted to a uniquely-keyed resource. If the key is invalid then this is equivalent to

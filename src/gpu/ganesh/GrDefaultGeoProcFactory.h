@@ -9,6 +9,7 @@
 #define GrDefaultGeoProcFactory_DEFINED
 
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkColorData.h"
 
 #include <cstdint>
@@ -60,6 +61,8 @@ namespace GrDefaultGeoProcFactory {
     };
 
     struct LocalCoords {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         enum Type {
             kUnused_Type,
             kUsePosition_Type,

@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkMath.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 
 #include <cstddef>
@@ -43,6 +44,8 @@ public:
     }
 
     struct Slice {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         GrGpuBuffer* fBuffer;
         size_t fOffset;
     };

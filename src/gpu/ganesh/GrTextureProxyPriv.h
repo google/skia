@@ -8,6 +8,7 @@
 #ifndef GrTextureProxyPriv_DEFINED
 #define GrTextureProxyPriv_DEFINED
 
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 
@@ -21,6 +22,8 @@ class GrOpFlushState;
  */
 class GrTextureProxyPriv {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     // Attach a deferred uploader to the proxy. Holds data being prepared by a worker thread.
     void setDeferredUploader(std::unique_ptr<GrDeferredProxyUploader>);
     bool isDeferred() const { return SkToBool(fTextureProxy->fDeferredUploader.get()); }

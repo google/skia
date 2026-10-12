@@ -11,6 +11,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/GpuTypesPriv.h"
@@ -347,6 +348,8 @@ private:
 
 class GrGpuResource::ProxyAccess {
 private:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     ProxyAccess(GrGpuResource* resource) : fResource(resource) {}
 
     /** Proxies are allowed to take a resource from no refs to one ref. */

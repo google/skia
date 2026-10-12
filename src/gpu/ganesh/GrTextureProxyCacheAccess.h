@@ -8,6 +8,7 @@
 #ifndef GrTextureProxyCacheAccess_DEFINED
 #define GrTextureProxyCacheAccess_DEFINED
 
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 
 class GrProxyProvider;
@@ -21,6 +22,8 @@ class UniqueKey;
  */
 class GrTextureProxy::CacheAccess {
 private:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     void setUniqueKey(sk_sp<GrUniquelyKeyedProxyRegistry> uniquelyKeyedProxyRegistry,
                       const skgpu::UniqueKey& key);
 

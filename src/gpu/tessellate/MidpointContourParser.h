@@ -10,6 +10,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkPathPriv.h"
 
 #include <cstdint>
@@ -28,6 +29,8 @@ namespace skgpu::tess {
 //
 class MidpointContourParser {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     MidpointContourParser(const SkPath& path)
             : fPath(path)
             , fVerbs(fPath.verbs().data())

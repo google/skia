@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMacros.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -75,6 +76,8 @@ public:
     };
 
     struct InitArgs {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         InputFlags fInputFlags = InputFlags::kNone;
         const GrCaps* fCaps = nullptr;
         GrDstProxyView fDstProxyView;

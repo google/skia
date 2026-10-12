@@ -9,12 +9,15 @@
 #define GrFPArgs_DEFINED
 
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 class GrColorInfo;
 class SkSurfaceProps;
 namespace skgpu::ganesh { class SurfaceDrawContext; }
 
 struct GrFPArgs {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     enum class Scope {
         kDefault,
         kRuntimeEffect,

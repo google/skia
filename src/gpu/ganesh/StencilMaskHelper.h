@@ -10,6 +10,7 @@
 
 #include "include/core/SkRegion.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/ganesh/StencilClip.h"
 
 #include <cstdint>
@@ -42,6 +43,8 @@ class SurfaceDrawContext;
  */
 class StencilMaskHelper : SkNoncopyable {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     // Configure the helper to update the stencil mask within the given rectangle, respecting the
     // set window rectangles. It will use the provided context and render target to draw into, both
     // of which must outlive the helper.

@@ -8,6 +8,8 @@
 #ifndef GrDrawIndirectCommand_DEFINED
 #define GrDrawIndirectCommand_DEFINED
 
+#include "include/private/SkOnlyStackAllocatable.h"
+
 #include <cstdint>
 #include <utility>
 
@@ -38,6 +40,8 @@ static_assert(sizeof(GrDrawIndexedIndirectCommand) == 20,
 //    indirectWriter.write(...);
 struct GrDrawIndirectWriter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     GrDrawIndirectWriter() = default;
     GrDrawIndirectWriter(void* data) : fData(static_cast<GrDrawIndirectCommand*>(data)) {}
     GrDrawIndirectWriter(const GrDrawIndirectWriter&) = delete;
@@ -72,6 +76,8 @@ private:
 //    indirectWriter.writeIndexed(...);
 struct GrDrawIndexedIndirectWriter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     GrDrawIndexedIndirectWriter() = default;
     GrDrawIndexedIndirectWriter(void* data)
             : fData(static_cast<GrDrawIndexedIndirectCommand*>(data)) {}

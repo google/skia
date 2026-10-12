@@ -9,6 +9,7 @@
 #define GrGpuResourceCacheAccess_DEFINED
 
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
@@ -26,6 +27,8 @@ class Reporter;
  */
 class GrGpuResource::CacheAccess {
 private:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     /** The cache is allowed to go from no refs to 1 ref. */
     void ref() { fResource->addInitialRef(); }
 

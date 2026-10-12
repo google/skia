@@ -12,6 +12,7 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/SingleOwner.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMessageBus.h"
@@ -56,6 +57,8 @@ static skgpu::Budgeted resource_budgeted(const GrGpuResource* resource) {
 
 class GrResourceCache::AutoValidate : ::SkNoncopyable {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     AutoValidate(GrResourceCache* cache) : fCache(cache) { cache->validate(); }
     ~AutoValidate() { fCache->validate(); }
 private:
@@ -819,6 +822,8 @@ void GrResourceCache::validate() const {
     }
 
     struct Stats {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         size_t fBytes;
         int fBudgetedCount;
         size_t fBudgetedBytes;

@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/ganesh/GrPaint.h"
 
 #include <string.h>
@@ -88,6 +89,8 @@ public:
     };
 
     struct CanDrawPathArgs {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         SkDEBUGCODE(CanDrawPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
 
         const GrCaps*               fCaps;
@@ -125,6 +128,8 @@ public:
     }
 
     struct DrawPathArgs {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         GrRecordingContext*          fContext;
         GrPaint&&                    fPaint;
         const GrUserStencilSettings* fUserStencilSettings;
@@ -156,6 +161,8 @@ public:
      * Args to stencilPath(). fAAType cannot be kCoverage.
      */
     struct StencilPathArgs {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         SkDEBUGCODE(StencilPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
 
         GrRecordingContext*  fContext;

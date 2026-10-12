@@ -14,6 +14,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkPathPriv.h"
 
 #include <array>
@@ -38,6 +39,8 @@ namespace skgpu::tess {
 //
 class StrokeIterator {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     StrokeIterator(const SkPath& path, const SkStrokeRec* stroke, const SkMatrix* viewMatrix)
             : fViewMatrix(viewMatrix), fStroke(stroke) {
         SkPathPriv::Iterate it(path);

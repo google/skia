@@ -8,6 +8,7 @@
 #define GrTessellationShader_DEFINED
 
 #include "include/core/SkMatrix.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
@@ -44,6 +45,8 @@ public:
     const SkPMColor4f& color() const { return fColor;}
 
     struct ProgramArgs {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         SkArenaAlloc* fArena;
         const GrSurfaceProxyView& fWriteView;
         bool fUsesMSAASurface;

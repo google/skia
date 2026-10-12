@@ -8,6 +8,7 @@
 #ifndef GrDeferredDisplayListPriv_DEFINED
 #define GrDeferredDisplayListPriv_DEFINED
 
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/chromium/GrDeferredDisplayList.h"
 
 /*************************************************************************************************/
@@ -16,6 +17,8 @@
     additional data members or virtual methods. */
 class GrDeferredDisplayListPriv {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     int numRenderTasks() const {
         return fDDL->fRenderTasks.size();
     }

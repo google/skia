@@ -15,6 +15,7 @@
 #include "include/effects/SkOverdrawColorFilter.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -55,6 +56,8 @@ public:
 
         class FPCallbacks : public SkSL::PipelineStage::Callbacks {
         public:
+            SK_ONLY_STACK_ALLOCATABLE;
+
             FPCallbacks(Impl* self,
                         EmitArgs& args,
                         const char* inputColor,

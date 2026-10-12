@@ -10,6 +10,7 @@
 #include "include/core/SkRect.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTDArray.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 
@@ -64,6 +65,8 @@ public:
     // and optional local quad.
     class Iter {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         Iter(const GrQuadBuffer<T>* buffer)
                 : fDeviceQuad(SkRect::MakeEmpty())
                 , fLocalQuad(SkRect::MakeEmpty())
@@ -120,6 +123,8 @@ public:
     // finalization, which may require rewriting state such as color.
     class MetadataIter {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         MetadataIter(GrQuadBuffer<T>* list)
                 : fBuffer(list)
                 , fCurrentEntry(nullptr) {

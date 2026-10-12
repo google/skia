@@ -8,6 +8,7 @@
 #ifndef GrOnFlushResourceProvider_DEFINED
 #define GrOnFlushResourceProvider_DEFINED
 
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/ganesh/GrAtlasTypes.h"
 
 class GrCaps;
@@ -50,6 +51,8 @@ public:
  */
 class GrOnFlushResourceProvider {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
 
     [[nodiscard]] bool instantiateProxy(GrSurfaceProxy*);

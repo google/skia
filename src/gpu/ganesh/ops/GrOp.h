@@ -14,6 +14,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkColorData.h"
@@ -210,8 +211,12 @@ public:
      */
     template <typename OpSubclass = GrOp> class ChainRange {
     private:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         class Iter {
         public:
+            SK_ONLY_STACK_ALLOCATABLE;
+
             explicit Iter(const OpSubclass* head) : fCurr(head) {}
             inline Iter& operator++() {
                 return *this = Iter(static_cast<const OpSubclass*>(fCurr->nextInChain()));

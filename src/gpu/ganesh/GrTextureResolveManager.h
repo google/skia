@@ -9,6 +9,7 @@
 #define GrTextureResolveManager_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
 
 class GrCaps;
@@ -22,6 +23,8 @@ class GrRenderTask;
  */
 class GrTextureResolveManager {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     explicit GrTextureResolveManager(GrDrawingManager* drawingManager)
             : fDrawingManager(drawingManager) {}
 

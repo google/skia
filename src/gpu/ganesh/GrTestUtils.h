@@ -19,6 +19,7 @@
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/gpu/ganesh/GrColor.h"
@@ -68,6 +69,8 @@ uint8_t RandomCoverage(SkRandom* random);
 
 class TestAsFPArgs {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     TestAsFPArgs(GrProcessorTestData*);
     ~TestAsFPArgs();
     const GrFPArgs& args() const { return fArgs; }

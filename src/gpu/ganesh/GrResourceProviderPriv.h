@@ -8,6 +8,7 @@
 #ifndef GrResourceProviderPriv_DEFINED
 #define GrResourceProviderPriv_DEFINED
 
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 
 /** Class that adds methods to GrResourceProvider that are only intended for use internal to Skia.
@@ -15,6 +16,8 @@
     additional data members or virtual methods. */
 class GrResourceProviderPriv {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     GrGpu* gpu() { return fResourceProvider->gpu(); }
 
 private:

@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkTHash.h"
@@ -84,6 +85,8 @@ class GrResourceProvider;
  */
 class GrResourceAllocator {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     explicit GrResourceAllocator(GrDirectContext* dContext) : fDContext(dContext) {}
 
     ~GrResourceAllocator();
@@ -273,6 +276,8 @@ private:
 
     class IntervalList {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         IntervalList() = default;
         // N.B. No need for a destructor – the arena allocator will clean up for us.
 

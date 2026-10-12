@@ -15,6 +15,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 
 #include <algorithm>
@@ -520,6 +521,8 @@ bool GrStyledShape::asNestedRects(SkRect rects[2]) const {
 
 class AutoRestoreInverseness {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     AutoRestoreInverseness(GrShape* shape, const GrStyle& style)
             // Dashing ignores inverseness skbug.com/40036591.
             : fShape(shape), fInverted(!style.isDashed() && fShape->inverted()) {}

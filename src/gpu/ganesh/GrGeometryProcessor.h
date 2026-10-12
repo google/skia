@@ -12,6 +12,7 @@
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/private/SkAlign.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkSLTypeShared.h"
@@ -146,6 +147,8 @@ public:
     class AttributeSet {
         class Iter {
         public:
+            SK_ONLY_STACK_ALLOCATABLE;
+
             Iter() = default;
             Iter(const Iter& iter) = default;
             Iter& operator=(const Iter& iter) = default;
@@ -285,6 +288,8 @@ public:
     virtual ~ProgramImpl() = default;
 
     struct EmitArgs {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         EmitArgs(GrGLSLVertexBuilder* vertBuilder,
                  GrGLSLFPFragmentBuilder* fragBuilder,
                  GrGLSLVaryingHandler* varyingHandler,

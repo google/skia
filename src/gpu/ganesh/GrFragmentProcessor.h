@@ -13,6 +13,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMacros.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
@@ -30,8 +31,8 @@
 
 class GrGLSLFPFragmentBuilder;
 class GrGLSLProgramDataManager;
-struct GrShaderCaps;
 class GrTextureEffect;
+struct GrShaderCaps;
 struct SkPoint;
 struct SkRect;
 
@@ -510,6 +511,8 @@ public:
                                  meaningful when the "references sample coords" FP flag is set.
      */
     struct EmitArgs {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
                  GrGLSLUniformHandler* uniformHandler,
                  const GrShaderCaps* caps,
@@ -627,6 +630,8 @@ public:
      */
     class Iter {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         Iter(std::unique_ptr<ProgramImpl> fps[], int cnt);
         Iter(ProgramImpl& fp) { fFPStack.push_back(&fp); }
 

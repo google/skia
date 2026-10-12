@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
@@ -27,6 +28,8 @@ class ScratchKey;
     data members or virtual methods. */
 class GrSurfaceProxyPriv {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     void computeScratchKey(const GrCaps& caps, skgpu::ScratchKey* key) const {
         return fProxy->computeScratchKey(caps, key);
     }
