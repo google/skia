@@ -269,6 +269,10 @@ public:
 
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
+    // All of Ganesh's framebuffer binds and deletions must go through these two functions. With
+    // ensure_previous_framebuffer_not_deleted enabled, bindFramebuffer() binds fCompleteFBOID
+    // before the requested FBO, and deleteFramebuffer() first rebinds 0, so the FBO being deleted
+    // is never the current or previous binding of either the draw or read target.
     void bindFramebuffer(GrGLenum fboTarget, GrGLuint fboid);
     void deleteFramebuffer(GrGLuint fboid);
 
@@ -362,6 +366,10 @@ private:
     }
 
     void onFBOChanged();
+
+    // Creates fCompleteFBOID for ensure_previous_framebuffer_not_deleted. Called at most once, from
+    // the first onResetContext() that resets kRenderTarget_GrGLBackendState.
+    void createCompleteFramebuffer();
 
     // Returns whether the texture is successfully created. On success, a non-zero texture ID is
     // returned. On failure, zero is returned.
@@ -636,6 +644,16 @@ private:
     GrGLuint                    fTempDstFBOID;
 
     GrGLuint                    fStencilClearFBOID;
+
+    // ensure_previous_framebuffer_not_deleted: some drivers (Imagination) keep a reference to the
+    // previously bound *complete* framebuffer and can touch it after it has been deleted. Like
+    // Chromium's GLES2DecoderImpl (gpu_driver_bug_list.json entry 471), bindFramebuffer() binds
+    // this 1x1 complete FBO before every other framebuffer, so it is always the "previous" binding
+    // and no Skia FBO is ever the previous binding when it is deleted. It is created by the first
+    // onResetContext() and is intentionally never deleted (nor is its renderbuffer): the client
+    // owns the GL context, and deleting it would leave a deleted FBO as the previous binding.
+    GrGLuint                    fCompleteFBOID = 0;
+    bool                        fTriedToCreateCompleteFBO = false;
 
     // last scissor / viewport scissor state seen by the GL.
     struct {

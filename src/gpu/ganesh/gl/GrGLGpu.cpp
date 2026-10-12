@@ -696,6 +696,12 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         fHWBoundRenderTargetUniqueID.makeInvalid();
         fHWSRGBFramebuffer = kUnknown_TriState;
         fBoundDrawFramebuffer = 0;
+        // GrGpu starts with every reset bit dirty and all entry points call handleDirtyContext(),
+        // so the first reset happens before Ganesh binds any framebuffer.
+        if (this->caps()->workarounds().ensure_previous_framebuffer_not_deleted &&
+            !fTriedToCreateCompleteFBO) {
+            this->createCompleteFramebuffer();
+        }
     }
 
     // we assume these values
@@ -3220,7 +3226,75 @@ void GrGLGpu::onFBOChanged() {
 #endif
 }
 
+void GrGLGpu::createCompleteFramebuffer() {
+    SkASSERT(this->caps()->workarounds().ensure_previous_framebuffer_not_deleted);
+    SkASSERT(!fTriedToCreateCompleteFBO && !fCompleteFBOID);
+    fTriedToCreateCompleteFBO = true;
+
+    GrGLuint fboid = 0;
+    GrGLuint rbid = 0;
+    GL_CALL(GenFramebuffers(1, &fboid));
+    GL_CALL(GenRenderbuffers(1, &rbid));
+    if (!fboid || !rbid) {
+        // Neither object has been bound, so deleting them can't trigger the driver bug.
+        if (fboid) {
+            GL_CALL(DeleteFramebuffers(1, &fboid));
+        }
+        if (rbid) {
+            GL_CALL(DeleteRenderbuffers(1, &rbid));
+        }
+        return;
+    }
+
+    // Chromium attaches a texture; a renderbuffer doesn't disturb texture unit or pixel unpack
+    // state. RGBA4 is color-renderable in core ES 2.0, but prefer RGBA8 where it is supported.
+    GrGLenum format = this->glCaps().canFormatBeFBOColorAttachment(GrGLFormat::kRGBA8)
+                              ? GR_GL_RGBA8
+                              : GR_GL_RGBA4;
+    GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, rbid));
+    GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, format, 1, 1));
+
+    // Bind directly; bindFramebuffer() would try to pre-bind the complete FBO.
+    this->invalidateBoundRenderTarget();
+    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fboid));
+    fBoundDrawFramebuffer = fboid;
+    this->onFBOChanged();
+    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
+                                    GR_GL_RENDERBUFFER, rbid));
+
+#if defined(__has_feature)
+#define SK_GL_COMPLETE_FBO_IS_TSAN __has_feature(thread_sanitizer)
+#else
+#define SK_GL_COMPLETE_FBO_IS_TSAN 0
+#endif
+// See skbug.com/40043725
+#if defined(SK_DEBUG) && !SK_GL_COMPLETE_FBO_IS_TSAN
+    if (!this->glCaps().skipErrorChecks()) {
+        GrGLenum status;
+        GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+        if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
+            // Keep using it: pre-binding an incomplete FBO is no worse than not pre-binding.
+            SkDebugf("WARNING: ensure_previous_framebuffer_not_deleted FBO is incomplete (0x%x)\n",
+                     status);
+        }
+        if (this->glCaps().rebindColorAttachmentAfterCheckFramebufferStatus()) {
+            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
+                                            GR_GL_RENDERBUFFER, rbid));
+        }
+    }
+#endif
+#undef SK_GL_COMPLETE_FBO_IS_TSAN
+
+    fCompleteFBOID = fboid;
+}
+
 void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
+    if (fCompleteFBOID && fboid != fCompleteFBOID) {
+        // ensure_previous_framebuffer_not_deleted: make the complete FBO the previous binding of
+        // this target so the driver never retains a reference to an FBO we may later delete.
+        // This mirrors Chromium's GLES2DecoderImpl::BindFramebuffer().
+        GL_CALL(BindFramebuffer(target, fCompleteFBOID));
+    }
     GL_CALL(BindFramebuffer(target, fboid));
     if (target == GR_GL_FRAMEBUFFER || target == GR_GL_DRAW_FRAMEBUFFER) {
         fBoundDrawFramebuffer = fboid;
@@ -3236,31 +3310,39 @@ void GrGLGpu::deleteFramebuffer(GrGLuint fboid) {
         this->caps()->workarounds().flush_queries_before_deleting_or_unbinding_fbo) {
         this->forcefullyFlushQueries();
     }
-    if (fboid == fBoundDrawFramebuffer) {
-        if (this->caps()->workarounds().unbind_attachments_on_bound_render_fbo_delete) {
-            // This workaround only applies to deleting currently bound framebuffers
-            // on Adreno 420.  Because this is a somewhat rare case, instead of
-            // tracking all the attachments of every framebuffer instead just always
-            // unbind all attachments.
-            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
-                                            GR_GL_RENDERBUFFER, 0));
-            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT,
-                                            GR_GL_RENDERBUFFER, 0));
-            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_DEPTH_ATTACHMENT,
-                                            GR_GL_RENDERBUFFER, 0));
-        }
+    if (fboid == fBoundDrawFramebuffer &&
+        this->caps()->workarounds().unbind_attachments_on_bound_render_fbo_delete) {
+        // This workaround only applies to deleting currently bound framebuffers
+        // on Adreno 420.  Because this is a somewhat rare case, instead of
+        // tracking all the attachments of every framebuffer instead just always
+        // unbind all attachments.
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
+                                        GR_GL_RENDERBUFFER, 0));
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT,
+                                        GR_GL_RENDERBUFFER, 0));
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_DEPTH_ATTACHMENT,
+                                        GR_GL_RENDERBUFFER, 0));
+    }
 
-        if (this->caps()->workarounds().ensure_previous_framebuffer_not_deleted) {
-            // Some drivers keep an internal reference to the previously bound
-            // framebuffer, so make sure it isn't the one being deleted.
-            this->bindFramebuffer(GR_GL_FRAMEBUFFER, 0);
-        }
+    if (this->caps()->workarounds().ensure_previous_framebuffer_not_deleted) {
+        // Some drivers keep an internal reference to the previously bound framebuffer, so make
+        // sure the FBO being deleted is neither the current nor the previous binding of either
+        // target. fBoundDrawFramebuffer isn't enough to decide whether that's needed: the read
+        // binding isn't tracked (blits and MSAA resolves leave their source FBO bound to
+        // GL_READ_FRAMEBUFFER), a context reset assumes 0 without binding it, and the FBO may be
+        // the previous binding even when it isn't the current one. So always rebind 0 (which
+        // pre-binds fCompleteFBOID), leaving current == 0 and previous == fCompleteFBOID for
+        // both targets.
+        SkASSERT(!fCompleteFBOID || fboid != fCompleteFBOID);
+        this->invalidateBoundRenderTarget();
+        this->bindFramebuffer(GR_GL_FRAMEBUFFER, 0);
     }
 
     GL_CALL(DeleteFramebuffers(1, &fboid));
 
     // Deleting the currently bound framebuffer rebinds to 0.
     if (fboid == fBoundDrawFramebuffer) {
+        fBoundDrawFramebuffer = 0;
         this->onFBOChanged();
     }
 }
