@@ -1971,8 +1971,9 @@ $pure half4 endcap_coverage_fn(float2 rectCoord,
 }
 
 half $cdf(half u, sampler2D cdfLut) {
-    const float kCdfLutRange = 4.0; // KEEP IN SYNC with constant in AnalyticRRectBlurMask.cpp.
-    float coord = float((u + kCdfLutRange) / (2.0 * kCdfLutRange));
+    // KEEP IN SYNC with kCdfLutRange = 4.0 in AnalyticRRectBlurMask.cpp:
+    // (u + 4.0) / 8.0 == u * 0.125 + 0.5
+    float coord = float(u * 0.125 + 0.5);
     return sample(cdfLut, float2(coord, 0.5)).r;
 }
 
@@ -2136,6 +2137,7 @@ $pure half4 $analytic_rrect_blur_coverage_fn(float2 pos,
                                              float4[2] rrectRadii,
                                              half2 one_over_sqrt2_sigma,
                                              float2 blurRadius,
+                                             float doFastPath,
                                              sampler2D cdfLut) {
     // Corners encoded as 0.0 (inactive), 0.5 (inside), 1.0 (active).
     // When encoded as inside, all corner flags are inside.
@@ -2150,26 +2152,33 @@ $pure half4 $analytic_rrect_blur_coverage_fn(float2 pos,
         return half4(1);
     }
 
-    // Edges not affected by corners or the area past the  opposite edge: only 1 CDF lookup needed.
-    if (f.x < -0.5) {  // Left
-        return half4(half(1.0) - $spatial_cdf(rect.x - pos.x, one_over_sqrt2_sigma.x, cdfLut));
-    }
-    if (f.y < -0.5) {  // Right
-        return half4($spatial_cdf(rect.z - pos.x, one_over_sqrt2_sigma.x, cdfLut));
-    }
-    if (f.z < -0.5) {  // Top
-        return half4(half(1.0) - $spatial_cdf(rect.y - pos.y, one_over_sqrt2_sigma.y, cdfLut));
-    }
-    if (f.w < -0.5) {  // Bottom
-        return half4($spatial_cdf(rect.w - pos.y, one_over_sqrt2_sigma.y, cdfLut));
+    // Set for edges not affected by corners or the area past the opposite edge, and fully saturated
+    // on the other axis: only 1 CDF lookup needed.
+    if (f.x < -0.5) {
+        float2 d = min(pos - rect.xy, rect.zw - pos) * float2(one_over_sqrt2_sigma);
+        return half4($cdf(half(min(d.x, d.y)), cdfLut));
     }
 
-    // Rect base: 4 CDF lookups
-    half cdf_l = $spatial_cdf(rect.x - pos.x, one_over_sqrt2_sigma.x, cdfLut);
-    half cdf_r = $spatial_cdf(rect.z - pos.x, one_over_sqrt2_sigma.x, cdfLut);
-    half cdf_t = $spatial_cdf(rect.y - pos.y, one_over_sqrt2_sigma.y, cdfLut);
-    half cdf_b = $spatial_cdf(rect.w - pos.y, one_over_sqrt2_sigma.y, cdfLut);
-    half v = (cdf_r - cdf_l) * (cdf_b - cdf_t);
+    half cdf_l;
+    half cdf_r;
+    half v;
+    if (doFastPath != 0.0) {
+        // Fast rect base: opposite edges do not overlap, only 2 CDF lookups needed.
+        float2 d = min(pos - rect.xy, rect.zw - pos);
+        half cx = $spatial_cdf(d.x, one_over_sqrt2_sigma.x, cdfLut);
+        half cy = $spatial_cdf(d.y, one_over_sqrt2_sigma.y, cdfLut);
+        v = cx * cy;
+        bool isLeft = (pos.x - rect.x) < (rect.z - pos.x);
+        cdf_l = isLeft ? (half(1.0) - cx) : half(0.0);
+        cdf_r = isLeft ? half(1.0) : cx;
+    } else {
+        // Rect base: 4 CDF lookups
+        cdf_l = $spatial_cdf(rect.x - pos.x, one_over_sqrt2_sigma.x, cdfLut);
+        cdf_r = $spatial_cdf(rect.z - pos.x, one_over_sqrt2_sigma.x, cdfLut);
+        half cdf_t = $spatial_cdf(rect.y - pos.y, one_over_sqrt2_sigma.y, cdfLut);
+        half cdf_b = $spatial_cdf(rect.w - pos.y, one_over_sqrt2_sigma.y, cdfLut);
+        v = (cdf_r - cdf_l) * (cdf_b - cdf_t);
+    }
 
     // Per-corner corrections, gated by individual corner flags.
     // Each call reflects pos into TL-equivalent space so eval_corner
@@ -2209,7 +2218,8 @@ $pure half4 analytic_rrect_blur_coverage_fn(float2 coords,
                                             half2 sqrtHalfOverSigma,
                                             float4[2] radii,
                                             float2 blurRadius,
+                                            float doFastPath,
                                             sampler2D cdfLut) {
     return $analytic_rrect_blur_coverage_fn(coords, rect, flags, radii,
-                                            sqrtHalfOverSigma, blurRadius, cdfLut);
+                                            sqrtHalfOverSigma, blurRadius, doFastPath, cdfLut);
 }

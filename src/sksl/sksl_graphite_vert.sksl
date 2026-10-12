@@ -1280,9 +1280,9 @@ float4 analytic_rrect_blur_vertex_fn(int4 gridAndBevel,
     // Saturate our bounds when we are far enough from the edge and within the corner safe bounds
     // of the other axis. This should usually result in the center cell and the 4 adjacent cells
     // being fully saturated.
-    bool isHorizontalEdgeInsideSaturated = cellX0 >= bounds0[1] && cellX1 <= bounds0[0] &&
+    bool isHorizontalEdgeInsideSaturated = cellX0 >= bounds0[1] && cellX1 <= bounds1[0] &&
                                     cellY0 >= cornerSafeBounds.y && cellY1 <= cornerSafeBounds.w;
-    bool isVerticalEdgeInsideSaturated = cellY0 >= bounds1[3] && cellY1 <= bounds1[2] &&
+    bool isVerticalEdgeInsideSaturated = cellY0 >= bounds1[3] && cellY1 <= bounds2[2] &&
                                     cellX0 >= cornerSafeBounds.x && cellX1 <= cornerSafeBounds.z;
 
     const half kCornerActive = 1.0;
@@ -1292,25 +1292,26 @@ float4 analytic_rrect_blur_vertex_fn(int4 gridAndBevel,
     const half kEdgeSaturated = -1.0;
 
     if ((cornerSafeEdgeMask & canSaturateEdge) > 0) {
-        vFlags = half4(bool(cornerSafeEdgeMask & 1) ? kEdgeSaturated : 0.0,  // Left
-                       bool(cornerSafeEdgeMask & 2) ? kEdgeSaturated : 0.0,  // Right
-                       bool(cornerSafeEdgeMask & 4) ? kEdgeSaturated : 0.0,  // Top
-                       bool(cornerSafeEdgeMask & 8) ? kEdgeSaturated : 0.0); // Bottom
+        vFlags = half4(kEdgeSaturated);
         return devPosition;
     } else if (isHorizontalEdgeInsideSaturated || isVerticalEdgeInsideSaturated) {
         vFlags = half4(kInside);
     } else {
         // Determine which corner which may affect the blur for the current cell.
-        half doTL = (cellX0 < rect.x + rrectRadii[0].x + drawPad.x &&
+        half doTL = (rrectRadii[0].x > 0.0 && rrectRadii[0].y > 0.0 &&
+                     cellX0 < rect.x + rrectRadii[0].x + drawPad.x &&
                      cellY0 < rect.y + rrectRadii[0].y + drawPad.y)
                             ? kCornerActive : kCornerInactive;
-        half doTR = (cellX1 > rect.z - rrectRadii[0].z - drawPad.x &&
+        half doTR = (rrectRadii[0].z > 0.0 && rrectRadii[0].w > 0.0 &&
+                     cellX1 > rect.z - rrectRadii[0].z - drawPad.x &&
                      cellY0 < rect.y + rrectRadii[0].w + drawPad.y)
                             ? kCornerActive : kCornerInactive;
-        half doBR = (cellX1 > rect.z - rrectRadii[1].x - drawPad.x &&
+        half doBR = (rrectRadii[1].x > 0.0 && rrectRadii[1].y > 0.0 &&
+                     cellX1 > rect.z - rrectRadii[1].x - drawPad.x &&
                      cellY1 > rect.w - rrectRadii[1].y - drawPad.y)
                             ? kCornerActive : kCornerInactive;
-        half doBL = (cellX0 < rect.x + rrectRadii[1].z + drawPad.x &&
+        half doBL = (rrectRadii[1].z > 0.0 && rrectRadii[1].w > 0.0 &&
+                     cellX0 < rect.x + rrectRadii[1].z + drawPad.x &&
                      cellY1 > rect.w - rrectRadii[1].w - drawPad.y)
                             ? kCornerActive : kCornerInactive;
         vFlags = half4(doTL, doTR, doBR, doBL);

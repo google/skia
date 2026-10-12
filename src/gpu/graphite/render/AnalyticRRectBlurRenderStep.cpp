@@ -233,6 +233,7 @@ AnalyticRRectBlurRenderStep::AnalyticRRectBlurRenderStep(Layout layout,
                      /*uniforms=*/
                      {{"rect", SkSLType::kFloat4},
                       {"drawPad", SkSLType::kFloat2},
+                      {"doFastPath", SkSLType::kFloat},
                       {"sqrtHalfOverSigma", SkSLType::kHalf2},
                       {"rrectRadii", SkSLType::kFloat4, 2},
                       {"blurRadius", SkSLType::kFloat2}},
@@ -283,6 +284,7 @@ const char* AnalyticRRectBlurRenderStep::fragmentCoverageSkSL() const {
                                                             "sqrtHalfOverSigma, "
                                                             "rrectRadii, "
                                                             "blurRadius, "
+                                                            "doFastPath, "
                                                             "cdfLut);";
 }
 
@@ -296,8 +298,6 @@ void AnalyticRRectBlurRenderStep::writeVertices(DrawWriter* writer,
 
     float drawPadX = blur.drawPadX();
     float drawPadY = blur.drawPadY();
-    float satPadX = std::ceil(3.5f * blur.localSigma().x);
-    float satPadY = std::ceil(3.5f * blur.localSigma().y);
 
     // Calculate distance from edge where the corner curvature has ended and is saturated.
     float safeOffsetLeft = std::max(radii[0].fX, radii[3].fX) + drawPadX;
@@ -305,38 +305,33 @@ void AnalyticRRectBlurRenderStep::writeVertices(DrawWriter* writer,
     float safeOffsetTop = std::max(radii[0].fY, radii[1].fY) + drawPadY;
     float safeOffsetBottom = std::max(radii[2].fY, radii[3].fY) + drawPadY;
 
+    // Innermost safe bounds that we define as our fully saturated bounds.
     float cornerSafeXMin = rect.fLeft + safeOffsetLeft;
     float cornerSafeXMax = rect.fRight - safeOffsetRight;
     float cornerSafeYMin = rect.fTop + safeOffsetTop;
     float cornerSafeYMax = rect.fBottom - safeOffsetBottom;
 
-    // Innermost safe bounds that we define as our fully saturated bounds.
-    float insXMin = rect.fLeft + std::max(satPadX, safeOffsetLeft);
-    float insXMax = rect.fRight - std::max(satPadX, safeOffsetRight);
-    float insYMin = rect.fTop + std::max(satPadY, safeOffsetTop);
-    float insYMax = rect.fBottom - std::max(satPadY, safeOffsetBottom);
-
     // Snap innermost inset bounds to the center if they are overlapping.
-    if (insXMin >= insXMax) {
-        insXMin = insXMax = (rect.fLeft + rect.fRight) * 0.5f;
+    if (cornerSafeXMin >= cornerSafeXMax) {
+        cornerSafeXMin = cornerSafeXMax = rect.centerX();
     }
-    if (insYMin >= insYMax) {
-        insYMin = insYMax = (rect.fTop + rect.fBottom) * 0.5f;
+    if (cornerSafeYMin >= cornerSafeYMax) {
+        cornerSafeYMin = cornerSafeYMax = rect.centerY();
     }
 
     // Our outermost edge safe inset bounds. This allows us to assume full coverage when we are
     // far enough from an edge on one axis and within the corner radius safe limits on the other
     // axis.
-    float edgeInsXMin = std::min(insXMin, rect.fLeft + std::min(satPadX, safeOffsetLeft));
-    float edgeInsXMax = std::max(insXMax, rect.fRight - std::min(satPadX, safeOffsetRight));
-    float edgeInsYMin = std::min(insYMin, rect.fTop + std::min(satPadY, safeOffsetTop));
-    float edgeInsYMax = std::max(insYMax, rect.fBottom - std::min(satPadY, safeOffsetBottom));
+    float edgeInsXMin = std::min(cornerSafeXMin, rect.fLeft + drawPadX);
+    float edgeInsXMax = std::max(cornerSafeXMax, rect.fRight - drawPadX);
+    float edgeInsYMin = std::min(cornerSafeYMin, rect.fTop + drawPadY);
+    float edgeInsYMax = std::max(cornerSafeYMax, rect.fBottom - drawPadY);
 
     // Bounds mapping to each row and columns of our 5x5 vertex grid.
-    const float xBounds[6] = {rect.fLeft - drawPadX, edgeInsXMin, insXMin,
-                              insXMax, edgeInsXMax, rect.fRight + drawPadX};
-    const float yBounds[6] = {rect.fTop - drawPadY,  edgeInsYMin, insYMin,
-                              insYMax, edgeInsYMax, rect.fBottom + drawPadY};
+    const float xBounds[6] = {rect.fLeft - drawPadX, edgeInsXMin, cornerSafeXMin,
+                              cornerSafeXMax, edgeInsXMax, rect.fRight + drawPadX};
+    const float yBounds[6] = {rect.fTop - drawPadY,  edgeInsYMin, cornerSafeYMin,
+                              cornerSafeYMax, edgeInsYMax, rect.fBottom + drawPadY};
 
     const SkM44& mat = params.transform().matrix();
 
@@ -385,8 +380,16 @@ void AnalyticRRectBlurRenderStep::writeUniformsAndTextures(const DrawParams& par
     SkSize blurRadius = {static_cast<SkScalar>(std::floor(std::ceil(6.f * localSigma.x) / 2.0)),
                          static_cast<SkScalar>(std::floor(std::ceil(6.f * localSigma.y) / 2.0))};
 
-    gatherer->write(rrect.getBounds());
+    SkRect bounds = rrect.getBounds();
+    // When the blur radius doesn't exceed the halfway point of the rect starting from the edge,
+    // we know we can perform a fast path for evaluating the blur due to the rect by only sampling
+    // the CDF against the closest edge for each axis.
+    float doFastPath = (bounds.width() >= 2.f * blurRadius.width() &&
+                        bounds.height() >= 2.f * blurRadius.height()) ? 1.f : 0.f;
+
+    gatherer->write(bounds);
     gatherer->write(blur.drawPad());
+    gatherer->write(doFastPath);
     gatherer->writeHalf(sqrtHalfOverSigma);
     const SkV4 radiiArr[2] = {SkV4{radii[0].fX, radii[0].fY, radii[1].fX, radii[1].fY},
                               SkV4{radii[2].fX, radii[2].fY, radii[3].fX, radii[3].fY}};

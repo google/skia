@@ -140,9 +140,10 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
 " B=float2(z,A);float3x3 C=float3x3(m,n,o);float4 D=float4((C*float3(B,1.))."
 "xy,0.,1.);D.z=l;r=B;p=B;uint E=t%5;uint F=t/5;float G=E<4?e[E]:f[E-4];float"
 " H=E<3?e[E+1]:f[E-3];float I=F<2?f[F+2]:g[F-2];float J=F==0?f.w:g[F-1];bool"
-" K=((G>=e.y&&H<=e.x)&&I>=h.y)&&J<=h.w;bool L=((I>=f.w&&J<=f.z)&&G>=h.x)&&H<="
-"h.z;if((u&i)>0){q=half4(bool(u&1)?-1.:0.,bool(u&2)?-1.:0.,bool(u&4)?-1.:0.,"
-"bool(u&8)?-1.:0.);return D;}else if(K||L)q=half4(.5);else{half Q=half(G<(d."
-"x+k[0].x)+j.x&&I<(d.y+k[0].y)+j.y);half R=half(H>(d.z-k[0].z)-j.x&&I<(d.y+k"
-"[0].w)+j.y);half S=half(H>(d.z-k[1].x)-j.x&&J>(d.w-k[1].y)-j.y);half T=half"
-"(G<(d.x+k[1].z)+j.x&&J>(d.w-k[1].w)-j.y);q=half4(Q,R,S,T);}return D;}";
+" K=((G>=e.y&&H<=f.x)&&I>=h.y)&&J<=h.w;bool L=((I>=f.w&&J<=g.z)&&G>=h.x)&&H<="
+"h.z;if((u&i)>0){q=half4(-1.);return D;}else if(K||L)q=half4(.5);else{half Q"
+"=half(((k[0].x>0.&&k[0].y>0.)&&G<(d.x+k[0].x)+j.x)&&I<(d.y+k[0].y)+j.y);half"
+" R=half(((k[0].z>0.&&k[0].w>0.)&&H>(d.z-k[0].z)-j.x)&&I<(d.y+k[0].w)+j.y);half"
+" S=half(((k[1].x>0.&&k[1].y>0.)&&H>(d.z-k[1].x)-j.x)&&J>(d.w-k[1].y)-j.y);half"
+" T=half(((k[1].z>0.&&k[1].w>0.)&&G<(d.x+k[1].z)+j.x)&&J>(d.w-k[1].w)-j.y);q"
+"=half4(Q,R,S,T);}return D;}";
