@@ -249,6 +249,8 @@ class SKUNICODE_API SkUnicode : public SkRefCnt {
             while (current < end) {
                 auto before = current - utf8;
                 SkUnichar unichar = SkUTF::NextUTF8(&current, end);
+                // SkUTF::NextUTF8 returns -1 on ill-formed byte sequences; substitute U+FFFD so
+                // SkUTF::ToUTF16 and caller property queries always receive a valid scalar value
                 if (unichar < 0) unichar = 0xFFFD;
                 auto after = current - utf8;
                 uint16_t buffer[2];
@@ -264,6 +266,9 @@ class SKUNICODE_API SkUnicode : public SkRefCnt {
             while (current < end) {
                 auto before = current - utf16;
                 SkUnichar unichar = SkUTF::NextUTF16((const uint16_t**)&current, (const uint16_t*)end);
+                // SkUTF::NextUTF16 returns -1 on unpaired surrogates; substitute U+FFFD (matching
+                // the UTF-8 overload above) so caller property queries receive a valid scalar value
+                if (unichar < 0) unichar = 0xFFFD;
                 auto after = current - utf16;
                 callback(unichar, before, after);
             }

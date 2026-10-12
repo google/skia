@@ -290,12 +290,55 @@ DEF_TEST(SkUnicode_Apple_BreakIterator_Utf8_Hostile, reporter) {
     }
 
     {
-        SkString text("Привет\nмир");
+        // UAX #14 LF and U+2029 Paragraph Separator must produce kHardLineBreakBefore status
+        SkString text("Привет\nмир\u2029конец");
         auto lineIter = apple->makeBreakIterator(SkUnicode::BreakType::kLines);
         REPORTER_ASSERT(reporter, lineIter);
         REPORTER_ASSERT(reporter, lineIter->setText(text.data(), text.size()));
-        std::vector<SkBreakIterator::Position> expectedLines = {0, 13, 19};
-        REPORTER_ASSERT(reporter, collectBreaks(lineIter.get()) == expectedLines);
+        std::vector<SkBreakIterator::Position> breaks;
+        std::vector<SkBreakIterator::Status> statuses;
+        for (auto pos = lineIter->first(); !lineIter->isDone(); pos = lineIter->next()) {
+            breaks.push_back(pos);
+            statuses.push_back(lineIter->status());
+        }
+        std::vector<SkBreakIterator::Position> expectedLines = {0, 13, 22, 32};
+        REPORTER_ASSERT(reporter, breaks == expectedLines);
+        REPORTER_ASSERT(reporter, !(statuses[0] & SkUnicode::CodeUnitFlags::kHardLineBreakBefore));
+        REPORTER_ASSERT(reporter, statuses[1] & SkUnicode::CodeUnitFlags::kHardLineBreakBefore);
+        REPORTER_ASSERT(reporter, statuses[2] & SkUnicode::CodeUnitFlags::kHardLineBreakBefore);
+        REPORTER_ASSERT(reporter, !(statuses[3] & SkUnicode::CodeUnitFlags::kHardLineBreakBefore));
+    }
+
+    {
+        // UAX #29 GB3 coalesces CRLF into a single grapheme cluster; empty and CR-only inputs
+        // must still emit valid boundary sentinels
+        SkString crlf("a\r\nb");
+        auto graphemeIter = apple->makeBreakIterator(SkUnicode::BreakType::kGraphemes);
+        REPORTER_ASSERT(reporter, graphemeIter->setText(crlf.data(), crlf.size()));
+        std::vector<SkBreakIterator::Position> expectedCrlf = {0, 1, 3, 4};
+        REPORTER_ASSERT(reporter, collectBreaks(graphemeIter.get()) == expectedCrlf);
+
+        TArray<SkUnicode::CodeUnitFlags, true> flags;
+        REPORTER_ASSERT(reporter,
+                        apple->computeCodeUnitFlags(crlf.data(), crlf.size(), false, &flags));
+        REPORTER_ASSERT(reporter, flags[1] & SkUnicode::CodeUnitFlags::kGraphemeStart);
+        REPORTER_ASSERT(reporter, !(flags[2] & SkUnicode::CodeUnitFlags::kGraphemeStart));
+        REPORTER_ASSERT(reporter, flags[3] & SkUnicode::CodeUnitFlags::kGraphemeStart);
+
+        auto lineIter = apple->makeBreakIterator(SkUnicode::BreakType::kLines);
+        REPORTER_ASSERT(reporter, lineIter->setText("", 0));
+        std::vector<SkBreakIterator::Position> expectedEmpty = {0};
+        REPORTER_ASSERT(reporter, collectBreaks(lineIter.get()) == expectedEmpty);
+
+        REPORTER_ASSERT(reporter, lineIter->setText("\r", 1));
+        std::vector<SkBreakIterator::Position> expectedCrOnly = {0, 1};
+        REPORTER_ASSERT(reporter, collectBreaks(lineIter.get()) == expectedCrOnly);
+
+        REPORTER_ASSERT(reporter, apple->computeCodeUnitFlags(crlf.data(), 0, false, &flags));
+        REPORTER_ASSERT(reporter, flags.size() == 1);
+        REPORTER_ASSERT(reporter,
+                        flags[0] == (SkUnicode::CodeUnitFlags::kSoftLineBreakBefore |
+                                     SkUnicode::CodeUnitFlags::kGraphemeStart));
     }
 }
 
@@ -339,40 +382,155 @@ DEF_TEST(SkUnicode_Apple_BreakIterator_Utf16_Hostile, reporter) {
         std::vector<SkBreakIterator::Position> expectedGraphemes = {0, 2, 4, 6};
         REPORTER_ASSERT(reporter, collectBreaks(graphemeIter.get()) == expectedGraphemes);
     }
+
+    {
+        // UAX #14 LF and U+2029 Paragraph Separator must produce kHardLineBreakBefore in UTF-16
+        std::u16string u16Text = u"Привет\nмир\u2029конец";
+        auto lineIter = apple->makeBreakIterator(SkUnicode::BreakType::kLines);
+        REPORTER_ASSERT(reporter, lineIter);
+        REPORTER_ASSERT(reporter, lineIter->setText(u16Text.data(), u16Text.size()));
+        std::vector<SkBreakIterator::Position> breaks;
+        std::vector<SkBreakIterator::Status> statuses;
+        for (auto pos = lineIter->first(); !lineIter->isDone(); pos = lineIter->next()) {
+            breaks.push_back(pos);
+            statuses.push_back(lineIter->status());
+        }
+        std::vector<SkBreakIterator::Position> expectedLines = {0, 7, 11, 16};
+        REPORTER_ASSERT(reporter, breaks == expectedLines);
+        REPORTER_ASSERT(reporter, !(statuses[0] & SkUnicode::CodeUnitFlags::kHardLineBreakBefore));
+        REPORTER_ASSERT(reporter, statuses[1] & SkUnicode::CodeUnitFlags::kHardLineBreakBefore);
+        REPORTER_ASSERT(reporter, statuses[2] & SkUnicode::CodeUnitFlags::kHardLineBreakBefore);
+        REPORTER_ASSERT(reporter, !(statuses[3] & SkUnicode::CodeUnitFlags::kHardLineBreakBefore));
+    }
+
+    {
+        // UAX #29 GB3 coalesces CRLF into a single grapheme cluster in UTF-16
+        std::u16string crlf = u"a\r\nb";
+        auto graphemeIter = apple->makeBreakIterator(SkUnicode::BreakType::kGraphemes);
+        REPORTER_ASSERT(reporter, graphemeIter->setText(crlf.data(), crlf.size()));
+        std::vector<SkBreakIterator::Position> expectedCrlf = {0, 1, 3, 4};
+        REPORTER_ASSERT(reporter, collectBreaks(graphemeIter.get()) == expectedCrlf);
+
+        TArray<SkUnicode::CodeUnitFlags, true> flags;
+        REPORTER_ASSERT(reporter,
+                        apple->computeCodeUnitFlags(crlf.data(), crlf.size(), false, &flags));
+        REPORTER_ASSERT(reporter, flags[1] & SkUnicode::CodeUnitFlags::kGraphemeStart);
+        REPORTER_ASSERT(reporter, !(flags[2] & SkUnicode::CodeUnitFlags::kGraphemeStart));
+        REPORTER_ASSERT(reporter, flags[3] & SkUnicode::CodeUnitFlags::kGraphemeStart);
+
+        auto lineIter = apple->makeBreakIterator(SkUnicode::BreakType::kLines);
+        REPORTER_ASSERT(reporter, lineIter->setText(u"", 0));
+        std::vector<SkBreakIterator::Position> expectedEmpty = {0};
+        REPORTER_ASSERT(reporter, collectBreaks(lineIter.get()) == expectedEmpty);
+
+        REPORTER_ASSERT(reporter, lineIter->setText(u"\r", 1));
+        std::vector<SkBreakIterator::Position> expectedCrOnly = {0, 1};
+        REPORTER_ASSERT(reporter, collectBreaks(lineIter.get()) == expectedCrOnly);
+
+        REPORTER_ASSERT(reporter, apple->computeCodeUnitFlags(crlf.data(), 0, false, &flags));
+        REPORTER_ASSERT(reporter, flags.size() == 1);
+        REPORTER_ASSERT(reporter,
+                        flags[0] == (SkUnicode::CodeUnitFlags::kSoftLineBreakBefore |
+                                     SkUnicode::CodeUnitFlags::kGraphemeStart));
+    }
 }
 
+#endif
+
+[[maybe_unused]] static void SkUnicode_CharProperties(SkUnicode* unicode,
+                                                      skiatest::Reporter* reporter) {
+    // Cc, Cf, Zl, and Zp control/format ranges vs Variation Selectors Supplement (U+E0100..U+E01EF)
+    REPORTER_ASSERT(reporter, unicode->isControl(0x00));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x1F));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x7F));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x9F));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x00AD));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x0600));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x061C));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x180E));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x200B));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x200D));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x2028));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x2029));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x202E));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x2060));
+    REPORTER_ASSERT(reporter, unicode->isControl(0x2066));
+    REPORTER_ASSERT(reporter, unicode->isControl(0xFEFF));
+    REPORTER_ASSERT(reporter, unicode->isControl(0xFFF9));
+    REPORTER_ASSERT(reporter, unicode->isControl(0xE0001));
+    REPORTER_ASSERT(reporter, unicode->isControl(0xE0020));
+    REPORTER_ASSERT(reporter, unicode->isControl(0xE007F));
+    REPORTER_ASSERT(reporter, !unicode->isControl(0xE0100));
+    REPORTER_ASSERT(reporter, !unicode->isControl(0xE0101));
+    REPORTER_ASSERT(reporter, !unicode->isControl(0xE0120));
+    REPORTER_ASSERT(reporter, !unicode->isControl('A'));
+    REPORTER_ASSERT(reporter, !unicode->isControl(' '));
+
+    // ASCII information separators (FS..US) and ZWSP exclusion in isSpace/isWhitespace
+    REPORTER_ASSERT(reporter, unicode->isSpace(' '));
+    REPORTER_ASSERT(reporter, unicode->isSpace('\t'));
+    REPORTER_ASSERT(reporter, unicode->isSpace('\n'));
+    REPORTER_ASSERT(reporter, unicode->isSpace(0x001C));
+    REPORTER_ASSERT(reporter, unicode->isSpace(0x001F));
+    REPORTER_ASSERT(reporter, unicode->isSpace(0x00A0));
+    REPORTER_ASSERT(reporter, unicode->isSpace(0x202F));
+    REPORTER_ASSERT(reporter, unicode->isSpace(0x3000));
+    REPORTER_ASSERT(reporter, !unicode->isSpace(0x200B));
+    REPORTER_ASSERT(reporter, !unicode->isSpace('A'));
+
+    REPORTER_ASSERT(reporter, unicode->isWhitespace(' '));
+    REPORTER_ASSERT(reporter, unicode->isWhitespace('\t'));
+    REPORTER_ASSERT(reporter, unicode->isWhitespace('\n'));
+    REPORTER_ASSERT(reporter, unicode->isWhitespace(0x001C));
+    REPORTER_ASSERT(reporter, unicode->isWhitespace(0x001F));
+    REPORTER_ASSERT(reporter, unicode->isWhitespace(0x3000));
+    REPORTER_ASSERT(reporter, !unicode->isWhitespace(0x00A0));
+    REPORTER_ASSERT(reporter, !unicode->isWhitespace(0x2007));
+    REPORTER_ASSERT(reporter, !unicode->isWhitespace(0x200B));
+    REPORTER_ASSERT(reporter, !unicode->isWhitespace(0x202F));
+    REPORTER_ASSERT(reporter, !unicode->isWhitespace(0x0085));
+    REPORTER_ASSERT(reporter, !unicode->isWhitespace('A'));
+
+    // UAX #14 LF/BK mandatory breaks vs CR and NEL
+    REPORTER_ASSERT(reporter, unicode->isHardBreak('\n'));
+    REPORTER_ASSERT(reporter, unicode->isHardBreak('\v'));
+    REPORTER_ASSERT(reporter, unicode->isHardBreak('\f'));
+    REPORTER_ASSERT(reporter, unicode->isHardBreak(0x2028));
+    REPORTER_ASSERT(reporter, unicode->isHardBreak(0x2029));
+    REPORTER_ASSERT(reporter, !unicode->isHardBreak('\r'));
+    REPORTER_ASSERT(reporter, !unicode->isHardBreak(0x0085));
+    REPORTER_ASSERT(reporter, !unicode->isHardBreak(' '));
+    REPORTER_ASSERT(reporter, !unicode->isHardBreak('A'));
+}
+
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
+// Match other SkUnicode_Compiled_* tests: Windows bots do not bundle icudtl.dat in the test cwd
+UNIX_ONLY_TEST(SkUnicode_Compiled_CharProperties, reporter) {
+    auto icu = SkUnicodes::ICU::Make();
+    REPORTER_ASSERT(reporter, icu);
+    if (!icu) {
+        return;
+    }
+    SkUnicode_CharProperties(icu.get(), reporter);
+}
+#endif
+
+#if defined(SK_UNICODE_APPLE_IMPLEMENTATION)
 DEF_TEST(SkUnicode_Apple_CharProperties, reporter) {
     auto apple = SkUnicodes::Apple::Make();
     REPORTER_ASSERT(reporter, apple);
     if (!apple) {
         return;
     }
+    SkUnicode_CharProperties(apple.get(), reporter);
 
-    REPORTER_ASSERT(reporter, apple->isControl(0x00));
-    REPORTER_ASSERT(reporter, apple->isControl(0x1F));
-    REPORTER_ASSERT(reporter, apple->isControl(0x7F));
-    REPORTER_ASSERT(reporter, apple->isControl(0x200D));
-    REPORTER_ASSERT(reporter, apple->isControl(0x202E));
-    REPORTER_ASSERT(reporter, !apple->isControl('A'));
-    REPORTER_ASSERT(reporter, !apple->isControl(' '));
-
-    REPORTER_ASSERT(reporter, apple->isSpace(' '));
-    REPORTER_ASSERT(reporter, apple->isSpace('\t'));
-    REPORTER_ASSERT(reporter, apple->isSpace('\n'));
-    REPORTER_ASSERT(reporter, apple->isSpace(0x00A0));
-    REPORTER_ASSERT(reporter, apple->isSpace(0x202F));
-    REPORTER_ASSERT(reporter, apple->isSpace(0x3000));
-    REPORTER_ASSERT(reporter, !apple->isSpace('A'));
-
-    REPORTER_ASSERT(reporter, apple->isWhitespace(' '));
-    REPORTER_ASSERT(reporter, apple->isWhitespace('\t'));
-    REPORTER_ASSERT(reporter, apple->isWhitespace('\n'));
-    REPORTER_ASSERT(reporter, apple->isWhitespace(0x3000));
-    REPORTER_ASSERT(reporter, !apple->isWhitespace(0x00A0));
-    REPORTER_ASSERT(reporter, !apple->isWhitespace(0x2007));
-    REPORTER_ASSERT(reporter, !apple->isWhitespace(0x202F));
-    REPORTER_ASSERT(reporter, !apple->isWhitespace(0x0085));
-    REPORTER_ASSERT(reporter, !apple->isWhitespace('A'));
+    // Inclusive ideographic block upper bounds in SkUnicodeHardCodedCharProperties
+    REPORTER_ASSERT(reporter, apple->isIdeographic(0x11FF));
+    REPORTER_ASSERT(reporter, apple->isIdeographic(0xA4CF));
+    REPORTER_ASSERT(reporter, apple->isIdeographic(0xD7AF));
+    REPORTER_ASSERT(reporter, apple->isIdeographic(0x2FFFF));
+    REPORTER_ASSERT(reporter, !apple->isIdeographic(0x1200));
+    REPORTER_ASSERT(reporter, !apple->isIdeographic(0x30000));
 }
 #endif
 
