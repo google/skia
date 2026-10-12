@@ -13,6 +13,7 @@
 #include <cmath>
 #include <cstring>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -112,6 +113,23 @@ public:
     }
     static int LastFullDecodeRows(const SkJpegRustCodec& codec) {
         return codec.lastFullDecodeRowsForTesting();
+    }
+    static bool DirectPackedOutput(const SkJpegRustCodec& codec) {
+        return codec.directPackedOutputForTesting();
+    }
+    static int SwizzleRowCount(const SkJpegRustCodec& codec) {
+        return codec.swizzleRowCountForTesting();
+    }
+    static void DisableDirectPackedOutput(SkJpegRustCodec& codec) {
+        codec.disableDirectPackedOutputForTesting();
+    }
+    static bool Rewind(SkJpegRustCodec& codec) { return codec.onRewind(); }
+    static std::pair<SkCodec::Result, int> DecodeDirectScanlines(SkJpegRustCodec& codec,
+                                                                 void* dst,
+                                                                 int countLines,
+                                                                 size_t rowBytes) {
+        const auto result = codec.decodeDirectScanlines(dst, countLines, rowBytes);
+        return {result.fResult, result.fRowsDecoded};
     }
 };
 
@@ -1005,13 +1023,16 @@ DEF_TEST(RustJpegCodec_RawDirectPlaneContracts, r) {
             static_cast<uint32_t>(strides[2]));
     REPORTER_ASSERT(r, expectedResult.status == rust_jpeg::OutputStatus::Ready);
     rust_jpeg::ScanlineOutputResult conflictingStart =
-            reader.fReader->start_scanline_output(rust_jpeg::PackedOutputFormat::Source);
+            reader.fReader->start_scanline_output(rust_jpeg::PackedOutputFormat::RGBA);
     REPORTER_ASSERT(r, conflictingStart.status == rust_jpeg::OutputStatus::Error);
     REPORTER_ASSERT(r, conflictingStart.result == rust_jpeg::DecodingResult::ParameterError);
     reader.fReader->reset_decode_state();
-    rust_jpeg::ScanlineOutputResult scanlineStart =
-            reader.fReader->start_scanline_output(rust_jpeg::PackedOutputFormat::Source);
-    REPORTER_ASSERT(r, scanlineStart.status == rust_jpeg::OutputStatus::Ready);
+    rust_jpeg::ScanlineOutputResult packedStart =
+            reader.fReader->start_scanline_output(rust_jpeg::PackedOutputFormat::RGBA);
+    REPORTER_ASSERT(r, packedStart.status == rust_jpeg::OutputStatus::Ready);
+    conflictingStart = reader.fReader->start_scanline_output(rust_jpeg::PackedOutputFormat::BGRA);
+    REPORTER_ASSERT(r, conflictingStart.status == rust_jpeg::OutputStatus::Error);
+    REPORTER_ASSERT(r, conflictingStart.result == rust_jpeg::DecodingResult::ParameterError);
     const std::array<uint32_t, 3> expectedRows = {
             expectedResult.y_rows, expectedResult.u_rows, expectedResult.v_rows};
     for (int plane = 0; plane < 3; ++plane) {
@@ -1228,6 +1249,317 @@ DEF_TEST(RustJpegCodec_ScanlineWorkflows, r) {
     }
 }
 
+#if defined(SK_CPU_X86) && (SK_PMCOLOR_BYTE_ORDER(B, G, R, A) || SK_PMCOLOR_BYTE_ORDER(R, G, B, A))
+
+DEF_TEST(RustJpegCodec_DirectNativeN32, r) {
+    const char* paths[] = {
+            "images/orientation/1_444.jpg",
+            "images/orientation/1_440.jpg",
+            "images/orientation/1_422.jpg",
+            "images/orientation/1_420.jpg",
+            "images/cropped_mandrill.jpg",
+            "images/icc-v2-gbr.jpg",
+            "images/non_interleaved_420_64x64.jpg",
+    };
+    constexpr uint8_t kSentinel = 0xCD;
+
+    for (const char* path : paths) {
+        skiatest::ReporterContext context(r, path);
+        sk_sp<SkData> data = GetResourceAsData(path);
+        REPORTER_ASSERT(r, data);
+        if (!data) {
+            continue;
+        }
+
+        SkCodec::Result makeResult;
+        std::unique_ptr<SkJpegRustCodec> directCodec =
+                SkJpegRustCodec::MakeFromStream(SkMemoryStream::Make(data), &makeResult);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, makeResult);
+        REPORTER_ASSERT(r, directCodec);
+        if (!directCodec) {
+            continue;
+        }
+        const SkImageInfo info = directCodec->getInfo().makeColorType(kN32_SkColorType);
+        const size_t rowBytes = info.minRowBytes() + 19;
+        const size_t exactSize =
+                (static_cast<size_t>(info.height()) - 1) * rowBytes + info.minRowBytes();
+        std::vector<uint8_t> directPixels(exactSize, kSentinel);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                r, directCodec->getPixels(info, directPixels.data(), rowBytes));
+        REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::DirectPackedOutput(*directCodec));
+        REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::ScanlineBufferSize(*directCodec) == 0);
+        REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::SwizzleRowCount(*directCodec) == 0);
+
+        std::unique_ptr<SkJpegRustCodec> fallbackCodec =
+                SkJpegRustCodec::MakeFromStream(SkMemoryStream::Make(data), &makeResult);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, makeResult);
+        REPORTER_ASSERT(r, fallbackCodec);
+        if (!fallbackCodec) {
+            continue;
+        }
+        SkJpegRustCodecTestPriv::DisableDirectPackedOutput(*fallbackCodec);
+        std::vector<uint8_t> fallbackPixels(exactSize, kSentinel);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                r, fallbackCodec->getPixels(info, fallbackPixels.data(), rowBytes));
+        REPORTER_ASSERT(r, !SkJpegRustCodecTestPriv::DirectPackedOutput(*fallbackCodec));
+        REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::ScanlineBufferSize(*fallbackCodec) > 0);
+        REPORTER_ASSERT(r,
+                        SkJpegRustCodecTestPriv::SwizzleRowCount(*fallbackCodec) == info.height());
+
+        for (int row = 0; row < info.height(); ++row) {
+            const size_t offset = static_cast<size_t>(row) * rowBytes;
+            REPORTER_ASSERT(r,
+                            memcmp(directPixels.data() + offset,
+                                   fallbackPixels.data() + offset,
+                                   info.minRowBytes()) == 0,
+                            "%s row %d differs from the swizzler fallback",
+                            path,
+                            row);
+            if (row + 1 < info.height()) {
+                REPORTER_ASSERT(r,
+                                std::all_of(directPixels.begin() + offset + info.minRowBytes(),
+                                            directPixels.begin() + offset + rowBytes,
+                                            [](uint8_t value) { return value == kSentinel; }),
+                                "%s row %d padding was modified",
+                                path,
+                                row);
+            }
+        }
+
+        std::unique_ptr<SkJpegRustCodec> scanlineCodec =
+                SkJpegRustCodec::MakeFromStream(SkMemoryStream::Make(data), &makeResult);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, makeResult);
+        REPORTER_ASSERT(r, scanlineCodec);
+        if (scanlineCodec) {
+            std::vector<uint8_t> scanlinePixels(exactSize, kSentinel);
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, scanlineCodec->startScanlineDecode(info));
+            REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::DirectPackedOutput(*scanlineCodec));
+            REPORTER_ASSERT(
+                    r,
+                    scanlineCodec->getScanlines(scanlinePixels.data(), info.height(), rowBytes) ==
+                            info.height());
+            REPORTER_ASSERT(r, scanlinePixels == directPixels);
+            REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::ScanlineBufferSize(*scanlineCodec) == 0);
+            REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::SwizzleRowCount(*scanlineCodec) == 0);
+        }
+
+        std::vector<uint8_t> replay(exactSize, kSentinel);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                r, directCodec->getPixels(info, replay.data(), rowBytes));
+        REPORTER_ASSERT(r, replay == directPixels);
+    }
+}
+
+DEF_TEST(RustJpegCodec_DirectNativeN32Fallbacks, r) {
+    for (const char* path : {"images/grayscale.jpg", "images/CMYK.jpg"}) {
+        std::unique_ptr<SkJpegRustCodec> codec = SkJpegRustCodec::MakeFromStream(
+                SkMemoryStream::Make(GetResourceAsData(path)), nullptr);
+        REPORTER_ASSERT(r, codec);
+        if (!codec) {
+            continue;
+        }
+        const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+        std::vector<uint8_t> pixels(info.computeMinByteSize());
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                r, codec->getPixels(info, pixels.data(), info.minRowBytes()));
+        REPORTER_ASSERT(r, !SkJpegRustCodecTestPriv::DirectPackedOutput(*codec));
+        REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::SwizzleRowCount(*codec) == info.height());
+    }
+
+    std::unique_ptr<SkJpegRustCodec> transformed = SkJpegRustCodec::MakeFromStream(
+            SkMemoryStream::Make(GetResourceAsData("images/icc-v2-gbr.jpg")), nullptr);
+    REPORTER_ASSERT(r, transformed);
+    if (transformed) {
+        const SkImageInfo info = transformed->getInfo()
+                                         .makeColorType(kN32_SkColorType)
+                                         .makeColorSpace(SkColorSpace::MakeSRGB());
+        std::vector<uint8_t> pixels(info.computeMinByteSize());
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                r, transformed->getPixels(info, pixels.data(), info.minRowBytes()));
+        REPORTER_ASSERT(r, !SkJpegRustCodecTestPriv::DirectPackedOutput(*transformed));
+        REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::SwizzleRowCount(*transformed) == info.height());
+    }
+
+    std::unique_ptr<SkJpegRustCodec> nonNative = SkJpegRustCodec::MakeFromStream(
+            SkMemoryStream::Make(GetResourceAsData("images/color_wheel.jpg")), nullptr);
+    REPORTER_ASSERT(r, nonNative);
+    if (nonNative) {
+#if SK_PMCOLOR_BYTE_ORDER(B, G, R, A)
+        constexpr SkColorType kNonNativeColorType = kRGBA_8888_SkColorType;
+#else
+        constexpr SkColorType kNonNativeColorType = kBGRA_8888_SkColorType;
+#endif
+        const SkImageInfo info = nonNative->getInfo().makeColorType(kNonNativeColorType);
+        std::vector<uint8_t> pixels(info.computeMinByteSize());
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                r, nonNative->getPixels(info, pixels.data(), info.minRowBytes()));
+        REPORTER_ASSERT(r, !SkJpegRustCodecTestPriv::DirectPackedOutput(*nonNative));
+        REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::SwizzleRowCount(*nonNative) == info.height());
+    }
+}
+
+DEF_TEST(RustJpegCodec_DirectNativeN32StateReset, reporter) {
+    auto codec = SkJpegRustCodec::MakeFromStream(
+            SkMemoryStream::Make(GetResourceAsData("images/color_wheel.jpg")), nullptr);
+    REPORTER_ASSERT(reporter, codec);
+    if (!codec) {
+        return;
+    }
+    const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    std::vector<uint8_t> expected(info.computeMinByteSize());
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+            reporter, codec->getPixels(info, expected.data(), info.minRowBytes()));
+    REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::DirectPackedOutput(*codec));
+
+    std::vector<uint8_t> pixels(expected.size());
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+            reporter, codec->startIncrementalDecode(info, pixels.data(), info.minRowBytes()));
+    REPORTER_ASSERT(reporter, !SkJpegRustCodecTestPriv::DirectPackedOutput(*codec));
+    REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::SwizzleRowCount(*codec) == 0);
+    int rowsDecoded = 0;
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(reporter,
+                                            codec->SkCodec::incrementalDecode(&rowsDecoded));
+    REPORTER_ASSERT(reporter, rowsDecoded == info.height());
+    REPORTER_ASSERT(reporter, pixels == expected);
+    REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::SwizzleRowCount(*codec) == info.height());
+
+    REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::Rewind(*codec));
+    REPORTER_ASSERT(reporter, !SkJpegRustCodecTestPriv::DirectPackedOutput(*codec));
+    REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::SwizzleRowCount(*codec) == 0);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(reporter, codec->startScanlineDecode(info));
+    REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::DirectPackedOutput(*codec));
+    REPORTER_ASSERT(
+            reporter,
+            codec->getScanlines(pixels.data(), info.height(), info.minRowBytes()) == info.height());
+    REPORTER_ASSERT(reporter, pixels == expected);
+    REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::SwizzleRowCount(*codec) == 0);
+    REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::Rewind(*codec));
+    REPORTER_ASSERT(reporter, !SkJpegRustCodecTestPriv::DirectPackedOutput(*codec));
+    REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::SwizzleRowCount(*codec) == 0);
+}
+
+DEF_TEST(RustJpegCodec_DirectNativeN32RowBytesMismatch, reporter) {
+    auto codec = SkJpegRustCodec::MakeFromStream(
+            SkMemoryStream::Make(GetResourceAsData("images/color_wheel.jpg")), nullptr);
+    REPORTER_ASSERT(reporter, codec);
+    if (!codec) {
+        return;
+    }
+    SkJpegRustCodecTestPriv::DisableDirectPackedOutput(*codec);
+    const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(reporter, codec->startScanlineDecode(info));
+    std::vector<uint8_t> output(info.minRowBytes(), 0xCD);
+    const auto [result, rowsDecoded] = SkJpegRustCodecTestPriv::DecodeDirectScanlines(
+            *codec, output.data(), 1, info.minRowBytes());
+    REPORTER_ASSERT(reporter, result == SkCodec::kInvalidParameters);
+    REPORTER_ASSERT(reporter, rowsDecoded == 0);
+    REPORTER_ASSERT(reporter, std::all_of(output.begin(), output.end(), [](uint8_t value) {
+                        return value == 0xCD;
+                    }));
+}
+
+DEF_TEST(RustJpegCodec_DirectNativeN32OversizedStride, reporter) {
+    if constexpr (sizeof(size_t) > sizeof(uint32_t)) {
+        auto codec = SkJpegRustCodec::MakeFromStream(
+                SkMemoryStream::Make(GetResourceAsData("images/color_wheel.jpg")), nullptr);
+        REPORTER_ASSERT(reporter, codec);
+        if (!codec) {
+            return;
+        }
+        const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(reporter, codec->startScanlineDecode(info));
+        REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::DirectPackedOutput(*codec));
+
+        const size_t oversizedStride =
+                static_cast<size_t>(std::numeric_limits<uint32_t>::max()) + 1;
+        for (size_t rowBytes : {oversizedStride, std::numeric_limits<size_t>::max()}) {
+            std::array<uint8_t, 16> output;
+            output.fill(0xCD);
+            const auto [result, rowsDecoded] = SkJpegRustCodecTestPriv::DecodeDirectScanlines(
+                    *codec, output.data(), 3, rowBytes);
+            REPORTER_ASSERT(reporter, result == SkCodec::kInternalError);
+            REPORTER_ASSERT(reporter, rowsDecoded == 0);
+            REPORTER_ASSERT(reporter, std::all_of(output.begin(), output.end(), [](uint8_t value) {
+                                return value == 0xCD;
+                            }));
+        }
+    }
+}
+
+#if defined(SK_CODEC_ENCODES_JPEG_WITH_RUST)
+
+DEF_TEST(RustJpegCodec_DirectNativeN32SmallImages, reporter) {
+    for (int width : {1, 65}) {
+        for (int height : {1, 2, 37}) {
+            SkBitmap source;
+            source.allocPixels(SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType));
+            source.eraseColor(SK_ColorGREEN);
+            SkDynamicMemoryWStream stream;
+            REPORTER_ASSERT(reporter, SkJpegRustEncoder::Encode(&stream, source.pixmap(), {}));
+            sk_sp<SkData> data = stream.detachAsData();
+            auto fallbackCodec =
+                    SkJpegRustCodec::MakeFromStream(SkMemoryStream::Make(data), nullptr);
+            REPORTER_ASSERT(reporter, fallbackCodec);
+            if (!fallbackCodec) {
+                continue;
+            }
+            SkJpegRustCodecTestPriv::DisableDirectPackedOutput(*fallbackCodec);
+            const SkImageInfo info = fallbackCodec->getInfo().makeColorType(kN32_SkColorType);
+            std::vector<uint8_t> expected(info.computeMinByteSize());
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                    reporter, fallbackCodec->getPixels(info, expected.data(), info.minRowBytes()));
+
+            for (size_t padding : {size_t{0}, size_t{19}, size_t{65536}}) {
+                auto codec = SkJpegRustCodec::MakeFromStream(SkMemoryStream::Make(data), nullptr);
+                REPORTER_ASSERT(reporter, codec);
+                if (!codec) {
+                    continue;
+                }
+                const size_t rowBytes = info.minRowBytes() + padding;
+                const size_t size =
+                        (static_cast<size_t>(height) - 1) * rowBytes + info.minRowBytes();
+                std::vector<uint8_t> pixels(size, 0xCD);
+                REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                        reporter, codec->getPixels(info, pixels.data(), rowBytes));
+                REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::DirectPackedOutput(*codec));
+                REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::SwizzleRowCount(*codec) == 0);
+                for (int row = 0; row < height; ++row) {
+                    const size_t offset = static_cast<size_t>(row) * rowBytes;
+                    REPORTER_ASSERT(reporter,
+                                    memcmp(pixels.data() + offset,
+                                           expected.data() + row * info.minRowBytes(),
+                                           info.minRowBytes()) == 0,
+                                    "width=%d height=%d padding=%zu row=%d",
+                                    width,
+                                    height,
+                                    padding,
+                                    row);
+                    if (row + 1 < height) {
+                        REPORTER_ASSERT(reporter,
+                                        std::all_of(pixels.begin() + offset + info.minRowBytes(),
+                                                    pixels.begin() + offset + rowBytes,
+                                                    [](uint8_t value) { return value == 0xCD; }));
+                    }
+                }
+
+                REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(reporter, codec->startScanlineDecode(info));
+                std::vector<uint8_t> scanlines(size, 0xCD);
+                for (int row = 0; row < height; ++row) {
+                    REPORTER_ASSERT(reporter,
+                                    codec->getScanlines(
+                                            scanlines.data() + row * rowBytes, 1, rowBytes) == 1);
+                }
+                REPORTER_ASSERT(reporter, scanlines == pixels);
+                REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::DirectPackedOutput(*codec));
+                REPORTER_ASSERT(reporter, SkJpegRustCodecTestPriv::SwizzleRowCount(*codec) == 0);
+            }
+        }
+    }
+}
+
+#endif
+
+#endif
 
 static void assert_row_padding_untouched(skiatest::Reporter* r,
                                          const std::vector<uint8_t>& pixels,

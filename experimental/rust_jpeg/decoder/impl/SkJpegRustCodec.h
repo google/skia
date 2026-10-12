@@ -69,6 +69,9 @@ private:
     }
     size_t scanlineBufferSizeForTesting() const { return fScanlineBuffer.size(); }
     int lastFullDecodeRowsForTesting() const { return fLastFullDecodeRows; }
+    bool directPackedOutputForTesting() const { return fDirectPackedOutput; }
+    int swizzleRowCountForTesting() const { return fSwizzleRowCount; }
+    void disableDirectPackedOutputForTesting() { fDisableDirectPackedOutputForTesting = true; }
 
     sk_sp<const SkData> getEncodedData() const override;
 
@@ -97,6 +100,7 @@ private:
                              size_t dstRowStride,
                              int* rowsDecoded = nullptr);
     Result initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts);
+    bool shouldUseDirectPackedOutput(const SkImageInfo&, const Options&) const;
     void swizzleRow(const uint8_t* srcRow, void* dstRow);
 
     struct ScanlineDecodeResult {
@@ -106,6 +110,7 @@ private:
 
     Result startScanlineSession();
     ScanlineDecodeResult decodeScanlines(void* dst, int countLines, size_t dstRowBytes);
+    ScanlineDecodeResult decodeDirectScanlines(void* dst, int countLines, size_t dstRowBytes);
 
     struct DecodingState {
         SkSpan<uint8_t> fDst;
@@ -118,6 +123,9 @@ private:
     std::optional<DecodingState> fIncrementalDecodingState;
     std::vector<uint8_t> fScanlineBuffer;
     int fLastFullDecodeRows = -1;
+    int fSwizzleRowCount = 0;
+    bool fDirectPackedOutput = false;
+    bool fDisableDirectPackedOutputForTesting = false;
 
     // Stored separately; SkCodec base gets nullptr. Keep this before fReader so
     // the stream outlives the Rust reader's stream adapter.

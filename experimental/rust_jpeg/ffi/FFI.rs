@@ -29,6 +29,8 @@ mod ffi {
     #[derive(Debug, Clone, Copy, PartialEq)]
     enum PackedOutputFormat {
         Source,
+        RGBA,
+        BGRA,
     }
 
     #[derive(Debug, Clone, Copy, Default)]
@@ -159,6 +161,7 @@ mod ffi {
 
         fn row_bytes(self: &Reader) -> u32;
         fn supports_streaming_full_decode(self: &Reader) -> bool;
+        fn supports_direct_packed_output(self: &Reader) -> bool;
         fn full_image_buffer_capacity_for_testing(self: &Reader) -> u64;
         fn reset_decode_state(self: &mut Reader);
 
@@ -1008,6 +1011,7 @@ impl Reader {
 
     pub fn row_bytes(&self) -> u32 {
         let bytes_per_pixel = match self.output_format {
+            PackedOutputFormat::RGBA | PackedOutputFormat::BGRA => 4,
             PackedOutputFormat::Source => self.bytes_per_pixel,
             _ => return 0,
         };
@@ -1016,6 +1020,10 @@ impl Reader {
 
     pub fn supports_streaming_full_decode(&self) -> bool {
         self.supports_streaming_full_decode
+    }
+
+    pub fn supports_direct_packed_output(&self) -> bool {
+        matches!(self.orig_color_space, ZuneColorSpace::YCbCr)
     }
 
     pub fn full_image_buffer_capacity_for_testing(&self) -> u64 {
@@ -1041,6 +1049,8 @@ impl Reader {
 
     fn output_decoder_options(&self) -> zune_core::options::DecoderOptions {
         let target_cs = match self.output_format {
+            PackedOutputFormat::RGBA => ZuneColorSpace::RGBA,
+            PackedOutputFormat::BGRA => ZuneColorSpace::BGRA,
             PackedOutputFormat::Source => match self.orig_color_space {
                 ZuneColorSpace::Luma | ZuneColorSpace::LumaA => ZuneColorSpace::Luma,
                 ZuneColorSpace::CMYK | ZuneColorSpace::YCCK => ZuneColorSpace::CMYK,
@@ -1177,6 +1187,13 @@ impl Reader {
         // below. reset_decode_state() clears both the sequence and image_data_loaded together.
         let complete = match self.output_sequence {
             OutputSequence::Idle => {
+                if format != PackedOutputFormat::Source && !self.supports_direct_packed_output() {
+                    return ScanlineOutputResult {
+                        status: OutputStatus::Error,
+                        result: DecodingResult::UnsupportedFeature,
+                        rows: 0,
+                    };
+                }
                 self.output_format = format;
                 let options = self.output_decoder_options();
                 if let Some(decoder) = self.incremental_decoder.as_mut() {
