@@ -12,6 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkAttributes.h"
 #include "include/private/SkMacros.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkChecksum.h"
 #include "src/gpu/graphite/BuiltInCodeSnippetID.h"
@@ -353,6 +354,8 @@ private:
 
 class AutoLockBuilderAsKey {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     AutoLockBuilderAsKey(PaintParamsKeyBuilder* builder)
             : fBuilder(builder)
             , fKey(builder->lockAsKey()) {}

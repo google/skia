@@ -9,6 +9,7 @@
 #define skgpu_graphite_PaintOptionsPriv_DEFINED
 
 #include "include/gpu/graphite/precompile/PaintOptions.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 namespace skgpu::graphite {
 
@@ -19,6 +20,8 @@ class ShaderCodeDictionary;
     data members or virtual methods. */
 class PaintOptionsPriv {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     using ProcessCombination = PaintOptions::ProcessCombination;
 
     void addColorFilter(sk_sp<PrecompileColorFilter> cf);

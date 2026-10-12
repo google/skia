@@ -23,6 +23,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkEnumBitMask.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRectPriv.h"
@@ -328,6 +329,7 @@ Rect snap_scissor(const Rect& a, const Rect& deviceBounds) {
 // interact with each other, without needing to share a base class, friend each other, or have a
 // template for each combination of two types.
 struct ClipStack::TransformedShape {
+    SK_ONLY_STACK_ALLOCATABLE;
     const Transform& fLocalToDevice;
     const Shape&     fShape;
     const Rect&      fOuterBounds;

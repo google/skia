@@ -9,6 +9,7 @@
 #define skgpu_graphite_precompile_PrecompileImageFilterPriv_DEFINED
 
 #include "include/gpu/graphite/precompile/PrecompileImageFilter.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 namespace skgpu::graphite {
 
@@ -18,6 +19,8 @@ namespace skgpu::graphite {
     additional data members or virtual methods. */
 class PrecompileImageFilterPriv {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     sk_sp<PrecompileColorFilter> isColorFilterNode() const {
         return fPrecompileImageFilter->isColorFilterNode();
     }

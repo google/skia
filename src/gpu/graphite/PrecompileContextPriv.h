@@ -9,6 +9,7 @@
 #define skgpu_graphite_PrecompileContextPriv_DEFINED
 
 #include "include/gpu/graphite/PrecompileContext.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/graphite/SharedContext.h"
 
 class Caps;
@@ -22,6 +23,8 @@ namespace skgpu::graphite {
  */
 class PrecompileContextPriv {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     const Caps* caps() const { return fPrecompileContext->fSharedContext->caps(); }
     const ShaderCodeDictionary* shaderCodeDictionary() const {
         return fPrecompileContext->fSharedContext->shaderCodeDictionary();

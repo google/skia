@@ -11,6 +11,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkLog.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/ProxyCache.h"
@@ -101,6 +102,8 @@ sk_sp<TextureProxy> RasterPathAtlas::onAddShape(const Shape& shape,
     skgpu::UniqueKey maskKey = GeneratePathMaskKey(shape, localToDevice, strokeRec,
                                                    maskOrigin, maskSize);
     struct PathDrawContext {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         const Shape& fShape;
         const Transform& fLocalToDevice;
         const SkStrokeRec& fStrokeRec;

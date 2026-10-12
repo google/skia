@@ -11,6 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/DrawTypes.h"
@@ -70,6 +71,8 @@ private:
 
 class Clip {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     Clip() = default;
     Clip(const Rect& drawBounds,
          const Rect& shapeBounds,

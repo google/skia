@@ -12,6 +12,7 @@
 #include "include/core/SkMesh.h"
 #include "include/core/SkPaint.h"
 #include "include/private/SkEnumBitMask.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/geom/NonMSAAClip.h"
@@ -45,11 +46,14 @@ class UniquePaintParamsID;
 // the draw call.
 class PaintParams {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     // Stores just the parameters of the implicit image shading model used by drawImageRect and
     // other image-drawing APIs, e.g. to apply SkImageShader::MakeForDrawRect without the
     // overhead of creating additional SkShader objects. Assumes clamp tiling; if no clamping is
     // required, set to the image's bounds.
     struct SimpleImage {
+        SK_ONLY_STACK_ALLOCATABLE;
         // fImage (required) and fLocalMatrix (optional) must outlive the PaintParams object
         const SkImage* fImage;
         const SkMatrix* fLocalMatrix = nullptr;
@@ -155,6 +159,8 @@ private:
 // given the current hardware.
 class ShadingParams {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     // NOTE: Does not copy `paint`, `nonMSAAClip` or `clipShader`; these must outlive ShadingParams.
     ShadingParams(const Caps* caps,
                   const PaintParams& paint,

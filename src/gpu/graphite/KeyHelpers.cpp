@@ -17,6 +17,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkBlendModeBlender.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -93,6 +94,8 @@ namespace {
 // Automatically registers uniform expectations in debug builds.
 class ScopedUniformWriter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     ScopedUniformWriter(const KeyContext& keyContext, BuiltInCodeSnippetID codeSnippetID)
             : ScopedUniformWriter(keyContext.pipelineDataGatherer(),
                                   keyContext.dict()->getEntry(codeSnippetID)) {}

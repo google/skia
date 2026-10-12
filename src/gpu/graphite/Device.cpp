@@ -42,6 +42,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkAttributes.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
@@ -334,6 +335,8 @@ bool is_simple_shape(const Shape& shape, const Transform& localToDevice, SkStrok
 
 class ScopedDrawBuilder {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     explicit ScopedDrawBuilder(Recorder* recorder)
             : fRecorder(recorder),
               fKeyAndDataBuilder(fRecorder->priv().popOrCreateKeyAndDataBuilder()) {

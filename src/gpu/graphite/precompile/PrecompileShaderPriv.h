@@ -9,6 +9,7 @@
 #define skgpu_graphite_PrecompileShaderPriv_DEFINED
 
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 namespace skgpu::graphite {
 
@@ -17,6 +18,8 @@ namespace skgpu::graphite {
     data members or virtual methods. */
 class PrecompileShaderPriv {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     bool isConstant(int desiredCombination) const {
         return fPrecompileShader->isConstant(desiredCombination);
     }

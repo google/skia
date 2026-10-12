@@ -9,6 +9,7 @@
 #define skgpu_graphite_PrecompileBlenderPriv_DEFINED
 
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 #include <vector>
 
@@ -19,6 +20,8 @@ namespace skgpu::graphite {
     data members or virtual methods. */
 class PrecompileBlenderPriv {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     std::optional<SkBlendMode> asBlendMode() const { return fPrecompileBlender->asBlendMode(); }
 
     // The remaining methods make this a viable standin for PrecompileBasePriv

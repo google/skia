@@ -9,6 +9,7 @@
 #define skgpu_graphite_compute_DispatchGroup_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/ComputeTypes.h"
@@ -115,6 +116,8 @@ private:
 
 class DispatchGroup::Builder final {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     // Contains the resource handles assigned to the outputs of the most recently inserted
     // ComputeStep.
     struct OutputTable {

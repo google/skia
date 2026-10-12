@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 namespace skgpu::graphite {
 
@@ -19,6 +20,8 @@ namespace skgpu::graphite {
     data members or virtual methods. */
 class PrecompileColorFilterPriv {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     bool isAlphaUnchanged(int desiredCombination) const {
         return fPrecompileColorFilter->isAlphaUnchanged(desiredCombination);
     }
