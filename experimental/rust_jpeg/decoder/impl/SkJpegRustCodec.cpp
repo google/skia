@@ -62,6 +62,10 @@ static_assert(static_cast<int>(rust_jpeg::JpegAlpha::Opaque) ==
 
 namespace {
 
+// zune-jpeg can emit one deferred interpolation group plus eight regular groups per vertical
+// sampling factor. JPEG sampling factors are at most 4, so a stripe is at most (8 + 1) * 4 rows.
+constexpr int kMaxScanlineBatchRows = 36;
+
 uint64_t StreamLengthOrZero(const SkStream& stream) {
     if (!stream.hasLength()) {
         return 0;
@@ -515,6 +519,7 @@ bool SkJpegRustCodec::onGetGainmapCodec(SkGainmapInfo* info,
 
 bool SkJpegRustCodec::onRewind() {
     fIncrementalDecodingState.reset();
+    fScanlineBuffer.clear();
 
     if (!fPrivStream->rewind()) {
         return false;
@@ -675,6 +680,7 @@ SkCodec::Result SkJpegRustCodec::onGetPixels(const SkImageInfo& info,
 
     int decodedRows = 0;
     result = this->performFullDecode(info, dst, dstRowStride, &decodedRows);
+    fLastFullDecodeRows = decodedRows;
     if (rowsDecoded) {
         *rowsDecoded = decodedRows;
     }
@@ -685,6 +691,39 @@ SkCodec::Result SkJpegRustCodec::performFullDecode(const SkImageInfo& dstInfo,
                                                    void* dst,
                                                    size_t dstRowStride,
                                                    int* rowsDecoded) {
+    if (fReader->supports_streaming_full_decode()) {
+        // Baseline and extended sequential JPEGs share the explicit scanline
+        // implementation. Keep both Rust and C++ staging bounded to an MCU-scale
+        // batch rather than retaining an additional packed frame.
+        Result startResult = this->startScanlineSession();
+        if (startResult != kSuccess) {
+            return startResult;
+        }
+        ScanlineDecodeResult decodeResult =
+                this->decodeScanlines(dst, dstInfo.height(), dstRowStride);
+        if (rowsDecoded) {
+            *rowsDecoded = decodeResult.fRowsDecoded;
+        }
+        if (decodeResult.fResult != kSuccess) {
+            return decodeResult.fResult;
+        }
+
+        rust_jpeg::ScanlineOutputResult finishResult = fReader->finish_scanline_output();
+        switch (finishResult.status) {
+            case rust_jpeg::OutputStatus::Complete:
+            case rust_jpeg::OutputStatus::NeedMoreInput:
+                return decodeResult.fRowsDecoded == dstInfo.height() ? kSuccess : kIncompleteInput;
+            case rust_jpeg::OutputStatus::Error:
+                return MapDecodingResult(finishResult.result);
+            case rust_jpeg::OutputStatus::Ready:
+            default:
+                return kInternalError;
+        }
+    }
+
+    // Progressive JPEGs are measurably faster through zune-jpeg's packed
+    // full-image decoder. This is also the fallback for scanline-incompatible
+    // encodings such as DNL.
     rust_jpeg::DecodingResult readResult = fReader->read_image_data();
     if (readResult != rust_jpeg::DecodingResult::Success) {
         return MapDecodingResult(readResult);
@@ -834,4 +873,115 @@ SkCodec::Result SkJpegRustCodec::incrementalDecode(DecodingState& state, int* ro
                            state.fTotalRowsInitialized >= this->dimensions().height()
                    ? kSuccess
                    : kIncompleteInput;
+}
+
+SkCodec::Result SkJpegRustCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
+                                                       const Options& options) {
+    // zune-jpeg currently emits full-frame rows and has no scaled-IDCT or
+    // jpeg_crop_scanline equivalent. SkCodec rejects scaled dimensions before
+    // this hook; reject horizontal subsets explicitly instead of claiming them.
+    if (options.fSubset) {
+        return kUnimplemented;
+    }
+
+    Result result = this->initializeSwizzler(dstInfo, options);
+    if (result != kSuccess) {
+        return result;
+    }
+    fReader->reset_decode_state();
+    fScanlineBuffer.clear();
+
+    return this->startScanlineSession();
+}
+
+SkCodec::Result SkJpegRustCodec::startScanlineSession() {
+    rust_jpeg::ScanlineOutputResult start =
+        fReader->start_scanline_output(rust_jpeg::PackedOutputFormat::Source);
+    switch (start.status) {
+        case rust_jpeg::OutputStatus::Ready:
+        case rust_jpeg::OutputStatus::Complete:
+            return kSuccess;
+        case rust_jpeg::OutputStatus::NeedMoreInput:
+            return kIncompleteInput;
+        case rust_jpeg::OutputStatus::Error:
+            return MapDecodingResult(start.result);
+        default:
+            return kInternalError;
+    }
+}
+
+SkJpegRustCodec::ScanlineDecodeResult SkJpegRustCodec::decodeScanlines(void* dst,
+                                                                       int countLines,
+                                                                       size_t dstRowBytes) {
+    if (!dst || countLines <= 0 || dstRowBytes < this->dstInfo().minRowBytes()) {
+        return {kInvalidParameters, 0};
+    }
+    const size_t srcRowBytes = fReader->row_bytes();
+    SkSafeMath safe;
+    const size_t bufferSize =
+            safe.mul(srcRowBytes, safe.castTo<size_t>(std::min(countLines, kMaxScanlineBatchRows)));
+    if (!safe.ok()) {
+        return {kInternalError, 0};
+    }
+    fScanlineBuffer.resize(bufferSize);
+
+    int totalRows = 0;
+    while (totalRows < countLines) {
+        const int requestedRows = std::min(countLines - totalRows, kMaxScanlineBatchRows);
+        const size_t requestedBytes = srcRowBytes * static_cast<size_t>(requestedRows);
+        SkSpan<uint8_t> batch(fScanlineBuffer.data(), requestedBytes);
+        rust_jpeg::ScanlineOutputResult result =
+                fReader->read_scanlines(rust::Slice<uint8_t>(batch.data(), batch.size()),
+                                        static_cast<uint32_t>(srcRowBytes));
+        switch (result.status) {
+            case rust_jpeg::OutputStatus::Ready:
+                if (result.rows == 0 || result.rows > static_cast<uint32_t>(requestedRows)) {
+                    return {kErrorInInput, totalRows};
+                }
+                break;
+            case rust_jpeg::OutputStatus::NeedMoreInput:
+                return {kIncompleteInput, totalRows};
+            case rust_jpeg::OutputStatus::Complete:
+                return {totalRows == countLines ? kSuccess : kIncompleteInput, totalRows};
+            case rust_jpeg::OutputStatus::Error:
+                return {MapDecodingResult(result.result), totalRows};
+            default:
+                return {kInternalError, totalRows};
+        }
+
+        auto* dstBytes = static_cast<uint8_t*>(dst);
+        for (uint32_t row = 0; row < result.rows; ++row) {
+            SkSafeMath rowSafe;
+            const size_t dstRow = rowSafe.add(rowSafe.castTo<size_t>(totalRows), row);
+            const size_t dstOffset = rowSafe.mul(dstRow, dstRowBytes);
+            const size_t srcOffset = rowSafe.mul(row, srcRowBytes);
+            if (!rowSafe.ok()) {
+                return {kInternalError, totalRows};
+            }
+            this->swizzleRow(fScanlineBuffer.data() + srcOffset, dstBytes + dstOffset);
+        }
+        totalRows += static_cast<int>(result.rows);
+    }
+    return {kSuccess, totalRows};
+}
+
+int SkJpegRustCodec::onGetScanlines(void* dst, int countLines, size_t dstRowBytes) {
+    return this->decodeScanlines(dst, countLines, dstRowBytes).fRowsDecoded;
+}
+
+bool SkJpegRustCodec::onSkipScanlines(int countLines) {
+    SkASSERT_RELEASE(countLines >= 0);  // Already checked in SkCodec::skipScanlines.
+    uint32_t skipped = 0;
+    while (skipped < static_cast<uint32_t>(countLines)) {
+        rust_jpeg::ScanlineOutputResult result =
+                fReader->skip_scanlines(static_cast<uint32_t>(countLines) - skipped);
+        if (result.status != rust_jpeg::OutputStatus::Ready || result.rows == 0) {
+            return false;
+        }
+        if (result.rows > static_cast<uint32_t>(countLines) - skipped) {
+            return false;
+        }
+        skipped += result.rows;
+    }
+    return true;
 }

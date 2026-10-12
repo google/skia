@@ -99,6 +99,22 @@ struct RustJpegReaderForTest {
     rust::Box<rust_jpeg::Reader> fReader;
 };
 
+class SkJpegRustCodecTestPriv {
+public:
+    static bool SupportsStreamingFullDecode(const SkJpegRustCodec& codec) {
+        return codec.supportsStreamingFullDecodeForTesting();
+    }
+    static uint64_t FullImageBufferCapacity(const SkJpegRustCodec& codec) {
+        return codec.fullImageBufferCapacityForTesting();
+    }
+    static size_t ScanlineBufferSize(const SkJpegRustCodec& codec) {
+        return codec.scanlineBufferSizeForTesting();
+    }
+    static int LastFullDecodeRows(const SkJpegRustCodec& codec) {
+        return codec.lastFullDecodeRowsForTesting();
+    }
+};
+
 // ========== Decoder Tests ==========
 
 DEF_TEST(RustJpegCodec_IsJpeg, r) {
@@ -505,6 +521,18 @@ DEF_TEST(RustJpeg_IncrementalDecode_AfterRewind, r) {
                     memcmp(firstIncremental.getPixels(),
                            secondIncremental.getPixels(),
                            firstIncremental.computeByteSize()) == 0);
+
+        SkBitmap scanlines;
+        scanlines.allocPixels(info);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->startScanlineDecode(info));
+        REPORTER_ASSERT(
+            r,
+            codec->getScanlines(scanlines.getPixels(), info.height(), scanlines.rowBytes()) ==
+                info.height());
+        REPORTER_ASSERT(r,
+                memcmp(firstIncremental.getPixels(),
+                   scanlines.getPixels(),
+                   firstIncremental.computeByteSize()) == 0);
 }
 
 DEF_TEST(RustJpeg_IncrementalDecode_ColorTransformPaddedStride, r) {
@@ -976,6 +1004,14 @@ DEF_TEST(RustJpegCodec_RawDirectPlaneContracts, r) {
             rust::Slice<uint8_t>(expected[2].data(), expected[2].size()),
             static_cast<uint32_t>(strides[2]));
     REPORTER_ASSERT(r, expectedResult.status == rust_jpeg::OutputStatus::Ready);
+    rust_jpeg::ScanlineOutputResult conflictingStart =
+            reader.fReader->start_scanline_output(rust_jpeg::PackedOutputFormat::Source);
+    REPORTER_ASSERT(r, conflictingStart.status == rust_jpeg::OutputStatus::Error);
+    REPORTER_ASSERT(r, conflictingStart.result == rust_jpeg::DecodingResult::ParameterError);
+    reader.fReader->reset_decode_state();
+    rust_jpeg::ScanlineOutputResult scanlineStart =
+            reader.fReader->start_scanline_output(rust_jpeg::PackedOutputFormat::Source);
+    REPORTER_ASSERT(r, scanlineStart.status == rust_jpeg::OutputStatus::Ready);
     const std::array<uint32_t, 3> expectedRows = {
             expectedResult.y_rows, expectedResult.u_rows, expectedResult.v_rows};
     for (int plane = 0; plane < 3; ++plane) {
@@ -1069,6 +1105,577 @@ DEF_TEST(RustJpegCodec_RawDirectPlaneContracts, r) {
         REPORTER_ASSERT(r, storage == expected);
     }
     REPORTER_ASSERT(r, suspensionsTested == 3);
+}
+
+DEF_TEST(RustJpegCodec_ScanlineWorkflows, r) {
+    const char* paths[] = {
+            "images/color_wheel.jpg",
+            "images/cropped_mandrill.jpg",
+            "images/b78329453.jpeg",
+            "images/non_interleaved_420_64x64.jpg",
+    };
+    for (const char* path : paths) {
+        skiatest::ReporterContext context(r, path);
+        sk_sp<SkData> data = GetResourceAsData(path);
+        REPORTER_ASSERT(r, data);
+        if (!data) {
+            continue;
+        }
+
+        std::unique_ptr<SkCodec> referenceCodec = decode_rust_jpeg_data(data);
+        std::unique_ptr<SkCodec> codec = decode_rust_jpeg_data(data);
+        REPORTER_ASSERT(r, referenceCodec && codec);
+        if (!referenceCodec || !codec) {
+            continue;
+        }
+        const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+        SkBitmap reference;
+        reference.allocPixels(info);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                r, referenceCodec->getPixels(info, reference.getPixels(), reference.rowBytes()));
+
+        const size_t rowBytes = info.minRowBytes() + 17;
+        std::vector<uint8_t> output(rowBytes * static_cast<size_t>(info.height()), 0xCD);
+        std::vector<bool> decodedRows(static_cast<size_t>(info.height()), false);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->startScanlineDecode(info));
+
+        int row = 0;
+        REPORTER_ASSERT(r, codec->getScanlines(output.data(), 1, rowBytes) == 1);
+        decodedRows[row++] = true;
+        const int skip = std::min(3, info.height() - row);
+        REPORTER_ASSERT(r, codec->skipScanlines(skip));
+        row += skip;
+        while (row < info.height()) {
+            const int requested = std::min(7, info.height() - row);
+            const int decoded =
+                    codec->getScanlines(output.data() + row * rowBytes, requested, rowBytes);
+            REPORTER_ASSERT(r, decoded == requested);
+            for (int index = 0; index < decoded; ++index) {
+                decodedRows[row + index] = true;
+            }
+            row += requested;
+        }
+
+        for (int y = 0; y < info.height(); ++y) {
+            const uint8_t* actual = output.data() + y * rowBytes;
+            const uint8_t* expected = static_cast<const uint8_t*>(reference.getAddr(0, y));
+            if (decodedRows[y]) {
+                REPORTER_ASSERT(r,
+                                memcmp(actual, expected, info.minRowBytes()) == 0,
+                                "%s row %d differs from full decode",
+                                path,
+                                y);
+            } else {
+                REPORTER_ASSERT(r,
+                                std::all_of(actual,
+                                            actual + info.minRowBytes(),
+                                            [](uint8_t value) { return value == 0xCD; }),
+                                "%s skipped row %d was modified",
+                                path,
+                                y);
+            }
+            REPORTER_ASSERT(r,
+                            std::all_of(actual + info.minRowBytes(),
+                                        actual + rowBytes,
+                                        [](uint8_t value) { return value == 0xCD; }),
+                            "%s row %d padding was modified",
+                            path,
+                            y);
+        }
+
+        std::fill(output.begin(), output.end(), 0xCD);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->startScanlineDecode(info));
+        REPORTER_ASSERT(
+                r, codec->getScanlines(output.data(), info.height(), rowBytes) == info.height());
+        for (int y = 0; y < info.height(); ++y) {
+            REPORTER_ASSERT(r,
+                            memcmp(output.data() + y * rowBytes,
+                                   reference.getAddr(0, y),
+                                   info.minRowBytes()) == 0);
+        }
+    }
+
+    std::unique_ptr<SkCodec> codec = decode_rust_jpeg(r, "images/color_wheel.jpg");
+    if (codec) {
+        const SkImageInfo rgbaInfo = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
+        SkIRect subset = SkIRect::MakeXYWH(1, 0, rgbaInfo.width() - 1, rgbaInfo.height());
+        SkCodec::Options options;
+        options.fSubset = &subset;
+        REPORTER_ASSERT(r,
+                        codec->startScanlineDecode(rgbaInfo, &options) == SkCodec::kUnimplemented);
+        REPORTER_ASSERT(
+                r,
+                codec->startScanlineDecode(rgbaInfo.makeWH(
+                        rgbaInfo.width() / 2, rgbaInfo.height() / 2)) == SkCodec::kInvalidScale);
+
+        const SkImageInfo bgraInfo = codec->getInfo().makeColorType(kBGRA_8888_SkColorType);
+        std::vector<uint8_t> bgra(bgraInfo.computeMinByteSize());
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->startScanlineDecode(bgraInfo));
+        REPORTER_ASSERT(
+                r,
+                codec->getScanlines(bgra.data(), bgraInfo.height(), bgraInfo.minRowBytes()) ==
+                        bgraInfo.height());
+        std::unique_ptr<SkCodec> bgraReferenceCodec = decode_rust_jpeg(r, "images/color_wheel.jpg");
+        std::vector<uint8_t> bgraReference(bgraInfo.computeMinByteSize());
+        REPORTER_ASSERT(r, bgraReferenceCodec);
+        if (bgraReferenceCodec) {
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                    r,
+                    bgraReferenceCodec->getPixels(
+                            bgraInfo, bgraReference.data(), bgraInfo.minRowBytes()));
+            REPORTER_ASSERT(r, bgra == bgraReference);
+        }
+    }
+}
+
+
+static void assert_row_padding_untouched(skiatest::Reporter* r,
+                                         const std::vector<uint8_t>& pixels,
+                                         const SkImageInfo& info,
+                                         size_t rowBytes) {
+    for (int row = 0; row < info.height(); ++row) {
+        const uint8_t* rowStart = pixels.data() + static_cast<size_t>(row) * rowBytes;
+        REPORTER_ASSERT(r,
+                        std::all_of(rowStart + info.minRowBytes(),
+                                    rowStart + rowBytes,
+                                    [](uint8_t value) { return value == 0xCD; }),
+                        "row %d padding was modified",
+                        row);
+    }
+}
+
+#if defined(SK_CODEC_DECODES_JPEG)
+
+DEF_TEST(RustJpegCodec_GetPixelsUsesScanlines, r) {
+    struct TestCase {
+        const char* path;
+        int cppTolerance;
+        bool forceSRGB;
+    };
+    // zune-jpeg and libjpeg-turbo use different centered-chroma edge
+    // extension for the final subsampled pixel. The 4:2:2 and 4:2:0
+    // orientation fixtures observe a maximum right-edge deviation of 30;
+    // getPixels and the explicit Rust scanline path must still match exactly.
+    const TestCase testCases[] = {
+            {"images/orientation/1_444.jpg", 8, false},
+            {"images/orientation/1_440.jpg", 8, false},
+            {"images/orientation/1_422.jpg", 30, false},
+            {"images/orientation/1_420.jpg", 30, false},
+            {"images/CMYK.jpg", 16, false},
+            {"images/cropped_mandrill.jpg", 8, false},
+            {"images/icc-v2-gbr.jpg", 8, true},
+            {"images/non_interleaved_420_64x64.jpg", 8, false},
+    };
+
+    for (const TestCase& testCase : testCases) {
+        skiatest::ReporterContext context(r, testCase.path);
+        sk_sp<SkData> data = GetResourceAsData(testCase.path);
+        REPORTER_ASSERT(r, data);
+        if (!data) {
+            continue;
+        }
+
+        SkCodec::Result makeResult;
+        std::unique_ptr<SkJpegRustCodec> fullCodec =
+                SkJpegRustCodec::MakeFromStream(SkMemoryStream::Make(data), &makeResult);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, makeResult);
+        REPORTER_ASSERT(r,
+                fullCodec &&
+                    SkJpegRustCodecTestPriv::SupportsStreamingFullDecode(*fullCodec));
+        if (!fullCodec) {
+            continue;
+        }
+
+        SkImageInfo info = fullCodec->getInfo().makeColorType(kN32_SkColorType);
+        if (testCase.forceSRGB) {
+            info = info.makeColorSpace(SkColorSpace::MakeSRGB());
+        }
+        const size_t rowBytes = info.minRowBytes() + 19;
+        std::vector<uint8_t> fullPixels(rowBytes * static_cast<size_t>(info.height()), 0xCD);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                r, fullCodec->getPixels(info, fullPixels.data(), rowBytes));
+        REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::LastFullDecodeRows(*fullCodec) == info.height());
+        REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::FullImageBufferCapacity(*fullCodec) == 0);
+        REPORTER_ASSERT(r,
+                SkJpegRustCodecTestPriv::ScanlineBufferSize(*fullCodec) <=
+                    info.minRowBytes() * 36);
+        assert_row_padding_untouched(r, fullPixels, info, rowBytes);
+
+        std::unique_ptr<SkCodec> scanlineCodec = decode_rust_jpeg_data(data);
+        std::vector<uint8_t> scanlinePixels(rowBytes * static_cast<size_t>(info.height()), 0xCD);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, scanlineCodec->startScanlineDecode(info));
+        REPORTER_ASSERT(r,
+                        scanlineCodec->getScanlines(
+                                scanlinePixels.data(), info.height(), rowBytes) == info.height());
+        assert_row_padding_untouched(r, scanlinePixels, info, rowBytes);
+
+        SkCodec::Result cppResult;
+        std::unique_ptr<SkCodec> cppCodec =
+                SkJpegDecoder::Decode(SkMemoryStream::Make(data), &cppResult);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, cppResult);
+        std::vector<uint8_t> cppPixels(rowBytes * static_cast<size_t>(info.height()), 0xCD);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                r, cppCodec->getPixels(info, cppPixels.data(), rowBytes));
+        assert_row_padding_untouched(r, cppPixels, info, rowBytes);
+
+        int maximumCppDeviation = 0;
+        for (int row = 0; row < info.height(); ++row) {
+            const uint8_t* fullRow = fullPixels.data() + static_cast<size_t>(row) * rowBytes;
+            const uint8_t* scanlineRow =
+                    scanlinePixels.data() + static_cast<size_t>(row) * rowBytes;
+            const uint8_t* cppRow = cppPixels.data() + static_cast<size_t>(row) * rowBytes;
+            REPORTER_ASSERT(r, memcmp(fullRow, scanlineRow, info.minRowBytes()) == 0);
+            for (size_t column = 0; column < info.minRowBytes(); ++column) {
+                maximumCppDeviation = std::max(maximumCppDeviation,
+                                               std::abs(static_cast<int>(fullRow[column]) -
+                                                        static_cast<int>(cppRow[column])));
+            }
+        }
+        REPORTER_ASSERT(r,
+                        maximumCppDeviation <= testCase.cppTolerance,
+                        "%s maximum C++ deviation %d exceeds %d",
+                        testCase.path,
+                        maximumCppDeviation,
+                        testCase.cppTolerance);
+
+        if (&testCase == &testCases[0]) {
+            std::vector<uint8_t> replay(rowBytes * static_cast<size_t>(info.height()), 0xCD);
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                    r, fullCodec->getPixels(info, replay.data(), rowBytes));
+            REPORTER_ASSERT(r, replay == fullPixels);
+            REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::FullImageBufferCapacity(*fullCodec) == 0);
+        }
+    }
+}
+
+#if defined(SK_CODEC_ENCODES_JPEG_WITH_RUST)
+
+DEF_TEST(RustJpegCodec_GetPixelsBaselineGrayscale, r) {
+    const SkImageInfo sourceInfo =
+            SkImageInfo::Make(65, 63, kGray_8_SkColorType, kOpaque_SkAlphaType);
+    SkBitmap source;
+    source.allocPixels(sourceInfo);
+    for (int row = 0; row < source.height(); ++row) {
+        memset(source.getAddr8(0, row), row * 4, source.rowBytes());
+    }
+    SkDynamicMemoryWStream encodedStream;
+    SkJpegEncoder::Options encodeOptions;
+    encodeOptions.fQuality = 90;
+    REPORTER_ASSERT(r, SkJpegRustEncoder::Encode(&encodedStream, source.pixmap(), encodeOptions));
+    sk_sp<SkData> data = encodedStream.detachAsData();
+
+    SkCodec::Result makeResult;
+    std::unique_ptr<SkJpegRustCodec> fullCodec =
+            SkJpegRustCodec::MakeFromStream(SkMemoryStream::Make(data), &makeResult);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, makeResult);
+    REPORTER_ASSERT(r,
+                    fullCodec &&
+                            SkJpegRustCodecTestPriv::SupportsStreamingFullDecode(*fullCodec));
+    if (!fullCodec) {
+        return;
+    }
+    const SkImageInfo info = fullCodec->getInfo().makeColorType(kRGBA_8888_SkColorType);
+    SkBitmap fullPixels;
+    SkBitmap scanlinePixels;
+    SkBitmap cppPixels;
+    fullPixels.allocPixels(info);
+    scanlinePixels.allocPixels(info);
+    cppPixels.allocPixels(info);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, fullCodec->getPixels(fullPixels.pixmap()));
+    REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::FullImageBufferCapacity(*fullCodec) == 0);
+
+    std::unique_ptr<SkCodec> scanlineCodec = decode_rust_jpeg_data(data);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, scanlineCodec->startScanlineDecode(info));
+    REPORTER_ASSERT(r,
+                    scanlineCodec->getScanlines(scanlinePixels.getPixels(),
+                                                info.height(),
+                                                scanlinePixels.rowBytes()) == info.height());
+    REPORTER_ASSERT(r,
+                    memcmp(fullPixels.getPixels(),
+                           scanlinePixels.getPixels(),
+                           fullPixels.computeByteSize()) == 0);
+
+    std::unique_ptr<SkCodec> cppCodec =
+            SkJpegDecoder::Decode(SkMemoryStream::Make(data), &makeResult);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, makeResult);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, cppCodec->getPixels(cppPixels.pixmap()));
+    const uint8_t* fullBytes = static_cast<const uint8_t*>(fullPixels.getPixels());
+    const uint8_t* cppBytes = static_cast<const uint8_t*>(cppPixels.getPixels());
+    int maximumDeviation = 0;
+    for (size_t index = 0; index < fullPixels.computeByteSize(); ++index) {
+        maximumDeviation = std::max(
+                maximumDeviation,
+                std::abs(static_cast<int>(fullBytes[index]) - static_cast<int>(cppBytes[index])));
+    }
+    REPORTER_ASSERT(r, maximumDeviation <= 8, "maximum C++ deviation %d", maximumDeviation);
+}
+
+#endif  // defined(SK_CODEC_ENCODES_JPEG_WITH_RUST)
+#endif  // defined(SK_CODEC_DECODES_JPEG)
+
+DEF_TEST(RustJpegCodec_GetPixelsProgressiveFallback, r) {
+    sk_sp<SkData> data = GetResourceAsData("images/b78329453.jpeg");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+    SkCodec::Result makeResult;
+    std::unique_ptr<SkJpegRustCodec> codec =
+            SkJpegRustCodec::MakeFromStream(SkMemoryStream::Make(data), &makeResult);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, makeResult);
+    REPORTER_ASSERT(r,
+                    codec && !SkJpegRustCodecTestPriv::SupportsStreamingFullDecode(*codec));
+    if (!codec) {
+        return;
+    }
+    const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkBitmap pixels;
+    pixels.allocPixels(info);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(pixels.pixmap()));
+    REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::LastFullDecodeRows(*codec) == info.height());
+    REPORTER_ASSERT(r,
+                        SkJpegRustCodecTestPriv::FullImageBufferCapacity(*codec) >=
+                            static_cast<uint64_t>(info.width()) * info.height() * 3);
+                REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::ScanlineBufferSize(*codec) == 0);
+}
+
+DEF_TEST(RustJpegCodec_GetPixelsExtendedSequential, r) {
+    sk_sp<SkData> baseline = GetResourceAsData("images/orientation/1_420.jpg");
+    REPORTER_ASSERT(r, baseline);
+    if (!baseline) {
+        return;
+    }
+    sk_sp<SkData> extended = SkData::MakeUninitialized(baseline->size());
+    memcpy(extended->writable_data(), baseline->data(), baseline->size());
+    auto* bytes = static_cast<uint8_t*>(extended->writable_data());
+    for (size_t index = 0; index + 1 < extended->size(); ++index) {
+        if (bytes[index] == 0xFF && bytes[index + 1] == 0xC0) {
+            bytes[index + 1] = 0xC1;
+            break;
+        }
+    }
+
+    SkCodec::Result makeResult;
+    std::unique_ptr<SkJpegRustCodec> codec =
+            SkJpegRustCodec::MakeFromStream(SkMemoryStream::Make(extended), &makeResult);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, makeResult);
+    REPORTER_ASSERT(r,
+                    codec && SkJpegRustCodecTestPriv::SupportsStreamingFullDecode(*codec));
+    if (codec) {
+        SkBitmap pixels;
+        pixels.allocPixels(codec->getInfo().makeColorType(kN32_SkColorType));
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(pixels.pixmap()));
+        REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::FullImageBufferCapacity(*codec) == 0);
+    }
+}
+
+DEF_TEST(RustJpegCodec_GetPixelsTruncatedRows, r) {
+    constexpr size_t kInitialBytes = 4 * 1024;
+    sk_sp<SkData> data = GetResourceAsData("images/color_wheel.jpg");
+    REPORTER_ASSERT(r, data && data->size() > kInitialBytes);
+    if (!data || data->size() <= kInitialBytes) {
+        return;
+    }
+
+    auto fullStream = std::make_unique<HaltingStream>(data, kInitialBytes);
+    SkCodec::Result makeResult;
+    std::unique_ptr<SkJpegRustCodec> fullCodec =
+            SkJpegRustCodec::MakeFromStream(std::move(fullStream), &makeResult);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, makeResult);
+    REPORTER_ASSERT(r, fullCodec);
+    if (!fullCodec) {
+        return;
+    }
+    const SkImageInfo info = fullCodec->getInfo().makeColorType(kN32_SkColorType);
+    const size_t rowBytes = info.minRowBytes() + 11;
+    std::vector<uint8_t> fullPixels(rowBytes * static_cast<size_t>(info.height()), 0xCD);
+    for (int row = 0; row < info.height(); ++row) {
+        memset(fullPixels.data() + static_cast<size_t>(row) * rowBytes, 0, info.minRowBytes());
+    }
+    SkCodec::Options options;
+    options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
+    const SkCodec::Result fullResult =
+            fullCodec->getPixels(info, fullPixels.data(), rowBytes, &options);
+    REPORTER_ASSERT(r, fullResult == SkCodec::kIncompleteInput);
+
+    auto scanlineStream = std::make_unique<HaltingStream>(data, kInitialBytes);
+    std::unique_ptr<SkCodec> scanlineCodec =
+            SkJpegRustDecoder::Decode(std::move(scanlineStream), &makeResult);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, makeResult);
+    std::vector<uint8_t> scanlinePixels(rowBytes * static_cast<size_t>(info.height()), 0xCD);
+    for (int row = 0; row < info.height(); ++row) {
+        memset(scanlinePixels.data() + static_cast<size_t>(row) * rowBytes, 0, info.minRowBytes());
+    }
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, scanlineCodec->startScanlineDecode(info, &options));
+    const int scanlineRows =
+            scanlineCodec->getScanlines(scanlinePixels.data(), info.height(), rowBytes);
+    REPORTER_ASSERT(r, scanlineRows > 0 && scanlineRows < info.height());
+    REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::LastFullDecodeRows(*fullCodec) == scanlineRows);
+    for (int row = 0; row < scanlineRows; ++row) {
+        REPORTER_ASSERT(r,
+                        memcmp(fullPixels.data() + static_cast<size_t>(row) * rowBytes,
+                               scanlinePixels.data() + static_cast<size_t>(row) * rowBytes,
+                               info.minRowBytes()) == 0);
+    }
+    assert_row_padding_untouched(r, fullPixels, info, rowBytes);
+    REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::FullImageBufferCapacity(*fullCodec) == 0);
+}
+
+DEF_TEST(RustJpegCodec_GetPixelsMissingEoiAfterAllRows, r) {
+    sk_sp<SkData> data = GetResourceAsData("images/color_wheel.jpg");
+    REPORTER_ASSERT(r, data && data->size() > 2);
+    if (!data || data->size() <= 2) {
+        return;
+    }
+    const uint8_t* bytes = data->bytes();
+    REPORTER_ASSERT(r, bytes[data->size() - 2] == 0xFF && bytes[data->size() - 1] == 0xD9);
+    sk_sp<SkData> missingEoi = SkData::MakeUninitialized(data->size() + 2);
+    auto* missingEoiBytes = static_cast<uint8_t*>(missingEoi->writable_data());
+    memcpy(missingEoiBytes, bytes, data->size() - 2);
+    const uint8_t emptyAppSegment[] = {0xFF, 0xE0, 0x00, 0x02};
+    memcpy(missingEoiBytes + data->size() - 2, emptyAppSegment, sizeof(emptyAppSegment));
+
+    SkCodec::Result makeResult;
+    std::unique_ptr<SkJpegRustCodec> fullCodec =
+            SkJpegRustCodec::MakeFromStream(SkMemoryStream::Make(missingEoi), &makeResult);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, makeResult);
+    REPORTER_ASSERT(r, fullCodec);
+    if (!fullCodec) {
+        return;
+    }
+    const SkImageInfo info = fullCodec->getInfo().makeColorType(kN32_SkColorType);
+    SkBitmap fullPixels;
+    fullPixels.allocPixels(info);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, fullCodec->getPixels(fullPixels.pixmap()));
+    REPORTER_ASSERT(r, SkJpegRustCodecTestPriv::LastFullDecodeRows(*fullCodec) == info.height());
+
+    std::unique_ptr<SkCodec> scanlineCodec = decode_rust_jpeg_data(std::move(missingEoi));
+    SkBitmap scanlinePixels;
+    scanlinePixels.allocPixels(info);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, scanlineCodec->startScanlineDecode(info));
+    REPORTER_ASSERT(r,
+                    scanlineCodec->getScanlines(scanlinePixels.getPixels(),
+                                                info.height(),
+                                                scanlinePixels.rowBytes()) == info.height());
+    REPORTER_ASSERT(r,
+                    memcmp(fullPixels.getPixels(),
+                           scanlinePixels.getPixels(),
+                           fullPixels.computeByteSize()) == 0);
+}
+
+DEF_TEST(RustJpegCodec_StreamingOutputRetry, r) {
+    constexpr size_t kInitialBytes = 1024;
+    sk_sp<SkData> data = GetResourceAsData("images/color_wheel.jpg");
+    REPORTER_ASSERT(r, data && data->size() > kInitialBytes);
+    if (!data || data->size() <= kInitialBytes) {
+        return;
+    }
+
+    {
+        auto stream = std::make_unique<HaltingStream>(data, kInitialBytes);
+        HaltingStream* streamPtr = stream.get();
+        SkCodec::Result result;
+        std::unique_ptr<SkCodec> codec = SkJpegRustDecoder::Decode(std::move(stream), &result);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+        REPORTER_ASSERT(r, codec);
+        if (codec) {
+            constexpr auto kAllTypes = SkYUVAPixmapInfo::SupportedDataTypes::All();
+            SkYUVAPixmapInfo info;
+            REPORTER_ASSERT(r, codec->queryYUVAInfo(kAllTypes, &info));
+            SkYUVAPixmaps planes = SkYUVAPixmaps::Allocate(info);
+            result = codec->getYUVAPlanes(planes);
+            REPORTER_ASSERT(r,
+                            result == SkCodec::kIncompleteInput,
+                            "raw partial decode returned %s",
+                            SkCodec::ResultToString(result));
+            streamPtr->addNewData(data->size());
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getYUVAPlanes(planes));
+
+            std::unique_ptr<SkCodec> referenceCodec = decode_rust_jpeg_data(data);
+            SkYUVAPixmapInfo referenceInfo;
+            REPORTER_ASSERT(r, referenceCodec->queryYUVAInfo(kAllTypes, &referenceInfo));
+            SkYUVAPixmaps referencePlanes = SkYUVAPixmaps::Allocate(referenceInfo);
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r,
+                                                    referenceCodec->getYUVAPlanes(referencePlanes));
+
+#if defined(SK_CODEC_DECODES_JPEG)
+            std::unique_ptr<SkCodec> cppCodec =
+                    SkJpegDecoder::Decode(SkMemoryStream::Make(data), nullptr);
+            SkYUVAPixmapInfo cppInfo;
+            REPORTER_ASSERT(r, cppCodec->queryYUVAInfo(kAllTypes, &cppInfo));
+            SkYUVAPixmaps cppPlanes = SkYUVAPixmaps::Allocate(cppInfo);
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, cppCodec->getYUVAPlanes(cppPlanes));
+#endif
+
+            for (int plane = 0; plane < planes.numPlanes(); ++plane) {
+                for (int row = 0; row < planes.plane(plane).height(); ++row) {
+                    const auto* actual =
+                            static_cast<const uint8_t*>(planes.plane(plane).addr(0, row));
+                    const auto* expected =
+                            static_cast<const uint8_t*>(referencePlanes.plane(plane).addr(0, row));
+                    REPORTER_ASSERT(r,
+                                    memcmp(actual,
+                                           expected,
+                                           static_cast<size_t>(planes.plane(plane).width())) == 0);
+#if defined(SK_CODEC_DECODES_JPEG)
+                    const auto* cpp =
+                            static_cast<const uint8_t*>(cppPlanes.plane(plane).addr(0, row));
+                    for (int column = 0; column < planes.plane(plane).width(); ++column) {
+                        REPORTER_ASSERT(r,
+                                        std::abs(static_cast<int>(actual[column]) -
+                                                 static_cast<int>(cpp[column])) <= 2);
+                    }
+#endif
+                }
+            }
+        }
+    }
+
+    {
+        auto stream = std::make_unique<HaltingStream>(data, kInitialBytes);
+        HaltingStream* streamPtr = stream.get();
+        SkCodec::Result result;
+        std::unique_ptr<SkCodec> codec = SkJpegRustDecoder::Decode(std::move(stream), &result);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+        REPORTER_ASSERT(r, codec);
+        if (!codec) {
+            return;
+        }
+
+        const SkImageInfo info = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
+        SkCodec::Options options;
+        options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->startScanlineDecode(info, &options));
+        std::vector<uint8_t> row(info.minRowBytes(), 0xCD);
+        bool suspended = false;
+        for (int y = 0; y < info.height(); ++y) {
+            std::fill(row.begin(), row.end(), 0xCD);
+            if (codec->getScanlines(row.data(), 1, row.size()) == 0) {
+                suspended = true;
+                REPORTER_ASSERT(r, std::all_of(row.begin(), row.end(), [](uint8_t value) {
+                                    return value == 0xCD;
+                                }));
+                break;
+            }
+        }
+        REPORTER_ASSERT(r, suspended);
+
+        streamPtr->addNewData(data->size());
+        std::vector<uint8_t> scanlines(info.computeMinByteSize(), 0xCD);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->startScanlineDecode(info));
+        REPORTER_ASSERT(r,
+                        codec->getScanlines(scanlines.data(), info.height(), info.minRowBytes()) ==
+                                info.height());
+
+        std::unique_ptr<SkCodec> referenceCodec = decode_rust_jpeg_data(data);
+        std::vector<uint8_t> reference(info.computeMinByteSize());
+        REPORTER_ASSERT(r, referenceCodec);
+        if (referenceCodec) {
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                    r, referenceCodec->getPixels(info, reference.data(), info.minRowBytes()));
+            REPORTER_ASSERT(r, scanlines == reference);
+        }
+    }
 }
 
 // ========== Encoder Tests ==========
