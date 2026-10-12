@@ -15,6 +15,7 @@
 #include "include/private/SkMacros.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -692,6 +693,8 @@ bool SkBlockAllocator::Block::release(int start, int end) {
 template <bool Forward, bool Const>
 class SkBlockAllocator::BlockIter {
 private:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     using BlockT = typename std::conditional<Const, const Block, Block>::type;
     using AllocatorT =
             typename std::conditional<Const, const SkBlockAllocator, SkBlockAllocator>::type;
@@ -701,6 +704,8 @@ public:
 
     class Item {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         bool operator!=(const Item& other) const { return fBlock != other.fBlock; }
 
         BlockT* operator*() const { return fBlock; }

@@ -10,6 +10,7 @@
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 #include <cstddef>
 
@@ -17,6 +18,8 @@
  *  Helper class to package and trim the parameters passed to readPixels()
  */
 struct SkReadPixelsRec {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     /**
      *  @param x, y  The offset into the source. Negative values are supported; the portion
      *               of the rectangle that is "off-screen" (negative x or y) will leave the

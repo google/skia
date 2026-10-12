@@ -14,6 +14,7 @@
 #include "include/core/SkShader.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTypeTraits.h"
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/ResourceKey.h"
@@ -347,6 +348,8 @@ private:
 // Clip element iteration
 class ClipStack::ElementIter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     bool operator!=(const ElementIter& o) const {
         return o.fItem != fItem && o.fRemaining != fRemaining;
     }

@@ -20,6 +20,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkIDChangeListener.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkPathRef.h"
 #include "src/core/SkPathData.h"
 #include "src/core/SkPathEnums.h"
@@ -184,6 +185,8 @@ public:
      */
     struct Iterate {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         Iterate(SkPath&&) = delete;
         Iterate(const SkPath& path)
             : Iterate(path.verbs(), path.points().data(), path.conicWeights().data())
@@ -439,6 +442,8 @@ public:
 // Roughly the same as SkPath::Iter(path, true), but does not return moves or closes
 //
 class SkPathEdgeIter {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     const SkPathVerb* fVerbs;
     const SkPathVerb* fVerbsStop;
     const SkPoint*  fPts;
@@ -472,6 +477,8 @@ public:
 
     // todo: return as optional? fPts become span?
     struct Result {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         const SkPoint*  fPts;   // points for the segment, or null if done
         Edge            fEdge;
         bool            fIsNewContour;

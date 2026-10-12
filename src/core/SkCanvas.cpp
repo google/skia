@@ -36,6 +36,7 @@
 #include "include/core/SkVertices.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
@@ -233,6 +234,8 @@ void SkCanvas::MCRec::reset(SkDevice* device) {
 
 class SkCanvas::AutoUpdateQRBounds {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     explicit AutoUpdateQRBounds(SkCanvas* canvas) : fCanvas(canvas) {
         // pre-condition, fQuickRejectBounds and other state should be valid before anything
         // modifies the device's clip.
@@ -2422,6 +2425,8 @@ void SkCanvas::releaseGlyphRunBuilder() {
 
 class AutoGlyphRunBuilder {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     AutoGlyphRunBuilder(SkCanvas* canvas)
             : fCanvas(canvas), fGlyphRunBuilder(canvas->obtainGlyphRunBuilder()) {}
     ~AutoGlyphRunBuilder() { fCanvas->releaseGlyphRunBuilder(); }

@@ -11,6 +11,7 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkPicture.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkPictureFlat.h"
 
 #include <cstddef>
@@ -47,6 +48,8 @@ private:
 
     class AutoResetOpID {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         AutoResetOpID(SkPicturePlayback* playback) : fPlayback(playback) { }
         ~AutoResetOpID() {
             if (fPlayback) {

@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/graphite/DrawListTypes.h"
@@ -141,8 +142,8 @@ private:
     //
     // TransformedShape is a lightweight wrapper that can convert these different types into a
     // common type that Simplify() can reason about.
-    struct TransformedShape;
     class DrawShape;
+    struct TransformedShape;
 
     // This captures which of the two elements in (A op B) would be required when they are combined,
     // where op is intersect or difference.
@@ -383,6 +384,8 @@ private:
 // Clip element iteration
 class ClipStack::ElementIter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     bool operator!=(const ElementIter& o) const {
         return o.fItem != fItem && o.fRemaining != fRemaining;
     }

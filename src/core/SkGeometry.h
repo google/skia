@@ -14,6 +14,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkVx.h"
 
 #include <cstring>
@@ -504,6 +505,8 @@ struct SkCubicCoeff {
  */
 class [[nodiscard]] SkAutoConicToQuads {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkAutoConicToQuads() : fQuadCount(0) {}
 
     /**

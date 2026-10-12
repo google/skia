@@ -10,6 +10,7 @@
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkBlockAllocator.h"
 
@@ -390,12 +391,16 @@ template <typename T,    // The element type (including any modifiers)
           ItemFn<T, typename std::conditional<Const, const SkBlockAllocator::Block,
                                                      SkBlockAllocator::Block>::type> Resolve>
 class BlockIndexIterator {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     using BlockIter = typename SkBlockAllocator::BlockIter<Forward, Const>;
 public:
     BlockIndexIterator(BlockIter iter) : fBlockIter(iter) {}
 
     class Item {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         bool operator!=(const Item& other) const {
             return other.fBlock != fBlock || (SkToBool(*fBlock) && other.fIndex != fIndex);
         }

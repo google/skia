@@ -16,6 +16,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h" // IWYU pragma: keep
 #include "include/core/SkSurfaceProps.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 #include <optional>
 
@@ -32,6 +33,8 @@ struct SkDrawShadowRec;
 
 class SkPaintFilterCanvas::AutoPaintFilter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     AutoPaintFilter(const SkPaintFilterCanvas* canvas, const SkPaint* paint)
         : fPaint(paint ? *paint : SkPaint()) {
         fShouldDraw = canvas->onFilter(fPaint);

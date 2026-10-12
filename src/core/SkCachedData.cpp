@@ -7,6 +7,7 @@
 #include "src/core/SkCachedData.h"
 
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/chromium/SkDiscardableMemory.h"
 
 SkCachedData::SkCachedData(void* data, size_t size)
@@ -28,6 +29,8 @@ SkDiscardableMemory* SkCachedData::diagnostic_only_getDiscardable() const {
 
 class SkCachedData::AutoMutexWritable {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     AutoMutexWritable(const SkCachedData* cd) : fCD(const_cast<SkCachedData*>(cd)) {
         fCD->fMutex.acquire();
         fCD->validate();

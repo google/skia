@@ -15,6 +15,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 #include <cstddef>
 
@@ -22,11 +23,13 @@ class SkDevice;
 class SkImageFilter;
 class SkMatrix;
 class SkReadBuffer;
-struct SkRect;
 class SkWriteBuffer;
+struct SkRect;
 
 class [[nodiscard]] SkAutoCanvasMatrixPaint : SkNoncopyable {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkAutoCanvasMatrixPaint(SkCanvas*, const SkMatrix*, const SkPaint*, const SkRect& bounds);
     ~SkAutoCanvasMatrixPaint();
 
@@ -128,6 +131,8 @@ constexpr int kMaxPictureOpsToUnrollInsteadOfRef = 1;
  */
 class AutoLayerForImageFilter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     // `rawBounds` is the original bounds of the primitive about to be drawn, unmodified by the
     // paint. It's used to determine the size of the offscreen layer for filters.
     // If null, the clip will be used instead.

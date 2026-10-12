@@ -18,6 +18,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -267,6 +268,8 @@ public:
      *  ContextRec acts as a parameter bundle for creating Contexts.
      */
     struct ContextRec {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         ContextRec(SkAlpha paintAlpha,
                    const SkShaders::MatrixRec& matrixRec,
                    SkColorType dstColorType,

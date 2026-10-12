@@ -22,6 +22,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkBitmapDevice.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkBlurEngine.h"
@@ -527,6 +528,8 @@ bool LayerSpace<SkMatrix>::inverseMapRect(const LayerSpace<SkIRect>& rect,
 //     return surface.snap(); // Automatically handles failed allocations
 class FilterResult::AutoSurface {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     AutoSurface(const Context& ctx,
                 const LayerSpace<SkIRect>& dstBounds,
                 PixelBoundary boundary,

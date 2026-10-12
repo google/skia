@@ -13,6 +13,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkSafe32.h"
 #include "src/core/SkAnalyticEdge.h"
 #include "src/core/SkEdge.h"
@@ -273,6 +274,8 @@ int SkEdgeBuilder::build(const SkPathRaw& raw, const SkIRect* iclip, bool canCul
     if (iclip) {
         SkRect clip = this->recoverClip(*iclip);
         struct Rec {
+            SK_ONLY_STACK_ALLOCATABLE;
+
             SkEdgeBuilder* fBuilder;
             bool           fIsFinite;
         } rec = { this, true };

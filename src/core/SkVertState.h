@@ -9,6 +9,7 @@
 #define SkVertState_DEFINED
 
 #include "include/core/SkVertices.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 #include <cstdint>
 
@@ -20,6 +21,8 @@
 */
 
 struct VertState {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     int f0, f1, f2;
 
     /**

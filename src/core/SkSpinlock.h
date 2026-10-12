@@ -9,6 +9,7 @@
 #define SkSpinlock_DEFINED
 
 #include "include/private/SkAPI.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkThreadAnnotations.h"
 
 #include <atomic>
@@ -48,6 +49,8 @@ private:
 
 class SK_SCOPED_CAPABILITY SkAutoSpinlock {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     explicit SkAutoSpinlock(SkSpinlock& mutex) SK_ACQUIRE(mutex) : fSpinlock(mutex) {
         fSpinlock.acquire();
     }

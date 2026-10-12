@@ -10,6 +10,7 @@
 
 #include "include/core/SkVertices.h"
 
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 
 class SkReadBuffer;
@@ -22,6 +23,8 @@ struct SkVertices_DeprecatedBone { float values[6]; };
     data members or virtual methods. */
 class SkVerticesPriv {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkVertices::VertexMode mode() const { return fVertices->fMode; }
 
     bool hasColors() const { return SkToBool(fVertices->fColors); }

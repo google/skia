@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkRect.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 class SkArenaAlloc;
 class SkColorSpace;
@@ -19,6 +20,8 @@ class SkSurfaceProps;
 
 // Passed to effects that will add stages to rasterpipeline
 struct SkStageRec {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkRasterPipeline*       fPipeline;
     SkArenaAlloc*           fAlloc;
     SkColorType             fDstColorType;

@@ -31,6 +31,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
@@ -92,6 +93,8 @@ static SkPaint make_paint_with_image(const SkPaint& origPaint,
 Draw::Draw() { fBlitterChooser = SkBlitter::Choose; }
 
 struct PtProcRec {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkCanvas::PointMode fMode;
     const SkPaint*  fPaint;
     const SkRegion* fClip;

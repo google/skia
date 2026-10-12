@@ -9,6 +9,7 @@
 #define SkSharedLock_DEFINED
 
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkSemaphore.h"
 #include "include/private/SkThreadAnnotations.h"
 
@@ -77,6 +78,8 @@ inline void SkSharedMutex::assertHeldShared() const {}
 
 class SK_SCOPED_CAPABILITY SkAutoSharedMutexExclusive {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     explicit SkAutoSharedMutexExclusive(SkSharedMutex& lock) SK_ACQUIRE(lock)
             : fLock(lock) {
         lock.acquire();
@@ -89,6 +92,8 @@ private:
 
 class SK_SCOPED_CAPABILITY SkAutoSharedMutexShared {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     explicit SkAutoSharedMutexShared(SkSharedMutex& lock) SK_ACQUIRE_SHARED(lock)
             : fLock(lock)  {
         lock.acquireShared();

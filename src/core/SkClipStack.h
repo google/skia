@@ -18,6 +18,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkDeque.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -288,6 +289,8 @@ public:
 
     class AutoRestore {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         AutoRestore(SkClipStack* cs, bool doSave)
             : fCS(cs), fSaveCount(cs->getSaveCount())
         {
@@ -394,6 +397,8 @@ public:
 public:
     class Iter {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         enum IterStart {
             kBottom_IterStart = SkDeque::Iter::kFront_IterStart,
             kTop_IterStart = SkDeque::Iter::kBack_IterStart
@@ -435,6 +440,8 @@ public:
      */
     class B2TIter : private Iter {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         B2TIter() {}
 
         /**
