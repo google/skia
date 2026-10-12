@@ -18,6 +18,32 @@ mod ffi {
         OtherError,
     }
 
+    #[derive(Debug, Clone, Copy)]
+    enum OutputStatus {
+        Ready,
+        NeedMoreInput,
+        Complete,
+        Error,
+    }
+
+    #[derive(Debug, Clone, Copy, Default)]
+    struct RawPlaneInfo {
+        component_id: u8,
+        horizontal_sampling_factor: u32,
+        vertical_sampling_factor: u32,
+        width: u32,
+        height: u32,
+        row_bytes: u32,
+    }
+
+    struct RawOutputResult {
+        status: OutputStatus,
+        result: DecodingResult,
+        y_rows: u32,
+        u_rows: u32,
+        v_rows: u32,
+    }
+
     /// JPEG color type matching SkEncodedInfo::Color values.
     /// Static assertions in C++ validate these match at compile time.
     #[repr(i32)]
@@ -100,9 +126,10 @@ mod ffi {
     extern "Rust" {
         fn is_jpeg_data(data: &[u8]) -> bool;
 
-        fn new_reader(input: UniquePtr<SkStreamAdapter>) -> Box<Reader>;
+        fn new_reader(input: UniquePtr<SkStreamAdapter>, stream_length: u64) -> Box<Reader>;
 
         type Reader;
+        fn initialization_result(self: &Reader) -> DecodingResult;
         fn width(self: &Reader) -> u32;
         fn height(self: &Reader) -> u32;
         fn color(self: &Reader) -> JpegColor;
@@ -121,6 +148,18 @@ mod ffi {
 
         fn row_bytes(self: &Reader) -> u32;
         fn reset_decode_state(self: &mut Reader);
+
+        fn raw_component_count(self: &Reader) -> u32;
+        fn raw_plane_info(self: &Reader, index: u32) -> RawPlaneInfo;
+        fn read_raw_imcu_row(
+            self: &mut Reader,
+            y: &mut [u8],
+            y_row_bytes: u32,
+            u: &mut [u8],
+            u_row_bytes: u32,
+            v: &mut [u8],
+            v_row_bytes: u32,
+        ) -> RawOutputResult;
 
         fn icc_profile(self: &Reader) -> Vec<u8>;
         fn exif_data(self: &Reader) -> Vec<u8>;
@@ -177,6 +216,7 @@ use std::rc::Rc;
 
 use zune_core::bytestream::{ZByteIoError, ZByteReaderTrait, ZSeekFrom};
 use zune_core::colorspace::ColorSpace as ZuneColorSpace;
+use zune_jpeg::RawImcuRowStatus;
 
 const MAX_DECODE_IMAGE_BYTES: usize = 512 * 1024 * 1024;
 
@@ -421,6 +461,7 @@ pub fn is_jpeg_data(data: &[u8]) -> bool {
 /// Streaming JPEG reader wrapping zune-jpeg with Rust-side segment scanning.
 pub struct Reader {
     stream: Option<cxx::UniquePtr<ffi::SkStreamAdapter>>,
+    initialization_result: DecodingResult,
     raw_data: Rc<RefCell<Vec<u8>>>,
     stream_exhausted: bool,
     orig_color_space: ZuneColorSpace,
@@ -443,7 +484,13 @@ pub struct Reader {
     preview_scan_count: usize,
     /// Last preview generation returned by `get_next_rows`.
     last_consumed_preview_scan_count: usize,
+    // RawDecodeSession and ScanlineDecodeSession are short-lived borrow guards.
+    // This decoder owns their pull/checkpoint state across FFI calls; no caller
+    // slice or pointer is retained after a bridge method returns.
     incremental_decoder: Option<IncrementalJpegDecoder>,
+    raw_component_count: u32,
+    raw_plane_info: [RawPlaneInfo; 4],
+    output_sequence: OutputSequence,
 
     scanner: SegmentScanner,
     scanner_bytes_consumed: usize,
@@ -451,6 +498,14 @@ pub struct Reader {
     cached_exif: Option<Vec<u8>>,
     /// `None` = not yet scanned; `Some(None)` = scanned, no MPF found.
     cached_mpf: Option<Option<MpfResult>>,
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum OutputSequence {
+    Idle,
+    Raw { complete: bool },
+    Incremental,
+    FullImage,
 }
 
 fn decoded_row_slice(
@@ -465,12 +520,20 @@ fn decoded_row_slice(
     image_data.get(start..end)
 }
 
+fn validate_stream_length(stream_length: u64) -> DecodingResult {
+    match usize::try_from(stream_length) {
+        Ok(capacity) if capacity <= MAX_DECODE_IMAGE_BYTES => DecodingResult::Success,
+        _ => DecodingResult::MemoryError,
+    }
+}
+
 impl Reader {
     /// Create a new reader without reading any data from the stream.
     /// The stream is stored for later incremental reads.
-    fn new(input: cxx::UniquePtr<ffi::SkStreamAdapter>) -> Result<Self, DecodingResult> {
-        Ok(Reader {
+    fn new(input: cxx::UniquePtr<ffi::SkStreamAdapter>, stream_length: u64) -> Self {
+        Reader {
             stream: Some(input),
+            initialization_result: validate_stream_length(stream_length),
             raw_data: Rc::new(RefCell::new(Vec::new())),
             stream_exhausted: false,
             orig_color_space: ZuneColorSpace::RGB,
@@ -488,13 +551,16 @@ impl Reader {
             preview_scan_count: 0,
             last_consumed_preview_scan_count: 0,
             incremental_decoder: None,
+            raw_component_count: 0,
+            raw_plane_info: [RawPlaneInfo::default(); 4],
+            output_sequence: OutputSequence::Idle,
             // Stop at SOS — we only need header segments for metadata.
             scanner: SegmentScanner::new(jpeg_marker::SOS),
             scanner_bytes_consumed: 0,
             cached_icc: None,
             cached_exif: None,
             cached_mpf: None,
-        })
+        }
     }
 
     /// Try to read more data from the stream into raw_data, and feed
@@ -562,6 +628,10 @@ impl Reader {
         self.metadata_loaded
     }
 
+    pub fn initialization_result(&self) -> DecodingResult {
+        self.initialization_result
+    }
+
     pub fn read_metadata(&mut self) -> DecodingResult {
         if self.metadata_loaded {
             return DecodingResult::Success;
@@ -577,11 +647,11 @@ impl Reader {
         drop(raw_data);
 
         let options = zune_core::options::DecoderOptions::default().set_strict_mode(false);
-
         let mut decoder = zune_jpeg::JpegDecoder::new_with_options(
             GrowingJpegCursor::new(Rc::clone(&self.raw_data)),
             options,
         );
+        decoder.set_incremental_mode(true);
 
         match decoder.decode_headers() {
             Ok(()) => {}
@@ -597,10 +667,46 @@ impl Reader {
             Some(dims) => dims,
             None => return DecodingResult::FormatError,
         };
-
         let cs = decoder.input_colorspace().unwrap_or(ZuneColorSpace::RGB);
+        let mut raw_component_count = 0;
+        let mut raw_plane_info = [RawPlaneInfo::default(); 4];
+        {
+            let raw = decoder.raw_output();
+            if let (Some(count), Some(ids), Some(layout)) =
+                (raw.num_components(), raw.component_ids(), raw.layout())
+            {
+                raw_component_count = u32::try_from(count).unwrap_or(0);
+                for index in 0..count
+                    .min(raw_plane_info.len())
+                    .min(ids.len())
+                    .min(layout.len())
+                {
+                    let plane = layout[index];
+                    let converted = (
+                        u32::try_from(plane.horizontal_sampling_factor),
+                        u32::try_from(plane.vertical_sampling_factor),
+                        u32::try_from(plane.width),
+                        u32::try_from(plane.height),
+                        u32::try_from(plane.stride),
+                    );
+                    if let (Ok(h), Ok(v), Ok(width), Ok(height), Ok(row_bytes)) = converted {
+                        raw_plane_info[index] = RawPlaneInfo {
+                            component_id: ids[index],
+                            horizontal_sampling_factor: h,
+                            vertical_sampling_factor: v,
+                            width,
+                            height,
+                            row_bytes,
+                        };
+                    } else {
+                        raw_component_count = 0;
+                        raw_plane_info = [RawPlaneInfo::default(); 4];
+                        break;
+                    }
+                }
+            }
+        }
         let (color, bytes_per_pixel) = map_color_space(cs);
-        drop(decoder);
         let (width, height) = match (u32::try_from(width), u32::try_from(height)) {
             (Ok(width), Ok(height)) => (width, height),
             _ => return DecodingResult::MemoryError,
@@ -615,12 +721,24 @@ impl Reader {
         self.alpha = JpegAlpha::Opaque;
         self.bytes_per_pixel = bytes_per_pixel;
         self.orig_color_space = cs;
+        decoder.set_options(self.output_decoder_options());
+        self.incremental_decoder = Some(decoder);
+        if matches!(cs, ZuneColorSpace::YCbCr) {
+            self.raw_component_count = raw_component_count;
+            self.raw_plane_info = raw_plane_info;
+        }
         self.metadata_loaded = true;
 
         DecodingResult::Success
     }
 
     pub fn read_image_data(&mut self) -> DecodingResult {
+        if !matches!(
+            self.output_sequence,
+            OutputSequence::Idle | OutputSequence::FullImage
+        ) {
+            return DecodingResult::ParameterError;
+        }
         if self.image_data_loaded {
             return DecodingResult::Success;
         }
@@ -628,6 +746,7 @@ impl Reader {
         if !self.metadata_loaded {
             return DecodingResult::ParameterError;
         }
+        self.output_sequence = OutputSequence::FullImage;
 
         self.try_read_more();
 
@@ -695,6 +814,12 @@ impl Reader {
     }
 
     pub fn read_incremental_image_data(&mut self) -> DecodingResult {
+        if !matches!(
+            self.output_sequence,
+            OutputSequence::Idle | OutputSequence::Incremental
+        ) {
+            return DecodingResult::ParameterError;
+        }
         if self.image_data_loaded {
             return DecodingResult::Success;
         }
@@ -702,6 +827,7 @@ impl Reader {
         if !self.metadata_loaded {
             return DecodingResult::ParameterError;
         }
+        self.output_sequence = OutputSequence::Incremental;
 
         // A zero-byte read during incremental decode only means that no new
         // bytes are visible for this attempt.  The SkCodec caller may make
@@ -823,12 +949,9 @@ impl Reader {
         }
 
         let new_row_count = current_rows - already_consumed;
-        let Some(rows) = decoded_row_slice(
-            &self.image_data,
-            already_consumed,
-            new_row_count,
-            row_bytes,
-        ) else {
+        let Some(rows) =
+            decoded_row_slice(&self.image_data, already_consumed, new_row_count, row_bytes)
+        else {
             *buffer = &[];
             return DecodedRowsInfo {
                 dst_row_start: 0,
@@ -858,8 +981,142 @@ impl Reader {
         self.preview_rows = 0;
         self.preview_scan_count = 0;
         self.last_consumed_preview_scan_count = 0;
-        self.incremental_decoder = None;
+        self.output_sequence = OutputSequence::Idle;
+        let options = self.output_decoder_options();
+        if let Some(decoder) = self.incremental_decoder.as_mut() {
+            decoder.set_options(options);
+        }
         self.stream_exhausted = false;
+    }
+
+    fn output_decoder_options(&self) -> zune_core::options::DecoderOptions {
+        let target_cs = match self.orig_color_space {
+            ZuneColorSpace::Luma | ZuneColorSpace::LumaA => ZuneColorSpace::Luma,
+            ZuneColorSpace::CMYK | ZuneColorSpace::YCCK => ZuneColorSpace::CMYK,
+            _ => ZuneColorSpace::RGB,
+        };
+        zune_core::options::DecoderOptions::default()
+            .set_strict_mode(false)
+            .jpeg_set_out_colorspace(target_cs)
+    }
+
+    fn prepare_output_decoder(&mut self) {
+        self.stream_exhausted = false;
+        self.try_read_more();
+        if self.incremental_decoder.is_none() {
+            let mut decoder = zune_jpeg::JpegDecoder::new_with_options(
+                GrowingJpegCursor::new(Rc::clone(&self.raw_data)),
+                self.output_decoder_options(),
+            );
+            decoder.set_incremental_mode(true);
+            self.incremental_decoder = Some(decoder);
+        }
+    }
+
+    pub fn raw_component_count(&self) -> u32 {
+        self.raw_component_count
+    }
+
+    pub fn raw_plane_info(&self, index: u32) -> RawPlaneInfo {
+        self.raw_plane_info
+            .get(index as usize)
+            .copied()
+            .unwrap_or_default()
+    }
+
+    pub fn read_raw_imcu_row(
+        &mut self,
+        y: &mut [u8],
+        y_row_bytes: u32,
+        u: &mut [u8],
+        u_row_bytes: u32,
+        v: &mut [u8],
+        v_row_bytes: u32,
+    ) -> RawOutputResult {
+        let error = |result| RawOutputResult {
+            status: OutputStatus::Error,
+            result,
+            y_rows: 0,
+            u_rows: 0,
+            v_rows: 0,
+        };
+        if self.raw_component_count != 3 {
+            return error(DecodingResult::ParameterError);
+        }
+        match self.output_sequence {
+            OutputSequence::Idle => {
+                self.output_sequence = OutputSequence::Raw { complete: false };
+            }
+            OutputSequence::Raw { complete: false } => {}
+            OutputSequence::Raw { complete: true } => {
+                return RawOutputResult {
+                    status: OutputStatus::Complete,
+                    result: DecodingResult::Success,
+                    y_rows: 0,
+                    u_rows: 0,
+                    v_rows: 0,
+                };
+            }
+            _ => return error(DecodingResult::ParameterError),
+        }
+        self.prepare_output_decoder();
+        let Some(decoder) = self.incremental_decoder.as_mut() else {
+            return error(DecodingResult::OtherError);
+        };
+        if let Err(ref decode_error) = decoder.decode_headers() {
+            if decode_error.is_recoverable_eof() {
+                return RawOutputResult {
+                    status: OutputStatus::NeedMoreInput,
+                    result: DecodingResult::IncompleteInput,
+                    y_rows: 0,
+                    u_rows: 0,
+                    v_rows: 0,
+                };
+            }
+            return error(map_zune_error(decode_error));
+        }
+
+        let strides = [
+            y_row_bytes as usize,
+            u_row_bytes as usize,
+            v_row_bytes as usize,
+        ];
+        let mut planes = [y, u, v];
+        let status = {
+            let mut raw = decoder.raw_output();
+            raw.decode_next_imcu_row(&mut planes, &strides)
+        };
+        let rows_written = match status {
+            Ok(RawImcuRowStatus::RowReady { rows_written }) => rows_written,
+            Ok(RawImcuRowStatus::NeedMoreInput) => {
+                return RawOutputResult {
+                    status: OutputStatus::NeedMoreInput,
+                    result: DecodingResult::IncompleteInput,
+                    y_rows: 0,
+                    u_rows: 0,
+                    v_rows: 0,
+                }
+            }
+            Ok(RawImcuRowStatus::Complete) => {
+                self.output_sequence = OutputSequence::Raw { complete: true };
+                return RawOutputResult {
+                    status: OutputStatus::Complete,
+                    result: DecodingResult::Success,
+                    y_rows: 0,
+                    u_rows: 0,
+                    v_rows: 0,
+                };
+            }
+            Ok(_) => return error(DecodingResult::OtherError),
+            Err(ref decode_error) => return error(map_zune_error(decode_error)),
+        };
+        RawOutputResult {
+            status: OutputStatus::Ready,
+            result: DecodingResult::Success,
+            y_rows: u32::try_from(rows_written[0]).unwrap_or(0),
+            u_rows: u32::try_from(rows_written[1]).unwrap_or(0),
+            v_rows: u32::try_from(rows_written[2]).unwrap_or(0),
+        }
     }
 
     pub fn icc_profile(&self) -> Vec<u8> {
@@ -927,9 +1184,8 @@ impl Reader {
     }
 }
 
-pub fn new_reader(input: cxx::UniquePtr<ffi::SkStreamAdapter>) -> Box<Reader> {
-    // Reader construction is infallible today.
-    Box::new(Reader::new(input).expect("Reader::new should be infallible"))
+fn new_reader(input: cxx::UniquePtr<ffi::SkStreamAdapter>, stream_length: u64) -> Box<Reader> {
+    Box::new(Reader::new(input, stream_length))
 }
 
 pub fn encode_jpeg(
@@ -1044,11 +1300,30 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_validate_stream_length_rejects_oversized_length() {
+        assert!(matches!(
+            validate_stream_length(MAX_DECODE_IMAGE_BYTES as u64),
+            DecodingResult::Success
+        ));
+        assert!(matches!(
+            validate_stream_length(MAX_DECODE_IMAGE_BYTES as u64 + 1),
+            DecodingResult::MemoryError
+        ));
+        assert!(matches!(
+            validate_stream_length(u64::MAX),
+            DecodingResult::MemoryError
+        ));
+    }
+
+    #[test]
     fn test_decoded_row_slice_checks_bounds() {
         let pixels: Vec<u8> = (0..24).collect();
         assert_eq!(decoded_row_slice(&pixels, 1, 2, 6), Some(&pixels[6..18]));
         assert_eq!(decoded_row_slice(&pixels, 3, 2, 6), None);
-        assert_eq!(decoded_row_slice(&pixels, u32::MAX, u32::MAX, usize::MAX), None);
+        assert_eq!(
+            decoded_row_slice(&pixels, u32::MAX, u32::MAX, usize::MAX),
+            None
+        );
     }
 
     #[test]

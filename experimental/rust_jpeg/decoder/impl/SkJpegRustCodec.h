@@ -17,9 +17,9 @@
 #include "include/core/SkSpan.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 
-struct SkEncodedInfo;
 class SkStream;
 class SkSwizzler;
+struct SkEncodedInfo;
 
 // This class provides the Skia image decoding API (`SkCodec`) on top of:
 // * The third-party `zune-jpeg` crate (containing JPEG decompression and
@@ -50,6 +50,11 @@ protected:
                           std::unique_ptr<SkStream>* gainmapImageStream) override;
 
     bool onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec>* gainmapCodec) override;
+
+    bool onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&,
+                         SkYUVAPixmapInfo*) const override;
+
+    Result onGetYUVAPlanes(const SkYUVAPixmaps&) override;
 
 private:
     sk_sp<const SkData> getEncodedData() const override;
@@ -99,8 +104,6 @@ private:
 
     // TODO: Add onGetScaledDimensions for 1/2, 1/4, 1/8 IDCT scaling
     //   (requires zune-jpeg support or post-decode downscale).
-    // TODO: Add onQueryYUVAInfo / onGetYUVAPlanes for GPU-accelerated YUV
-    //   decode (requires zune-jpeg raw plane output).
     // NOTE: Progressive scan limit (100) is enforced by zune-jpeg's default
     //   DecoderOptions, matching Blink's ProgressMonitor.
     // NOTE: APP11 (C2PA/JUMBF) segments are captured by the Rust segment
