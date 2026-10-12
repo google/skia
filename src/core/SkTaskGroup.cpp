@@ -35,10 +35,3 @@ void SkTaskGroup::wait() {
         fExecutor.borrow();
     }
 }
-
-SkTaskGroup::Enabler::Enabler(int threads) {
-    if (threads) {
-        fThreadPool = SkExecutor::MakeLIFOThreadPool(threads);
-        SkExecutor::SetDefault(fThreadPool.get());
-    }
-}

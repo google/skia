@@ -22,6 +22,7 @@
 #include "include/core/SkString.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/docs/SkPDFJpegHelpers.h"
+#include "src/core/SkExecutors.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -269,7 +270,7 @@ DEF_TEST(SkPDF_abort_jobs, rep) {
     b.allocN32Pixels(612, 792);
     b.eraseColor(0x4F9643A0);
     SkPDF::Metadata metadata = SkPDF::JPEG::MetadataWithCallbacks();
-    std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool();
+    std::unique_ptr<SkExecutor> executor = SkExecutors::MakeFIFOThreadPool();
     metadata.fExecutor = executor.get();
     SkNullWStream dst;
     auto doc = SkPDF::MakeDocument(&dst, metadata);

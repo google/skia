@@ -40,6 +40,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkBase64.h"
 #include "src/core/SkColorPriv.h"
+#include "src/core/SkExecutors.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkOSFile.h"
@@ -48,7 +49,6 @@
 #include "src/core/SkStringUtils.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTSort.h"
-#include "src/core/SkTaskGroup.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkUTF.h"
 #include "src/image/SkImage_Base.h"
@@ -729,7 +729,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #endif
 
     initializeEventTracingForTools();
-    static SkTaskGroup::Enabler kTaskGroupEnabler(FLAGS_threads);
+    static SkExecutors::Enabler kTaskGroupEnabler(FLAGS_threads);
 
     fBackendType = get_backend_type(FLAGS_backend[0]);
     fWindow = Windows::CreateNativeWindow(platformData);
