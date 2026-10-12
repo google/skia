@@ -550,6 +550,7 @@ ganesh_tests_sources = [
 
 ganesh_gl_tests_sources = [
   "$_tests/EGLImageTest.cpp",
+  "$_tests/GLFramebufferDeletionTest.cpp",
   "$_tests/GrGLExtensionsTest.cpp",
   "$_tests/RectangleTextureTest.cpp",
   "$_tests/TextureBindingsResetTest.cpp",
