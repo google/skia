@@ -304,9 +304,9 @@ static int write_color_and_offset_bufdata(StorageContext* storageContext,
     auto [dstData, bufferOffset] = storageContext->allocateGradientData(numStops, shader);
     if (dstData) {
         SkASSERT(bufferOffset >= 0);
-        // Data doesn't already exist so we need to write it. Writes all offset data, then color
+        // Offsets and Colors are contiguous in memory. All offsets precede all color
         // data. This way when binary searching through the offsets, there is better cache locality.
-        for (int i = 0, colorIdx = numStops; i < numStops; i++, colorIdx+=4) {
+        for (int i = 0, colorIdx = numStops; i < numStops; i++, colorIdx += 4) {
             float offset = offsets ? SK_UNSAFE_TODO(offsets[i]) : SkIntToFloat(i) / (numStops - 1);
             SkASSERT(offset >= 0.0f && offset <= 1.0f);
 
@@ -2604,6 +2604,8 @@ static void add_gradient_to_key(const KeyContext& keyContext,
 
     sk_sp<TextureProxy> proxy;
 
+    // TODO (thomsmit) delete this in the future, all fallbacks should get routed through the
+    // StorageBufferManager. Also, need to pipe out the fragment shader visibility for this.
     bool gradUsesStorage = keyContext.caps()->storageBufferSupport();
     if (colorCount > GradientShaderBlocks::GradientData::kNumInternalStorageStops
             && !gradUsesStorage) {

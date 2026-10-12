@@ -17,8 +17,8 @@
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Sampler.h"
+#include "src/gpu/graphite/StorageContext.h"
 #include "src/gpu/graphite/Texture.h"
-#include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/vk/VulkanBuffer.h"
 #include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
@@ -136,7 +136,7 @@ sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(
 const VulkanTexture* VulkanResourceProvider::getOrCreateNullTexture() {
     if (!fNullTexture) {
         TextureInfo info = this->vulkanSharedContext()->caps()->getDefaultReadableTextureInfo(
-                TextureFormat::kRGBA32F,
+                StorageContext::kTextureFormat,
                 Protected::kNo);
         fNullTexture = this->createTexture(
                 SkISize::Make(1, 1), info, "UnusedTextureSlot");

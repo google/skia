@@ -167,6 +167,7 @@ private:
 
     std::array<BindBufferInfo, 5> fBoundUniformBuffers;
     bool fBoundUniformBuffersDirty = false;
+    const Texture* fBoundStorageFallbackTexture = nullptr;
 
     id<MTLBuffer> fCurrentIndexBuffer;
     id<MTLBuffer> fCurrentIndirectBuffer;

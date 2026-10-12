@@ -102,6 +102,22 @@ public:
                                      atIndex:index];
     }
 
+    void setVertexTexture(id<MTLTexture> texture, NSUInteger index) {
+        SkASSERT(index < kMaxExpectedTextures);
+        if (fCurrentVertexTexture[index] != texture) {
+            [(*fCommandEncoder) setVertexTexture:texture
+                                         atIndex:index];
+            fCurrentVertexTexture[index] = texture;
+        }
+    }
+    void setVertexSamplerState(id<MTLSamplerState> sampler, NSUInteger index) {
+        SkASSERT(index < kMaxExpectedTextures);
+        if (fCurrentVertexSampler[index] != sampler) {
+            [(*fCommandEncoder) setVertexSamplerState:sampler
+                                              atIndex:index];
+            fCurrentVertexSampler[index] = sampler;
+        }
+    }
     void setFragmentTexture(id<MTLTexture> texture, NSUInteger index) {
         SkASSERT(index < kMaxExpectedTextures);
         if (fCurrentTexture[index] != texture) {
@@ -232,8 +248,10 @@ private:
     id<MTLDepthStencilState> fCurrentDepthStencilState = nil;
     uint32_t fCurrentStencilReferenceValue = 0; // Metal default value
 
-    std::array<id<MTLTexture>, kMaxExpectedTextures>      fCurrentTexture = {};
+    std::array<id<MTLTexture>, kMaxExpectedTextures> fCurrentTexture = {};
     std::array<id<MTLSamplerState>, kMaxExpectedTextures> fCurrentSampler = {};
+    std::array<id<MTLTexture>, kMaxExpectedTextures> fCurrentVertexTexture = {};
+    std::array<id<MTLSamplerState>, kMaxExpectedTextures> fCurrentVertexSampler = {};
 
     MTLScissorRect fCurrentScissorRect = { 0, 0, 0, 0 };
     MTLTriangleFillMode fCurrentTriangleFillMode = (MTLTriangleFillMode)-1;

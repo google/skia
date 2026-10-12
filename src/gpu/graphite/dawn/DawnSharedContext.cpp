@@ -127,15 +127,17 @@ void DawnSharedContext::createUniformBuffersBindGroupLayout() {
     entries[1].buffer.hasDynamicOffset = true;
     entries[1].buffer.minBindingSize = 0;
 
-    // StorageBuffer will only be used if supported and preferred, else set binding type as a
-    // uniform when not in use to satisfy any binding type restrictions for non-supported ssbo
-    // devices.
+    // StorageBuffer will only be used if supported and preferred, else fallback to a texture
     entries[2].binding = DawnGraphicsPipeline::kStorageBufferIndex;
-    entries[2].buffer.type = caps->storageBufferSupport()
-                                     ? wgpu::BufferBindingType::ReadOnlyStorage
-                                     : wgpu::BufferBindingType::Uniform;
-    entries[2].buffer.hasDynamicOffset = true;
-    entries[2].buffer.minBindingSize = 0;
+    if (caps->storageBufferSupport()) {
+        entries[2].buffer.type = wgpu::BufferBindingType::ReadOnlyStorage;
+        entries[2].buffer.hasDynamicOffset = true;
+        entries[2].buffer.minBindingSize = 0;
+    } else {
+        entries[2].texture.sampleType = wgpu::TextureSampleType::UnfilterableFloat;
+        entries[2].texture.viewDimension = wgpu::TextureViewDimension::e2D;
+        entries[2].texture.multisampled = false;
+    }
 
     wgpu::BindGroupLayoutDescriptor groupLayoutDesc;
     if (caps->setBackendLabels()) {

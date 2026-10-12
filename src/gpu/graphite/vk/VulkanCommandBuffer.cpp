@@ -282,6 +282,7 @@ void VulkanCommandBuffer::onResetCommandBuffer() {
     fBoundIndirectBuffer = VK_NULL_HANDLE;
     fBoundIndirectBufferOffset = 0;
     fTargetTexture = nullptr;
+    fBoundStorageFallbackTexture = nullptr;
     fTextureSamplerDescSetToBind = VK_NULL_HANDLE;
     fNumTextureSamplers = 0;
     fUniformBuffersToBind.fill({});
@@ -716,6 +717,38 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& rpDesc,
                                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                           VK_ACCESS_SHADER_READ_BIT,
                                           VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+        }
+
+        if (const TextureProxy* storageProxy = drawPass->storageFallbackTexture()) {
+            const Texture* texture = storageProxy->texture();
+            SkASSERT(texture);
+            auto* vulkanTexture =
+                    const_cast<VulkanTexture*>(static_cast<const VulkanTexture*>(texture));
+            VkPipelineStageFlags stageFlags = PipelineStageFlagsToVkPipelineStageFlags(
+                    drawPass->storageBufferStages());
+            if (!stageFlags) {
+                // Graphite compute requires storage buffers; thus a fallback texture will never
+                // require the compute bit.
+                stageFlags = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
+                             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            }
+            vulkanTexture->setImageLayout(this,
+                                          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                          VK_ACCESS_SHADER_READ_BIT,
+                                          stageFlags);
+        } else if (!fSharedContext->caps()->storageBufferSupport() &&
+                   SkToBool(drawPass->storageBufferStages())) {
+            // Transition the null placeholder texture outside the render pass if a pipeline in this
+            // DrawPass expects a storage fallback texture slot but none was provided.
+            if (const VulkanTexture* nullTex = fResourceProvider->getOrCreateNullTexture()) {
+                VulkanTexture* vulkanTexture = const_cast<VulkanTexture*>(nullTex);
+                vulkanTexture->setImageLayout(this,
+                                              VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                              VK_ACCESS_SHADER_READ_BIT,
+                                              VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
+                                              VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+                this->trackResource(sk_ref_sp(nullTex));
+            }
         }
     }
     if (fDstCopy.first) {
@@ -1163,13 +1196,18 @@ void VulkanCommandBuffer::endRenderPass() {
     VULKAN_CALL(fSharedContext->interface(), CmdEndRenderPass(fPrimaryCommandBuffer));
     fActiveRenderPass = false;
     fTargetTexture = nullptr;
+    fBoundStorageFallbackTexture = nullptr;
 }
 
 void VulkanCommandBuffer::addDrawPass(DrawPass* drawPass) {
-    // If there is storage buffer data to bind, it must be done prior to draws.
-    if (drawPass->storageBufferInfo().fBuffer != nullptr) {
-        this->recordBufferBindingInfo(drawPass->storageBufferInfo(),
-                                      UniformSlot::kStorage);
+    // If there is storage data to bind, it must be done prior to draws; otherwise clear the slot so
+    // state from a prior DrawPass in the same RenderPass does not leak.
+    if (fSharedContext->caps()->storageBufferSupport()) {
+        this->recordBufferBindingInfo(drawPass->storageBufferInfo(), UniformSlot::kStorage);
+    } else {
+        const TextureProxy* proxy = drawPass->storageFallbackTexture();
+        fBoundStorageFallbackTexture = proxy ? proxy->texture() : nullptr;
+        fBindUniformBuffers = true;
     }
 
     for (auto [type, cmdPtr] : drawPass->commands()) {
@@ -1369,10 +1407,48 @@ void VulkanCommandBuffer::syncDescriptorSets() {
 namespace {
 void update_uniform_descriptor_set(SkSpan<DescriptorData> requestedDescriptors,
                                    SkSpan<BindBufferInfo> bindUniformBufferInfo,
+                                   const Texture* boundStorageFallbackTexture,
                                    VkDescriptorSet descSet,
+                                   VulkanResourceProvider* resourceProvider,
                                    const VulkanSharedContext* sharedContext) {
     for (size_t i = 0; i < requestedDescriptors.size(); i++) {
         int descriptorBindingIndex = requestedDescriptors[i].fBindingIndex;
+        if (requestedDescriptors[i].fType == DescriptorType::kTexture) {
+            VkDescriptorImageInfo imageInfo = {};
+            imageInfo.sampler = VK_NULL_HANDLE;
+
+            const VulkanTexture* vkTex = nullptr;
+            if (boundStorageFallbackTexture) {
+                vkTex = static_cast<const VulkanTexture*>(boundStorageFallbackTexture);
+            } else {
+                SkASSERT(resourceProvider);
+                vkTex = resourceProvider->getOrCreateNullTexture();
+            }
+            SkASSERT(vkTex);
+
+            const VulkanImageView* view = vkTex->getImageView(VulkanImageView::Usage::kShaderInput);
+            SkASSERT(view);
+            imageInfo.imageView = view ? view->imageView() : VK_NULL_HANDLE;
+            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+            VkWriteDescriptorSet writeInfo = {};
+            writeInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            writeInfo.dstSet = descSet;
+            writeInfo.dstBinding = descriptorBindingIndex;
+            writeInfo.dstArrayElement = 0;
+            writeInfo.descriptorCount = requestedDescriptors[i].fCount;
+            writeInfo.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+            writeInfo.pImageInfo = &imageInfo;
+
+            VULKAN_CALL(sharedContext->interface(),
+                        UpdateDescriptorSets(sharedContext->device(),
+                                             /*descriptorWriteCount=*/1,
+                                             &writeInfo,
+                                             /*descriptorCopyCount=*/0,
+                                             /*pDescriptorCopies=*/nullptr));
+            continue;
+        }
+
         SkASSERT(SkTo<unsigned long>(descriptorBindingIndex) < bindUniformBufferInfo.size());
         const auto& bindInfo = bindUniformBufferInfo[descriptorBindingIndex];
         if (bindInfo.fBuffer) {
@@ -1422,29 +1498,13 @@ void VulkanCommandBuffer::bindUniformBuffers() {
     const bool hasCombinedUbo =
             fActiveGraphicsPipeline->hasCombinedUniforms() &&
             fUniformBuffersToBind[Pipeline::kCombinedUniformIndex].fBuffer;
-    const bool hasStorageBuffer =
-            fActiveGraphicsPipeline->usesStorageBuffer() &&
-            fUniformBuffersToBind[Pipeline::kStorageBufferIndex].fBuffer;
+    const bool hasStorageSlot = fActiveGraphicsPipeline->usesStorageBuffer();
 
-    // We should never have a storage buffer without having a combined uniform buffer as well.
-    SkASSERT(!hasStorageBuffer || hasCombinedUbo);
-
-    // If no uniforms are used, we can go ahead and return since no descriptors need to be bound.
-    if (!hasCombinedUbo) {
+    // If no uniforms or storage are used, we can go ahead and return since no descriptors need to
+    // be bound.
+    if (!hasCombinedUbo && !hasStorageSlot) {
         return;
     }
-
-    const auto& combinedUboInfo = fUniformBuffersToBind[Pipeline::kCombinedUniformIndex];
-    auto vulkanBuffer = static_cast<const VulkanBuffer*>(combinedUboInfo.fBuffer);
-
-    DescriptorType uniformBufferType =
-            fSharedContext->caps()->storageBufferSupport() ? DescriptorType::kStorageBufferDynamic
-                                                           : DescriptorType::kUniformBufferDynamic;
-
-    // If we determine that we should use storage buffers, we expect that the actual VkBuffer
-    // supports that usage.
-    SkASSERT(uniformBufferType != DescriptorType::kStorageBufferDynamic ||
-             vulkanBuffer->bufferUsageFlags() | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
     // We expect to have up to 2 descriptors within this set. Fill out DescriptorData (for
     // interfacing with backend-agnostic graphite calls) and dynamic offset information for each
@@ -1452,28 +1512,52 @@ void VulkanCommandBuffer::bindUniformBuffers() {
     skia_private::STArray<2, DescriptorData> uniformDescriptorData;
     skia_private::STArray<2, uint32_t> dynamicOffsets;
 
-    uniformDescriptorData.push_back({
-            uniformBufferType,
-            /*count=*/1,
-            Pipeline::kCombinedUniformIndex,
-            PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader });
-    dynamicOffsets.push_back(combinedUboInfo.fOffset);
+    const VulkanBuffer* vulkanBuffer = nullptr;
+    uint32_t combinedUboSize = 0;
+    if (hasCombinedUbo) {
+        const auto& combinedUboInfo = fUniformBuffersToBind[Pipeline::kCombinedUniformIndex];
+        vulkanBuffer = static_cast<const VulkanBuffer*>(combinedUboInfo.fBuffer);
+        combinedUboSize = combinedUboInfo.fSize;
 
-    if (fActiveGraphicsPipeline->usesStorageBuffer()) {
-        SkASSERT(fSharedContext->caps()->storageBufferSupport());
-        uniformDescriptorData.push_back({DescriptorType::kStorageBufferDynamic,
-                                         /*count=*/1,
-                                         Pipeline::kStorageBufferIndex,
-                                         fActiveGraphicsPipeline->storageBufferStages()});
-        dynamicOffsets.push_back(fUniformBuffersToBind[Pipeline::kStorageBufferIndex].fOffset);
+        DescriptorType uniformBufferType =
+                fSharedContext->caps()->storageBufferSupport()
+                        ? DescriptorType::kStorageBufferDynamic
+                        : DescriptorType::kUniformBufferDynamic;
+
+        // If we determine that we should use storage buffers, we expect that the actual VkBuffer
+        // supports that usage.
+        SkASSERT(uniformBufferType != DescriptorType::kStorageBufferDynamic ||
+                 vulkanBuffer->bufferUsageFlags() | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+
+        uniformDescriptorData.push_back({
+                uniformBufferType,
+                /*count=*/1,
+                Pipeline::kCombinedUniformIndex,
+                PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader });
+        dynamicOffsets.push_back(combinedUboInfo.fOffset);
+    }
+
+    if (hasStorageSlot) {
+        if (fSharedContext->caps()->storageBufferSupport()) {
+            uniformDescriptorData.push_back({DescriptorType::kStorageBufferDynamic,
+                                             /*count=*/1,
+                                             Pipeline::kStorageBufferIndex,
+                                             fActiveGraphicsPipeline->storageBufferStages()});
+            dynamicOffsets.push_back(fUniformBuffersToBind[Pipeline::kStorageBufferIndex].fOffset);
+        } else {
+            uniformDescriptorData.push_back({DescriptorType::kTexture,
+                                             /*count=*/1,
+                                             Pipeline::kStorageBufferIndex,
+                                             fActiveGraphicsPipeline->storageBufferStages()});
+        }
     }
 
     // Now obtain an actual descriptor set. In the case of using only one buffer, we can query
     // the VulkanBuffer for an existing cached set with the appropriate sizing and can avoid
     // performing an update call on the set. Otherwise, obtain a new set and update before binding.
     sk_sp<VulkanDescriptorSet> descSet;
-    if (hasStorageBuffer ||
-        !(descSet = vulkanBuffer->getCachedSingleBufferDescriptorSet(combinedUboInfo.fSize))) {
+    if (hasStorageSlot || !vulkanBuffer ||
+        !(descSet = vulkanBuffer->getCachedSingleBufferDescriptorSet(combinedUboSize))) {
 
         descSet = fResourceProvider->findOrCreateDescriptorSet(uniformDescriptorData);
         if (!descSet) {
@@ -1484,13 +1568,15 @@ void VulkanCommandBuffer::bindUniformBuffers() {
         // Update the set before binding.
         update_uniform_descriptor_set(uniformDescriptorData,
                                       fUniformBuffersToBind,
+                                      fBoundStorageFallbackTexture,
                                       *descSet->descriptorSet(),
+                                      fResourceProvider,
                                       fSharedContext);
 
         // If we ended up creating a new single-buffer descriptor set, cache it on the VulkanBuffer.
-        if (!hasStorageBuffer) {
+        if (!hasStorageSlot && vulkanBuffer) {
             const_cast<VulkanBuffer*>(vulkanBuffer)->
-                    addCachedSingleBufferDescriptorSet(combinedUboInfo.fSize, descSet);
+                    addCachedSingleBufferDescriptorSet(combinedUboSize, descSet);
         }
     }
 
@@ -1501,7 +1587,7 @@ void VulkanCommandBuffer::bindUniformBuffers() {
                                       Pipeline::kUniformBufferDescSetIndex,
                                       /*setCount=*/1,
                                       descSet->descriptorSet(),
-                                      uniformDescriptorData.size(),
+                                      dynamicOffsets.size(),
                                       dynamicOffsets.data()));
 
     this->trackResource(std::move(descSet));

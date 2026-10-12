@@ -15,6 +15,7 @@
 #include "include/private/SkAlign.h"
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
+#include "src/gpu/graphite/StorageContext.h"
 #include "src/gpu/graphite/dawn/DawnBuffer.h"
 #include "src/gpu/graphite/dawn/DawnCommandBuffer.h"
 #include "src/gpu/graphite/dawn/DawnComputePipeline.h"
@@ -631,7 +632,7 @@ const wgpu::TextureView& DawnResourceProvider::getOrCreateNullTextureView() {
         desc.usage = wgpu::TextureUsage::TextureBinding;
         desc.dimension = wgpu::TextureDimension::e2D;
         desc.size = {1, 1, 1};
-        desc.format = wgpu::TextureFormat::RGBA32Float;
+        desc.format = TextureFormatToDawnFormat(StorageContext::kTextureFormat);
         desc.mipLevelCount = 1;
         desc.sampleCount = 1;
 
@@ -686,7 +687,11 @@ wgpu::BindGroup DawnResourceProvider::findOrCreateSingleUniformBindGroup(
 
     wgpu::BindGroupEntry storageBufferNullEntry;
     storageBufferNullEntry.binding = DawnGraphicsPipeline::kStorageBufferIndex;
-    storageBufferNullEntry.buffer  = this->getOrCreateNullBuffer();
+    if (this->dawnSharedContext()->caps()->storageBufferSupport()) {
+        storageBufferNullEntry.buffer = this->getOrCreateNullBuffer();
+    } else {
+        storageBufferNullEntry.textureView = this->getOrCreateNullTextureView();
+    }
 
     std::array<wgpu::BindGroupEntry, kNumUniformEntries> entries = {
         intrinsicConstantNullEntry,

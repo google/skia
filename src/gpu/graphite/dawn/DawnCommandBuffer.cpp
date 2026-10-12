@@ -205,6 +205,7 @@ void DawnCommandBuffer::onResetCommandBuffer() {
     for (auto& bufferSlot : fBoundUniforms) {
         bufferSlot = {};
     }
+    fBoundStorageFallbackTexture = nullptr;
     fBoundUniformBuffersDirty = true;
     if (fTimestampQueryBuffer && fTimestampQueryBuffer->isUnmappable()) {
         fTimestampQueryBuffer->unmap();
@@ -623,6 +624,7 @@ bool DawnCommandBuffer::endRenderPass() {
     SkASSERT(fActiveRenderPassEncoder);
     fActiveRenderPassEncoder.End();
     fActiveRenderPassEncoder = nullptr;
+    fBoundStorageFallbackTexture = nullptr;
 
     // Return early if no resolve step's emulation is needed.
     if (!fResolveStepEmulationInfo.has_value()) {
@@ -666,14 +668,18 @@ bool DawnCommandBuffer::endRenderPass() {
 }
 
 bool DawnCommandBuffer::addDrawPass(DrawPass* drawPass) {
-    // If there is storage buffer data to bind, it must be done prior to draws.
-    if (drawPass->storageBufferInfo().fBuffer != nullptr) {
-        this->bindUniformBuffer(drawPass->storageBufferInfo(),
-                                UniformSlot::kStorage);
-    }
-
     if (!drawPass->addResourceRefs(fResourceProvider, this)) SK_UNLIKELY {
         return false;
+    }
+
+    // If there is storage data to bind, it must be done prior to draws; otherwise clear the slot so
+    // state from a prior DrawPass in the same RenderPass does not leak.
+    if (fSharedContext->caps()->storageBufferSupport()) {
+        this->bindUniformBuffer(drawPass->storageBufferInfo(), UniformSlot::kStorage);
+    } else {
+        const TextureProxy* proxy = drawPass->storageFallbackTexture();
+        fBoundStorageFallbackTexture = proxy ? proxy->texture() : nullptr;
+        fBoundUniformBuffersDirty = true;
     }
 
     for (auto [type, cmdPtr] : drawPass->commands()) {
@@ -972,8 +978,10 @@ void DawnCommandBuffer::syncUniformBuffers() {
     // size of our bound uniform array.
     SkASSERT(kMaxUniformsInGroup == fBoundUniforms.size());
 
-    wgpu::BindGroup bindGroup;
+    const bool useStorageBuffers = fSharedContext->caps()->storageBufferSupport();
+    uint32_t numDynamicOffsets = useStorageBuffers ? 3 : 2;
     std::array<uint32_t, kMaxUniformsInGroup> dynamicOffsets {0};
+    wgpu::BindGroup bindGroup;
     // Check if we can use an optimized route for single-uniform buffer bind groups:
     if (usePushConstants &&
         !fActiveGraphicsPipeline->usesStorageBuffer() &&
@@ -997,14 +1005,27 @@ void DawnCommandBuffer::syncUniformBuffers() {
         std::array<wgpu::BindGroupEntry, kMaxUniformsInGroup> bindGroupEntries {};
         for (int i = 0; i < kMaxUniformsInGroup; ++i) {
             bindGroupEntries[i].binding = SK_UNSAFE_TODO(kBindingIndices[i]);
-            if (enabled[i] && fBoundUniforms[i]) {
-                bindGroupEntries[i].size = fBoundUniforms[i].fSize;
-                bindGroupEntries[i].buffer =
-                        static_cast<const DawnBuffer*>(fBoundUniforms[i].fBuffer)->dawnBuffer();
-                dynamicOffsets[i] = fBoundUniforms[i].fOffset;
+            if (i == 2 && !useStorageBuffers) {
+                if (fBoundStorageFallbackTexture) {
+                    bindGroupEntries[i].textureView =
+                            static_cast<const DawnTexture*>(fBoundStorageFallbackTexture)
+                                    ->sampleTextureView();
+                } else {
+                    SkASSERT(!fActiveGraphicsPipeline->usesStorageBuffer());
+                    bindGroupEntries[i].textureView =
+                            fResourceProvider->getOrCreateNullTextureView();
+                }
             } else {
-                // Unused or null binding
-                bindGroupEntries[i].buffer = fResourceProvider->getOrCreateNullBuffer();
+                if (enabled[i] && fBoundUniforms[i]) {
+                    bindGroupEntries[i].size = fBoundUniforms[i].fSize;
+                    bindGroupEntries[i].buffer =
+                            static_cast<const DawnBuffer*>(fBoundUniforms[i].fBuffer)->dawnBuffer();
+                    dynamicOffsets[i] = fBoundUniforms[i].fOffset;
+                } else {
+                    // Unused or null binding
+                    bindGroupEntries[i].buffer = fResourceProvider->getOrCreateNullBuffer();
+                    dynamicOffsets[i] = 0;
+                }
             }
         }
 
@@ -1016,7 +1037,7 @@ void DawnCommandBuffer::syncUniformBuffers() {
 
     fActiveRenderPassEncoder.SetBindGroup(DawnGraphicsPipeline::kUniformBufferBindGroupIndex,
                                           bindGroup,
-                                          dynamicOffsets.size(),
+                                          numDynamicOffsets,
                                           dynamicOffsets.data());
 }
 
