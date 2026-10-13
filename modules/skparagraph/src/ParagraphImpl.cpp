@@ -569,6 +569,17 @@ void ParagraphImpl::buildClusterTable() {
     }
     fClustersIndexFromCodeUnit[fText.size()] = fClusters.size();
     fClusters.emplace_back(this, EMPTY_RUN, 0, 0, this->text({fText.size(), fText.size()}), 0, 0);
+
+    // Invariant: guarantee no code unit remains EMPTY_INDEX in fClustersIndexFromCodeUnit.
+    // Any unmapped code units (0-glyph runs or dropped controls) attach to the last valid cluster
+    ClusterIndex lastValidCluster = 0;
+    for (size_t i = 0; i <= fText.size(); ++i) {
+        if (fClustersIndexFromCodeUnit[i] != EMPTY_INDEX) {
+            lastValidCluster = fClustersIndexFromCodeUnit[i];
+        } else {
+            fClustersIndexFromCodeUnit[i] = lastValidCluster;
+        }
+    }
 }
 
 bool ParagraphImpl::shapeTextIntoEndlessLine() {
