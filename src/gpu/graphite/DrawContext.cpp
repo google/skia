@@ -251,12 +251,15 @@ void DrawContext::flush(Recorder* recorder) {
     // relinquishing the pending draw list to the DrawPass constructor.
     SkIRect dstReadPixelBounds = fPendingDraws->dstReadBounds().makeRoundOut().asSkIRect();
     const bool drawsRequireMSAA = fPendingDraws->drawsRequireMSAA();
+    SkEnumBitMask<DepthStencilFlags> dsFlags = fPendingDraws->depthStencilFlags();
     // TODO(michaelludwig): Track whether or not draws within fPendingDraw require the depth for
     // occlusion or clipping (per-draw depth is already accumulated into `dsFlags`). For now,
     // always add kDepth. RenderPassDesc::Make() ignores kDepth when Caps::avoidDepthMode() is true.
-    // Instead we should ensure that kDepth was never included at all.
-    const SkEnumBitMask<DepthStencilFlags> dsFlags = fPendingDraws->depthStencilFlags() |
-                                                     DepthStencilFlags::kDepth;
+    // Instead we should ensure that kDepth was never included at all. Only add depth when there
+    // are draws; otherwise we'd create a depth attachment for must a clear.
+    if (fPendingDraws->renderStepCount() > 0) {
+        dsFlags |= DepthStencilFlags::kDepth;
+    }
     // Determine the optimal dst read strategy for the drawpass given pending draw characteristics
     const DstReadStrategy drawPassDstReadStrategy = fPendingDraws->drawsReadDst()
                                                             ? this->dstReadStrategy()
