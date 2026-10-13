@@ -95,7 +95,10 @@ DebugUtilsMessenger(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     SkASSERT(callbackData->pMessage != nullptr);
 
     static constexpr const char* kSkippedMessages[] = {
-            "Nothing for now, this string works around msvc bug with empty array",
+            // The Android Vulkan loader populates VkDeviceCreateInfo::enabledLayerCount with
+            // enabled instance layers.
+            // https://cs.android.com/android/platform/superproject/+/android-latest-release:frameworks/native/vulkan/libvulkan/api.cpp;l=1175
+            "VUID-VkDeviceCreateInfo-enabledLayerCount-12384",
     };
 
     // See if it's an issue we are aware of and don't want to be spammed about.
@@ -455,18 +458,16 @@ void setup_feature_query(TestVkFeatures& testFeatures, bool isProtected) {
     }
 }
 
-bool init_device_extensions_and_layers(const skgpu::VulkanGetProc& getProc,
-                                       uint32_t majorSpecVersion,
-                                       VkInstance inst,
-                                       VkPhysicalDevice physDev,
-                                       TArray<VkExtensionProperties>& availableDevExts,
-                                       TArray<const char*>& availDevExtNames,
-                                       TArray<VkExtensionProperties>& devExtsToEnable,
-                                       std::vector<const char*>& enabledDevExtNames,
-                                       TArray<VkLayerProperties>& devLayersToEnable,
-                                       TArray<const char*>& enabledDevLayerNames,
-                                       TestVkFeatures& testFeatures,
-                                       bool isProtected) {
+bool init_device_extensions(const skgpu::VulkanGetProc& getProc,
+                            VkInstance inst,
+                            VkPhysicalDevice physDev,
+                            [[maybe_unused]] const TArray<VkLayerProperties>& instLayersToEnable,
+                            TArray<VkExtensionProperties>& availableDevExts,
+                            TArray<const char*>& availDevExtNames,
+                            TArray<VkExtensionProperties>& devExtsToEnable,
+                            std::vector<const char*>& enabledDevExtNames,
+                            TestVkFeatures& testFeatures,
+                            bool isProtected) {
     // First populate the list of all available extensions
     GET_PROC_LOCAL(EnumerateDeviceExtensionProperties, inst, VK_NULL_HANDLE);
     uint32_t availExtCount = 0;
@@ -481,17 +482,8 @@ bool init_device_extensions_and_layers(const skgpu::VulkanGetProc& getProc,
     }
 
 #if defined SK_ENABLE_VK_LAYERS
-    GET_PROC_LOCAL(EnumerateDeviceLayerProperties, inst, VK_NULL_HANDLE);
-    uint32_t availLayerCount = 0;
-
-    auto getLayers = [&](VkLayerProperties* layersList) {
-        return EnumerateDeviceLayerProperties(physDev, &availLayerCount, layersList);
-    };
-    append_desired_available_layers(
-            getLayers, &availLayerCount, majorSpecVersion, devLayersToEnable, enabledDevLayerNames);
-
     if (!add_enabled_layer_extensions_to_available_list(
-            &availExtCount, availableDevExts, devLayersToEnable, getExtensions)) {
+            &availExtCount, availableDevExts, instLayersToEnable, getExtensions)) {
         return false;
     }
 #endif
@@ -721,27 +713,24 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
     uint32_t physDeviceVersion = std::min(physDeviceProperties.apiVersion, kApiVersion);
 
     // Now, for the device rather than the instance, repeat the process of gathering all available
-    // extensions + their names, determining layers we want to enable for testing + their associated
-    // available extensions, and determining which extensions we actually want to enable (+ their
-    // names).
+    // extensions + their names (including any provided by enabled instance layers) and determining
+    // which extensions we actually want to enable (+ their names). Note that device layers are
+    // deprecated past Vulkan 1.0 and must not be enabled on VkDeviceCreateInfo since we assume
+    // a minimum of 1.1 support.
     TArray<VkExtensionProperties> availableDevExts;
     TArray<const char*> availDevExtNames;
     TArray<VkExtensionProperties> devExtsToEnable;
     std::vector<const char*> enabledDevExtNames;
-    TArray<VkLayerProperties> devLayersToEnable;
-    TArray<const char*> enabledDevLayerNames;
-    if (!init_device_extensions_and_layers(getProc,
-                                           remove_patch_version(physDeviceVersion),
-                                           inst,
-                                           physDev,
-                                           availableDevExts,
-                                           availDevExtNames,
-                                           devExtsToEnable,
-                                           enabledDevExtNames,
-                                           devLayersToEnable,
-                                           enabledDevLayerNames,
-                                           *testVkFeatures,
-                                           isProtected)) {
+    if (!init_device_extensions(getProc,
+                                inst,
+                                physDev,
+                                instLayersToEnable,
+                                availableDevExts,
+                                availDevExtNames,
+                                devExtsToEnable,
+                                enabledDevExtNames,
+                                *testVkFeatures,
+                                isProtected)) {
         destroy_instance(getInstProc, inst, debugMessenger, hasDebugExtension);
         return false;
     }
@@ -852,11 +841,11 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
                                             /*flags=*/0,
                                             queueInfoCount,
                                             queueInfo,
-                                            (uint32_t) enabledDevLayerNames.size(),
-                                            enabledDevLayerNames.data(),
+                                            /*enabledLayerCount=*/0,
+                                            /*ppEnabledLayerNames=*/nullptr,
                                             (uint32_t) enabledDevExtNames.size(),
                                             enabledDevExtNames.data(),
-                                            /*ppEnabledFeatures*/nullptr };
+                                            /*ppEnabledFeatures=*/nullptr };
     {
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
         // skbug.com/40040003
