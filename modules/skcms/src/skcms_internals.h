@@ -138,11 +138,15 @@ typedef struct skcms_ICCTag {
 typedef struct skcms_ICCProfile skcms_ICCProfile;
 typedef struct skcms_TransferFunction skcms_TransferFunction;
 typedef union skcms_Curve skcms_Curve;
+typedef struct skcms_Matrix3x3 skcms_Matrix3x3;
 
 void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
 bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
 
 float skcms_MaxRoundtripError(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf);
+
+// True if no entry of the matrix is NaN or +/-inf.
+bool skcms_Matrix3x3_isfinite(const skcms_Matrix3x3*);
 
 // 252 of a random shuffle of all possible bytes.
 // 252 is evenly divisible by 3 and 4.  Only 192, 10, 241, and 43 are missing.

@@ -1848,6 +1848,21 @@ static bool is_zero_to_one(float x) {
     return 0 <= x && x <= 1;
 }
 
+// y is used as a divisor (Y is assumed to be 1), so it must be non-zero as well as in [0, 1].
+static bool is_valid_white_point(float wx, float wy) {
+    return is_zero_to_one(wx) && is_zero_to_one(wy) && wy != 0;
+}
+
+bool skcms_Matrix3x3_isfinite(const skcms_Matrix3x3* m) {
+    for (int r = 0; r < 3; ++r)
+    for (int c = 0; c < 3; ++c) {
+        if (!isfinitef_(m->vals[r][c])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 typedef struct { float vals[3]; } skcms_Vector3;
 
 static skcms_Vector3 mv_mul(const skcms_Matrix3x3* m, const skcms_Vector3* v) {
@@ -1862,8 +1877,7 @@ static skcms_Vector3 mv_mul(const skcms_Matrix3x3* m, const skcms_Vector3* v) {
 
 bool skcms_AdaptToXYZD50(float wx, float wy,
                          skcms_Matrix3x3* toXYZD50) {
-    if (!is_zero_to_one(wx) || !is_zero_to_one(wy) ||
-        !toXYZD50) {
+    if (!is_valid_white_point(wx, wy) || !toXYZD50) {
         return false;
     }
 
@@ -1890,14 +1904,24 @@ bool skcms_AdaptToXYZD50(float wx, float wy,
     skcms_Vector3 srcCone = mv_mul(&xyz_to_lms, &wXYZ);
     skcms_Vector3 dstCone = mv_mul(&xyz_to_lms, &wXYZD50);
 
-    *toXYZD50 = {{
+    // In-range white points far outside the spectral locus (e.g. 0.00332, 0.36908) can have a
+    // zero cone response, which we are about to divide by.
+    if (srcCone.vals[0] == 0 || srcCone.vals[1] == 0 || srcCone.vals[2] == 0) {
+        return false;
+    }
+
+    skcms_Matrix3x3 m = {{
         { dstCone.vals[0] / srcCone.vals[0], 0, 0 },
         { 0, dstCone.vals[1] / srcCone.vals[1], 0 },
         { 0, 0, dstCone.vals[2] / srcCone.vals[2] },
     }};
-    *toXYZD50 = skcms_Matrix3x3_concat(toXYZD50, &xyz_to_lms);
-    *toXYZD50 = skcms_Matrix3x3_concat(&lms_to_xyz, toXYZD50);
+    m = skcms_Matrix3x3_concat(&m, &xyz_to_lms);
+    m = skcms_Matrix3x3_concat(&lms_to_xyz, &m);
+    if (!skcms_Matrix3x3_isfinite(&m)) {
+        return false;
+    }
 
+    *toXYZD50 = m;
     return true;
 }
 
@@ -1909,7 +1933,7 @@ bool skcms_PrimariesToXYZD50(float rx, float ry,
     if (!is_zero_to_one(rx) || !is_zero_to_one(ry) ||
         !is_zero_to_one(gx) || !is_zero_to_one(gy) ||
         !is_zero_to_one(bx) || !is_zero_to_one(by) ||
-        !is_zero_to_one(wx) || !is_zero_to_one(wy) ||
+        !is_valid_white_point(wx, wy) ||
         !toXYZD50) {
         return false;
     }
@@ -1941,7 +1965,12 @@ bool skcms_PrimariesToXYZD50(float rx, float ry,
         return false;
     }
 
-    *toXYZD50 = skcms_Matrix3x3_concat(&DXtoD50, &toXYZ);
+    skcms_Matrix3x3 m = skcms_Matrix3x3_concat(&DXtoD50, &toXYZ);
+    if (!skcms_Matrix3x3_isfinite(&m)) {
+        return false;
+    }
+
+    *toXYZD50 = m;
     return true;
 }
 
@@ -1994,13 +2023,7 @@ bool skcms_Matrix3x3_invert(const skcms_Matrix3x3* src, skcms_Matrix3x3* dst) {
     dst->vals[1][2] = (float)( a01*b3 - a00*b4 );
     dst->vals[2][2] = (float)(        +     b0 );
 
-    for (int r = 0; r < 3; ++r)
-    for (int c = 0; c < 3; ++c) {
-        if (!isfinitef_(dst->vals[r][c])) {
-            return false;
-        }
-    }
-    return true;
+    return skcms_Matrix3x3_isfinite(dst);
 }
 
 skcms_Matrix3x3 skcms_Matrix3x3_concat(const skcms_Matrix3x3* A, const skcms_Matrix3x3* B) {
