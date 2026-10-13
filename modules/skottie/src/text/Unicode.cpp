@@ -129,6 +129,7 @@ public:
     bool isSpace(SkUnichar utf8) override { return fUnicode->isSpace(utf8); }
     bool isTabulation(SkUnichar utf8) override { return fUnicode->isTabulation(utf8); }
     bool isHardBreak(SkUnichar utf8) override { return fUnicode->isHardBreak(utf8); }
+    bool isDefaultIgnorable(SkUnichar utf8) override { return fUnicode->isDefaultIgnorable(utf8); }
     bool isEmoji(SkUnichar utf8) override { return fUnicode->isEmoji(utf8); }
     bool isEmojiComponent(SkUnichar utf8) override { return fUnicode->isEmojiComponent(utf8); }
     bool isEmojiModifierBase(SkUnichar utf8) override {

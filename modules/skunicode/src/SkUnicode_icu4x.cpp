@@ -69,6 +69,9 @@ public:
                (value == /*LineFeed*/17) ||
                (value == /*NextLine*/29);
     }
+    bool isDefaultIgnorable(SkUnichar utf8) override {
+        return SkUnicodeHardCodedCharProperties::IsDefaultIgnorable(utf8);
+    }
     bool isEmoji(SkUnichar utf8) override { return fEmoji.contains(utf8); }
     bool isEmojiComponent(SkUnichar utf8) override { return fEmojiComponent.contains(utf8); }
     bool isEmojiModifierBase(SkUnichar utf8) override { return fEmojiModifierBase.contains(utf8); }

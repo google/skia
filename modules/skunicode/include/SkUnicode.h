@@ -135,6 +135,7 @@ class SKUNICODE_API SkUnicode : public SkRefCnt {
         virtual bool isSpace(SkUnichar utf8) = 0;
         virtual bool isTabulation(SkUnichar utf8) = 0;
         virtual bool isHardBreak(SkUnichar utf8) = 0;
+        virtual bool isDefaultIgnorable(SkUnichar utf8) = 0;
         /**
          * Returns if a code point may start an emoji sequence.
          * Returns true for '#', '*', and '0'-'9' since they may start an emoji sequence.

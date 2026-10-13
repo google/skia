@@ -47,6 +47,7 @@ SkScalar littleRound(SkScalar a) {
         return SkScalarFloorToScalar(a);
     }
 }
+
 }  // namespace
 
 TextRange operator*(const TextRange& a, const TextRange& b) {
@@ -553,13 +554,108 @@ void ParagraphImpl::buildClusterTable() {
                                                                    SkScalar width,
                                                                    SkScalar height) {
                 SkASSERT(charEnd >= charStart);
-                // Add info to cluster indexes table (text -> cluster)
-                for (auto i = charStart; i < charEnd; ++i) {
-                  fClustersIndexFromCodeUnit[i] = fClusters.size();
+                if (charStart >= charEnd) {
+                    // Empty cluster text ranges produce no code units or glyphs and are ignored
+                    return;
                 }
-                SkSpan<const char> text(fText.c_str() + charStart, charEnd - charStart);
-                fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text, width, height);
-                fCodeUnitProperties[charStart] |= SkUnicode::CodeUnitFlags::kGlyphClusterStart;
+
+                bool hasZeroWidth = false;
+                bool hasVisible = false;
+                const char* p = fText.c_str() + charStart;
+                const char* end = fText.c_str() + charEnd;
+                while (p < end) {
+                    SkUnichar u = SkUTF::NextUTF8(&p, end);
+                    if (u < 0) {
+                        break;
+                    }
+                    if (fUnicode->isDefaultIgnorable(u)) {
+                        hasZeroWidth = true;
+                    } else {
+                        hasVisible = true;
+                    }
+                }
+
+                if (!hasZeroWidth || !hasVisible) {
+                    for (auto i = charStart; i < charEnd; ++i) {
+                        fClustersIndexFromCodeUnit[i] = fClusters.size();
+                    }
+                    SkSpan<const char> text(fText.c_str() + charStart, charEnd - charStart);
+                    fClusters.emplace_back(
+                            this, runIndex, glyphStart, glyphEnd, text, width, height);
+                    fCodeUnitProperties[charStart] |= SkUnicode::CodeUnitFlags::kGlyphClusterStart;
+                    return;
+                }
+
+                // Split compound clusters into visible glyphs and zero-width sub-clusters so
+                // non-printing codepoints do not expand hit-test bounds or shift caret positioning
+                struct SubCluster {
+                    TextRange range;
+                    bool isZeroWidth;
+                };
+                skia_private::STArray<8, SubCluster> subClusters;
+                size_t segStart = charStart;
+                while (segStart < charEnd) {
+                    size_t segEnd = segStart + 1;
+                    while (segEnd < charEnd &&
+                           (fCodeUnitProperties[segEnd] &
+                            SkUnicode::CodeUnitFlags::kGraphemeStart) == 0) {
+                        ++segEnd;
+                    }
+
+                    bool segZeroWidth = true;
+                    const char* segPtr = fText.c_str() + segStart;
+                    const char* segEndPtr = fText.c_str() + segEnd;
+                    while (segPtr < segEndPtr) {
+                        SkUnichar u = SkUTF::NextUTF8(&segPtr, segEndPtr);
+                        if (u < 0 || !fUnicode->isDefaultIgnorable(u)) {
+                            segZeroWidth = false;
+                            break;
+                        }
+                    }
+
+                    if (!subClusters.empty() && subClusters.back().isZeroWidth == segZeroWidth) {
+                        subClusters.back().range.end = segEnd;
+                    } else {
+                        subClusters.push_back({ TextRange(segStart, segEnd), segZeroWidth });
+                    }
+                    segStart = segEnd;
+                }
+
+                size_t visibleCount = 0;
+                for (const auto& sub : subClusters) {
+                    if (!sub.isZeroWidth) {
+                        ++visibleCount;
+                    }
+                }
+
+                const bool ltr = this->run(runIndex).leftToRight();
+                bool visibleEmitted = false;
+                for (const auto& sub : subClusters) {
+                    size_t gStart = glyphStart;
+                    size_t gEnd = glyphEnd;
+                    SkScalar subWidth = 0;
+                    if (sub.isZeroWidth) {
+                        if (ltr) {
+                            gStart = visibleEmitted ? glyphEnd : glyphStart;
+                        } else {
+                            gStart = visibleEmitted ? glyphStart : glyphEnd;
+                        }
+                        gEnd = gStart;
+                        subWidth = 0;
+                    } else {
+                        visibleEmitted = true;
+                        subWidth = visibleCount > 1 ? width / visibleCount : width;
+                    }
+
+                    for (auto i = sub.range.start; i < sub.range.end; ++i) {
+                        fClustersIndexFromCodeUnit[i] = fClusters.size();
+                    }
+                    SkSpan<const char> subText(fText.c_str() + sub.range.start, sub.range.width());
+                    fClusters.emplace_back(
+                            this, runIndex, gStart, gEnd, subText, subWidth, height);
+                    fCodeUnitProperties[sub.range.start] |=
+                            SkUnicode::CodeUnitFlags::kGlyphClusterStart;
+                }
             });
         }
         fCodeUnitProperties[run.textRange().start] |= SkUnicode::CodeUnitFlags::kGlyphClusterStart;

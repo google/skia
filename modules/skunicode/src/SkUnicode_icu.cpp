@@ -435,6 +435,10 @@ class SkUnicode_icu : public SkUnicode {
         return SkUnicode_icu::isHardLineBreak(utf8);
     }
 
+    bool isDefaultIgnorable(SkUnichar unichar) override {
+        return sk_u_hasBinaryProperty(unichar, UCHAR_DEFAULT_IGNORABLE_CODE_POINT);
+    }
+
     bool isEmoji(SkUnichar unichar) override {
         return sk_u_hasBinaryProperty(unichar, UCHAR_EMOJI);
     }

@@ -501,6 +501,47 @@ DEF_TEST(SkUnicode_Apple_BreakIterator_Utf16_Hostile, reporter) {
     REPORTER_ASSERT(reporter, !unicode->isHardBreak(0x0085));
     REPORTER_ASSERT(reporter, !unicode->isHardBreak(' '));
     REPORTER_ASSERT(reporter, !unicode->isHardBreak('A'));
+
+    // Unicode Default_Ignorable_Code_Point property
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x00AD));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x034F));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x061C));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x115F));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x1160));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x17B4));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x17B5));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x180B));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x180E));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x180F));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x200B));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x200C));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x200D));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x200E));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x200F));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x202A));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x202E));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x2060));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x2066));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x2069));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x206F));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x3164));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0xFE00));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0xFE0F));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0xFEFF));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0xFFA0));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0xFFF0));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0xFFF8));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x1BCA0));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0x1D173));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0xE0000));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0xE0001));
+    REPORTER_ASSERT(reporter, unicode->isDefaultIgnorable(0xE0FFF));
+    REPORTER_ASSERT(reporter, !unicode->isDefaultIgnorable('A'));
+    REPORTER_ASSERT(reporter, !unicode->isDefaultIgnorable(' '));
+    REPORTER_ASSERT(reporter, !unicode->isDefaultIgnorable('\n'));
+    REPORTER_ASSERT(reporter, !unicode->isDefaultIgnorable(0x00A0));
+    REPORTER_ASSERT(reporter, !unicode->isDefaultIgnorable(0x200A));
+    REPORTER_ASSERT(reporter, !unicode->isDefaultIgnorable(0x2010));
 }
 
 #if defined(SK_UNICODE_ICU_IMPLEMENTATION)

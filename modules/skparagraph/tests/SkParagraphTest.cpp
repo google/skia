@@ -9863,3 +9863,103 @@ DEF_TEST(SkParagraph_BidiControlGaps, reporter) {
     checkGaps("\u202Dhello\u202C");
     checkGaps("\u2066hello\u2069");
 }
+
+// Verify compound clusters with zero-width codepoints split into separate clusters
+DEF_TEST(SkParagraph_ZeroWidthClusterSplit, reporter) {
+    sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
+    auto abcTypeface = mgr->makeFromStream(GetResourceAsStream("fonts/abc/abc.ttf"), {});
+    // Portable font manager returns null for stream-backed typefaces when native fonts are disabled
+    if (!abcTypeface) {
+        return;
+    }
+    auto fontCollection = sk_make_sp<FontCollection>();
+    auto fontProvider = sk_make_sp<TypefaceFontProvider>();
+    fontProvider->registerTypeface(abcTypeface, SkString("AbcFont"));
+    fontCollection->setAssetFontManager(fontProvider);
+    fontCollection->setDefaultFontManager(mgr);
+
+    ParagraphStyle paragraphStyle;
+    TextStyle style;
+    style.setFontFamilies({SkString("AbcFont")});
+    style.setFontSize(14.0f);
+    paragraphStyle.setTextStyle(style);
+
+    {
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        builder.pushStyle(style);
+        builder.addText("b\u200B");
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(100.0f);
+
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        auto clusterBIndex = impl->clusterIndex(0);
+        auto clusterZWSPIndex = impl->clusterIndex(1);
+        REPORTER_ASSERT(reporter, clusterBIndex != clusterZWSPIndex);
+
+        const auto& clusterB = impl->cluster(clusterBIndex);
+        const auto& clusterZWSP = impl->cluster(clusterZWSPIndex);
+        REPORTER_ASSERT(reporter, clusterB.textRange() == TextRange(0, 1));
+        REPORTER_ASSERT(reporter, clusterB.width() > 0);
+        REPORTER_ASSERT(reporter, clusterB.size() == 1);
+        REPORTER_ASSERT(reporter, clusterZWSP.textRange() == TextRange(1, 4));
+        REPORTER_ASSERT(reporter, clusterZWSP.width() == 0);
+        REPORTER_ASSERT(reporter, clusterZWSP.size() == 0);
+    }
+
+    {
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        builder.pushStyle(style);
+        builder.addText("a\u200Eb");
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(100.0f);
+
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        auto clusterAIndex = impl->clusterIndex(0);
+        auto clusterLRMIndex = impl->clusterIndex(1);
+        auto clusterBIndex = impl->clusterIndex(4);
+        REPORTER_ASSERT(reporter, clusterAIndex != clusterLRMIndex);
+        REPORTER_ASSERT(reporter, clusterLRMIndex != clusterBIndex);
+
+        const auto& clusterA = impl->cluster(clusterAIndex);
+        const auto& clusterLRM = impl->cluster(clusterLRMIndex);
+        const auto& clusterB = impl->cluster(clusterBIndex);
+        REPORTER_ASSERT(reporter, clusterA.textRange() == TextRange(0, 1));
+        REPORTER_ASSERT(reporter, clusterA.width() > 0);
+        REPORTER_ASSERT(reporter, clusterA.size() == 1);
+        REPORTER_ASSERT(reporter, clusterLRM.textRange() == TextRange(1, 4));
+        REPORTER_ASSERT(reporter, clusterLRM.width() == 0);
+        REPORTER_ASSERT(reporter, clusterLRM.size() == 0);
+        REPORTER_ASSERT(reporter, clusterB.textRange() == TextRange(4, 5));
+        REPORTER_ASSERT(reporter, clusterB.width() > 0);
+        REPORTER_ASSERT(reporter, clusterB.size() == 1);
+    }
+
+    {
+        ParagraphStyle rtlStyle;
+        rtlStyle.setTextDirection(TextDirection::kRtl);
+        TextStyle rtlStyleText;
+        rtlStyleText.setFontSize(14.0f);
+        rtlStyle.setTextStyle(rtlStyleText);
+
+        auto defaultCollection = sk_make_sp<FontCollection>();
+        defaultCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+
+        ParagraphBuilderImpl builder(rtlStyle, defaultCollection, get_unicode());
+        builder.pushStyle(rtlStyleText);
+        builder.addText("\u0633\u200F");
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(100.0f);
+
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        for (size_t i = 0; i <= impl->text().size(); ++i) {
+            REPORTER_ASSERT(reporter, impl->clusterIndex(i) != EMPTY_INDEX);
+        }
+    }
+}
+
