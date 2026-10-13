@@ -124,7 +124,7 @@ crate.annotation(
 )
 crate.spec(
     package = "font-types",
-    version = "=0.12.0",
+    version = "=0.12.6",
 )
 crate.spec(
     features = [
@@ -184,7 +184,7 @@ crate.spec(
 )
 crate.spec(
     package = "read-fonts",
-    version = "=0.40.1",
+    version = "=0.45.0",
 )
 crate.spec(
     package = "regex",
@@ -192,7 +192,7 @@ crate.spec(
 )
 crate.spec(
     package = "skrifa",
-    version = "=0.43.2",
+    version = "=0.48.0",
 )
 crate.spec(
     package = "thiserror",
