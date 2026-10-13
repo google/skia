@@ -5,19 +5,11 @@
       "owner": "skiabot@google.com"
     },
     {
-      "ref": "refs/heads/chrome/m144",
-      "owner": "borenet@google.com"
-    },
-    {
       "ref": "refs/heads/chrome/m150",
       "owner": "chrome-branch-day@chops-service-accounts.iam.gserviceaccount.com"
     },
     {
       "ref": "refs/heads/chrome/m152",
-      "owner": "chrome-branch-day@chops-service-accounts.iam.gserviceaccount.com"
-    },
-    {
-      "ref": "refs/heads/chrome/m153",
       "owner": "chrome-branch-day@chops-service-accounts.iam.gserviceaccount.com"
     },
     {
@@ -30,6 +22,10 @@
     },
     {
       "ref": "refs/heads/chrome/m156",
+      "owner": "chrome-branch-day@chops-service-accounts.iam.gserviceaccount.com"
+    },
+    {
+      "ref": "refs/heads/chrome/m157",
       "owner": "chrome-branch-day@chops-service-accounts.iam.gserviceaccount.com"
     }
   ]
