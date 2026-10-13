@@ -59370,8 +59370,8 @@
     "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-StandaloneWasm": {
       "caches": [
         {
-          "name": "work",
-          "path": "cache/work"
+          "name": "chrome",
+          "path": "cache/chrome"
         }
       ],
       "casSpec": "test",
@@ -59400,6 +59400,8 @@
       "command": [
         "./run_wasm_dm",
         "--local=false",
+        "--chrome_cache",
+        "cache/chrome",
         "--work_path",
         "tmp",
         "--project_id",

@@ -165,6 +165,14 @@ var (
 		},
 	}
 
+	// Cache for Chrome binaries.
+	CACHES_CHROME = []*specs.Cache{
+		{
+			Name: "chrome",
+			Path: "cache/chrome",
+		},
+	}
+
 	// CAS_SPEC_LOTTIE_CI is a CasSpec which includes the files needed for
 	// lottie-ci.  This is global so that it can be overridden by other
 	// repositories which import this file.
@@ -1989,11 +1997,12 @@ func (b *jobBuilder) dmStandaloneWasm() {
 			iidStr = strconv.Itoa(*iid)
 			b.recipeProp("internal_hardware_label", iidStr)
 		}
-		b.cache(CACHES_WORKDIR...)
+		b.cache(CACHES_CHROME...)
 		b.dmFlags(iidStr)
 		b.cmd(
 			b.taskDriver("run_wasm_dm", false),
 			"--local=false",
+			"--chrome_cache", CACHES_CHROME[0].Path,
 			"--work_path", "tmp",
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,

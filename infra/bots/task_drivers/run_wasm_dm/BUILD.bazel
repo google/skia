@@ -8,10 +8,19 @@ licenses(["notice"])
 
 go_library(
     name = "run_wasm_dm_lib",
-    srcs = ["run_wasm_dm.go"],
+    srcs = [
+        "chrome_driver.go",
+        "fetch_chrome.go",
+        "run_wasm_dm.go",
+    ],
     importpath = "go.skia.org/skia/infra/bots/task_drivers/run_wasm_dm",
     visibility = ["//visibility:private"],
     deps = [
+        "@com_github_chromedp_chromedp//:chromedp",
+        "@org_skia_go_infra//go/exec",
+        "@org_skia_go_infra//go/httputils",
+        "@org_skia_go_infra//go/skerr",
+        "@org_skia_go_infra//go/sklog",
         "@org_skia_go_infra//task_driver/go/lib/os_steps",
         "@org_skia_go_infra//task_driver/go/td",
     ],

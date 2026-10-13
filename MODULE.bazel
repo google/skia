@@ -52,6 +52,7 @@ go_deps.gazelle_override(
 )
 use_repo(
     go_deps,
+    "com_github_chromedp_chromedp",
     "com_github_flynn_json5",
     "com_github_golang_glog",
     "com_github_google_uuid",
