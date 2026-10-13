@@ -118,7 +118,6 @@ QueueManager::OutstandingSubmission DawnQueueManager::onSubmitToGpu(const Submit
     DawnCommandBuffer* dawnCmdBuffer = static_cast<DawnCommandBuffer*>(fCurrentCommandBuffer.get());
     auto wgpuCmdBuffer = dawnCmdBuffer->finishEncoding();
     if (!wgpuCmdBuffer) {
-        fCurrentCommandBuffer->callFinishedProcs(/*success=*/false);
         return nullptr;
     }
 

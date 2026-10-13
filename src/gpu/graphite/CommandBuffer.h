@@ -73,9 +73,6 @@ public:
     virtual void endStatsQuery(GpuStatsFlags) { SK_ABORT("Stats query unsupported."); }
     virtual std::optional<GpuStats> gpuStats() { return {}; }
 
-    void addFinishedProc(sk_sp<RefCntedCallback> finishedProc);
-    void callFinishedProcs(bool success);
-
     virtual void addWaitSemaphores(size_t numWaitSemaphores,
                                    const BackendSemaphore* waitSemaphores) {}
     virtual void addSignalSemaphores(size_t numWaitSemaphores,
@@ -221,7 +218,6 @@ private:
     template <typename T>
     using TrackedResourceArray = skia_private::STArray<kInitialTrackedResourcesCount, T>;
     TrackedResourceArray<gr_cb<Resource>> fCommandBufferResources;
-    skia_private::TArray<sk_sp<RefCntedCallback>> fFinishedProcs;
     skia_private::TArray<sk_sp<Buffer>> fBuffersToAsyncMap;
     int fNumPendingCommands = 0;
     int fNumPendingPasses = 0;

@@ -36,31 +36,72 @@ std::unique_ptr<CommandBuffer> VulkanQueueManager::getNewCommandBuffer(
 
 class VulkanWorkSubmission final : public GpuWorkSubmission {
 public:
+    VulkanWorkSubmission(std::unique_ptr<CommandBuffer> cmdBuffer,
+                         std::unique_ptr<CommandBuffer> protectedCmdBuffer,
+                         QueueManager* queueManager)
+        : GpuWorkSubmission(std::move(cmdBuffer), std::move(protectedCmdBuffer), queueManager) {}
     VulkanWorkSubmission(std::unique_ptr<CommandBuffer> cmdBuffer, QueueManager* queueManager)
         : GpuWorkSubmission(std::move(cmdBuffer), queueManager) {}
     ~VulkanWorkSubmission() override {}
 
 private:
     bool onIsFinished(const SharedContext*) override {
-        return static_cast<VulkanCommandBuffer*>(this->commandBuffer())->isFinished();
+        if (this->commandBuffer() &&
+            !static_cast<VulkanCommandBuffer*>(this->commandBuffer())->isFinished()) {
+            return false;
+        }
+        if (this->protectedCommandBuffer() &&
+            !static_cast<VulkanCommandBuffer*>(this->protectedCommandBuffer())->isFinished()) {
+            return false;
+        }
+        return true;
     }
     void onWaitUntilFinished(const SharedContext*) override {
-        return static_cast<VulkanCommandBuffer*>(this->commandBuffer())->waitUntilFinished();
+        if (this->commandBuffer()) {
+            static_cast<VulkanCommandBuffer*>(this->commandBuffer())->waitUntilFinished();
+        }
+        if (this->protectedCommandBuffer()) {
+            static_cast<VulkanCommandBuffer*>(this->protectedCommandBuffer())->waitUntilFinished();
+        }
     }
 };
 
-QueueManager::OutstandingSubmission VulkanQueueManager::onSubmitToGpu(const SubmitInfo& submitInfo) {
-    SkASSERT(fCurrentCommandBuffer);
-    VulkanCommandBuffer* vkCmdBuffer =
-            static_cast<VulkanCommandBuffer*>(fCurrentCommandBuffer.get());
-    if (!vkCmdBuffer->submit(fQueue, submitInfo)) {
-        fCurrentCommandBuffer->callFinishedProcs(/*success=*/false);
+QueueManager::OutstandingSubmission VulkanQueueManager::onSubmitToGpu(
+        const SubmitInfo& submitInfo) {
+    if (!fCurrentCommandBuffer && !fCurrentProtectedCommandBuffer) {
+        SKIA_LOG_W("VulkanQueueManager::onSubmitToGpu - no command buffers to submit");
         return nullptr;
     }
 
-    std::unique_ptr<GpuWorkSubmission> submission(
-            new VulkanWorkSubmission(std::move(fCurrentCommandBuffer), this));
-    return submission;
+    auto onFailure = [this]() {
+        fCurrentCommandBuffer.reset();
+        fCurrentProtectedCommandBuffer.reset();
+    };
+
+    if (fCurrentCommandBuffer) {
+        VulkanCommandBuffer* vkCmdBuffer =
+                static_cast<VulkanCommandBuffer*>(fCurrentCommandBuffer.get());
+        if (!vkCmdBuffer->submit(fQueue, submitInfo,
+                                 /*includeFence=*/!fCurrentProtectedCommandBuffer)) {
+            SKIA_LOG_E("VulkanQueueManager::onSubmitToGpu - unprotected submission failed!");
+            onFailure();
+            return nullptr;
+        }
+    }
+
+    if (fCurrentProtectedCommandBuffer) {
+        VulkanCommandBuffer* vkCmdBuffer =
+                static_cast<VulkanCommandBuffer*>(fCurrentProtectedCommandBuffer.get());
+        if (!vkCmdBuffer->submit(fQueue, submitInfo, /*includeFence=*/true)) {
+            SKIA_LOG_E("VulkanQueueManager::onSubmitToGpu - protected submission failed!");
+            onFailure();
+            return nullptr;
+        }
+    }
+
+    return std::make_unique<VulkanWorkSubmission>(std::move(fCurrentCommandBuffer),
+                                                  std::move(fCurrentProtectedCommandBuffer),
+                                                  this);
 }
 
 } // namespace skgpu::graphite

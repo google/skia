@@ -41,6 +41,11 @@ QueueManager::QueueManager(const SharedContext* sharedContext)
 }
 
 QueueManager::~QueueManager() {
+    for (int i = 0; i < fFinishedProcs.size(); ++i) {
+        fFinishedProcs[i]->setFailureResult();
+    }
+    fFinishedProcs.clear();
+
     if (fSharedContext->caps()->allowCpuSync()) {
         this->checkForFinishedWork(SyncToCpu::kYes);
     } else if (!fOutstandingSubmissions.empty()) {
@@ -57,33 +62,37 @@ QueueManager::getAvailableCommandBufferList(Protected isProtected) {
 
 
 bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider, Protected isProtected) {
-    if (!fCurrentCommandBuffer) {
+    std::unique_ptr<CommandBuffer>& commandBuffer
+            = isProtected == Protected::kNo ? fCurrentCommandBuffer
+                                            : fCurrentProtectedCommandBuffer;
+    if (!commandBuffer) {
         std::vector<std::unique_ptr<CommandBuffer>>* bufferList =
                 this->getAvailableCommandBufferList(isProtected);
         if (!bufferList->empty()) {
-            fCurrentCommandBuffer = std::move(bufferList->back());
+            commandBuffer = std::move(bufferList->back());
             bufferList->pop_back();
-            if (!fCurrentCommandBuffer->setNewCommandBufferResources()) {
-                fCurrentCommandBuffer.reset();
+            if (!commandBuffer->setNewCommandBufferResources()) {
+                commandBuffer.reset();
             }
         }
-    } else {
-        if (fCurrentCommandBuffer->isProtected() != isProtected) {
-            // If we're doing things where we are switching between using protected and unprotected
-            // command buffers, it is our job to make sure previous work was submitted.
-            SKIA_LOG_E("Trying to use a CommandBuffer with protectedness that differs from our "
-                        "current active command buffer.");
-            return false;
-        }
     }
-    if (!fCurrentCommandBuffer) {
-        fCurrentCommandBuffer = this->getNewCommandBuffer(resourceProvider, isProtected);
+    if (!commandBuffer) {
+        commandBuffer = this->getNewCommandBuffer(resourceProvider, isProtected);
     }
-    if (!fCurrentCommandBuffer) {
+    if (!commandBuffer) {
         return false;
     }
 
     return true;
+}
+
+CommandBuffer* QueueManager::getCurrentCommandBuffer(Protected isProtected) {
+    return isProtected == Protected::kNo ? fCurrentCommandBuffer.get()
+                                         : fCurrentProtectedCommandBuffer.get();
+}
+
+Protected QueueManager::getDefaultProtectedness() {
+    return skgpu::Protected(fSharedContext->caps()->protectedSupport());
 }
 
 InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context* context) {
@@ -187,14 +196,18 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
 
     SIMULATE_FAIL(InsertStatus::kPromiseImageInstantiationFailed);
 
+    CommandBuffer* activeCmdBuffer =
+            this->getCurrentCommandBuffer(fSharedContext->isProtected());
     if (activeStatsFlags != GpuStatsFlags::kNone) {
-        if (!fCurrentCommandBuffer->startStatsQuery(activeStatsFlags)) {
+        // TODO(b/567979421): See how supported protected command buffer stats querying is, possibly
+        // could move this to an unprotected command buffer before/after.
+        if (!activeCmdBuffer->startStatsQuery(activeStatsFlags)) {
             activeStatsFlags = GpuStatsFlags::kNone;
         }
     }
-    fCurrentCommandBuffer->addWaitSemaphores(info.fNumWaitSemaphores, info.fWaitSemaphores);
+    activeCmdBuffer->addWaitSemaphores(info.fNumWaitSemaphores, info.fWaitSemaphores);
     if (!info.fRecording->priv().addCommands(context,
-                                             fCurrentCommandBuffer.get(),
+                                             activeCmdBuffer,
                                              replayTarget,
                                              info.fTargetTranslation,
                                              info.fTargetClip)) {
@@ -225,17 +238,23 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
     SIMULATE_FAIL(InsertStatus::kAddCommandsFailed);
     SIMULATE_FAIL(InsertStatus::kAsyncShaderCompilesFailed);
 
-    fCurrentCommandBuffer->addSignalSemaphores(info.fNumSignalSemaphores, info.fSignalSemaphores);
-    if (info.fTargetTextureState) {
-        fCurrentCommandBuffer->prepareSurfaceForStateUpdate(info.fTargetSurface,
-                                                            info.fTargetTextureState);
-    }
-    if (activeStatsFlags != GpuStatsFlags::kNone) {
-        fCurrentCommandBuffer->endStatsQuery(activeStatsFlags);
+    // When inserting recordings we will only have one active command buffer dependent on the
+    // context's protectedness.
+    // TODO(b/560237587): Support multiple command buffers at once.
+    if (activeCmdBuffer) {
+        activeCmdBuffer->addSignalSemaphores(info.fNumSignalSemaphores, info.fSignalSemaphores);
+        if (info.fTargetTextureState) {
+            activeCmdBuffer->prepareSurfaceForStateUpdate(info.fTargetSurface,
+                                                          info.fTargetTextureState);
+        }
+        if (activeStatsFlags != GpuStatsFlags::kNone) {
+            activeCmdBuffer->endStatsQuery(activeStatsFlags);
+        }
     }
 
+    info.fRecording->priv().moveFinishedProcsTo(fFinishedProcs);
     if (callback) {
-        fCurrentCommandBuffer->addFinishedProc(std::move(callback));
+        fFinishedProcs.push_back(std::move(callback));
     }
 
     info.fRecording->priv().deinstantiateVolatileLazyProxies();
@@ -244,8 +263,8 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
     // simulated error earlier.
     SkASSERT(info.fSimulatedStatus == InsertStatus::kSuccess);
     return InsertStatus(InsertStatus::kSuccess,
-                        fCurrentCommandBuffer->numPendingCommands(),
-                        fCurrentCommandBuffer->numPendingPasses());
+                        activeCmdBuffer->numPendingCommands(),
+                        activeCmdBuffer->numPendingPasses());
 }
 
 bool QueueManager::addTask(Task* task,
@@ -262,7 +281,8 @@ bool QueueManager::addTask(Task* task,
         return false;
     }
 
-    if (task->addCommands(context, fCurrentCommandBuffer.get(), {}) == Task::Status::kFail) {
+    CommandBuffer* activeCmdBuffer = this->getCurrentCommandBuffer(isProtected);
+    if (task->addCommands(context, activeCmdBuffer, {}) == Task::Status::kFail) {
         SKIA_LOG_E("Adding Task commands to the CommandBuffer has failed");
         return false;
     }
@@ -278,7 +298,7 @@ bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
         callback = RefCntedCallback::Make(info.fFinishedProc, info.fFinishedContext);
     }
 
-    if (!this->setupCommandBuffer(resourceProvider, fSharedContext->isProtected())) {
+    if (!this->setupCommandBuffer(resourceProvider, this->getDefaultProtectedness())) {
         if (callback) {
             callback->setFailureResult();
         }
@@ -286,10 +306,11 @@ bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
         return false;
     }
 
+    CommandBuffer* activeCmdBuffer = this->getCurrentCommandBuffer(this->getDefaultProtectedness());
     if (callback) {
-        fCurrentCommandBuffer->addFinishedProc(std::move(callback));
+        fFinishedProcs.push_back(std::move(callback));
     }
-    fCurrentCommandBuffer->addBuffersToAsyncMapOnSubmit(buffersToAsyncMap);
+    activeCmdBuffer->addBuffersToAsyncMapOnSubmit(buffersToAsyncMap);
 
     return true;
 }
@@ -302,7 +323,8 @@ bool QueueManager::prepareBackendTextureForStateUpdate(const BackendTexture& tex
         return false;
     }
 
-    fCurrentCommandBuffer->prepareBackendTextureForStateUpdate(texture, newState);
+    CommandBuffer* activeCmdBuffer = this->getCurrentCommandBuffer(texture.info().isProtected());
+    activeCmdBuffer->prepareBackendTextureForStateUpdate(texture, newState);
     return true;
 }
 
@@ -314,7 +336,7 @@ bool QueueManager::submitToGpu(const SubmitInfo& submitInfo) {
         callback = RefCntedCallback::Make(submitInfo.fFinishedProc, submitInfo.fFinishedContext);
     }
 
-    if (!fCurrentCommandBuffer) {
+    if (!fCurrentCommandBuffer && !fCurrentProtectedCommandBuffer) {
         // If a finish proc was provided, attach it to the most recent outstanding submission,
         // or let it fire immediately if the GPU is idle (when callback goes out of scope).
         if (callback) {
@@ -326,26 +348,26 @@ bool QueueManager::submitToGpu(const SubmitInfo& submitInfo) {
             return true;
         }
         // We warn because this probably representative of a bad client state, where they don't
-        // need to submit but didn't notice, but technically the submit itself is fine (no-op), so
-        // we return true.
+        // need to submit but didn't notice, but technically the submit itself is fine (no-op),
+        // so we return true.
         SKIA_LOG_D("Submit called with no active command buffer!");
         return true;
     }
 
-#ifdef SK_DEBUG
-    if (!fCurrentCommandBuffer->hasWork()) {
-        SKIA_LOG_D("Submitting empty command buffer!");
-    }
-#endif
-
     if (callback) {
-        fCurrentCommandBuffer->addFinishedProc(std::move(callback));
+        fFinishedProcs.push_back(std::move(callback));
     }
 
     auto submission = this->onSubmitToGpu(submitInfo);
     if (!submission) {
+        for (int i = 0; i < fFinishedProcs.size(); ++i) {
+            fFinishedProcs[i]->setFailureResult();
+        }
+        fFinishedProcs.clear();
         return false;
     }
+
+    submission->addFinishedProcs(std::move(fFinishedProcs));
 
     new (fOutstandingSubmissions.push_back()) OutstandingSubmission(std::move(submission));
     return true;
@@ -354,11 +376,11 @@ bool QueueManager::submitToGpu(const SubmitInfo& submitInfo) {
 bool QueueManager::hasUnfinishedGpuWork() { return !fOutstandingSubmissions.empty(); }
 
 bool QueueManager::hasPendingGPUWork() const {
-    // Only check if fCurrentCommandBuffer is non-null.
+    // Only check if fCurrentCommandBuffer/fCurrentProtectedCommandBuffer is non-null.
     // If there is no command in the command buffer i.e. fCurrentCommandBuffer->hasWork() is false,
     // it's still considered valid. Because clients can insert a recording without any command just
     // to track the finish proc.
-    return fCurrentCommandBuffer != nullptr;
+    return fCurrentCommandBuffer != nullptr || fCurrentProtectedCommandBuffer != nullptr;
 }
 
 void QueueManager::checkForFinishedWork(SyncToCpu sync) {
@@ -399,7 +421,7 @@ void QueueManager::returnCommandBuffer(std::unique_ptr<CommandBuffer> commandBuf
 
 void QueueManager::addUploadBufferManagerRefs(UploadBufferManager* uploadManager,
                                               ResourceProvider* resourceProvider) {
-    this->setupCommandBuffer(resourceProvider, skgpu::Protected::kNo);
+    this->setupCommandBuffer(resourceProvider, Protected::kNo);
     SkASSERT(fCurrentCommandBuffer);
     uploadManager->transferToCommandBuffer(fCurrentCommandBuffer.get());
 }

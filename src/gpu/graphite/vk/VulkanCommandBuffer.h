@@ -38,7 +38,7 @@ public:
     void endStatsQuery(GpuStatsFlags) override;
     std::optional<GpuStats> gpuStats() override;
 
-    bool submit(VkQueue, const SubmitInfo&);
+    bool submit(VkQueue, const SubmitInfo&, bool includeFence = true);
 
     bool isFinished();
 

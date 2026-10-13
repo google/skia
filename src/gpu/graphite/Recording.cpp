@@ -147,6 +147,10 @@ void RecordingPriv::setFailureResultForFinishedProcs() {
     fRecording->fFinishedProcs.clear();
 }
 
+void RecordingPriv::moveFinishedProcsTo(skia_private::TArray<sk_sp<RefCntedCallback>>& dst) {
+    dst.move_back(fRecording->fFinishedProcs);
+}
+
 TextureProxy* RecordingPriv::deferredTargetProxy() {
     return fRecording->fTargetProxyData ? fRecording->fTargetProxyData->lazyProxy() : nullptr;
 }
@@ -237,10 +241,6 @@ bool RecordingPriv::addCommands(Context* context,
         Task::Status::kFail) {
         return false;
     }
-    for (int i = 0; i < fRecording->fFinishedProcs.size(); ++i) {
-        commandBuffer->addFinishedProc(std::move(fRecording->fFinishedProcs[i]));
-    }
-    fRecording->fFinishedProcs.clear();
 
     return true;
 }

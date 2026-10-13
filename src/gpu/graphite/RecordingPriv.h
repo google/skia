@@ -47,6 +47,7 @@ public:
     bool instantiateNonVolatileLazyProxies(ResourceProvider*);
 
     void setFailureResultForFinishedProcs();
+    void moveFinishedProcsTo(skia_private::TArray<sk_sp<RefCntedCallback>>& dst);
 
     bool prepareResources(ResourceProvider*,
                           ScratchResourceManager*,
