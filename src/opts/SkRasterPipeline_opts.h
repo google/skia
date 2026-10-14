@@ -75,12 +75,14 @@ using NoCtx = const void*;
 
 #if defined(SKRP_CPU_SCALAR) || defined(SKRP_CPU_NEON) || defined(SKRP_CPU_AVX2) || \
         defined(SKRP_CPU_ML4) || defined(SKRP_CPU_AVX) || defined(SKRP_CPU_SSE41) || \
-        defined(SKRP_CPU_SSE2)
+        defined(SKRP_CPU_SSE2) || defined(SKRP_CPU_WASM)
     // Honor the existing setting
 #elif !defined(__clang__) && !defined(__GNUC__)
     #define SKRP_CPU_SCALAR
 #elif defined(SK_ARM_HAS_NEON)
     #define SKRP_CPU_NEON
+#elif defined(__wasm_simd128__)
+    #define SKRP_CPU_WASM
 #elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_ML4
     #define SKRP_CPU_ML4
 #elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX2
@@ -108,6 +110,8 @@ using NoCtx = const void*;
     #include <lsxintrin.h>
 #elif defined(SKRP_CPU_LSX)
     #include <lsxintrin.h>
+#elif defined(SKRP_CPU_WASM)
+    #include <wasm_simd128.h>
 #else
     #include <immintrin.h>
 #endif
@@ -329,6 +333,100 @@ namespace SK_OPTS_NS {
     }
     SI void store4(float* ptr, F r, F g, F b, F a) {
         vst4q_f32(ptr, (float32x4x4_t{{r,g,b,a}}));
+    }
+
+#elif defined(SKRP_CPU_WASM)
+    // WebAssembly SIMD128: four lanes, like NEON, written with Clang's generic vector builtins,
+    // which lower to v128 instructions.
+    template <typename T> using V = Vec<4, T>;
+    using F   = V<float   >;
+    using I32 = V< int32_t>;
+    using U64 = V<uint64_t>;
+    using U32 = V<uint32_t>;
+    using U16 = V<uint16_t>;
+    using U8  = V<uint8_t >;
+
+    SI F   if_then_else(I32 c, F   t, F   e) { return (F)(((I32)t & c) | ((I32)e & ~c)); }
+    SI I32 if_then_else(I32 c, I32 t, I32 e) { return (t & c) | (e & ~c); }
+
+    // These match x86 minps/maxps (the second operand wins if either is NaN) and lower to
+    // f32x4.pmin/pmax.
+    SI F   min(F a, F b)     { return if_then_else(a < b, a, b); }
+    SI F   max(F a, F b)     { return if_then_else(a > b, a, b); }
+    SI I32 min(I32 a, I32 b) { return __builtin_elementwise_min(a, b); }
+    SI U32 min(U32 a, U32 b) { return __builtin_elementwise_min(a, b); }
+    SI I32 max(I32 a, I32 b) { return __builtin_elementwise_max(a, b); }
+    SI U32 max(U32 a, U32 b) { return __builtin_elementwise_max(a, b); }
+
+    SI F   mad(F f, F m, F a)   { return a + f*m; }
+    SI F   nmad(F f, F m, F a)  { return a - f*m; }
+    SI F   abs_  (F v)          { return __builtin_elementwise_abs(v); }
+    SI I32 abs_  (I32 v)        { return __builtin_elementwise_abs(v); }
+    SI F   floor_(F v)          { return __builtin_elementwise_floor(v); }
+    SI F    ceil_(F v)          { return __builtin_elementwise_ceil(v); }
+    SI F   sqrt_ (F v)          { return __builtin_elementwise_sqrt(v); }
+    // WebAssembly SIMD has no reciprocal or reciprocal-sqrt estimates.
+    SI F   rcp_approx(F v)      { return 1.0f / v; }  // use rcp_fast instead
+    SI F   rcp_precise(F v)     { return 1.0f / v; }
+    SI F   rsqrt_approx(F v)    { return 1.0f / sqrt_(v); }
+
+    SI I32 iround(F v) { return __builtin_convertvector(__builtin_elementwise_roundeven(v), I32); }
+    SI U32 round(F v)  { return __builtin_convertvector(__builtin_elementwise_roundeven(v), U32); }
+    SI U16 pack(U32 v) { return __builtin_convertvector(v, U16); }
+    SI U8  pack(U16 v) { return __builtin_convertvector(v,  U8); }
+
+    SI bool any(I32 c) { return wasm_v128_any_true((v128_t)c); }
+    SI bool all(I32 c) { return wasm_i32x4_all_true((v128_t)c); }
+
+    template <typename T>
+    SI V<T> gather(const T* ptr, U32 ix) {
+        return V<T>{ptr[ix[0]], ptr[ix[1]], ptr[ix[2]], ptr[ix[3]]};
+    }
+    template <typename T>
+    SI V<T> gather_unaligned(const T* ptr, U32 ix) { return gather<T>(ptr, ix); }
+
+    SI void scatter_masked(I32 src, int* dst, U32 ix, I32 mask) {
+        I32 after = if_then_else(mask, src, gather(dst, ix));
+        dst[ix[0]] = after[0];
+        dst[ix[1]] = after[1];
+        dst[ix[2]] = after[2];
+        dst[ix[3]] = after[3];
+    }
+
+    // Interleaved loads and stores: one unaligned vector load or store, plus shuffles.
+    SI void load2(const uint16_t* ptr, U16* r, U16* g) {
+        auto rg = sk_unaligned_load<Vec<8, uint16_t>>(ptr);
+        *r = __builtin_shufflevector(rg, rg, 0, 2, 4, 6);
+        *g = __builtin_shufflevector(rg, rg, 1, 3, 5, 7);
+    }
+    SI void store2(uint16_t* ptr, U16 r, U16 g) {
+        sk_unaligned_store(ptr, __builtin_shufflevector(r, g, 0, 4, 1, 5, 2, 6, 3, 7));
+    }
+    SI void load4(const uint16_t* ptr, U16* r, U16* g, U16* b, U16* a) {
+        auto rgba = sk_unaligned_load<Vec<16, uint16_t>>(ptr);
+        *r = __builtin_shufflevector(rgba, rgba, 0, 4,  8, 12);
+        *g = __builtin_shufflevector(rgba, rgba, 1, 5,  9, 13);
+        *b = __builtin_shufflevector(rgba, rgba, 2, 6, 10, 14);
+        *a = __builtin_shufflevector(rgba, rgba, 3, 7, 11, 15);
+    }
+    SI void store4(uint16_t* ptr, U16 r, U16 g, U16 b, U16 a) {
+        auto rg = __builtin_shufflevector(r, g, 0, 4, 1, 5, 2, 6, 3, 7),
+             ba = __builtin_shufflevector(b, a, 0, 4, 1, 5, 2, 6, 3, 7);
+        sk_unaligned_store(ptr, __builtin_shufflevector(rg, ba, 0, 1,  8,  9, 2, 3, 10, 11,
+                                                                4, 5, 12, 13, 6, 7, 14, 15));
+    }
+    SI void load4(const float* ptr, F* r, F* g, F* b, F* a) {
+        auto rgba = sk_unaligned_load<Vec<16, float>>(ptr);
+        *r = __builtin_shufflevector(rgba, rgba, 0, 4,  8, 12);
+        *g = __builtin_shufflevector(rgba, rgba, 1, 5,  9, 13);
+        *b = __builtin_shufflevector(rgba, rgba, 2, 6, 10, 14);
+        *a = __builtin_shufflevector(rgba, rgba, 3, 7, 11, 15);
+    }
+    SI void store4(float* ptr, F r, F g, F b, F a) {
+        auto rg = __builtin_shufflevector(r, g, 0, 4, 1, 5, 2, 6, 3, 7),
+             ba = __builtin_shufflevector(b, a, 0, 4, 1, 5, 2, 6, 3, 7);
+        sk_unaligned_store(ptr, __builtin_shufflevector(rg, ba, 0, 1,  8,  9, 2, 3, 10, 11,
+                                                                4, 5, 12, 13, 6, 7, 14, 15));
     }
 
 #elif defined(SKRP_CPU_ML4)
@@ -1761,8 +1859,10 @@ static constexpr size_t N = sizeof(F) / sizeof(float);
     // instead of {b,a} on the stack.  Narrow stages work best for __vectorcall.
     #define ABI __vectorcall
     #define SKRP_NARROW_STAGES 1
-#elif defined(__x86_64__) || defined(SK_CPU_ARM64) || defined(SK_CPU_LOONGARCH)
+#elif defined(__x86_64__) || defined(SK_CPU_ARM64) || defined(SK_CPU_LOONGARCH) || \
+        defined(SKRP_CPU_WASM)
     // These platforms are ideal for wider stages, and their default ABI is ideal.
+    // (WebAssembly has no register file to run out of: vectors are just arguments.)
     #define ABI
     #define SKRP_NARROW_STAGES 0
 #else
@@ -5739,6 +5839,13 @@ SI U16 lerp(U16 from, U16 to, U16 t) { return div255( from*inv(t) + to*t ); }
 
 template <typename D, typename S>
 SI D cast(S src) {
+#if defined(SKRP_CPU_WASM)
+    // wasm SIMD converts float only to 32-bit lanes; LLVM scalarizes a direct
+    // float -> 16-bit conversion lane by lane, so go through I32.
+    if constexpr (std::is_same_v<S, F> && sizeof(D) == sizeof(U16)) {
+        return __builtin_convertvector(__builtin_convertvector(src, I32), D);
+    }
+#endif
     return __builtin_convertvector(src, D);
 }
 
@@ -7031,6 +7138,35 @@ SI void gradient_lookup(const SkRasterPipelineContexts::GradientCtx* c,
                      (__m256)__lasx_xvperm_w(__lasx_xvld(c->factors[3], 0), hi));
         ba = join<F>((__m256)__lasx_xvperm_w(__lasx_xvld(c->biases[3], 0), lo),
                      (__m256)__lasx_xvperm_w(__lasx_xvld(c->biases[3], 0), hi));
+    } else
+#elif defined(SKRP_CPU_WASM)
+    if (c->stopCount <= 8) {
+        // The tables hold at least 8 floats (see SkGradientBaseShader). i8x16.swizzle
+        // is a 16-byte table lookup that yields 0 for out-of-range indices, so two
+        // lookups OR'd together index an 8-float table without scalar gathers.
+        auto lookup = [&](const float* table) {
+            v128_t lo = wasm_v128_load(table),
+                   hi = wasm_v128_load(table + 4);
+            auto half = [&](v128_t ix) {
+                // Lane index k -> bytes {4k, 4k+1, 4k+2, 4k+3}.
+                v128_t bytes = wasm_i32x4_add(wasm_i32x4_mul(ix, wasm_i32x4_splat(0x04040404)),
+                                              wasm_i32x4_splat(0x03020100));
+                return (Vec<4, float>)wasm_v128_or(
+                        wasm_i8x16_swizzle(lo, bytes),
+                        wasm_i8x16_swizzle(hi, wasm_i8x16_sub(bytes, wasm_i8x16_splat(16))));
+            };
+            Vec<4, float> a = half((v128_t)__builtin_shufflevector(idx, idx, 0, 1, 2, 3)),
+                          b = half((v128_t)__builtin_shufflevector(idx, idx, 4, 5, 6, 7));
+            return (F)__builtin_shufflevector(a, b, 0, 1, 2, 3, 4, 5, 6, 7);
+        };
+        fr = lookup(c->factors[0]);
+        fg = lookup(c->factors[1]);
+        fb = lookup(c->factors[2]);
+        fa = lookup(c->factors[3]);
+        br = lookup(c->biases[0]);
+        bg = lookup(c->biases[1]);
+        bb = lookup(c->biases[2]);
+        ba = lookup(c->biases[3]);
     } else
 #elif defined(SKRP_CPU_LSX)
     if (c->stopCount <= 4) {

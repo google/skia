@@ -109,6 +109,11 @@ declare_args() {
   # See: https://libcxx.llvm.org/UsingLibcxx.html#enabling-the-safe-libc-mode
   skia_use_safe_libcxx = false
 
+  # Compile for WebAssembly SIMD128 (-msimd128): SkVx, skcms and the raster pipeline then use
+  # 128-bit vectors instead of scalars. The module needs WebAssembly SIMD in the browser
+  # (Chrome 91, Firefox 89, Safari 16.4).
+  skia_wasm_simd = false
+
   skia_enable_ganesh = true
   skia_enable_graphite = false
   skia_use_zlib = true

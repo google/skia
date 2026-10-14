@@ -42,10 +42,10 @@ template("skia_wasm_lib") {
   }
 }
 
-wasm_defines = [
-  "SKVX_DISABLE_SIMD",
-  "SK_FORCE_8_BYTE_ALIGNMENT",
-]
+wasm_defines = [ "SK_FORCE_8_BYTE_ALIGNMENT" ]
+if (!skia_wasm_simd) {
+  wasm_defines += [ "SKVX_DISABLE_SIMD" ]
+}
 
 if (is_canvaskit) {
   if (!is_debug && !skia_canvaskit_force_tracing) {
