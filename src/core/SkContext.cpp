@@ -7,21 +7,46 @@
 
 #include "include/core/SkContext.h"
 
+#include "include/core/RasterContext.h"
 #include "include/core/SkContextOptions.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnce.h"
 #include "src/capture/SkCapture.h"
 #include "src/capture/SkCaptureManager.h"
+#include "src/core/SkBitmapProcState.h"
+#include "src/core/SkBlitMask.h"
+#include "src/core/SkBlitRow.h"
 #include "src/core/SkContextPriv.h"
+#include "src/core/SkCpu.h"
+#include "src/core/SkMemset.h"
+#include "src/core/SkOpts.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkSharedContext.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkSwizzlePriv.h"
 #include "src/core/SkSynchronizedResourceCache.h"
 #include "src/core/SkTypefaceCache.h"
 
+namespace {
+void init_globals_if_needed() {
+    static SkOnce once;
+    once([] {
+        SkCpu::CacheRuntimeFeatures();
+        SkOpts::Init();
+        SkOpts::Init_BitmapProcState();
+        SkOpts::Init_BlitMask();
+        SkOpts::Init_BlitRow();
+        SkOpts::Init_Memset();
+        SkOpts::Init_Swizzler();
+    });
+}
+}  // namespace
+
 SkContext::SkContext(const SkContextOptions& options) {
+    init_globals_if_needed();
     if (options.fEnableCapture) {
         fCaptureManager = sk_make_sp<SkCaptureManager>();
     }
@@ -116,3 +141,14 @@ void SkContext::dumpMemoryStatistics(SkTraceMemoryDump* dump) {
 std::unique_ptr<SkContext> SkContextCtorAccessor::MakeContext(const SkContextOptions& options) {
     return std::unique_ptr<SkContext>(new SkContext(options));
 }
+
+namespace SkContexts {
+
+// GetGlobalSkContext creates a global SkContext object with only Raster settings. GPU settings can
+// be configured later. This is an intermediary step in the SkContext project, whereby we use this
+// global SkContext object to remove or take away functionality from SkGraphics.
+SkContext* GetGlobalSkContext() {
+    static SkContext* gSkContext = SkContexts::MakeRaster({}).release();
+    return gSkContext;
+}
+}  // namespace SkContexts
