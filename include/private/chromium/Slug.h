@@ -30,6 +30,9 @@ namespace sktext::gpu {
 // manipulated using matrix and clip changes to the canvas. If the canvas is transformed, then
 // the Slug will also transform with smaller glyphs using bi-linear interpolation to render. You
 // can think of a Slug as making a rubber stamp out of a SkTextBlob.
+//
+// Strike information required to draw or serialize the Slug is kept alive for the lifetime of
+// the Slug as long as the strike cache is not purged.
 class SK_API Slug : public SkRefCnt {
 public:
     // Return nullptr if the blob would not draw. This is not because of clipping, but because of

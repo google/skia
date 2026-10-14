@@ -36,7 +36,11 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "include/utils/SkCustomTypeface.h"
 #include "src/core/SkSpinlock.h"
+#include "src/core/SkStrike.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
@@ -416,3 +420,75 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextBlobSmoothScroll,
         }
     }
 }
+
+namespace {
+sk_sp<SkTypeface> make_path_typeface() {
+    SkCustomTypefaceBuilder builder;
+    constexpr SkRect kGlyphRect = SkRect::MakeLTRB(0, -1, 1, 0);
+    builder.setGlyph(1, 1.0f, SkPath::Rect(kGlyphRect));
+    return builder.detach();
+}
+
+sk_sp<SkTextBlob> make_single_glyph_blob(sk_sp<SkTypeface> tf, SkScalar size) {
+    SkTextBlobBuilder builder;
+    builder.allocRun(SkFont(std::move(tf), size), 1, 0, 0).glyphs[0] = 1;
+    return builder.make();
+}
+}  // namespace
+
+// SkCanvas::drawTextBlob caches sktext::gpu::TextBlob instances in TextBlobRedrawCoordinator.
+// Cached TextBlobs are never serialized after drawing and must release their SkStrike references
+// once the initial draw is flushed so SkStrikeCache::purgeAll() can evict the strikes.
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextBlob_draw_releases_strike_from_cache,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNextRelease) {
+    auto dContext = ctxInfo.directContext();
+    auto surface = SkSurfaces::RenderTarget(
+            dContext, skgpu::Budgeted::kNo, SkImageInfo::MakeN32Premul(64, 64));
+    REPORTER_ASSERT(reporter, surface);
+    auto canvas = surface->getCanvas();
+
+    // Use a dedicated typeface so no other cache entry shares its strikes
+    sk_sp<SkTypeface> customTypeface = make_path_typeface();
+
+    // 400pt exercises PathSubRun (PathOpSubmitter); 16pt exercises DirectMaskSubRun (GlyphVector)
+    auto pathBlob = make_single_glyph_blob(customTypeface, /*size=*/400);
+    auto maskBlob = make_single_glyph_blob(customTypeface, /*size=*/16);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+    // Drawing and flushing populates TextBlobRedrawCoordinator and converts glyph IDs to SkPaths
+    // (in PathOpSubmitter::submitDraws) and atlas Glyph* pointers (in GlyphVector::regenAtlas)
+    canvas->drawTextBlob(pathBlob, 0, 64, paint);
+    canvas->drawTextBlob(maskBlob, 0, 32, paint);
+    dContext->flushAndSubmit();
+
+    // Grab external references to both strikes while they are still in SkStrikeCache
+    auto [pathSpec, _] = SkStrikeSpec::MakePath(
+            SkFont(customTypeface, 400),
+            paint,
+            surface->props(),
+            SkScalerContextFlags::kFakeGammaAndBoostContrast);
+    sk_sp<SkStrike> pathStrike =
+            SkStrikeCache::GlobalStrikeCache()->findStrike(pathSpec.descriptor());
+    REPORTER_ASSERT(reporter, pathStrike != nullptr);
+
+    SkStrikeSpec maskSpec = SkStrikeSpec::MakeMask(
+            SkFont(customTypeface, 16),
+            paint,
+            surface->props(),
+            SkScalerContextFlags::kFakeGammaAndBoostContrast,
+            SkMatrix::I());
+    sk_sp<SkStrike> maskStrike =
+            SkStrikeCache::GlobalStrikeCache()->findStrike(maskSpec.descriptor());
+    REPORTER_ASSERT(reporter, maskStrike != nullptr);
+
+    // Purging SkStrikeCache drops its references; if TextBlobRedrawCoordinator also released its
+    // fStrikePromise references after the flushed draw, pathStrike and maskStrike are now unique()
+    SkStrikeCache::GlobalStrikeCache()->purgeAll();
+    REPORTER_ASSERT(reporter, pathStrike->unique());
+    REPORTER_ASSERT(reporter, maskStrike->unique());
+}
+

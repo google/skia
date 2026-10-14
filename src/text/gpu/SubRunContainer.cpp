@@ -191,9 +191,7 @@ std::optional<VertexFiller> make_vertex_filler_from_buffer(SkReadBuffer& buffer,
 }
 
 // -- PathOpSubmitter ------------------------------------------------------------------------------
-// PathOpSubmitter holds glyph ids until ready to draw. During drawing, the glyph ids are
-// converted to SkPaths. PathOpSubmitter can only be serialized when it is holding glyph ids;
-// it can only be serialized before submitDraws has been called.
+// PathOpSubmitter holds glyph ids and their resolved SkPaths for drawing.
 class PathOpSubmitter {
 public:
     PathOpSubmitter() = delete;
@@ -239,8 +237,6 @@ public:
                      const SkPaint& paint) const;
 
 private:
-    // When PathOpSubmitter is created only the glyphIDs are needed, during the submitDraws call,
-    // the glyphIDs are converted to SkPaths.
     const SkSpan<IDOrPath> fIDsOrPaths;
     const SkSpan<const SkPoint> fPositions;
     const SkScalar fStrikeToSourceScale;
@@ -248,7 +244,6 @@ private:
 
     mutable SkStrikePromise fStrikePromise;
     mutable SkOnce fConvertIDsToPaths;
-    mutable bool fPathsAreCreated{false};
 };
 
 int PathOpSubmitter::unflattenSize() const {
@@ -315,11 +310,8 @@ PathOpSubmitter::PathOpSubmitter(
 }
 
 PathOpSubmitter::~PathOpSubmitter() {
-    // If we have converted glyph IDs to paths, then clean up the SkPaths.
-    if (fPathsAreCreated) {
-        for (auto& idOrPath : fIDsOrPaths) {
-            idOrPath.fPath.~SkPath();
-        }
+    for (auto& idOrPath : fIDsOrPaths) {
+        idOrPath.~IDOrPath();
     }
 }
 
@@ -347,9 +339,8 @@ PathOpSubmitter::submitDraws(SkCanvas* canvas, SkPoint drawOrigin, const SkPaint
         if (SkStrike* strike = fStrikePromise.strike()) {
             strike->glyphIDsToPaths(fIDsOrPaths);
 
-            // Drop ref to strike so that it can be purged from the cache if needed.
+            // Drop strong ref to strike so that it can be purged from the cache if needed.
             fStrikePromise.resetStrike();
-            fPathsAreCreated = true;
         }
     });
 

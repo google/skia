@@ -18,6 +18,7 @@
 #include <optional>
 #include <variant>
 
+class SkAutoDescriptor;
 class SkDescriptor;
 class SkDrawable;
 class SkReadBuffer;
@@ -57,14 +58,22 @@ public:
     // Do what is needed to return a strike.
     SkStrike* strike();
 
-    // Reset the sk_sp<SkStrike> to nullptr.
+    // Release the strong reference to SkStrike so SkStrikeCache can evict it, while keeping
+    // the descriptor intact for serialization without holding onto heavy font objects.
     void resetStrike();
 
     // Return a descriptor used to look up the SkStrike.
     const SkDescriptor& descriptor() const;
 
 private:
-    std::variant<sk_sp<SkStrike>, std::unique_ptr<SkStrikeSpec>> fStrikeOrSpec;
+    // Holds one of:
+    // 1) The resolved SkStrike itself.
+    // 2) An SkStrikeSpec used to construct the SkStrike on demand.
+    // 3) A lightweight SkAutoDescriptor used to retrieve the descriptor for serialization or look
+    //    up an existing strike in the cache without pinning font objects in memory.
+    std::variant<sk_sp<SkStrike>,
+                 std::unique_ptr<SkStrikeSpec>,
+                 std::unique_ptr<SkAutoDescriptor>> fStrikeInfo;
 };
 
 // -- StrikeForGPU ---------------------------------------------------------------------------------
@@ -94,21 +103,25 @@ public:
     virtual SkStrikePromise strikePromise() = 0;
 };
 
-// prepareForPathDrawing uses this union to convert glyph ids to paths.
-union IDOrPath {
-    IDOrPath() {}
+// SkStrike::glyphIDsToPaths uses this struct to convert glyph ids to paths without clobbering
+// glyph IDs.
+struct IDOrPath {
+    IDOrPath() = default;
     IDOrPath(SkGlyphID glyphID) : fGlyphID{glyphID} {}
+    ~IDOrPath() = default;
 
-    // PathOpSubmitter takes care of destroying the paths.
-    ~IDOrPath() {}
-    SkGlyphID fGlyphID;
     SkPath fPath;
+    SkGlyphID fGlyphID{0};
 };
 
-// prepareForDrawableDrawing uses this union to convert glyph ids to drawables.
-union IDOrDrawable {
-    SkGlyphID fGlyphID;
-    RAW_PTR_EXCLUSION SkDrawable* fDrawable;  // RAW_PTR_EXCLUSION: union.
+// SkStrike::glyphIDsToDrawables uses this struct to convert glyph ids to drawables without
+// clobbering glyph IDs.
+struct IDOrDrawable {
+    IDOrDrawable() = default;
+    IDOrDrawable(SkGlyphID glyphID) : fGlyphID{glyphID} {}
+
+    RAW_PTR_EXCLUSION SkDrawable* fDrawable{nullptr};
+    SkGlyphID fGlyphID{0};
 };
 
 // -- StrikeMutationMonitor ------------------------------------------------------------------------
