@@ -9812,3 +9812,73 @@ DEF_TEST(SkParagraph_ZeroWidthClusterSplit, reporter) {
     }
 }
 
+// Verify that a BiDi isolate starting a styled block with a space-less primary font
+// preserves a 0-width cluster for the isolate and does not trap during style measurement
+DEF_TEST(SkParagraph_BidiIsolateStyledBlockNoSpaceFont, reporter) {
+    sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
+    auto noSpaceTypeface = mgr->makeFromStream(GetResourceAsStream("fonts/abc/abc.ttf"), {});
+    auto robotoTypeface = mgr->makeFromStream(GetResourceAsStream("fonts/Roboto-Regular.ttf"), {});
+    if (!noSpaceTypeface || !robotoTypeface) {
+        return;
+    }
+
+    auto fontCollection = sk_make_sp<FontCollection>();
+    auto fontProvider = sk_make_sp<TypefaceFontProvider>();
+    fontProvider->registerTypeface(noSpaceTypeface, SkString("NoSpaceFont"));
+    fontProvider->registerTypeface(robotoTypeface, SkString("Roboto"));
+    fontCollection->setAssetFontManager(fontProvider);
+    fontCollection->setDefaultFontManager(mgr);
+    fontCollection->enableFontFallback();
+
+    ParagraphStyle paragraphStyle;
+    paragraphStyle.setTextDirection(TextDirection::kRtl);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+
+    TextStyle baseStyle;
+    baseStyle.setFontFamilies({SkString("NoSpaceFont"), SkString("Roboto")});
+    baseStyle.setFontSize(20.0f);
+    SkPaint fg;
+    fg.setColor(SK_ColorBLACK);
+    baseStyle.setForegroundPaint(fg);
+
+    TextStyle boldStyle = baseStyle;
+    boldStyle.setFontStyle(SkFontStyle::Bold());
+
+    builder.pushStyle(baseStyle);
+    builder.addText("أنت ");
+    builder.pushStyle(boldStyle);
+    builder.addText("\u206680\u00A0\u2013\u00A083\u2069 abc");
+    builder.pop();
+    builder.addText(" هنا");
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(300.0f);
+
+    auto* impl = static_cast<ParagraphImpl*>(paragraph.get());
+    for (size_t i = 0; i <= impl->text().size(); ++i) {
+        REPORTER_ASSERT(reporter, impl->clusterIndex(i) != EMPTY_INDEX);
+    }
+
+    // U+2066 at the start of the bold block ([7:10)) gets RTL bidiLevel 1 while "80..."
+    // gets LTR bidiLevel 2, producing a 0-glyph run in NoSpaceFont that must map to [7:10)
+    const auto& isolateCluster = impl->cluster(impl->clusterIndex(7));
+    REPORTER_ASSERT(reporter, isolateCluster.textRange() == TextRange(7, 10));
+    REPORTER_ASSERT(reporter, isolateCluster.size() == 0);
+    REPORTER_ASSERT(reporter, isolateCluster.width() == 0.0f);
+
+    // Space after U+2069 (offset 24) must fall back to Roboto while "abc" (offset 25) uses abc.ttf
+    REPORTER_ASSERT(reporter, paragraph->getFontAt(24).getTypeface() == robotoTypeface.get());
+    REPORTER_ASSERT(reporter, paragraph->getFontAt(25).getTypeface() == noSpaceTypeface.get());
+
+    SkBitmap bm;
+    bm.allocN32Pixels(300, 100);
+    SkCanvas canvas(bm);
+    paragraph->paint(&canvas, 0, 0);
+
+    auto rects = paragraph->getRectsForRange(0,
+                                             impl->text().size(),
+                                             RectHeightStyle::kTight,
+                                             RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, !rects.empty());
+}
