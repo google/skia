@@ -25,6 +25,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skshaper/include/SkShaper_harfbuzz.h"
 #include "modules/skshaper/include/SkShaper_skunicode.h"
+#include "modules/skunicode/include/SkUnicode.h"
 
 #include <algorithm>
 #include <iterator>
@@ -34,6 +35,7 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 using namespace skia_private;
 
@@ -41,6 +43,13 @@ namespace skia {
 namespace textlayout {
 
 namespace {
+
+// Whether `text` resolves to a single bidi run when its base direction is `dir`.
+bool isSingleBidiRun(SkUnicode* unicode, const SkString& text, SkUnicode::TextDirection dir) {
+    std::vector<SkUnicode::BidiRegion> regions;
+    return unicode->getBidiRegions(text.c_str(), SkToInt(text.size()), dir, &regions) &&
+           regions.size() <= 1;
+}
 
 // TODO: deal with all the intersection functionality
 TextRange intersected(const TextRange& a, const TextRange& b) {
@@ -753,6 +762,22 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis,
         }
     }
 
+    // Shape the affix in the surrounding run's direction, so neutral and weak
+    // characters in it (like a "!" after Arabic letters, or the default "-" and
+    // "…") take that direction instead of LTR. ShapeHandler only supports a
+    // single run, so if the affix would split in that direction (like
+    // "Read more…" in RTL text), shape it in the opposite direction instead.
+    SkBidiIterator::Level bidiLevel = run.bidiLevel();
+    if (sk_sp<SkUnicode> unicode = fOwner->getUnicode()) {
+        const bool ltr = run.leftToRight();
+        const auto runDir = ltr ? SkUnicode::TextDirection::kLTR : SkUnicode::TextDirection::kRTL;
+        const auto otherDir = ltr ? SkUnicode::TextDirection::kRTL : SkUnicode::TextDirection::kLTR;
+        if (!isSingleBidiRun(unicode.get(), ellipsis, runDir) &&
+            isSingleBidiRun(unicode.get(), ellipsis, otherDir)) {
+            bidiLevel = ltr ? SkBidiIterator::kRTL : SkBidiIterator::kLTR;
+        }
+    }
+
     auto shaped = [&](sk_sp<SkTypeface> typeface, sk_sp<SkFontMgr> fallback) -> std::unique_ptr<Run> {
         ShapeHandler handler(run.heightMultiplier(),
                              run.useHalfLeading(),
@@ -767,12 +792,11 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis,
         std::unique_ptr<SkShaper> shaper = SkShapers::HB::ShapeDontWrapOrReorder(
                 fOwner->getUnicode(), fallback ? fallback : SkFontMgr::RefEmpty());
 
-        const SkBidiIterator::Level defaultLevel = SkBidiIterator::kLTR;
         const char* utf8 = ellipsis.c_str();
         size_t utf8Bytes = ellipsis.size();
 
         std::unique_ptr<SkShaper::BiDiRunIterator> bidi = SkShapers::unicode::BidiRunIterator(
-                fOwner->getUnicode(), utf8, utf8Bytes, defaultLevel);
+                fOwner->getUnicode(), utf8, utf8Bytes, bidiLevel);
         SkASSERT(bidi);
 
         std::unique_ptr<SkShaper::LanguageRunIterator> language =

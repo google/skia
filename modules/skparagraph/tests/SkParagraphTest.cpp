@@ -9086,6 +9086,224 @@ UNIX_ONLY_TEST(SkParagraph_SoftHyphenRTL, reporter) {
     REPORTER_ASSERT(reporter, firstLine.width() > firstLine.widthWithoutEllipsis());
 }
 
+// Soft hyphen affix must be shaped at the bidi level of the run it follows, not
+// a hardcoded LTR level. In an RTL paragraph the last cluster before the break
+// is RTL, so the shaped hyphen run must report leftToRight() == false.
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenRTLBidiLevel, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    // Arabic "كلمة\u00ADطويلة" — same text as SkParagraph_SoftHyphenRTL.
+    const char* text =
+            "\xD9\x83\xD9\x84\xD9\x85\xD8\xA9"
+            "\xC2\xAD"
+            "\xD8\xB7\xD9\x88\xD9\x8A\xD9\x84\xD8\xA9";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setRenderSoftHyphens(true);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, strlen(text));
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(40);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, !impl->lines().empty());
+
+    auto& firstLine = impl->lines()[0];
+    REPORTER_ASSERT(reporter, firstLine.hyphen() != nullptr);
+    if (firstLine.hyphen() == nullptr) return;
+    // The shaped hyphen run inherits the surrounding cluster's bidi level.
+    REPORTER_ASSERT(reporter, !firstLine.hyphen()->leftToRight());
+    REPORTER_ASSERT(reporter, (firstLine.hyphen()->bidiLevel() % 2) == 1);
+}
+
+// Regression guard: the default LTR case must still produce an LTR hyphen run.
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenLTRBidiLevel, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text =
+            "inter\xC2\xAD"
+            "national";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setRenderSoftHyphens(true);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, strlen(text));
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(80);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, !impl->lines().empty());
+
+    auto& firstLine = impl->lines()[0];
+    REPORTER_ASSERT(reporter, firstLine.hyphen() != nullptr);
+    if (firstLine.hyphen() == nullptr) return;
+    REPORTER_ASSERT(reporter, firstLine.hyphen()->leftToRight());
+    REPORTER_ASSERT(reporter, (firstLine.hyphen()->bidiLevel() % 2) == 0);
+    REPORTER_ASSERT(reporter, firstLine.hyphen()->advance().fX > 0);
+}
+
+// Custom ellipsis strings must be shaped in the surrounding bidi context. With
+// a hardcoded LTR level, the trailing "!" of an Arabic custom ellipsis resolves
+// LTR and splits the ellipsis into two bidi runs, which shapeEllipsis doesn't
+// support (it expects a single run).
+UNIX_ONLY_TEST(SkParagraph_EllipsisRTLCustomStringBidiLevel, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Naskh Arabic"), SkString("Roboto")});
+    text_style.setFontSize(40);
+    text_style.setColor(SK_ColorBLACK);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    // Arabic word "النهاية" (nihaya = "the end") plus "!", used as a custom ellipsis.
+    paragraph_style.setEllipsis(u"\u0627\u0644\u0646\u0647\u0627\u064A\u0629!");
+    paragraph_style.setMaxLines(1);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    builder.pushStyle(text_style);
+    builder.addText(u"\u062A\u0638\u0627\u0647\u0631\u0627\u062A \u0648 "
+                    u"\u062A\u062C\u0645\u0639\u0627\u062A");
+    auto paragraph = builder.Build();
+    // Layout width chosen so that (a) the paragraph text (about 270px wide)
+    // exceeds it and truncation is forced, and (b) the custom Arabic ellipsis
+    // comfortably fits — otherwise shapeEllipsis falls back to "ellipsis did
+    // not fit" and line.ellipsis() is nullptr, which would mask the regression
+    // being tested.
+    paragraph->layout(200);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, paragraph->lineNumber() == 1);
+    auto& line = impl->lines()[0];
+    REPORTER_ASSERT(reporter, line.ellipsis() != nullptr);
+    if (line.ellipsis() == nullptr) return;
+    // Surrounded by RTL Arabic content; the ellipsis must be shaped as RTL.
+    REPORTER_ASSERT(reporter, !line.ellipsis()->leftToRight());
+    REPORTER_ASSERT(reporter, (line.ellipsis()->bidiLevel() % 2) == 1);
+    REPORTER_ASSERT(reporter, line.ellipsis()->advance().fX > 0);
+}
+
+// Regression guard for the common path: default "…" (ON-class) ellipsis in an
+// LTR paragraph must still produce an LTR ellipsis run.
+UNIX_ONLY_TEST(SkParagraph_EllipsisLTRDefaultBidiLevel, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    paragraph_style.setEllipsis(u"\u2026");
+    paragraph_style.setMaxLines(1);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    builder.pushStyle(text_style);
+    builder.addText("The quick brown fox jumps over the lazy dog");
+    auto paragraph = builder.Build();
+    paragraph->layout(100);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, paragraph->lineNumber() == 1);
+    auto& line = impl->lines()[0];
+    REPORTER_ASSERT(reporter, line.ellipsis() != nullptr);
+    if (line.ellipsis() == nullptr) return;
+    REPORTER_ASSERT(reporter, line.ellipsis()->leftToRight());
+    REPORTER_ASSERT(reporter, (line.ellipsis()->bidiLevel() % 2) == 0);
+    REPORTER_ASSERT(reporter, line.ellipsis()->advance().fX > 0);
+}
+
+// An LTR custom ellipsis that ends in a neutral character must stay a single
+// run in RTL text. At the surrounding RTL level, the "…" in "Read more…" would
+// resolve RTL and split the ellipsis into two bidi runs, so it's shaped LTR.
+UNIX_ONLY_TEST(SkParagraph_EllipsisRTLLtrCustomStringSingleRun, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Naskh Arabic"), SkString("Roboto")});
+    text_style.setFontSize(40);
+    text_style.setColor(SK_ColorBLACK);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    paragraph_style.setEllipsis(u"Read more\u2026");
+    paragraph_style.setMaxLines(1);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    builder.pushStyle(text_style);
+    builder.addText(u"\u062A\u0638\u0627\u0647\u0631\u0627\u062A \u0648 "
+                    u"\u062A\u062C\u0645\u0639\u0627\u062A "
+                    u"\u062A\u0638\u0627\u0647\u0631\u0627\u062A");
+    auto paragraph = builder.Build();
+    paragraph->layout(300);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, paragraph->lineNumber() == 1);
+    auto& line = impl->lines()[0];
+    REPORTER_ASSERT(reporter, line.ellipsis() != nullptr);
+    if (line.ellipsis() == nullptr) return;
+    REPORTER_ASSERT(reporter, line.ellipsis()->leftToRight());
+    REPORTER_ASSERT(reporter, line.ellipsis()->advance().fX > 0);
+}
+
+// Likewise, an RTL custom ellipsis that ends in a neutral character must stay a
+// single run in LTR text, so "النهاية!" is shaped RTL.
+UNIX_ONLY_TEST(SkParagraph_EllipsisLTRRtlCustomStringSingleRun, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto"), SkString("Noto Naskh Arabic")});
+    text_style.setFontSize(40);
+    text_style.setColor(SK_ColorBLACK);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    paragraph_style.setEllipsis(u"\u0627\u0644\u0646\u0647\u0627\u064A\u0629!");
+    paragraph_style.setMaxLines(1);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    builder.pushStyle(text_style);
+    builder.addText("The quick brown fox jumps over the lazy dog");
+    auto paragraph = builder.Build();
+    paragraph->layout(300);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, paragraph->lineNumber() == 1);
+    auto& line = impl->lines()[0];
+    REPORTER_ASSERT(reporter, line.ellipsis() != nullptr);
+    if (line.ellipsis() == nullptr) return;
+    REPORTER_ASSERT(reporter, !line.ellipsis()->leftToRight());
+    REPORTER_ASSERT(reporter, line.ellipsis()->advance().fX > 0);
+}
+
 // Verify that with the default (setRenderSoftHyphens(false)), no visible hyphen
 // is rendered even when the line break occurs at a soft hyphen position.
 UNIX_ONLY_TEST(SkParagraph_SoftHyphenDefaultOff, reporter) {
