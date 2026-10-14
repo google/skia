@@ -252,8 +252,14 @@ sk_sp<SkSurface> RenderTarget(Recorder* recorder,
         label = "SkSurfaceRenderTarget";
     }
     // The client is getting the ref on this surface so it must be unbudgeted.
-    return skgpu::graphite::Surface::Make(recorder, info, label, skgpu::Budgeted::kNo,
-                                          mipmapped, SkBackingFit::kExact, props);
+    sk_sp<Surface> surface = skgpu::graphite::Surface::Make(recorder, info, label,
+                                                            skgpu::Budgeted::kNo,
+                                                            mipmapped, SkBackingFit::kExact,
+                                                            props);
+    if (surface && surface->target().proxy()) {
+        surface->target().proxy()->setProvenance(SkPixelStorage::Provenance::ClientRequest());
+    }
+    return surface;
 }
 
 sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
@@ -318,6 +324,7 @@ sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
     texture->setReleaseCallback(std::move(releaseHelper));
 
     sk_sp<TextureProxy> proxy = TextureProxy::Wrap(std::move(texture));
+    proxy->setProvenance(SkPixelStorage::Provenance::ClientRequest());
     SkISize deviceSize = proxy->dimensions();
     // Use kLoad for this device to preserve the existing contents of the wrapped backend texture.
     sk_sp<Device> device = Device::Make(recorder,

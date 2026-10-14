@@ -126,6 +126,10 @@ sk_sp<Image> Image::Copy(Recorder* recorder,
     if (!dst) {
         return nullptr;
     }
+    if (srcView.proxy()) {
+        dst->setProvenance(SkPixelStorage::Provenance::Copy(
+                srcView.proxy()->getPixelStorageId(), srcView.proxy()->getContentId()));
+    }
 
     auto copyTask = CopyTextureToTextureTask::Make(srcView.refProxy(), subset, dst, {0, 0});
     if (!copyTask) {

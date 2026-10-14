@@ -197,6 +197,7 @@ skia_core_sources = [
   "$_include/private/chromium/Slug.h",
   "$_src/capture/SkCapture.cpp",
   "$_src/capture/SkCapture.h",
+  "$_src/capture/SkCaptureAsset.h",
   "$_src/capture/SkCaptureCanvas.cpp",
   "$_src/capture/SkCaptureCanvas.h",
   "$_src/capture/SkCaptureManager.cpp",

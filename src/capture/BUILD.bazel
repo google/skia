@@ -20,6 +20,7 @@ skia_filegroup(
     name = "capture_hdrs",
     srcs = [
         "SkCapture.h",
+        "SkCaptureAsset.h",
         "SkCaptureCanvas.h",
         "SkCaptureManager.h",
     ],

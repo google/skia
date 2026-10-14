@@ -49,6 +49,7 @@ void run_test(skiatest::Reporter* reporter,
     sk_sp<SkSurface> surface =
             SkSurfaces::RenderTarget(surfaceRecorder.get(), surfaceImageInfo, canvasMipmapped);
     Surface* graphiteSurface = static_cast<Surface*>(surface.get());
+    REPORTER_ASSERT(reporter, graphiteSurface->target().proxy()->provenance().isClientRequest());
     const TextureInfo& textureInfo = graphiteSurface->target().proxy()->textureInfo();
 
     // Flush the initial clear added by MakeGraphite.

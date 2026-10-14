@@ -81,6 +81,9 @@ SkSurface_Raster::SkSurface_Raster(skcpu::Recorder* recorder,
         : SkSurface_Base(info, props, nullptr), fRecorder(recorder) {
     fBitmap.installPixels(info, pixels, rowBytes, releaseProc, context);
     fPixelStorage = sk_ref_sp(fBitmap.pixelRef());
+    if (fPixelStorage) {
+        fPixelStorage->setProvenance(SkPixelStorage::Provenance::ClientRequest());
+    }
     fWeOwnThePixels = false;    // We are "Direct"
 }
 
@@ -223,6 +226,7 @@ sk_sp<SkSurface> Raster(const SkImageInfo& info, size_t rowBytes, const SkSurfac
     if (rowBytes) {
         SkASSERT(pr->rowBytes() == rowBytes);
     }
+    pr->setProvenance(SkPixelStorage::Provenance::ClientRequest());
     return sk_make_sp<SkSurface_Raster>(info, std::move(pr), props);
 }
 
@@ -249,6 +253,7 @@ sk_sp<SkSurface> Recorder::makeBitmapSurface(const SkImageInfo& imageInfo,
     if (rowBytes) {
         SkASSERT(pr->rowBytes() == rowBytes);
     }
+    pr->setProvenance(SkPixelStorage::Provenance::ClientRequest());
 
     return sk_make_sp<SkSurface_Raster>(this, imageInfo, std::move(pr), surfaceProps);
 }
