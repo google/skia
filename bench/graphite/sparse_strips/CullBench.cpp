@@ -76,7 +76,7 @@ protected:
                 flattener.processPaths<FlattenMode::kSimd>(path, SkMatrix::I(), dim, &polyline);
 
                 windingHistogram.clear();
-                bool culled = tiler.makeTilesMSAA(polyline, dim, windingHistogram);
+                bool culled = tiler.makeTilesMSAA(polyline, dim, &windingHistogram);
 
                 tiler.sortTiles();
 
@@ -95,7 +95,7 @@ private:
     SkString fName;
     int fPercentOnscreen;
     std::vector<SkPath> fPaths;
-    SparseStripConfig::LutArray fLUT;
+    SparseStripConfig::LUTArray fLUT;
 };
 
 }  // namespace skgpu::graphite
