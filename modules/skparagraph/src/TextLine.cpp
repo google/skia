@@ -680,7 +680,10 @@ void TextLine::createSoftHyphen() {
         return;
     }
 
-    SkString hyphenStr("-");
+    const SkString& hyphenStr = fOwner->paragraphStyle().getSoftHyphenString();
+    if (hyphenStr.isEmpty()) {
+        return;
+    }
     fHyphen = this->shapeEllipsis(hyphenStr, &lastCluster, /*isHyphen=*/true);
     if (fHyphen) {
         fHyphen->fClusterStart = lastCluster.textRange().start;

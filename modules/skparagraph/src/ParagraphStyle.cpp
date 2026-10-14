@@ -2,6 +2,7 @@
 
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skunicode/include/SkUnicode.h"
 #include "src/core/SkStringUtils.h"
 #include "src/core/SkUTF.h"
 
@@ -28,6 +29,10 @@ ParagraphStyle::ParagraphStyle() {
     fHintingIsOn = true;
     fReplaceTabCharacters = false;
     fFakeMissingFontStyles = true;
+}
+
+void ParagraphStyle::setSoftHyphenString(const std::u16string& value) {
+    fSoftHyphenString = SkUnicode::convertUtf16ToUtf8(value);
 }
 
 TextAlign ParagraphStyle::effective_align() const {
