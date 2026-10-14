@@ -767,18 +767,12 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis,
         std::unique_ptr<SkShaper> shaper = SkShapers::HB::ShapeDontWrapOrReorder(
                 fOwner->getUnicode(), fallback ? fallback : SkFontMgr::RefEmpty());
 
-        // Shape the affix with the surrounding run's bidi level, so neutral and
-        // weak characters in a custom affix (like a "!" after Arabic letters)
-        // take the surrounding direction instead of LTR. Resolved as LTR, they
-        // can split the affix into two bidi runs, which ShapeHandler doesn't
-        // support. The default "-" (ES-class) and "…" (ON-class) produce the
-        // same glyphs regardless of the level.
-        const SkBidiIterator::Level bidiLevel = run.bidiLevel();
+        const SkBidiIterator::Level defaultLevel = SkBidiIterator::kLTR;
         const char* utf8 = ellipsis.c_str();
         size_t utf8Bytes = ellipsis.size();
 
         std::unique_ptr<SkShaper::BiDiRunIterator> bidi = SkShapers::unicode::BidiRunIterator(
-                fOwner->getUnicode(), utf8, utf8Bytes, bidiLevel);
+                fOwner->getUnicode(), utf8, utf8Bytes, defaultLevel);
         SkASSERT(bidi);
 
         std::unique_ptr<SkShaper::LanguageRunIterator> language =
