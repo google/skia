@@ -49,6 +49,7 @@ BASE_PRIVATE_HDRS = [
     "SkDebug.h",
     "SkFeatures.h",
     "SkFixed.h",
+    "SkGPUContext.h",
     "SkLoadUserConfig.h",
     "SkLog.h",
     "SkLogPriority.h",

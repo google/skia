@@ -163,6 +163,7 @@ skia_core_sources = [
   "$_include/private/SkFeatures.h",
   "$_include/private/SkFixed.h",
   "$_include/private/SkFloatingPoint.h",
+  "$_include/private/SkGPUContext.h",
   "$_include/private/SkGainmapInfo.h",
   "$_include/private/SkGainmapShader.h",
   "$_include/private/SkHdrMetadata.h",

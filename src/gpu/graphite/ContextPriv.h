@@ -46,6 +46,11 @@ public:
     ShaderCodeDictionary* shaderCodeDictionary() {
         return fContext->fSharedContext->shaderCodeDictionary();
     }
+
+    static std::unique_ptr<SkGPUContext> AsGPUContext(std::unique_ptr<Context> context) {
+        return std::unique_ptr<SkGPUContext>(context.release());
+    }
+
 #if defined(GPU_TEST_UTILS)
     const GlobalCache* globalCache() const {
         return fContext->fSharedContext->globalCache();

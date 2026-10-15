@@ -79,7 +79,8 @@ SK_API std::unique_ptr<Context> MakeDawn(const DawnBackendContext&, const Contex
 
 namespace SkContexts {
 std::unique_ptr<SkContext> MakeGraphite(const skgpu::graphite::DawnBackendContext& dawnContext,
-                                        const SkContextOptions& options);
+                                        const SkContextOptions& contextOptions,
+                                        const skgpu::graphite::ContextOptions& graphiteOptions);
 }  // namespace SkContexts
 
 #endif // skgpu_graphite_DawnBackendContext_DEFINED

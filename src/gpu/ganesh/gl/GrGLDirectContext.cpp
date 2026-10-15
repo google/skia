@@ -16,8 +16,10 @@
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "include/gpu/ganesh/gl/GrGLTypes.h"
 
+#include "src/core/SkContextPriv.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/SkGaneshGPUContextAdapter.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 
@@ -114,8 +116,15 @@ sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface> glInterface,
 
 namespace SkContexts {
 
-std::unique_ptr<SkContext> MakeGanesh(sk_sp<const GrGLInterface>, const SkContextOptions& options) {
-    return nullptr;
+std::unique_ptr<SkContext> MakeGanesh(sk_sp<const GrGLInterface> glInterface,
+                                      const SkContextOptions& contextOptions,
+                                      const GrContextOptions& grOptions) {
+    auto direct = GrDirectContexts::MakeGL(std::move(glInterface), grOptions);
+    if (!direct) {
+        return nullptr;
+    }
+    return SkContextCtorAccessor::MakeContext(
+            contextOptions, std::make_unique<SkGaneshGPUContextAdapter>(std::move(direct)));
 }
 
 }  // namespace SkContexts

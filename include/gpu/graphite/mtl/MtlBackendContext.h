@@ -38,7 +38,8 @@ namespace SkContexts {
 
 // Creates a context wrapping a Graphite GPU backend using Metal
 std::unique_ptr<SkContext> MakeGraphite(const skgpu::graphite::MtlBackendContext& mtlContext,
-                              const SkContextOptions& options);
+                                        const SkContextOptions& contextOptions,
+                                        const skgpu::graphite::ContextOptions& graphiteOptions);
 
 }  // namespace SkContexts
 

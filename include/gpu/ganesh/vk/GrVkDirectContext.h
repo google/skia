@@ -38,7 +38,8 @@ namespace SkContexts {
 
 // Creates a context wrapping a Ganesh GPU backend with Vulkan
 std::unique_ptr<SkContext> MakeGanesh(const skgpu::VulkanBackendContext& vkContext,
-                            const SkContextOptions& options);
+                                      const SkContextOptions& contextOptions,
+                                      const GrContextOptions& grOptions);
 
 }  // namespace SkContexts
 

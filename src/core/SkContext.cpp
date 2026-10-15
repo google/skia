@@ -13,6 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkGPUContext.h"
 #include "include/private/SkOnce.h"
 #include "src/capture/SkCapture.h"
 #include "src/capture/SkCaptureManager.h"
@@ -53,6 +54,11 @@ SkContext::SkContext(const SkContextOptions& options) {
     fSharedContext = sk_make_sp<SkSharedContext>(options);
 }
 
+SkContext::SkContext(const SkContextOptions& options, std::unique_ptr<SkGPUContext> gpuContext)
+        : SkContext(options) {
+    fGPUContext = std::move(gpuContext);
+}
+
 SkContext::~SkContext() = default;
 
 SkContextPriv SkContext::priv() { return SkContextPriv(this); }
@@ -79,37 +85,25 @@ SkResourceCache* SkContext::resourceCache() const {
     return fSharedContext->synchronizedResourceCache();
 }
 
-SkStrikeCache* SkContext::fontCache() const {
-    return fSharedContext->fontCache();
-}
+SkStrikeCache* SkContext::fontCache() const { return fSharedContext->fontCache(); }
 
-SkTypefaceCache* SkContext::typefaceCache() const {
-    return fSharedContext->typefaceCache();
-}
+SkTypefaceCache* SkContext::typefaceCache() const { return fSharedContext->typefaceCache(); }
 
-size_t SkContext::fontCacheLimit() const {
-    return this->fontCache()->getCacheSizeLimit();
-}
+size_t SkContext::fontCacheLimit() const { return this->fontCache()->getCacheSizeLimit(); }
 
 size_t SkContext::setFontCacheLimit(size_t bytes) {
     return this->fontCache()->setCacheSizeLimit(bytes);
 }
 
-size_t SkContext::fontCacheUsed() const {
-    return this->fontCache()->getTotalMemoryUsed();
-}
+size_t SkContext::fontCacheUsed() const { return this->fontCache()->getTotalMemoryUsed(); }
 
-int SkContext::fontCacheCountLimit() const {
-    return this->fontCache()->getCacheCountLimit();
-}
+int SkContext::fontCacheCountLimit() const { return this->fontCache()->getCacheCountLimit(); }
 
 int SkContext::setFontCacheCountLimit(int count) {
     return this->fontCache()->setCacheCountLimit(count);
 }
 
-int SkContext::fontCacheCountUsed() const {
-    return this->fontCache()->getCacheCountUsed();
-}
+int SkContext::fontCacheCountUsed() const { return this->fontCache()->getCacheCountUsed(); }
 
 void SkContext::purgeFontCache() { this->fontCache()->purgeAll(); }
 
@@ -140,6 +134,11 @@ void SkContext::dumpMemoryStatistics(SkTraceMemoryDump* dump) {
 
 std::unique_ptr<SkContext> SkContextCtorAccessor::MakeContext(const SkContextOptions& options) {
     return std::unique_ptr<SkContext>(new SkContext(options));
+}
+
+std::unique_ptr<SkContext> SkContextCtorAccessor::MakeContext(
+        const SkContextOptions& options, std::unique_ptr<SkGPUContext> gpuContext) {
+    return std::unique_ptr<SkContext>(new SkContext(options, std::move(gpuContext)));
 }
 
 namespace SkContexts {

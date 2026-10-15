@@ -16,6 +16,7 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/Recorder.h"  // IWYU pragma: keep
 #include "include/private/SingleOwner.h"
+#include "include/private/SkGPUContext.h"
 #include "include/private/SkThreadAnnotations.h"
 
 #if defined(GPU_TEST_UTILS)
@@ -31,6 +32,7 @@
 
 class SkCapture;
 class SkColorInfo;
+class SkContextCtorAccessor;
 class SkSurface;
 enum SkYUVColorSpace : int;
 class SkColorSpace;
@@ -64,14 +66,14 @@ class TextureProxy;
 class TextureProxyView;
 struct ContextOptions;
 
-class SK_API Context final {
+class SK_API Context final : private SkGPUContext {
 public:
     Context(const Context&) = delete;
     Context(Context&&) = delete;
     Context& operator=(const Context&) = delete;
     Context& operator=(Context&&) = delete;
 
-    ~Context();
+    ~Context() override;
 
     BackendApi backend() const;
 
@@ -84,7 +86,8 @@ public:
     std::unique_ptr<PrecompileContext> makePrecompileContext();
 
     InsertStatus insertRecording(const InsertRecordingInfo&);
-    bool submit(SubmitInfo submitInfo = {});
+    bool submit() override { return this->submit(SubmitInfo{}); }
+    bool submit(SubmitInfo submitInfo);
 
     /** Returns true if there is work that was submitted to the GPU that has not finished. */
     bool hasUnfinishedGpuWork() const;
@@ -207,7 +210,7 @@ public:
     /**
      * Checks whether any asynchronous work is complete and if so calls related callbacks.
      */
-    void checkAsyncWorkCompletion();
+    void checkAsyncWorkCompletion() override;
 
     /**
      * Called to delete the passed in BackendTexture. This should only be called if the
@@ -226,7 +229,7 @@ public:
      * will not be deleted by this call. If the caller wants to make sure all resources are freed,
      * then they should first make sure to submit and wait on any outstanding work.
      */
-    void freeGpuResources();
+    void freeGpuResources() override;
 
     /**
      * Purge GPU resources on the Context that haven't been used in the past 'msNotUsed'
@@ -236,51 +239,51 @@ public:
      */
     void performDeferredCleanup(
             std::chrono::milliseconds msNotUsed,
-            std::optional<std::chrono::microseconds> microsMaxPurgingDur = std::nullopt);
+            std::optional<std::chrono::microseconds> microsMaxPurgingDur = std::nullopt) override;
 
     /**
      * Returns the number of bytes of the Context's gpu memory cache budget that are currently in
      * use.
      */
-    size_t currentBudgetedBytes() const;
+    size_t currentBudgetedBytes() const override;
 
     /**
      * Returns the number of bytes of the Context's resource cache that are currently purgeable.
      */
-    size_t currentPurgeableBytes() const;
+    size_t currentPurgeableBytes() const override;
 
     /**
      * Returns the size of Context's gpu memory cache budget in bytes.
      */
-    size_t maxBudgetedBytes() const;
+    size_t maxBudgetedBytes() const override;
 
     /**
      * Sets the size of Context's gpu memory cache budget in bytes. If the new budget is lower than
      * the current budget, the cache will try to free resources to get under the new budget.
      */
-    void setMaxBudgetedBytes(size_t bytes);
+    void setMaxBudgetedBytes(size_t bytes) override;
 
     /**
      * Enumerates all cached GPU resources owned by the Context and dumps their memory to
      * traceMemoryDump.
      */
-    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
+    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 
     /**
      * Returns true if the backend-specific context has gotten into an unrecoverarble, lost state
      * (e.g. if we've gotten a VK_ERROR_DEVICE_LOST in the Vulkan backend).
      */
-    bool isDeviceLost() const;
+    bool isDeviceLost() const override;
 
     /**
      * Returns the maximum texture dimension supported by the underlying backend.
      */
-    int maxTextureSize() const;
+    int maxTextureSize() const override;
 
     /*
      * Does this context support protected content?
      */
-    bool supportsProtectedContent() const;
+    bool supportsProtectedContent() const override;
 
     /*
      * Gets the types of GPU stats supported by this Context.
@@ -345,6 +348,7 @@ protected:
 private:
     friend class ContextPriv;
     friend class ContextCtorAccessor;
+    friend class ::SkContextCtorAccessor;
 
     struct PixelTransferResult {
         PixelTransferResult();

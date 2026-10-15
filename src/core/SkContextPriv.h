@@ -10,6 +10,7 @@
 
 #include "include/core/SkContext.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkGPUContext.h"
 #include "src/core/SkSharedContext.h"
 
 #include <memory>
@@ -62,7 +63,13 @@ private:
 // functions in SkContext.h
 class SkContextCtorAccessor {
 public:
+    // Raster
     static std::unique_ptr<SkContext> MakeContext(const SkContextOptions& options);
+
+    // Ganesh and Graphite
+    static std::unique_ptr<SkContext> MakeContext(const SkContextOptions& options,
+                                                  std::unique_ptr<SkGPUContext> gpuContext);
+
 };
 
 namespace SkContexts {

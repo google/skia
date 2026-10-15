@@ -250,6 +250,7 @@ CORE_FILES = [
     "PathRendererChain.h",
     "SkGr.cpp",
     "SkGr.h",
+    "SkGaneshGPUContextAdapter.h",
     "SkGaneshRecorder.h",
     "StencilClip.h",
     "StencilMaskHelper.cpp",
