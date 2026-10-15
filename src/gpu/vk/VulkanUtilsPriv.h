@@ -39,9 +39,9 @@ struct ShaderCaps;
 namespace skgpu {
 
 class ShaderErrorHandler;
-struct VulkanInterface;
-struct VulkanBackendContext;
 class VulkanExtensions;
+struct VulkanBackendContext;
+struct VulkanInterface;
 
 enum VkVendor {
     kAMD_VkVendor = 0x1002,
@@ -362,15 +362,17 @@ bool AllocateAndBindImageMemory(skgpu::VulkanAlloc* outVulkanAlloc,
 #endif // SK_BUILD_FOR_ANDROID
 
 /**
- * Calls faultProc with faultContext; passes debug info if VK_EXT_device_fault is supported/enabled.
+ * Calls faultProc with faultContext; passes debug info if VK_EXT_device_fault is supported/enabled
+ * and the error is VK_ERROR_DEVICE_LOST.
  *
- * Note: must only be called *after* receiving VK_ERROR_DEVICE_LOST.
+ * Note: must only be called *after* receiving VK_ERROR_DEVICE_LOST or VK_ERROR_UNKNOWN.
  */
 void InvokeDeviceLostCallback(const skgpu::VulkanInterface* vulkanInterface,
                               VkDevice vkDevice,
                               skgpu::VulkanDeviceLostContext faultContext,
                               skgpu::VulkanDeviceLostProc faultProc,
-                              bool supportsDeviceFaultInfoExtension);
+                              bool supportsDeviceFaultInfoExtension,
+                              bool isUnknownError);
 
 sk_sp<skgpu::VulkanInterface> MakeInterface(const skgpu::VulkanBackendContext&,
                                             const skgpu::VulkanExtensions* extOverride,
