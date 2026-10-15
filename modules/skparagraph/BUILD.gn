@@ -57,6 +57,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_enable_skunicode &&
         sources = [
           "gm/ellipsis_bidi_gm.cpp",
           "gm/simple_gm.cpp",
+          "gm/softhyphen_gm.cpp",
         ]
         deps = [
           ":skparagraph",
