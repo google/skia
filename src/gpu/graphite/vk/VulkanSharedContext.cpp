@@ -270,6 +270,7 @@ bool VulkanSharedContext::checkVkResult(VkResult result) const {
     case VK_SUCCESS:
         return true;
     case VK_ERROR_DEVICE_LOST:
+    case VK_ERROR_UNKNOWN:
         {
             SkAutoMutexExclusive lock(fDeviceIsLostMutex);
             if (fDeviceIsLost) {
@@ -284,7 +285,8 @@ bool VulkanSharedContext::checkVkResult(VkResult result) const {
                                         device(),
                                         fDeviceLostContext,
                                         fDeviceLostProc,
-                                        vulkanCaps().supportsDeviceFaultInfo());
+                                        vulkanCaps().supportsDeviceFaultInfo(),
+                                        /*isUnknownError=*/result == VK_ERROR_UNKNOWN);
         return false;
     case VK_ERROR_OUT_OF_DEVICE_MEMORY:
     case VK_ERROR_OUT_OF_HOST_MEMORY:

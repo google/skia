@@ -2658,6 +2658,7 @@ bool GrVkGpu::checkVkResult(VkResult result) {
         case VK_SUCCESS:
             return true;
         case VK_ERROR_DEVICE_LOST:
+        case VK_ERROR_UNKNOWN:
             if (!fDeviceIsLost) {
                 // Callback should only be invoked once, and device should be marked as lost first.
                 fDeviceIsLost = true;
@@ -2665,7 +2666,8 @@ bool GrVkGpu::checkVkResult(VkResult result) {
                                                 device(),
                                                 fDeviceLostContext,
                                                 fDeviceLostProc,
-                                                vkCaps().supportsDeviceFaultInfo());
+                                                vkCaps().supportsDeviceFaultInfo(),
+                                                /*isUnknownError=*/result == VK_ERROR_UNKNOWN);
             }
             return false;
         case VK_ERROR_OUT_OF_DEVICE_MEMORY:
