@@ -22,6 +22,7 @@ class SkContext;
     data members or virtual methods.*/
 class SkContextPrivConst {
 public:
+    SkStrikeCache* strikeCache() const { return fConstContext->strikeCache(); }
 
 protected:
     explicit SkContextPrivConst(const SkContext* context) : fConstContext(context) {}

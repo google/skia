@@ -24,14 +24,14 @@ SkSharedContext::SkSharedContext(const SkContextOptions& options) {
             std::make_unique<SkSynchronizedResourceCache>(options.fResourceCacheTotalByteLimit);
 #endif
 
-    fFontCache = std::make_unique<SkStrikeCache>();
+    fStrikeCache = std::make_unique<SkStrikeCache>();
 
     fTypefaceCache = std::make_unique<SkTypefaceCache>();
     fTypefaceCacheCountLimit = options.fTypefaceCacheCountLimit;
 
     fResourceCache->setSingleAllocationByteLimit(options.fResourceCacheSingleAllocationByteLimit);
-    fFontCache->setCacheCountLimit(options.fFontCacheCountLimit);
-    fFontCache->setCacheSizeLimit(options.fFontCacheLimit);
+    fStrikeCache->setCacheCountLimit(options.fFontCacheCountLimit);
+    fStrikeCache->setCacheSizeLimit(options.fFontCacheLimit);
 }
 
 SkSharedContext::~SkSharedContext() = default;

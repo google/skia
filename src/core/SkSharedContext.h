@@ -31,8 +31,8 @@ public:
     }
     SkSynchronizedResourceCache* synchronizedResourceCache() { return fResourceCache.get(); }
 
-    const SkStrikeCache* fontCache() const { return fFontCache.get(); }
-    SkStrikeCache* fontCache() { return fFontCache.get(); }
+    const SkStrikeCache* strikeCache() const { return fStrikeCache.get(); }
+    SkStrikeCache* strikeCache() { return fStrikeCache.get(); }
 
     const SkTypefaceCache* typefaceCache() const { return fTypefaceCache.get(); }
     SkTypefaceCache* typefaceCache() { return fTypefaceCache.get(); }
@@ -55,7 +55,7 @@ private:
     OpenTypeSVGDecoderFactory fSVGDecoderFactory = nullptr;
 
     std::unique_ptr<SkSynchronizedResourceCache> fResourceCache;
-    std::unique_ptr<SkStrikeCache> fFontCache;
+    std::unique_ptr<SkStrikeCache> fStrikeCache;
     std::unique_ptr<SkTypefaceCache> fTypefaceCache;
 };
 

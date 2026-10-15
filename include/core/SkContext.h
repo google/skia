@@ -61,7 +61,7 @@ private:
     friend class SkContextCtorAccessor;
 
     SkResourceCache* resourceCache() const;
-    SkStrikeCache* fontCache() const;
+    SkStrikeCache* strikeCache() const;
     SkTypefaceCache* typefaceCache() const;
 
     size_t fontCacheLimit() const;

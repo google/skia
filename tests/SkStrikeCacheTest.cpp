@@ -136,7 +136,7 @@ DEF_TEST(SkStrikeCache_ContextPurgeAndEviction, reporter) {
 
     // Populate the context's strike cache.
     {
-        sk_sp<SkStrike> strike = spec16.findOrCreateStrike(context->priv().fontCache());
+        sk_sp<SkStrike> strike = spec16.findOrCreateStrike(context->priv().strikeCache());
         REPORTER_ASSERT(reporter, strike != nullptr);
     }
     REPORTER_ASSERT(reporter, context->fontCacheUsed() > 0);
@@ -145,7 +145,7 @@ DEF_TEST(SkStrikeCache_ContextPurgeAndEviction, reporter) {
     // Re-querying the same strike spec hits the existing cached entry.
     size_t usedAfterFirstStrike = context->fontCacheUsed();
     {
-        sk_sp<SkStrike> strike = spec16.findOrCreateStrike(context->priv().fontCache());
+        sk_sp<SkStrike> strike = spec16.findOrCreateStrike(context->priv().strikeCache());
         REPORTER_ASSERT(reporter, strike != nullptr);
     }
     REPORTER_ASSERT(reporter, context->fontCacheCountUsed() == 1);
@@ -161,10 +161,10 @@ DEF_TEST(SkStrikeCache_ContextPurgeAndEviction, reporter) {
     // Setting count limit to 1 evicts the least-recently-used strike when a 2nd strike is added.
     context->setFontCacheCountLimit(1);
     {
-        sk_sp<SkStrike> strike16 = spec16.findOrCreateStrike(context->priv().fontCache());
+        sk_sp<SkStrike> strike16 = spec16.findOrCreateStrike(context->priv().strikeCache());
         REPORTER_ASSERT(reporter, context->fontCacheCountUsed() == 1);
 
-        sk_sp<SkStrike> strike32 = spec32.findOrCreateStrike(context->priv().fontCache());
+        sk_sp<SkStrike> strike32 = spec32.findOrCreateStrike(context->priv().strikeCache());
         REPORTER_ASSERT(reporter, context->fontCacheCountUsed() == 1);
     }
 
@@ -173,7 +173,7 @@ DEF_TEST(SkStrikeCache_ContextPurgeAndEviction, reporter) {
     REPORTER_ASSERT(reporter, context->fontCacheUsed() == 0);
     REPORTER_ASSERT(reporter, context->fontCacheCountUsed() == 0);
     {
-        sk_sp<SkStrike> strike = spec16.findOrCreateStrike(context->priv().fontCache());
+        sk_sp<SkStrike> strike = spec16.findOrCreateStrike(context->priv().strikeCache());
         REPORTER_ASSERT(reporter, context->fontCacheUsed() == 0);
         REPORTER_ASSERT(reporter, context->fontCacheCountUsed() == 0);
     }
@@ -195,7 +195,7 @@ DEF_TEST(SkStrikeCache_ContextPurgePinned, reporter) {
     SkStrikeSpec strikeSpec = make_test_strike_spec(font);
 
     {
-        sk_sp<SkStrike> strike = context->priv().fontCache()->createStrike(
+        sk_sp<SkStrike> strike = context->priv().strikeCache()->createStrike(
                 strikeSpec, nullptr, std::move(pinner));
         REPORTER_ASSERT(reporter, strike != nullptr);
     }
@@ -221,14 +221,14 @@ DEF_TEST(SkStrikeCache_IndependentContextsIsolation, reporter) {
     std::unique_ptr<SkContext> contextB = SkContexts::MakeRaster({});
     REPORTER_ASSERT(reporter, contextA != nullptr);
     REPORTER_ASSERT(reporter, contextB != nullptr);
-    REPORTER_ASSERT(reporter, contextA->priv().fontCache() != contextB->priv().fontCache());
+    REPORTER_ASSERT(reporter, contextA->priv().strikeCache() != contextB->priv().strikeCache());
 
     SkFont font = make_test_font(18.0f);
     SkStrikeSpec strikeSpec = make_test_strike_spec(font);
 
     // Populating contextA's strike cache does not affect contextB.
     {
-        sk_sp<SkStrike> strikeA = strikeSpec.findOrCreateStrike(contextA->priv().fontCache());
+        sk_sp<SkStrike> strikeA = strikeSpec.findOrCreateStrike(contextA->priv().strikeCache());
         REPORTER_ASSERT(reporter, strikeA != nullptr);
     }
     REPORTER_ASSERT(reporter, contextA->fontCacheCountUsed() == 1);
@@ -238,7 +238,7 @@ DEF_TEST(SkStrikeCache_IndependentContextsIsolation, reporter) {
 
     // Populate contextB's strike cache as well.
     {
-        sk_sp<SkStrike> strikeB = strikeSpec.findOrCreateStrike(contextB->priv().fontCache());
+        sk_sp<SkStrike> strikeB = strikeSpec.findOrCreateStrike(contextB->priv().strikeCache());
         REPORTER_ASSERT(reporter, strikeB != nullptr);
     }
     REPORTER_ASSERT(reporter, contextB->fontCacheCountUsed() == 1);

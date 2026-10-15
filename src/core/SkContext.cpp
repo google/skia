@@ -85,29 +85,29 @@ SkResourceCache* SkContext::resourceCache() const {
     return fSharedContext->synchronizedResourceCache();
 }
 
-SkStrikeCache* SkContext::fontCache() const { return fSharedContext->fontCache(); }
+SkStrikeCache* SkContext::strikeCache() const { return fSharedContext->strikeCache(); }
 
 SkTypefaceCache* SkContext::typefaceCache() const { return fSharedContext->typefaceCache(); }
 
-size_t SkContext::fontCacheLimit() const { return this->fontCache()->getCacheSizeLimit(); }
+size_t SkContext::fontCacheLimit() const { return this->strikeCache()->getCacheSizeLimit(); }
 
 size_t SkContext::setFontCacheLimit(size_t bytes) {
-    return this->fontCache()->setCacheSizeLimit(bytes);
+    return this->strikeCache()->setCacheSizeLimit(bytes);
 }
 
-size_t SkContext::fontCacheUsed() const { return this->fontCache()->getTotalMemoryUsed(); }
+size_t SkContext::fontCacheUsed() const { return this->strikeCache()->getTotalMemoryUsed(); }
 
-int SkContext::fontCacheCountLimit() const { return this->fontCache()->getCacheCountLimit(); }
+int SkContext::fontCacheCountLimit() const { return this->strikeCache()->getCacheCountLimit(); }
 
 int SkContext::setFontCacheCountLimit(int count) {
-    return this->fontCache()->setCacheCountLimit(count);
+    return this->strikeCache()->setCacheCountLimit(count);
 }
 
-int SkContext::fontCacheCountUsed() const { return this->fontCache()->getCacheCountUsed(); }
+int SkContext::fontCacheCountUsed() const { return this->strikeCache()->getCacheCountUsed(); }
 
-void SkContext::purgeFontCache() { this->fontCache()->purgeAll(); }
+void SkContext::purgeFontCache() { this->strikeCache()->purgeAll(); }
 
-void SkContext::purgePinnedFontCache() { this->fontCache()->purgePinned(); }
+void SkContext::purgePinnedFontCache() { this->strikeCache()->purgePinned(); }
 
 namespace {
 void sk_trace_dump_visitor(const SkResourceCache::Rec& rec, void* context) {
