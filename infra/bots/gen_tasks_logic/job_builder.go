@@ -150,10 +150,7 @@ func (b *jobBuilder) genTasksForJob() {
 
 	// Test bots.
 	if b.Role("Test") {
-		if b.ExtraConfig("WasmGMTests") {
-			b.runWasmGMTests()
-			return
-		} else if b.ExtraConfig("StandaloneWasm") {
+		if b.ExtraConfig("StandaloneWasm") {
 			b.dmStandaloneWasm()
 			return
 		}

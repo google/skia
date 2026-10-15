@@ -792,8 +792,6 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			task_os = "Mac"
 		} else if b.MatchOs("Win") {
 			task_os = "Win"
-		} else if b.ExtraConfig("WasmGMTests") {
-			task_os = DEFAULT_OS_LINUX_GCE
 		} else if b.Compiler("GCC") {
 			// GCC compiles are now on a Docker container. We use the same OS and
 			// version to compile as to test.
@@ -1244,102 +1242,98 @@ func (b *TaskBuilder) maybeAddIosDevImage() {
 // compile generates a compile task. Returns the name of the compile task.
 func (b *jobBuilder) compile() string {
 	name := b.deriveCompileTaskName()
-	if b.ExtraConfig("WasmGMTests") {
-		b.compileWasmGMTests(name)
-	} else {
-		b.addTask(name, func(b *TaskBuilder) {
-			recipe := "compile"
-			casSpec := CAS_COMPILE
-			if b.ExtraConfig("NoDEPS", "CMake", "Flutter", "NoPatch") || b.shellsOutToBazel() {
-				recipe = "sync_and_compile"
-				casSpec = CAS_RUN_RECIPE
-				b.recipeProps(EXTRA_PROPS)
-				b.usesGit()
-				if !b.ExtraConfig("NoDEPS") {
-					b.cache(CACHES_WORKDIR...)
+	b.addTask(name, func(b *TaskBuilder) {
+		recipe := "compile"
+		casSpec := CAS_COMPILE
+		if b.ExtraConfig("NoDEPS", "CMake", "Flutter", "NoPatch") || b.shellsOutToBazel() {
+			recipe = "sync_and_compile"
+			casSpec = CAS_RUN_RECIPE
+			b.recipeProps(EXTRA_PROPS)
+			b.usesGit()
+			if !b.ExtraConfig("NoDEPS") {
+				b.cache(CACHES_WORKDIR...)
+			}
+		} else {
+			b.idempotent()
+		}
+		if b.ExtraConfig("NoPatch") {
+			b.kitchenTask(recipe, OUTPUT_BUILD_NOPATCH)
+		} else {
+			b.kitchenTask(recipe, OUTPUT_BUILD)
+		}
+		b.cas(casSpec)
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
+		b.swarmDimensions()
+		if b.ExtraConfig("Docker", "LottieWeb", "CMake") || b.Compiler("EMCC") {
+			b.usesDocker()
+			b.cache(CACHES_DOCKER...)
+		}
+		if b.ExtraConfig("Dawn") {
+			// https://dawn.googlesource.com/dawn/+/516701da8184655a47c92a573cc84da7db5e69d4/generator/dawn_version_generator.py#21
+			b.usesGit()
+			b.usesCMake()
+		}
+
+		// Android bots require a toolchain.
+		if b.ExtraConfig("Android") {
+			if b.MatchOs("Mac") {
+				b.asset("android_ndk_darwin")
+			} else if b.MatchOs("Win") {
+				pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
+				pkg.Path = "n"
+				b.cipd(pkg)
+			} else {
+				b.asset("android_ndk_linux")
+			}
+		} else if b.ExtraConfig("Chromebook") {
+			b.asset("clang_linux")
+			if b.Arch("x86_64") {
+				b.asset("chromebook_x86_64_gles")
+			} else if b.Arch("arm") {
+				b.asset("armhf_sysroot")
+				b.asset("chromebook_arm_gles")
+			} else if b.Arch("arm64") {
+				b.asset("arm64_sysroot")
+				b.asset("chromebook_arm64_gles")
+			} else {
+				panic(fmt.Sprintf("Unknown arch %q for Chromebook", b.Parts["arch"]))
+			}
+		} else if b.IsLinux() {
+			if b.Compiler("Clang") {
+				if b.ExtraConfig("MSAN") {
+					b.asset("clang_ubuntu_noble")
+				} else {
+					b.asset("clang_linux")
 				}
-			} else {
-				b.idempotent()
 			}
-			if b.ExtraConfig("NoPatch") {
-				b.kitchenTask(recipe, OUTPUT_BUILD_NOPATCH)
-			} else {
-				b.kitchenTask(recipe, OUTPUT_BUILD)
-			}
-			b.cas(casSpec)
-			b.serviceAccount(b.cfg.ServiceAccountCompile)
-			b.swarmDimensions()
-			if b.ExtraConfig("Docker", "LottieWeb", "CMake") || b.Compiler("EMCC") {
-				b.usesDocker()
-				b.cache(CACHES_DOCKER...)
-			}
-			if b.ExtraConfig("Dawn") {
-				// https://dawn.googlesource.com/dawn/+/516701da8184655a47c92a573cc84da7db5e69d4/generator/dawn_version_generator.py#21
-				b.usesGit()
+			if b.ExtraConfig("SwiftShader") {
 				b.usesCMake()
 			}
-
-			// Android bots require a toolchain.
-			if b.ExtraConfig("Android") {
-				if b.MatchOs("Mac") {
-					b.asset("android_ndk_darwin")
-				} else if b.MatchOs("Win") {
-					pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
-					pkg.Path = "n"
-					b.cipd(pkg)
-				} else {
-					b.asset("android_ndk_linux")
-				}
-			} else if b.ExtraConfig("Chromebook") {
-				b.asset("clang_linux")
-				if b.Arch("x86_64") {
-					b.asset("chromebook_x86_64_gles")
-				} else if b.Arch("arm") {
-					b.asset("armhf_sysroot")
-					b.asset("chromebook_arm_gles")
-				} else if b.Arch("arm64") {
-					b.asset("arm64_sysroot")
-					b.asset("chromebook_arm64_gles")
-				} else {
-					panic(fmt.Sprintf("Unknown arch %q for Chromebook", b.Parts["arch"]))
-				}
-			} else if b.IsLinux() {
-				if b.Compiler("Clang") {
-					if b.ExtraConfig("MSAN") {
-						b.asset("clang_ubuntu_noble")
-					} else {
-						b.asset("clang_linux")
-					}
-				}
-				if b.ExtraConfig("SwiftShader") {
-					b.usesCMake()
-				}
-				b.asset("ccache_linux")
-				b.usesCCache()
-				if b.shellsOutToBazel() {
-					b.usesBazel("linux_x64")
-					b.attempts(1)
-				}
-			} else if b.MatchOs("Win") {
-				b.asset("win_toolchain")
-				if b.Compiler("Clang") {
-					b.asset("clang_win")
-				}
-				if b.ExtraConfig("DWriteCore") {
-					b.asset("dwritecore")
-				}
-			} else if b.MatchOs("Mac") {
-				b.usesXCode()
-				// b.asset("ccache_mac")
-				// b.usesCCache()
-				if b.shellsOutToBazel() {
-					// All of our current Mac compile machines are arm64 Mac only.
-					b.usesBazel("mac_arm64")
-					b.attempts(1)
-				}
+			b.asset("ccache_linux")
+			b.usesCCache()
+			if b.shellsOutToBazel() {
+				b.usesBazel("linux_x64")
+				b.attempts(1)
 			}
-		})
-	}
+		} else if b.MatchOs("Win") {
+			b.asset("win_toolchain")
+			if b.Compiler("Clang") {
+				b.asset("clang_win")
+			}
+			if b.ExtraConfig("DWriteCore") {
+				b.asset("dwritecore")
+			}
+		} else if b.MatchOs("Mac") {
+			b.usesXCode()
+			// b.asset("ccache_mac")
+			// b.usesCCache()
+			if b.shellsOutToBazel() {
+				// All of our current Mac compile machines are arm64 Mac only.
+				b.usesBazel("mac_arm64")
+				b.attempts(1)
+			}
+		}
+	})
 
 	// All compile tasks are runnable as their own Job. Assert that the Job
 	// is listed in jobs.
@@ -1899,83 +1893,6 @@ func (b *jobBuilder) presubmit() {
 			Path:    "recipe_bundle",
 			Version: "git_revision:bb122cd16700ab80bfcbd494b605dd11d4f5902d",
 		})
-	})
-}
-
-// compileWasmGMTests uses a task driver to compile the GMs and unit tests for Web Assembly (WASM).
-// We can use the same build for both CPU and GPU tests since the latter requires the code for the
-// former anyway.
-func (b *jobBuilder) compileWasmGMTests(compileName string) {
-	b.addTask(compileName, func(b *TaskBuilder) {
-		b.attempts(1)
-		b.usesDocker()
-		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-		b.usesLUCIAuth()
-		b.output("wasm_out")
-		b.timeout(60 * time.Minute)
-		b.cas(CAS_COMPILE)
-		b.serviceAccount(b.cfg.ServiceAccountCompile)
-		b.cache(CACHES_DOCKER...)
-		// For now, we only have one compile mode - a GPU release mode. This should be sufficient to
-		// run CPU, WebGL1, and WebGL2 tests. Debug mode is not needed for the waterfall because
-		// when using puppeteer, stacktraces from exceptions are hard to get access to, so we do not
-		// even bother.
-		b.cmd(
-			b.taskDriver("compile_wasm_gm_tests", false),
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", compileName,
-			"--out_path", "./wasm_out",
-			"--skia_path", "./skia",
-			"--work_path", "./cache/docker/wasm_gm",
-		)
-	})
-}
-
-// compileWasmGMTests uses a task driver to compile the GMs and unit tests for Web Assembly (WASM).
-// We can use the same build for both CPU and GPU tests since the latter requires the code for the
-// former anyway.
-func (b *jobBuilder) runWasmGMTests() {
-	compileTaskName := b.compile()
-
-	b.addTask(b.Name, func(b *TaskBuilder) {
-		b.attempts(1)
-		b.usesNode()
-		b.swarmDimensions()
-		b.usesLUCIAuth()
-		b.cipd(CIPD_PKGS_GOLDCTL)
-		b.dep(compileTaskName)
-		b.timeout(60 * time.Minute)
-		b.cas(CAS_WASM_GM)
-		b.serviceAccount(b.cfg.ServiceAccountUploadGM)
-		b.cmd(
-			b.taskDriver("run_wasm_gm_tests", false),
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", b.Name,
-			"--test_harness_path", "./tools/run-wasm-gm-tests",
-			"--built_path", "./wasm_out",
-			"--node_bin_path", "./node/node/bin",
-			"--resource_path", "./resources",
-			"--work_path", "./wasm_gm/work",
-			"--gold_ctl_path", "./cipd_bin_packages/goldctl",
-			"--gold_hashes_url", b.cfg.GoldHashesURL,
-			"--git_commit", specs.PLACEHOLDER_REVISION,
-			"--changelist_id", specs.PLACEHOLDER_ISSUE,
-			"--patchset_order", specs.PLACEHOLDER_PATCHSET,
-			"--tryjob_id", specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
-			// TODO(kjlubick) Make these not hard coded if we change the configs we test on.
-			"--webgl_version", "2", // 0 means CPU ; this flag controls cpu_or_gpu and extra_config
-			"--gold_key", "alpha_type:Premul",
-			"--gold_key", "arch:wasm",
-			"--gold_key", "browser:Chrome",
-			"--gold_key", "color_depth:8888",
-			"--gold_key", "config:gles",
-			"--gold_key", "configuration:Release",
-			"--gold_key", "cpu_or_gpu_value:QuadroP400",
-			"--gold_key", "model:Golo",
-			"--gold_key", "os:Ubuntu24.04",
-		)
 	})
 }
 
