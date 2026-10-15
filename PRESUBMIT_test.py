@@ -126,5 +126,76 @@ class RunCommandAndCheckDiffTest(unittest.TestCase):
 Please commit or discard the above changes.""")
 
 
+class SKCMSTest(unittest.TestCase):
+    def testModifyingSkcmsCcFails(self):
+        mock_input_api = MockInputApi()
+        mock_input_api.files = [
+            MockFile('modules/skcms/skcms.cc', ['void foo() {}']),
+        ]
+        mock_output_api = MockOutputApi()
+        results = PRESUBMIT._CheckSKCMS(mock_input_api, mock_output_api)
+
+        self.assertEqual(1, len(results))
+        self.assertIsInstance(
+            results[0], mock_output_api.PresubmitError, 'Expected PresubmitError')
+        self.assertIn('modules/skcms/skcms.cc', results[0].message)
+        self.assertIn('https://skia.googlesource.com/skcms', results[0].message)
+
+    def testModifyingSkcmsSrcHeaderFails(self):
+        mock_input_api = MockInputApi()
+        mock_input_api.files = [
+            MockFile('modules/skcms/src/skcms_internals.h', ['#define FOO 1']),
+        ]
+        mock_output_api = MockOutputApi()
+        results = PRESUBMIT._CheckSKCMS(mock_input_api, mock_output_api)
+
+        self.assertEqual(1, len(results))
+        self.assertIsInstance(
+            results[0], mock_output_api.PresubmitError, 'Expected PresubmitError')
+        self.assertIn('modules/skcms/src/skcms_internals.h', results[0].message)
+
+    def testModifyingSkcmsSrcCcFails(self):
+        mock_input_api = MockInputApi()
+        mock_input_api.files = [
+            MockFile('modules/skcms/src/skcms_TransformBaseline.cc', ['void bar() {}']),
+        ]
+        mock_output_api = MockOutputApi()
+        results = PRESUBMIT._CheckSKCMS(mock_input_api, mock_output_api)
+
+        self.assertEqual(1, len(results))
+        self.assertIsInstance(
+            results[0], mock_output_api.PresubmitError, 'Expected PresubmitError')
+        self.assertIn('modules/skcms/src/skcms_TransformBaseline.cc', results[0].message)
+
+    def testModifyingSkiaManagedSkcmsFilesPasses(self):
+        mock_input_api = MockInputApi()
+        mock_input_api.files = [
+            MockFile('modules/skcms/BUILD.bazel', ['# bazel']),
+            MockFile('modules/skcms/BUILD.gn', ['# gn']),
+            MockFile('modules/skcms/OWNERS', ['someone@google.com']),
+            MockFile('modules/skcms/README.chromium', ['Revision: abc']),
+            MockFile('modules/skcms/skcms.gni', ['# gni']),
+            MockFile('modules/skcms/version.sha1', ['abc']),
+        ]
+        mock_output_api = MockOutputApi()
+        results = PRESUBMIT._CheckSKCMS(mock_input_api, mock_output_api)
+
+        self.assertEqual(0, len(results))
+
+    def testServiceAccountCanModifySkcms(self):
+        mock_input_api = MockInputApi()
+        mock_input_api.files = [
+            MockFile('modules/skcms/skcms.cc', ['void foo() {}']),
+            MockFile('modules/skcms/src/skcms_internals.h', ['#define FOO 1']),
+        ]
+        mock_input_api.change.author_email = (
+            'skia-autoroll@skia-public.iam.gserviceaccount.com'
+        )
+        mock_output_api = MockOutputApi()
+        results = PRESUBMIT._CheckSKCMS(mock_input_api, mock_output_api)
+
+        self.assertEqual(0, len(results))
+
+
 if __name__ == '__main__':
     unittest.main()

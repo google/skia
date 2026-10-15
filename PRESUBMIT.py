@@ -615,6 +615,48 @@ def _CheckDEPS(input_api, output_api):
   )
 
 
+def _CheckSKCMS(input_api, output_api):
+  """Guards against modifying files that are mirrored from the skcms repo directly in Skia.
+
+  Changes should be made in https://skia.googlesource.com/skcms and rolled into Skia.
+  """
+  author_email = getattr(input_api.change, 'author_email', None)
+  if author_email:
+    for suffix in SERVICE_ACCOUNT_SUFFIX:
+      if author_email.endswith(suffix):
+        return []
+    if author_email.endswith('.gserviceaccount.com'):
+      return []
+
+  skia_managed_skcms_files = {
+      'modules/skcms/BUILD.bazel',
+      'modules/skcms/BUILD.gn',
+      'modules/skcms/OWNERS',
+      'modules/skcms/README.chromium',
+      'modules/skcms/skcms.gni',
+      'modules/skcms/version.sha1',
+  }
+
+  violating_files = []
+  for affected_file in input_api.AffectedFiles():
+    norm_path = np(affected_file.LocalPath())
+    if norm_path.startswith('modules/skcms/'):
+      if norm_path not in skia_managed_skcms_files:
+        violating_files.append(affected_file.LocalPath())
+
+  if violating_files:
+    return [output_api.PresubmitError(
+        'The following files are mirrored from the skcms repository and\n'
+        'should not be modified directly in Skia:\n'
+        '%s\n\n'
+        'Direct changes will be overwritten by the autoroller.\n'
+        'Please make your changes upstream at:\n'
+        'https://skia.googlesource.com/skcms\n' %
+        '\n'.join('  %s' % f for f in violating_files)
+    )]
+  return []
+
+
 def _CommonChecks(input_api, output_api):
   """Presubmit checks common to upload and commit."""
   results = []
@@ -645,6 +687,7 @@ def _CommonChecks(input_api, output_api):
   results.extend(_CheckIncludeForOutsideDeps(input_api, output_api))
   results.extend(_CheckBazelBUILDFiles(input_api, output_api))
   results.extend(_CheckBannedAPIs(input_api, output_api))
+  results.extend(_CheckSKCMS(input_api, output_api))
   return results
 
 
