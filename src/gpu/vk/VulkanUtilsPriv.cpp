@@ -232,7 +232,8 @@ void InvokeDeviceLostCallback(const skgpu::VulkanInterface* vulkanInterface,
                               VkDevice vkDevice,
                               skgpu::VulkanDeviceLostContext deviceLostContext,
                               skgpu::VulkanDeviceLostProc deviceLostProc,
-                              bool supportsDeviceFaultInfoExtension) {
+                              bool supportsDeviceFaultInfoExtension,
+                              bool isUnknownError) {
     if (!deviceLostProc) {
         return;
     }
@@ -240,6 +241,15 @@ void InvokeDeviceLostCallback(const skgpu::VulkanInterface* vulkanInterface,
     std::vector<VkDeviceFaultAddressInfoEXT> addressInfos = {};
     std::vector<VkDeviceFaultVendorInfoEXT> vendorInfos = {};
     std::vector<std::byte> vendorBinaryData = {};
+
+    if (isUnknownError) {
+        deviceLostProc(deviceLostContext,
+                       "No details: A VK_UNKNOWN_ERROR has occured.",
+                       addressInfos,
+                       vendorInfos,
+                       vendorBinaryData);
+        return;
+    }
 
     if (!supportsDeviceFaultInfoExtension) {
         deviceLostProc(deviceLostContext,
