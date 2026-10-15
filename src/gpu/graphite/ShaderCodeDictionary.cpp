@@ -51,7 +51,8 @@ const char* get_known_rte_name(StableKey key) {
 
 std::string get_storage_buffer_access(const char* ssboIndex,
                                       const char* uniformName) {
-    return SkSL::String::printf("combinedUniformData[%s].%s", ssboIndex, uniformName);
+    return SK_UNSAFE_TODO(
+            SkSL::String::printf("combinedUniformData[%s].%s", ssboIndex, uniformName));
 }
 
 std::string get_mangled_name(const std::string& baseName, int manglingSuffix) {
@@ -683,7 +684,8 @@ public:
 
     std::string getMainName() override { return fMainFn; }
     void defineFunction(const char* declaration, const char* body, bool isMain) override {
-        fPreamble = fPreamble.append(SkSL::String::printf("%s {\n %s }\n", declaration, body));
+        fPreamble = fPreamble.append(
+                SK_UNSAFE_TODO(SkSL::String::printf("%s {\n %s }\n", declaration, body)));
     }
     void declareFunction(const char* declaration) override {}
     void defineStruct(const char* definition) override {
@@ -696,9 +698,9 @@ public:
     std::string declareUniform(const SkSL::VarDeclaration* decl) override {
         const std::string uniformName = std::string(decl->var()->name());
         if (fShaderInfo && fShaderInfo->uniformSsboIndex()) {
-            return SkSL::String::printf("combinedUniformData[%s].%s",
-                                        fShaderInfo->uniformSsboIndex(),
-                                        uniformName.c_str());
+            return SK_UNSAFE_TODO(SkSL::String::printf("combinedUniformData[%s].%s",
+                                                       fShaderInfo->uniformSsboIndex(),
+                                                       uniformName.c_str()));
         }
         return uniformName;
     }

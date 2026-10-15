@@ -119,7 +119,7 @@ TessellateCurvesRenderStep::TessellateCurvesRenderStep(Layout layout,
 TessellateCurvesRenderStep::~TessellateCurvesRenderStep() {}
 
 std::string TessellateCurvesRenderStep::vertexSkSL(const RootNodesInfo&) const {
-    return SkSL::String::printf(
+    return SK_UNSAFE_TODO(SkSL::String::printf(
             // TODO: Approximate perspective scaling to match how PatchWriter is configured (or
             // provide explicit tessellation level in instance data instead of replicating
             // work).
@@ -129,7 +129,7 @@ std::string TessellateCurvesRenderStep::vertexSkSL(const RootNodesInfo&) const {
             "float4 devPosition = localToDevice * float4(localCoord, 0.0, 1.0);\n"
             "devPosition.z = depth;\n"
             "stepLocalCoords = localCoord;\n",
-            fInfinitySupport ? "curve_type_using_inf_support(p23)" : "curveType");
+            fInfinitySupport ? "curve_type_using_inf_support(p23)" : "curveType"));
 }
 
 void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw,

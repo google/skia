@@ -204,9 +204,9 @@ std::string emit_intrinsic_constants(const ResourceBindingRequirements& bindingR
     if (bindingReqs.fUsePushConstantsForIntrinsicConstants) {
         SkASSERT(bindingReqs.fBackendApi == BackendApi::kVulkan ||
                  bindingReqs.fBackendApi == BackendApi::kDawn);
-        result = SkSL::String::printf(
+        result = SK_UNSAFE_TODO(SkSL::String::printf(
                 "layout (%s, push_constant) uniform IntrinsicUniforms {\n",
-                bindingReqs.fBackendApi == BackendApi::kVulkan ? "vulkan" : "webgpu");
+                bindingReqs.fBackendApi == BackendApi::kVulkan ? "vulkan" : "webgpu"));
     } else {
         std::string header;
         SkSL::String::appendf(&header,
@@ -398,18 +398,19 @@ std::string emit_storage_fallback_texture(const ResourceBindingRequirements& bin
             // std140/std430 dictates 16-byte alignment for vec3; startComp must be 0 to avoid OOB
             // swizzles.
             SkASSERT(startComp == 0);
-            expr = SkSL::String::printf("t%d.%s%s%s",
-                                        startTexel,
-                                        SK_UNSAFE_TODO(kSwizzles[startComp]),
-                                        SK_UNSAFE_TODO(kSwizzles[startComp + 1]),
-                                        SK_UNSAFE_TODO(kSwizzles[startComp + 2]));
+            expr = SK_UNSAFE_TODO(SkSL::String::printf("t%d.%s%s%s",
+                                                       startTexel,
+                                                       kSwizzles[startComp],
+                                                       kSwizzles[startComp + 1],
+                                                       kSwizzles[startComp + 2]));
         } else if (vec == 2) {
-            expr = SkSL::String::printf("t%d.%s%s",
-                                        startTexel,
-                                        SK_UNSAFE_TODO(kSwizzles[startComp]),
-                                        SK_UNSAFE_TODO(kSwizzles[startComp + 1]));
+            expr = SK_UNSAFE_TODO(SkSL::String::printf("t%d.%s%s",
+                                                       startTexel,
+                                                       kSwizzles[startComp],
+                                                       kSwizzles[startComp + 1]));
         } else {
-            expr = SkSL::String::printf("t%d.%s", startTexel, SK_UNSAFE_TODO(kSwizzles[startComp]));
+            expr = SK_UNSAFE_TODO(
+                    SkSL::String::printf("t%d.%s", startTexel, kSwizzles[startComp]));
         }
 
         switch (a.type()) {
@@ -658,23 +659,26 @@ std::string emit_color_output(BlendFormula::OutputType outputType,
                               const char* inColor) {
     switch (outputType) {
         case BlendFormula::kNone_OutputType:
-            return SkSL::String::printf("%s = half4(0.0);", outColor);
+            return SK_UNSAFE_TODO(SkSL::String::printf("%s = half4(0.0);", outColor));
 
         case BlendFormula::kCoverage_OutputType:
-            return SkSL::String::printf("%s = outputCoverage;", outColor);
+            return SK_UNSAFE_TODO(SkSL::String::printf("%s = outputCoverage;", outColor));
 
         case BlendFormula::kModulate_OutputType:
-            return SkSL::String::printf("%s = %s * outputCoverage;", outColor, inColor);
+            return SK_UNSAFE_TODO(
+                    SkSL::String::printf("%s = %s * outputCoverage;", outColor, inColor));
 
         case BlendFormula::kSAModulate_OutputType:
-            return SkSL::String::printf("%s = %s.a * outputCoverage;", outColor, inColor);
+            return SK_UNSAFE_TODO(
+                    SkSL::String::printf("%s = %s.a * outputCoverage;", outColor, inColor));
 
         case BlendFormula::kISAModulate_OutputType:
-            return SkSL::String::printf("%s = (1.0 - %s.a) * outputCoverage;", outColor, inColor);
+            return SK_UNSAFE_TODO(
+                    SkSL::String::printf("%s = (1.0 - %s.a) * outputCoverage;", outColor, inColor));
 
         case BlendFormula::kISCModulate_OutputType:
-            return SkSL::String::printf(
-                    "%s = (half4(1.0) - %s) * outputCoverage;", outColor, inColor);
+            return SK_UNSAFE_TODO(SkSL::String::printf(
+                    "%s = (half4(1.0) - %s) * outputCoverage;", outColor, inColor));
 
         default:
             SkUNREACHABLE;
