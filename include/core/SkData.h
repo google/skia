@@ -71,6 +71,14 @@ public:
         return fSpan.data();
     }
 
+    /**
+     *  USE WITH CAUTION.
+     *  Be sure other 'owners' of this object are not accessing it in aother thread.
+     */
+    SkSpan<uint8_t> writableByteSpan() {
+        return {reinterpret_cast<uint8_t*>(this->writable_data()), this->size()};
+    }
+
     /** Attempt to create a deep copy of the original data, using the default allocator.
      *
      *  If  offset+length > this->size(), then this returns nullptr.
