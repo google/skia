@@ -1671,6 +1671,93 @@ UNIX_ONLY_TEST(SkParagraph_HeightOverrideParagraph, reporter) {
     }
 }
 
+// Verify that baselineShift is applied once when heightOverride is enabled
+DEF_TEST(SkParagraph_BaselineShiftWithHeightMultiplier, reporter) {
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+
+    const SkScalar kBaselineShift = -12.0f;
+    for (bool halfLeading : {false, true}) {
+        auto buildSingleRun = [&](SkScalar shift) {
+            ParagraphStyle paragraphStyle;
+            TextStyle textStyle;
+            textStyle.setFontSize(50.0f);
+            textStyle.setHeightOverride(true);
+            textStyle.setHeight(2.0f);
+            textStyle.setHalfLeading(halfLeading);
+            textStyle.setBaselineShift(shift);
+
+            ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+            builder.pushStyle(textStyle);
+            builder.addText("A");
+            builder.pop();
+            auto paragraph = builder.Build();
+            paragraph->layout(500.0f);
+            return paragraph;
+        };
+
+        auto unshifted = buildSingleRun(0.0f);
+        auto shifted = buildSingleRun(kBaselineShift);
+        auto* unshiftedImpl = static_cast<ParagraphImpl*>(unshifted.get());
+        auto* shiftedImpl = static_cast<ParagraphImpl*>(shifted.get());
+
+        REPORTER_ASSERT(reporter, unshiftedImpl->runs().size() == 1);
+        REPORTER_ASSERT(reporter, shiftedImpl->runs().size() == 1);
+
+        const Run& run0 = unshiftedImpl->runs()[0];
+        const Run& runS = shiftedImpl->runs()[0];
+
+        REPORTER_ASSERT(reporter,
+                        SkScalarNearlyEqual(runS.correctAscent(),
+                                            run0.correctAscent() + kBaselineShift,
+                                            EPSILON100));
+        REPORTER_ASSERT(reporter,
+                        SkScalarNearlyEqual(runS.correctDescent(),
+                                            run0.correctDescent() + kBaselineShift,
+                                            EPSILON100));
+    }
+}
+
+// A shifted run must extend the line only by its shift, as without a height override
+DEF_TEST(SkParagraph_BaselineShiftLineHeightWithHeightOverride, reporter) {
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->getParagraphCache()->turnOn(false);
+
+    const SkScalar kShift = -20.0f;
+    auto heightWith = [&](bool heightOverride, bool halfLeading, SkScalar shift) {
+        TextStyle base;
+        base.setFontSize(50.0f);
+        base.setHeightOverride(heightOverride);
+        base.setHeight(1.0f);
+        base.setHalfLeading(halfLeading);
+        TextStyle shifted = base;
+        shifted.setBaselineShift(shift);
+
+        ParagraphStyle paragraphStyle;
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        builder.pushStyle(base);
+        builder.addText("x");
+        builder.pop();
+        builder.pushStyle(shifted);
+        builder.addText("x");
+        builder.pop();
+        auto paragraph = builder.Build();
+        paragraph->layout(500.0f);
+        return paragraph->getHeight();
+    };
+
+    for (bool heightOverride : {false, true}) {
+        for (bool halfLeading : {false, true}) {
+            const SkScalar growth = heightWith(heightOverride, halfLeading, kShift) -
+                                    heightWith(heightOverride, halfLeading, 0.0f);
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(growth, -kShift, 1.0f),
+                            "heightOverride=%d halfLeading=%d growth %g",
+                            heightOverride, halfLeading, growth);
+        }
+    }
+}
+
 UNIX_ONLY_TEST(SkParagraph_BasicHalfLeading, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
