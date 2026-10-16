@@ -1,0 +1,72 @@
+<!doctype html>
+<meta charset="utf-8" />
+
+<head>
+  <script type="module">
+    import createModule from "/dm.js";
+
+    // These routes are served by the go localhost http server.
+    const Routes = {
+      knownHashes: "/known-hashes.txt",
+    };
+
+    // The wasm module instance, undefined until the "process" has started.
+    let Module;
+
+    async function dm(argv) {
+      const exit = Promise.withResolvers();
+
+      Module = await createModule({
+        noInitialRun: true,
+        arguments: argv,
+        print: (s) => console.log(s),
+        printErr: (s) => console.error(s),
+        onExit: exit.resolve,
+        onAbort: (msg) => exit.reject(new Error("abort: " + msg)),
+      });
+
+      argv = [
+        ...argv,
+        "--uninterestingHashesFile", await downloadToTmp(Routes.knownHashes),
+      ]
+
+      try {
+        Module.callMain(argv);
+      } catch (e) {
+        exit.reject(e);
+      }
+      return exit.promise;
+    }
+
+    async function downloadToTmp(url) {
+      const fs = Module.FS;
+      const r = await fetch(url);
+      if (!r.ok) {
+        throw new Error(`fetching ${url}: ${r.status} ${r.statusText}`);
+      }
+
+      const data = new Uint8Array(await r.arrayBuffer());
+      const dst = `/tmp/${crypto.randomUUID()}`;
+      fs.writeFile(dst, data);
+      return dst;
+    }
+
+    window.run = async function (argv = []) {
+      if (argv[0] === "dm") {
+        argv = argv.slice(1);
+      }
+
+      console.log("calling wasm dm with args: " + JSON.stringify(argv));
+      const status = await dm(argv);
+
+      console.log("dm finished; status: " + status);
+      return status;
+    }
+
+    console.log("Page is alive");
+  </script>
+</head>
+
+<body></body>
+
+</html>

@@ -443,3 +443,6 @@ def copy_build_products(api, src, dst):
                                  ])
     for f in dylibs:
       api.file.copy('copy %s' % api.path.basename(f), f, dst)
+
+  if 'StandaloneWasm' in extra_tokens:
+    util.copy_listed_files(api, src, dst, ['*.js', '*.wasm', '*.data', '*.html'])

@@ -59,7 +59,7 @@ SkString skiatest::GetTmpDir() {
 #ifdef SK_BUILD_FOR_ANDROID
     const char* environmentVariable = "TMPDIR";
     const char* defaultValue = "/data/local/tmp";
-#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX)
+#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WASM)
     const char* environmentVariable = "TMPDIR";
     const char* defaultValue = "/tmp";
 #elif defined(SK_BUILD_FOR_WIN)

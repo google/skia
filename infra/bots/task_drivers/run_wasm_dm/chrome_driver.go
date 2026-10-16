@@ -8,8 +8,10 @@ package main
 import (
 	"context"
 	"errors"
+	"io"
 
 	"github.com/chromedp/chromedp"
+	"github.com/jcgregorio/logger"
 	"go.skia.org/infra/go/skerr"
 	"go.skia.org/infra/go/sklog"
 	"go.skia.org/infra/task_driver/go/td"
@@ -20,7 +22,11 @@ type chromeDriver struct {
 	shutdown context.CancelFunc
 }
 
-func newChromeDriver(ctx context.Context, cacheDir string) (*chromeDriver, error) {
+func newChromeDriver(
+	ctx context.Context,
+	cacheDir string,
+	verboseLogs bool,
+) (*chromeDriver, error) {
 	ctx = td.StartStep(ctx, td.Props("set up chrome").Infra())
 	defer td.EndStep(ctx)
 
@@ -29,7 +35,7 @@ func newChromeDriver(ctx context.Context, cacheDir string) (*chromeDriver, error
 		return nil, skerr.Wrapf(err, "failed to install chrome")
 	}
 
-	ctx, shutdown := newChromeContext(ctx, chromeBin)
+	ctx, shutdown := newChromeContext(ctx, chromeBin, verboseLogs)
 	return &chromeDriver{
 		ctx:      ctx,
 		shutdown: shutdown,
@@ -40,7 +46,15 @@ func (cd *chromeDriver) Shutdown() {
 	cd.shutdown()
 }
 
-func newChromeContext(ctx context.Context, chromeBin string) (context.Context, context.CancelFunc) {
+func (cd *chromeDriver) AttachConsole(w io.Writer) context.CancelFunc {
+	return attachConsole(cd.ctx, newLogger(w))
+}
+
+func newChromeContext(
+	ctx context.Context,
+	chromeBin string,
+	verboseLogs bool,
+) (context.Context, context.CancelFunc) {
 	stepCtx := td.StartStep(ctx, td.Props("create chrome devtools context").Infra())
 	defer td.EndStep(stepCtx)
 
@@ -53,14 +67,19 @@ func newChromeContext(ctx context.Context, chromeBin string) (context.Context, c
 	opts := []chromedp.ContextOption{chromedp.WithErrorf(sklog.Errorf)}
 	tabCtx, cancelTab := chromedp.NewContext(chromeCtx, opts...)
 
+	cancelEcho := func() {}
+	if verboseLogs {
+		// Log stream in parent context so it survives beyond this step.
+		logger := newLogger(td.NewLogStream(ctx, "chrome", td.SeverityInfo))
+		cancelEcho = attachConsole(tabCtx, logger)
+	}
+
 	// An empty Do starts the browser
 	if err := chromedp.Do(tabCtx); err != nil {
 		cancelTab()
 		cancelChrome()
 		td.Fatal(stepCtx, skerr.Wrapf(err, "failed to start chrome"))
 	}
-
-	cancelEcho := echoBrowserConsole(tabCtx)
 
 	return tabCtx, func() {
 		if err := chromedp.Cancel(tabCtx); err != nil {
@@ -72,7 +91,7 @@ func newChromeContext(ctx context.Context, chromeBin string) (context.Context, c
 	}
 }
 
-func echoBrowserConsole(ctx context.Context) context.CancelFunc {
+func attachConsole(ctx context.Context, logger *logger.Logger) context.CancelFunc {
 	ctx, cancel := context.WithCancel(ctx)
 	console := chromedp.Console(ctx)
 	done := make(chan struct{})
@@ -82,20 +101,20 @@ func echoBrowserConsole(ctx context.Context) context.CancelFunc {
 		for m, err := range console {
 			if err != nil {
 				if !errors.Is(err, context.Canceled) {
-					sklog.Errorf("browser console error: %v", err)
+					logger.Errorf("browser console error: %v", err)
 				}
 				return
 			}
 
 			switch m.Type {
 			case chromedp.ConsoleWarning:
-				sklog.Warningf("[js console]: %s", m.Text)
+				logger.Warningf("[js console]: %s", m.Text)
 			case chromedp.ConsoleError:
-				sklog.Errorf("[js console]: %s", m.Text)
+				logger.Errorf("[js console]: %s", m.Text)
 			case chromedp.ConsoleException:
-				sklog.Errorf("[js exception]: %s (%s:%d:%d)", m.Text, m.URL, m.Line, m.Column)
+				logger.Errorf("[js exception]: %s (%s:%d:%d)", m.Text, m.URL, m.Line, m.Column)
 			default:
-				sklog.Infof("[js console]: %s", m.Text)
+				logger.Infof("[js console]: %s", m.Text)
 			}
 		}
 	}()

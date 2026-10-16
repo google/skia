@@ -8,6 +8,7 @@ require (
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
 	github.com/golang/glog v1.2.5
 	github.com/google/uuid v1.6.0
+	github.com/jcgregorio/logger v0.1.3
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/stretchr/testify v1.11.1
 	github.com/trietmn/go-wiki v1.0.1
@@ -83,7 +84,6 @@ require (
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/invopop/jsonschema v0.7.0 // indirect
-	github.com/jcgregorio/logger v0.1.3 // indirect
 	github.com/jcgregorio/slog v0.0.0-20190423190439-e6f2d537f900 // indirect
 	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/julienschmidt/httprouter v1.3.0 // indirect

@@ -104,6 +104,17 @@
     "name": "copy build products"
   },
   {
+    "cmd": [
+      "python3",
+      "RECIPE_MODULE[skia::build]/resources/copy_build_products.py",
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-EMCC-wasm-Debug-StandaloneWasm/Debug",
+      "[START_DIR]/[SWARM_OUT_DIR]/out/Debug",
+      "*.js,*.wasm,*.data,*.html"
+    ],
+    "infra_step": true,
+    "name": "copy build products (2)"
+  },
+  {
     "name": "$result"
   }
 ]

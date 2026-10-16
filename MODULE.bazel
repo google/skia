@@ -56,6 +56,7 @@ use_repo(
     "com_github_flynn_json5",
     "com_github_golang_glog",
     "com_github_google_uuid",
+    "com_github_jcgregorio_logger",
     "com_github_shirou_gopsutil",
     "com_github_stretchr_testify",
     "com_github_trietmn_go_wiki",

@@ -1919,11 +1919,14 @@ func (b *jobBuilder) dmStandaloneWasm() {
 		b.cmd(
 			b.taskDriver("run_wasm_dm", false),
 			"--local=false",
+			"--dm_flags", b.recipeProperties["dm_flags"],
+			"--dm_properties", b.recipeProperties["dm_properties"],
 			"--chrome_cache", CACHES_CHROME[0].Path,
-			"--work_path", "tmp",
+			"--build", OUTPUT_BUILD,
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
 			"--task_name", b.Name,
+			"--gold_hashes_url", b.cfg.GoldHashesURL,
 		)
 	})
 }

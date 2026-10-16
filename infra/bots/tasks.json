@@ -59400,16 +59400,22 @@
       "command": [
         "./run_wasm_dm",
         "--local=false",
+        "--dm_flags",
+        "[\"dm\",\"--nameByHash\",\"--key\",\"arch\",\"wasm\",\"compiler\",\"EMCC\",\"configuration\",\"Release\",\"cpu_or_gpu\",\"CPU\",\"cpu_or_gpu_value\",\"AVX2\",\"extra_config\",\"StandaloneWasm\",\"model\",\"GCE\",\"os\",\"Ubuntu24.04\",\"style\",\"default\",\"--randomProcessorTest\",\"--nogpu\",\"--config\",\"8888\",\"--src\",\"tests\",\"gm\",\"image\",\"colorImage\",\"--skip\",\"_\",\"test\",\"_\",\"Skottie_Shaper_CTStrict\",\"_\",\"test\",\"_\",\"BigImageTest_Ganesh\",\"_\",\"image\",\"gen_platf\",\"error\",\"--nonativeFonts\",\"--verbose\"]",
+        "--dm_properties",
+        "{\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"builder\":\"Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-StandaloneWasm\",\"gitHash\":\"<(REVISION)\",\"issue\":\"<(ISSUE)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"patchset\":\"<(PATCHSET)\",\"swarming_bot_id\":\"${SWARMING_BOT_ID}\",\"swarming_task_id\":\"${SWARMING_TASK_ID}\",\"task_id\":\"<(TASK_ID)\"}",
         "--chrome_cache",
         "cache/chrome",
-        "--work_path",
-        "tmp",
+        "--build",
+        "build",
         "--project_id",
         "skia-swarming-bots",
         "--task_id",
         "<(TASK_ID)",
         "--task_name",
-        "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-StandaloneWasm"
+        "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-StandaloneWasm",
+        "--gold_hashes_url",
+        "https://gold.skia.org/json/v1/hashes"
       ],
       "dependencies": [
         "Build-Ubuntu24.04-EMCC-wasm-Release-StandaloneWasm",
