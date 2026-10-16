@@ -1918,16 +1918,37 @@ void Device::drawGeometry(const Transform& localToDevice,
         fAtlasedPathCount++;
     }
 
+    // Determine whether or not this draw will also record an inner-fill draw. This must be done
+    // before visiting the clip stack so that any clips account for both draws' Z values.
+    const bool avoidDepthMode = fRecorder->priv().caps()->avoidDepthMode();
+    fCurrentDepth = fCurrentDepth.next();
+    DrawOrder order(fCurrentDepth);
+    Rect innerFillBounds = Rect::InfiniteInverted();
+
+    // TODO(michaelludwig): When `avoidDepthMode` is true and the device supports forward-pixel
+    // kill, we could record the inner fill after the main draw. Since blending will be disabled
+    // it will prevent earlier fragments from being shaded in the tile w/o requiring depth.
+    if ((dstUsage & DstUsage::kDstOnlyUsedByRenderer) &&
+            styleType == SkStrokeRec::kFill_Style &&
+            renderer->useNonAAInnerFill() &&
+            !avoidDepthMode) {
+        innerFillBounds = get_inner_bounds(geometry, localToDevice);
+        if (!innerFillBounds.isEmptyNegativeOrNaN()) {
+            // Advance depth one more time for the inner fill draw, which allows it to occlude the
+            // main draw regardless of using LESS or LEQUAL.
+            fCurrentDepth = fCurrentDepth.next();
+        }
+    }
+
     // Update the clip stack after issuing a flush (if it was needed). A draw will be recorded after
-    // this point.
-    DrawOrder order(fCurrentDepth.next());
+    // this point. `fCurrentDepth` is passed in because it's either the main draw's depth or the
+    // inner fill's +1 depth, ensuring that both are clipped if necessary.
     auto [clipOrder, clipLayer] = fClip.updateClipStateForDraw(
-            clip, clipElements, fColorDepthBoundsManager.get(), order.depth());
+            clip, clipElements, fColorDepthBoundsManager.get(), fCurrentDepth);
 
     // A draw's order always depends on the clips that must be drawn before it
     order.dependsOnPaintersOrder(clipOrder);
     bool useDrawListLayer = fRecorder->priv().caps()->useDrawListLayer();
-    bool avoidDepthMode = fRecorder->priv().caps()->avoidDepthMode();
     if (!useDrawListLayer) {
         // If a draw is not opaque, it must be drawn after the most recent draw it intersects with
         // in order to blend correctly. If there is no depth buffer, then always use painters order.
@@ -1977,29 +1998,23 @@ void Device::drawGeometry(const Transform& localToDevice,
     } else
 #endif
     {
-        if ((dstUsage & DstUsage::kDstOnlyUsedByRenderer) &&
-            styleType == SkStrokeRec::kFill_Style &&
-            renderer->useNonAAInnerFill() &&
-            !avoidDepthMode) {
-            // Possibly record an additional draw using the non-AA bounds renderer to fill the
-            // interior with a renderer that can disable blending entirely.
-            Rect innerFillBounds = get_inner_bounds(geometry, localToDevice);
-            if (!innerFillBounds.isEmptyNegativeOrNaN()) {
-                DrawOrder orderWithoutCoverage{order.depth()};
-                orderWithoutCoverage.dependsOnPaintersOrder(clipOrder);
-                // The regular draw has analytic coverage, so isn't being sorted front to back, but
-                // we do want to sort the inner fill to maximize overdraw reduction
-                orderWithoutCoverage.reverseDepthAsStencil();
+        // If the depth was advanced past the main draw, that signals the inner fill needs recording
+        if (fCurrentDepth == order.depth().next()) {
+            SkASSERT(!innerFillBounds.isEmptyNegativeOrNaN());
+            DrawOrder orderWithoutCoverage{fCurrentDepth};
+            orderWithoutCoverage.dependsOnPaintersOrder(clipOrder);
+            // The regular draw has analytic coverage, so isn't being sorted front to back, but
+            // we do want to sort the inner fill to maximize overdraw reduction
+            orderWithoutCoverage.reverseDepthAsStencil();
 
-                UniquePaintParamsID opaqueID = shading.optimizeForOpacity(keyContext, paintID);
-                fDC->recordDraw(fRecorder->priv().rendererProvider()->nonAABounds(), localToDevice,
-                                Geometry(Shape(innerFillBounds)), clip, orderWithoutCoverage,
-                                opaqueID, DstUsage::kNone, scopedDrawBuilder.gatherer(),
-                                /*stroke=*/nullptr, clipLayer);
-                // Force the coverage draw to come after the non-AA draw in order to benefit from
-                // early depth testing.
-                order.dependsOnPaintersOrder(orderWithoutCoverage.paintOrder());
-            }
+            UniquePaintParamsID opaqueID = shading.optimizeForOpacity(keyContext, paintID);
+            fDC->recordDraw(fRecorder->priv().rendererProvider()->nonAABounds(), localToDevice,
+                            Geometry(Shape(innerFillBounds)), clip, orderWithoutCoverage,
+                            opaqueID, DstUsage::kNone, scopedDrawBuilder.gatherer(),
+                            /*stroke=*/nullptr, clipLayer);
+            // Force the coverage draw to come after the non-AA draw in order to benefit from
+            // early depth testing.
+            order.dependsOnPaintersOrder(orderWithoutCoverage.paintOrder());
         }
 
         StrokeStyle stroke(style.getWidth(), style.getMiter(), style.getJoin(), style.getCap());
@@ -2012,12 +2027,6 @@ void Device::drawGeometry(const Transform& localToDevice,
     if (!useDrawListLayer) {
         fColorDepthBoundsManager->recordDraw(clip.drawBounds(), order.paintOrder());
     }
-    fCurrentDepth = order.depth();
-
-    // TODO(b/238758897): When we enable layer elision that depends on draws not overlapping, we
-    // can use the `getMostRecentDraw()` query to determine that, although that will mean querying
-    // even if the draw does not depend on dst (so should be only be used when the Device is an
-    // elision candidate).
 }
 
 void Device::drawClipShape(const Transform& localToDevice,

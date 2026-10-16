@@ -1126,11 +1126,10 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
             // enabled and the test needs to be LESS to fail subsequent pixel touches.
             depthSettings = {CompareOp::kLess, /*write=*/true};
         } else {
-            // Currently, inner fill draws use the same z value as the main draw, so a render step
-            // opting into this feature needs to use LESS even if otherwise could use LEQUAL. This
-            // could be relaxed by changing how Device assigns z values but there's no pressing
-            // need. Opting into a non-aa inner fill does not require depth writes, since this step
-            // is being rendered after the inner fill (which would write depth).
+            // Inner fill draws use Z+1 relative to the main draw's Z, so LEQUAL is sufficient.
+            // Opting into a non-aa inner fill does not require depth writes, since this step
+            // is being rendered after the inner fill (which will trigger renderpass level depth
+            // writes).
             //
             // If not using the inner fill in this branch, LEQUAL is used because we either want
             // double-blending or there shouldn't be any self-intersections to trigger double
@@ -1140,8 +1139,7 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
             // TODO(michaelludwig): But for now set depthWrite=true when we perform shading since
             // there is no render pass detection logic yet. This can be relaxed to only write depth
             // when this is a depth-only draw or an occluder (no blending).
-            depthSettings = {step->useNonAAInnerFill() ? CompareOp::kLess : CompareOp::kLEqual,
-                             /*write=*/step->performsShading()};
+            depthSettings = {CompareOp::kLEqual, /*write=*/step->performsShading()};
         }
     } else {
         // With no depth aspect (or no depth/stencil attachment at all), the RenderStep should not
