@@ -205,6 +205,7 @@ tests_sources = [
   "$_tests/SamplingTest.cpp",
   "$_tests/ScalarTest.cpp",
   "$_tests/ScaleToSidesTest.cpp",
+  "$_tests/ScalerContextTest.cpp",
   "$_tests/SerialProcsTest.cpp",
   "$_tests/SerializationTest.cpp",
   "$_tests/ShaderImageFilterTest.cpp",

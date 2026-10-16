@@ -264,6 +264,7 @@ filegroup(
         "SafeMathTest.cpp",
         "SamplingTest.cpp",
         "ScalarTest.cpp",
+        "ScalerContextTest.cpp",
         "ScaleToSidesTest.cpp",
         "SerializationTest.cpp",
         "SerialProcsTest.cpp",

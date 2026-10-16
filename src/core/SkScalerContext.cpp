@@ -447,8 +447,11 @@ static void pack4xHToMask(const SkPixmap& src, SkMaskBuilder& dst,
 }
 
 #if defined(SK_USE_LCD_TEXT_3X_FILTER)
-static void pack3xHToMask(const SkPixmap& src, SkMaskBuilder& dst,
-                          const bool doBGR, const bool doVert) {
+static void pack3xHToMask(const SkPixmap& src,
+                          SkMaskBuilder& dst,
+                          const SkMaskGamma::PreBlend& maskPreBlend,
+                          const bool doBGR,
+                          const bool doVert) {
     static constexpr int kSamplesPerPixel = 3;
     // FreeType's default 5-tap LCD filter:
     // https://freetype.org/freetype2/docs/reference/ft2-lcd_rendering.html
@@ -515,6 +518,11 @@ static void pack3xHToMask(const SkPixmap& src, SkMaskBuilder& dst,
                 r = std::max(r, 10u);
                 g = std::max(g, 10u);
                 b = std::max(b, 10u);
+            }
+            if (maskPreBlend.isApplicable()) {
+                r = maskPreBlend.fR[r];
+                g = maskPreBlend.fG[g];
+                b = maskPreBlend.fB[b];
             }
             *(uint16_t*)dstP = SkPack888ToRGB16(r, g, b);
             dstP = SkTAddOffset<uint8_t>(dstP, dstPDelta);
@@ -685,7 +693,7 @@ void SkScalerContext::GenerateImageFromPath(
             break;
         case SkMask::kLCD16_Format:
 #if defined(SK_USE_LCD_TEXT_3X_FILTER)
-            pack3xHToMask(dst, dstMask, doBGR, verticalLCD);
+            pack3xHToMask(dst, dstMask, maskPreBlend, doBGR, verticalLCD);
 #else
             pack4xHToMask(dst, dstMask, maskPreBlend, doBGR, verticalLCD);
 #endif
