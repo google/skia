@@ -54,6 +54,7 @@ skia_filegroup(
     name = "hdrs",
     srcs = [
         "WasmCommon.h",
+        "bidi_c_api.h",
     ],
 )
 

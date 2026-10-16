@@ -134,6 +134,7 @@ skia_wasm_lib("canvaskit") {
     sources += [
       "bidi_bindings.cpp",
       "bidi_bindings_gen.cpp",
+      "bidi_c_api.h",
     ]
   }
   if (skia_enable_skottie) {
@@ -414,5 +415,77 @@ skia_wasm_lib("canvaskit") {
   }
   if (!skia_canvaskit_enable_font) {
     defines += [ "CK_NO_FONTS" ]
+  }
+}
+
+if (skia_use_bidi) {
+  skia_wasm_lib("skbidi") {
+    deps = [
+      "../..:skia",
+      "../../modules/skunicode:skunicode_bidi",
+      "../../modules/skunicode:skunicode_core",
+    ]
+    sources = [
+      "bidi_c_api.cpp",
+      "bidi_c_api.h",
+    ]
+
+    ldflags = []
+    if (is_debug) {
+      ldflags += [
+        "-O0",
+        "-sASSERTIONS=1",
+        "-g3",
+      ]
+    } else {
+      ldflags += [
+        "-Oz",
+        "--closure=1",
+      ]
+    }
+    ldflags += [
+      "-fno-rtti",
+      "-fno-exceptions",
+    ]
+
+    ldflags += [
+      "-std=c++20",
+      "-sMALLOC=emmalloc",
+      "-sEXPORTED_FUNCTIONS=[" + "'_malloc'," + "'_free'," +
+          "'_skbidi_getBidiRegions'," + "'_skbidi_reorderVisual'," +
+          "'_skbidi_computeCodeUnitFlags'" + "]",
+      "--no-entry",
+      "--pre-js",
+      rebase_path("skbidi_bidi.js"),
+      "-sALLOW_MEMORY_GROWTH",
+      "-sDISABLE_EXCEPTION_CATCHING=1",
+      "-sNODEJS_CATCH_EXIT=0",
+      "-sDYNAMIC_EXECUTION=0",
+      "-sEXPORT_NAME=SkBidiInit",
+      "-sFORCE_FILESYSTEM=0",
+      "-sFILESYSTEM=0",
+      "-sMODULARIZE=1",
+      "-sNO_EXIT_RUNTIME=1",
+      "-sWASM",
+      "-sSTRICT=1",
+      "-sEXPORTED_RUNTIME_METHODS=HEAP32,HEAPU8,HEAPU16,HEAPU32,HEAPF32",
+      "-sENVIRONMENT=web,worker,node",
+      "-sINCOMING_MODULE_JS_API=onRuntimeInitialized,locateFile",
+    ]
+
+    defines = [
+      "SK_FORCE_8_BYTE_ALIGNMENT",
+      "EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
+      "CK_ENABLE_BIDI",
+      "SK_UNICODE_BIDI_IMPLEMENTATION",
+    ]
+    if (is_debug) {
+      defines += [ "SK_DEBUG" ]
+    } else {
+      defines += [ "SK_RELEASE" ]
+    }
+    if (!is_debug && !skia_canvaskit_force_tracing) {
+      defines += [ "SK_DISABLE_TRACING" ]
+    }
   }
 }
