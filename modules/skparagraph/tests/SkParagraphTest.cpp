@@ -10,6 +10,7 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -24,6 +25,7 @@
 #include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphCache.h"
+#include "modules/skparagraph/include/ParagraphPainter.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextShadow.h"
 #include "modules/skparagraph/include/TextStyle.h"
@@ -2869,6 +2871,200 @@ UNIX_ONLY_TEST(SkParagraph_DecorationsParagraph, reporter) {
                     ++index;
                     return true;
                 });
+    }
+}
+
+namespace {
+// Records glyphs and decoration paths in absolute coordinates so the test can check where
+// the drawn underline is interrupted against where the drawn glyphs actually are
+class GapsRecordingPainter final : public ParagraphPainter {
+public:
+    struct Blob {
+        sk_sp<SkTextBlob> fBlob;
+        SkPoint fOrigin;
+    };
+    struct Path {
+        SkPath fPath;
+        SkPoint fOrigin;
+        SkPaint fPaint;
+    };
+    std::vector<Blob> fBlobs;
+    std::vector<Path> fPaths;
+    std::vector<SkRect> fFilledRects;
+
+    void drawTextBlob(const sk_sp<SkTextBlob>& blob, SkScalar x, SkScalar y,
+                      const SkPaintOrID&) override {
+        fBlobs.push_back({blob, fOrigin + SkPoint::Make(x, y)});
+    }
+    void drawTextShadow(const sk_sp<SkTextBlob>&, SkScalar, SkScalar, SkColor, SkScalar) override {}
+    void drawRect(const SkRect&, const SkPaintOrID&) override {}
+    void drawFilledRect(const SkRect& rect, const DecorationStyle&) override {
+        fFilledRects.push_back(rect.makeOffset(fOrigin));
+    }
+    void drawPath(const SkPath& path, const DecorationStyle& decorStyle) override {
+        fPaths.push_back({path, fOrigin, decorStyle.skPaint()});
+    }
+    void drawLine(SkScalar, SkScalar, SkScalar, SkScalar, const DecorationStyle&) override {}
+    void clipRect(const SkRect&) override {}
+    void translate(SkScalar dx, SkScalar dy) override { fOrigin += SkPoint::Make(dx, dy); }
+    void save() override { fStack.push_back(fOrigin); }
+    void restore() override {
+        fOrigin = fStack.back();
+        fStack.pop_back();
+    }
+
+    std::unique_ptr<Paragraph> paintUnderlineGaps(const char* text,
+                                                  SkScalar baselineShift = 0.0f,
+                                                  SkScalar height = 0.0f,
+                                                  bool halfLeading = false) {
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+        ParagraphStyle paragraphStyle;
+        TextStyle textStyle;
+        textStyle.setFontSize(50.0f);
+        textStyle.setColor(SK_ColorBLACK);
+        textStyle.setDecoration(TextDecoration::kUnderline);
+        textStyle.setDecorationMode(TextDecorationMode::kGaps);
+        textStyle.setDecorationStyle(TextDecorationStyle::kSolid);
+        textStyle.setBaselineShift(baselineShift);
+        textStyle.setHeightOverride(height != 0);
+        textStyle.setHeight(height);
+        textStyle.setHalfLeading(halfLeading);
+
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        builder.pushStyle(textStyle);
+        builder.addText(text);
+        builder.pop();
+        auto paragraph = builder.Build();
+        paragraph->layout(1000.0f);
+        paragraph->paint(this, 0, 0);
+        return paragraph;
+    }
+
+private:
+    SkPoint fOrigin = {0, 0};
+    std::vector<SkPoint> fStack;
+};
+}  // namespace
+
+// Underline gaps must hug the drawn glyphs regardless of baselineShift or height
+DEF_TEST(SkParagraph_UnderlineGapsFollowDrawnGlyphs, reporter) {
+    auto check = [&](SkScalar baselineShift, SkScalar height, bool halfLeading) {
+        GapsRecordingPainter painter;
+        painter.paintUnderlineGaps("gjpqy", baselineShift, height, halfLeading);
+        REPORTER_ASSERT(reporter, painter.fBlobs.size() == 1);
+        REPORTER_ASSERT(reporter, painter.fPaths.size() == 1);
+        if (painter.fBlobs.size() != 1 || painter.fPaths.size() != 1) {
+            return;
+        }
+        const auto& blob = painter.fBlobs[0];
+        const auto& path = painter.fPaths[0];
+        SkSpan<const SkPoint> points = path.fPath.points();
+        // Without any gap the path holds only its two end points
+        REPORTER_ASSERT(reporter, points.size() > 2);
+        if (points.size() <= 2) {
+            return;
+        }
+
+        // Decorations::calculateGaps() intersects glyphs with [top, top + thickness]
+        // and keeps the underline one thickness (halo) away from every intersection
+        const SkScalar thickness = path.fPaint.getStrokeWidth();
+        const SkScalar top = path.fOrigin.fY + points[0].fY - blob.fOrigin.fY;
+        const SkScalar bounds[2] = {top, top + thickness};
+        int count = blob.fBlob->getIntercepts(bounds, nullptr, &path.fPaint);
+        std::vector<SkScalar> intercepts(count);
+        blob.fBlob->getIntercepts(bounds, intercepts.data(), &path.fPaint);
+        REPORTER_ASSERT(reporter, count > 0);
+
+        for (size_t i = 1; i + 1 < points.size(); ++i) {
+            const SkScalar x = path.fOrigin.fX + points[i].fX - blob.fOrigin.fX;
+            bool hugsGlyph = false;
+            for (int j = 0; j < count; ++j) {
+                const SkScalar edge = intercepts[j] + (j % 2 == 0 ? -thickness : thickness);
+                hugsGlyph |= SkScalarNearlyEqual(x, edge, EPSILON100);
+            }
+            REPORTER_ASSERT(reporter, hugsGlyph,
+                            "shift=%g height=%g halfLeading=%d gap edge %g",
+                            baselineShift, height, halfLeading, x);
+        }
+    };
+    check(0.0f, 0.0f, false);
+    check(-12.0f, 0.0f, false);
+    check(12.0f, 0.0f, false);
+    check(0.0f, 2.0f, false);
+    check(0.0f, 2.0f, true);
+}
+
+// An underline in gaps mode that no glyph crosses must still be drawn in full
+DEF_TEST(SkParagraph_UnderlineGapsWithoutIntersections, reporter) {
+    GapsRecordingPainter painter;
+    auto paragraph = painter.paintUnderlineGaps("aaa");
+    REPORTER_ASSERT(reporter, painter.fPaths.size() == 1);
+    if (painter.fPaths.size() != 1) {
+        return;
+    }
+    SkSpan<const SkPoint> points = painter.fPaths[0].fPath.points();
+    REPORTER_ASSERT(reporter, points.size() == 2);
+    if (points.size() != 2) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(points[1].fX - points[0].fX,
+                                                  paragraph->getLongestLine(), EPSILON100));
+}
+
+// Overline, underline, and line-through must shift vertically by exactly baselineShift,
+// maintaining a constant offset from the drawn glyphs
+DEF_TEST(SkParagraph_DecorationsFollowBaselineShift, reporter) {
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+
+    auto measure = [&](TextDecoration decoration, SkScalar baselineShift, SkScalar height) {
+        ParagraphStyle paragraphStyle;
+        TextStyle unshiftedStyle;
+        unshiftedStyle.setFontSize(50.0f);
+        unshiftedStyle.setHeightOverride(height != 0);
+        unshiftedStyle.setHeight(height);
+
+        TextStyle shiftedStyle = unshiftedStyle;
+        shiftedStyle.setColor(SK_ColorBLACK);
+        shiftedStyle.setDecoration(decoration);
+        shiftedStyle.setDecorationStyle(TextDecorationStyle::kSolid);
+        shiftedStyle.setBaselineShift(baselineShift);
+
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        builder.pushStyle(unshiftedStyle);
+        builder.addText("Anchor ");
+        builder.pushStyle(shiftedStyle);
+        builder.addText("Shifted");
+        builder.pop();
+        builder.pop();
+        auto paragraph = builder.Build();
+        paragraph->layout(1000.0f);
+
+        GapsRecordingPainter painter;
+        paragraph->paint(&painter, 0, 0);
+        REPORTER_ASSERT(reporter, painter.fBlobs.size() == 2);
+        REPORTER_ASSERT(reporter, painter.fFilledRects.size() == 1);
+        if (painter.fBlobs.size() != 2 || painter.fFilledRects.size() != 1) {
+            return 0.0f;
+        }
+        return painter.fFilledRects[0].centerY() - painter.fBlobs[1].fOrigin.fY;
+    };
+
+    for (auto decoration : {TextDecoration::kUnderline,
+                            TextDecoration::kOverline,
+                            TextDecoration::kLineThrough}) {
+        for (SkScalar height : {0.0f, 2.0f}) {
+            const SkScalar baseOffset = measure(decoration, 0.0f, height);
+            for (SkScalar shift : {-15.0f, 15.0f}) {
+                const SkScalar shiftedOffset = measure(decoration, shift, height);
+                REPORTER_ASSERT(reporter,
+                                SkScalarNearlyEqual(shiftedOffset, baseOffset, 1.0f),
+                                "decoration=%d height=%g shift=%g expected=%g got=%g",
+                                static_cast<int>(decoration), height, shift,
+                                baseOffset, shiftedOffset);
+            }
+        }
     }
 }
 

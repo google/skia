@@ -34,9 +34,12 @@ void Decorations::paint(ParagraphPainter* painter, const TextStyle& textStyle, c
             continue;
         }
 
+        // TextLine::paintDecorations already shifts the origin by baselineShift, so subtract
+        // the shifted run top (correctAscent) to cancel the baselineShift inside clip.top()
         calculatePosition(decoration,
                           decoration == TextDecoration::kOverline
-                          ? context.run->correctAscent() - context.run->ascent()
+                          ? context.run->correctAscent() - context.run->ascent() +
+                            context.run->baselineShift()
                           : context.run->correctAscent());
 
         calculatePaint(textStyle);
@@ -129,7 +132,9 @@ void Decorations::calculateGaps(const TextLine::ClipContext& context, const SkRe
             path.lineTo(end, rect.fTop).moveTo(start, rect.fTop);
         }
     }
-    if (!intersections.empty() && (rect.fRight - start > halo)) {
+    // Without intersections nothing interrupts the decoration, so it spans the whole rect;
+    // otherwise the tail is dropped when it would be shorter than the halo
+    if (intersections.empty() || rect.fRight - start > halo) {
         path.lineTo(rect.fRight, rect.fTop);
     }
     fPath = path.detach();

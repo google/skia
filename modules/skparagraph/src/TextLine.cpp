@@ -481,7 +481,11 @@ void TextLine::paintDecorations(ParagraphPainter* painter, SkScalar x, SkScalar 
     ParagraphPainterAutoRestore ppar(painter);
     painter->translate(x + this->offset().fX, y + this->offset().fY + style.getBaselineShift());
     Decorations decorations;
-    SkScalar correctedBaseline = SkScalarFloorToScalar(-this->sizes().rawAscent() + style.getBaselineShift() + 0.5);
+    // Gaps are cut where glyphs cross the decoration, so they must be measured against the
+    // baseline buildTextBlob() draws the text at, relative to the already shifted origin
+    SkScalar correctedBaseline =
+            SkScalarFloorToScalar(this->baseline() + style.getBaselineShift() + 0.5) -
+            style.getBaselineShift();
     decorations.paint(painter, style, context, correctedBaseline);
 }
 
