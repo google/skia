@@ -102,6 +102,9 @@ private:
     // Handles arrays correctly, eg: `float x[2]`
     std::string typedVariable(const Type& type, std::string_view name);
 
+    // Whether `name` is one of the names the caller substitutes for main's parameters.
+    bool isMainParameter(std::string_view name) const;
+
     void writeVarDeclaration(const VarDeclaration& var);
     void writeGlobalVarDeclaration(const GlobalVarDeclaration& g);
     void writeStructDefinition(const StructDefinition& s);
@@ -758,9 +761,26 @@ std::string PipelineStageCodeGenerator::typedVariable(const Type& type, std::str
     return decl;
 }
 
+bool PipelineStageCodeGenerator::isMainParameter(std::string_view name) const {
+    for (const char* paramName : {fSampleCoords, fInputColor, fDestColor}) {
+        if (paramName && name == paramName) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void PipelineStageCodeGenerator::writeVarDeclaration(const VarDeclaration& var) {
-    this->write(this->modifierString(var.var()->modifierFlags()));
-    this->write(this->typedVariable(var.var()->type(), var.var()->name()));
+    const Variable* variable = var.var();
+    std::string_view name = variable->name();
+    // References to main's parameters are written as the caller's names (see
+    // writeVariableReference), so a local of the same name would redeclare or shadow them.
+    if (this->isMainParameter(name)) {
+        std::string mangledName = fCallbacks->getMangledName(std::string(name).c_str());
+        name = *fVariableNames.set(variable, std::move(mangledName));
+    }
+    this->write(this->modifierString(variable->modifierFlags()));
+    this->write(this->typedVariable(variable->type(), name));
     if (var.value()) {
         this->write(" = ");
         this->writeExpression(*var.value(), Precedence::kExpression);
