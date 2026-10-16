@@ -2105,6 +2105,109 @@ UNIX_ONLY_TEST(SkParagraph_TrimLeadingDistribution, reporter) {
     }
 }
 
+// Verify that computeEmptyMetrics reads halfLeading from textStyle rather than strutStyle
+DEF_TEST(SkParagraph_EmptyMetricsHalfLeadingFromTextStyle, reporter) {
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+
+    auto buildEmpty = [&](bool textHalfLeading, bool strutHalfLeading, bool heightOverride) {
+        ParagraphStyle paragraphStyle;
+        StrutStyle strutStyle;
+        strutStyle.setStrutEnabled(false);
+        strutStyle.setHalfLeading(strutHalfLeading);
+        paragraphStyle.setStrutStyle(strutStyle);
+
+        TextStyle textStyle;
+        textStyle.setFontSize(50.0f);
+        textStyle.setHeightOverride(heightOverride);
+        textStyle.setHeight(2.0f);
+        textStyle.setHalfLeading(textHalfLeading);
+        paragraphStyle.setTextStyle(textStyle);
+
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        builder.pushStyle(textStyle);
+        builder.pop();
+        auto paragraph = builder.Build();
+        paragraph->layout(500.0f);
+        return paragraph;
+    };
+
+    auto basePara = buildEmpty(false, false, false);
+    auto* baseImpl = static_cast<ParagraphImpl*>(basePara.get());
+    const auto baseMetrics = baseImpl->getEmptyMetrics();
+    const SkScalar intrinsicHeight = baseMetrics.height();
+    const SkScalar targetHeight = 100.0f;
+
+    auto halfLeadingPara = buildEmpty(true, false, true);
+    auto* halfLeadingImpl = static_cast<ParagraphImpl*>(halfLeadingPara.get());
+    const auto halfMetrics = halfLeadingImpl->getEmptyMetrics();
+    REPORTER_ASSERT(reporter,
+                    SkScalarNearlyEqual(halfMetrics.ascent(), baseMetrics.ascent(), EPSILON100));
+    REPORTER_ASSERT(reporter,
+                    SkScalarNearlyEqual(halfMetrics.descent(), baseMetrics.descent(), EPSILON100));
+    REPORTER_ASSERT(reporter,
+                    SkScalarNearlyEqual(halfMetrics.leading(),
+                                        baseMetrics.leading() + targetHeight - intrinsicHeight,
+                                        EPSILON100));
+
+    auto scaledPara = buildEmpty(false, true, true);
+    auto* scaledImpl = static_cast<ParagraphImpl*>(scaledPara.get());
+    const auto scaledMetrics = scaledImpl->getEmptyMetrics();
+    const SkScalar multiplier = targetHeight / intrinsicHeight;
+    REPORTER_ASSERT(reporter,
+                    SkScalarNearlyEqual(scaledMetrics.ascent(),
+                                        baseMetrics.ascent() * multiplier,
+                                        EPSILON100));
+    REPORTER_ASSERT(reporter,
+                    SkScalarNearlyEqual(scaledMetrics.descent(),
+                                        baseMetrics.descent() * multiplier,
+                                        EPSILON100));
+}
+
+// TextStyle::getFontMetrics must report the same ascent and descent the layout gives the run
+DEF_TEST(SkParagraph_TextStyleFontMetricsMatchRun, reporter) {
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    // Every layout must be freshly shaped to compare against the style it was shaped with
+    fontCollection->getParagraphCache()->turnOn(false);
+
+    for (bool heightOverride : {false, true}) {
+        for (bool halfLeading : {false, true}) {
+            TextStyle textStyle;
+            textStyle.setFontSize(50.0f);
+            textStyle.setHeightOverride(heightOverride);
+            textStyle.setHeight(2.0f);
+            textStyle.setHalfLeading(halfLeading);
+
+            ParagraphStyle paragraphStyle;
+            ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+            builder.pushStyle(textStyle);
+            builder.addText("A");
+            builder.pop();
+            auto paragraph = builder.Build();
+            paragraph->layout(500.0f);
+            auto* impl = static_cast<ParagraphImpl*>(paragraph.get());
+            REPORTER_ASSERT(reporter, impl->runs().size() == 1);
+            if (impl->runs().size() != 1) {
+                continue;
+            }
+            const Run& run = impl->runs()[0];
+
+            textStyle.setTypeface(run.font().refTypeface());
+            SkFontMetrics metrics;
+            textStyle.getFontMetrics(&metrics);
+            REPORTER_ASSERT(reporter,
+                            SkScalarNearlyEqual(metrics.fAscent, run.correctAscent(), EPSILON100),
+                            "heightOverride=%d halfLeading=%d ascent %g != %g",
+                            heightOverride, halfLeading, metrics.fAscent, run.correctAscent());
+            REPORTER_ASSERT(reporter,
+                            SkScalarNearlyEqual(metrics.fDescent, run.correctDescent(), EPSILON100),
+                            "heightOverride=%d halfLeading=%d descent %g != %g",
+                            heightOverride, halfLeading, metrics.fDescent, run.correctDescent());
+        }
+    }
+}
+
 UNIX_ONLY_TEST(SkParagraph_LeftAlignParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)

@@ -170,15 +170,22 @@ void TextStyle::getFontMetrics(SkFontMetrics* metrics) const {
     font.setSubpixel(fSubpixel);
     font.setHinting(fHinting);
     font.getMetrics(metrics);
+    metrics->fAscent -= metrics->fLeading / 2;
+    metrics->fDescent += metrics->fLeading / 2;
+    // Must stay in sync with Run::calculateMetrics() so callers see the metrics layout uses
     if (fHeightOverride) {
-        auto multiplier = fHeight * fFontSize;
-        auto height = metrics->fDescent - metrics->fAscent + metrics->fLeading;
-        metrics->fAscent = (metrics->fAscent - metrics->fLeading / 2) * multiplier / height;
-        metrics->fDescent = (metrics->fDescent + metrics->fLeading / 2) * multiplier / height;
-
-    } else {
-        metrics->fAscent = (metrics->fAscent - metrics->fLeading / 2);
-        metrics->fDescent = (metrics->fDescent + metrics->fLeading / 2);
+        const auto lineHeight = fHeight * fFontSize;
+        const auto intrinsicHeight = metrics->fDescent - metrics->fAscent;
+        // Half-leading keeps the font's ascent and descent and splits the extra height evenly
+        if (fHalfLeading) {
+            const auto extraLeading = (lineHeight - intrinsicHeight) / 2;
+            metrics->fAscent -= extraLeading;
+            metrics->fDescent += extraLeading;
+        } else {
+            const auto multiplier = lineHeight / intrinsicHeight;
+            metrics->fAscent *= multiplier;
+            metrics->fDescent *= multiplier;
+        }
     }
     // If we shift the baseline we need to make sure the shifted text fits the line
     metrics->fAscent += fBaselineShift;

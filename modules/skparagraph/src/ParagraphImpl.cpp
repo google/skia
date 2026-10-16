@@ -1161,7 +1161,9 @@ void ParagraphImpl::computeEmptyMetrics() {
         textStyle.getHeightOverride()) {
         const auto intrinsicHeight = fEmptyMetrics.height();
         const auto strutHeight = textStyle.getHeight() * textStyle.getFontSize();
-        if (paragraphStyle().getStrutStyle().getHalfLeading()) {
+        // The override comes from textStyle, so its own half-leading flag decides the split;
+        // the strut style is applied to empty lines separately below
+        if (textStyle.getHalfLeading()) {
             fEmptyMetrics.update(
                 fEmptyMetrics.ascent(),
                 fEmptyMetrics.descent(),
