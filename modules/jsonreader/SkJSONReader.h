@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 
 #include <cstdint>
@@ -265,13 +266,12 @@ public:
     const T* begin() const {
         SkASSERT(this->getType() == kType);
         const auto* size_ptr = this->ptr<size_t>();
-        return reinterpret_cast<const T*>(size_ptr + 1);
+        return SkTAddOffset<const T>(size_ptr, kHeaderSize);
     }
 
     const T* end() const {
         SkASSERT(this->getType() == kType);
-        const auto* size_ptr = this->ptr<size_t>();
-        return reinterpret_cast<const T*>(size_ptr + 1) + *size_ptr;
+        return this->begin() + this->size();
     }
 
     const T& operator[](size_t i) const {
@@ -280,6 +280,10 @@ public:
 
         return *(this->begin() + i);
     }
+
+private:
+    // Storage for the vector size plus padding to ensure proper T alignment.
+    inline static constexpr size_t kHeaderSize = std::max(sizeof(size_t), alignof(T));
 };
 
 class ArrayValue final : public VectorValue<Value, Value::Type::kArray> {

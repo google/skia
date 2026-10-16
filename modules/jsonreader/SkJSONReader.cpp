@@ -13,6 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkParse.h"
 #include "src/core/SkArenaAlloc.h"
@@ -87,18 +88,21 @@ NumberValue::NumberValue(float f) {
 
 // Vector recs point to externally allocated slabs with the following layout:
 //
-//   [size_t n] [REC_0] ... [REC_n-1] [optional extra trailing storage]
+//   [size_t n] [optional alignment padding] [REC_0] ... [REC_n-1] [optional extra trailing storage]
 //
 // Long strings use extra_alloc_size == 1 to store the \0 terminator.
 //
 template <typename T, size_t extra_alloc_size = 0>
 static void* MakeVector(size_t vec_size, const void* src, size_t src_size, SkArenaAlloc& alloc) {
+    // Storage for the vector size plus padding to ensure proper T alignment.
+    static constexpr size_t kHeaderSize = std::max(sizeof(size_t), alignof(T));
+
     // The Ts are already in memory, so their size should be safe.
-    const auto total_size = sizeof(size_t) + vec_size * sizeof(T) + extra_alloc_size;
+    const auto total_size = kHeaderSize + vec_size * sizeof(T) + extra_alloc_size;
     auto* size_ptr = reinterpret_cast<size_t*>(alloc.makeBytesAlignedTo(total_size, kRecAlign));
 
     *size_ptr = vec_size;
-    sk_careful_memcpy(size_ptr + 1, src, src_size * sizeof(T));
+    sk_careful_memcpy(SkTAddOffset<void>(size_ptr, kHeaderSize), src, src_size * sizeof(T));
 
     return size_ptr;
 }
