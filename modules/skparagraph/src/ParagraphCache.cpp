@@ -95,6 +95,7 @@ public:
 
 private:
     static uint32_t mix(uint32_t hash, uint32_t data);
+    static uint32_t mixTextStyle(uint32_t hash, const TextStyle& style);
     uint32_t computeHash() const;
 
     SkString fText;
@@ -116,7 +117,8 @@ public:
         , fBidiRegions(paragraph->fBidiRegions)
         , fHasLineBreaks(paragraph->fHasLineBreaks)
         , fHasWhitespacesInside(paragraph->fHasWhitespacesInside)
-        , fTrailingSpaces(paragraph->fTrailingSpaces) { }
+        , fTrailingSpaces(paragraph->fTrailingSpaces)
+        , fFontSwitches(paragraph->fFontSwitches) { }
 
     // Input == key
     ParagraphCacheKey fKey;
@@ -132,12 +134,38 @@ public:
     bool fHasLineBreaks;
     bool fHasWhitespacesInside;
     TextIndex fTrailingSpaces;
+    // Reported through ParagraphImpl::resolvedFonts()
+    TArray<ResolvedFontDescriptor> fFontSwitches;
 };
 
 uint32_t ParagraphCacheKey::mix(uint32_t hash, uint32_t data) {
     hash += data;
     hash += (hash << 10);
     hash ^= (hash >> 6);
+    return hash;
+}
+
+// Must cover the fields TextStyle::equalsByFonts() compares, normalized the same way
+uint32_t ParagraphCacheKey::mixTextStyle(uint32_t hash, const TextStyle& style) {
+    hash = mix(hash, SkGoodHash()(relax(style.getLetterSpacing())));
+    hash = mix(hash, SkGoodHash()(relax(style.getWordSpacing())));
+    hash = mix(hash, SkGoodHash()(style.getLocale()));
+    hash = mix(hash, SkGoodHash()(relax(style.getHeight())));
+    hash = mix(hash, SkGoodHash()(style.getHalfLeading()));
+    hash = mix(hash, SkGoodHash()(relax(style.getBaselineShift())));
+    for (auto& ff : style.getFontFamilies()) {
+        hash = mix(hash, SkGoodHash()(ff));
+    }
+    for (auto& ff : style.getFontFeatures()) {
+        hash = mix(hash, SkGoodHash()(ff.fValue));
+        hash = mix(hash, SkGoodHash()(ff.fName));
+    }
+    hash = mix(hash, std::hash<std::optional<FontArguments>>()(style.getFontArguments()));
+    hash = mix(hash, SkGoodHash()(style.getFontStyle()));
+    hash = mix(hash, SkGoodHash()(relax(style.getFontSize())));
+    hash = mix(hash, SkGoodHash()(static_cast<int>(style.getFontEdging())));
+    hash = mix(hash, SkGoodHash()(static_cast<int>(style.getFontHinting())));
+    hash = mix(hash, SkGoodHash()(style.getSubpixel()));
     return hash;
 }
 
@@ -148,6 +176,8 @@ uint32_t ParagraphCacheKey::computeHash() const {
             continue;
         }
         hash = mix(hash, SkGoodHash()(ph.fRange));
+        // The placeholder run takes its font metrics from the surrounding text style
+        hash = mixTextStyle(hash, ph.fTextStyle);
         hash = mix(hash, SkGoodHash()(relax(ph.fStyle.fHeight)));
         hash = mix(hash, SkGoodHash()(relax(ph.fStyle.fWidth)));
         hash = mix(hash, SkGoodHash()(ph.fStyle.fAlignment));
@@ -161,26 +191,14 @@ uint32_t ParagraphCacheKey::computeHash() const {
         if (ts.fStyle.isPlaceholder()) {
             continue;
         }
-        hash = mix(hash, SkGoodHash()(relax(ts.fStyle.getLetterSpacing())));
-        hash = mix(hash, SkGoodHash()(relax(ts.fStyle.getWordSpacing())));
-        hash = mix(hash, SkGoodHash()(ts.fStyle.getLocale()));
-        hash = mix(hash, SkGoodHash()(relax(ts.fStyle.getHeight())));
-        hash = mix(hash, SkGoodHash()(relax(ts.fStyle.getBaselineShift())));
-        for (auto& ff : ts.fStyle.getFontFamilies()) {
-            hash = mix(hash, SkGoodHash()(ff));
-        }
-        for (auto& ff : ts.fStyle.getFontFeatures()) {
-            hash = mix(hash, SkGoodHash()(ff.fValue));
-            hash = mix(hash, SkGoodHash()(ff.fName));
-        }
-        hash = mix(hash, std::hash<std::optional<FontArguments>>()(ts.fStyle.getFontArguments()));
-        hash = mix(hash, SkGoodHash()(ts.fStyle.getFontStyle()));
-        hash = mix(hash, SkGoodHash()(relax(ts.fStyle.getFontSize())));
+        hash = mixTextStyle(hash, ts.fStyle);
         hash = mix(hash, SkGoodHash()(ts.fRange));
     }
 
     hash = mix(hash, SkGoodHash()(fParagraphStyle.getTextDirection()));
     hash = mix(hash, SkGoodHash()(fParagraphStyle.getReplaceTabCharacters() ? 1 : 0));
+    hash = mix(hash, SkGoodHash()(fParagraphStyle.fakeMissingFontStyles() ? 1 : 0));
+    hash = mix(hash, SkGoodHash()(fParagraphStyle.getLetterSpacingByCSSSpec() ? 1 : 0));
 
     auto& strutStyle = fParagraphStyle.getStrutStyle();
     if (strutStyle.getStrutEnabled()) {
@@ -190,6 +208,8 @@ uint32_t ParagraphCacheKey::computeHash() const {
         hash = mix(hash, SkGoodHash()(strutStyle.getHeightOverride()));
         hash = mix(hash, SkGoodHash()(strutStyle.getFontStyle()));
         hash = mix(hash, SkGoodHash()(strutStyle.getForceStrutHeight()));
+        // StrutStyle::operator== compares fHalfLeading, so the hash must include it
+        hash = mix(hash, SkGoodHash()(strutStyle.getHalfLeading()));
         for (auto& ff : strutStyle.getFontFamilies()) {
             hash = mix(hash, SkGoodHash()(ff));
         }
@@ -230,6 +250,17 @@ bool ParagraphCacheKey::operator==(const ParagraphCacheKey& other) const {
         return false;
     }
 
+    // The shaper fakes missing bold and italic in the run fonts
+    if (fParagraphStyle.fakeMissingFontStyles() != other.fParagraphStyle.fakeMissingFontStyles()) {
+        return false;
+    }
+
+    // Letter spacing is applied to the cached runs
+    if (fParagraphStyle.getLetterSpacingByCSSSpec() !=
+        other.fParagraphStyle.getLetterSpacingByCSSSpec()) {
+        return false;
+    }
+
     for (int i = 0; i < fTextStyles.size(); ++i) {
         auto& tsa = fTextStyles[i];
         auto& tsb = other.fTextStyles[i];
@@ -253,6 +284,10 @@ bool ParagraphCacheKey::operator==(const ParagraphCacheKey& other) const {
             continue;
         }
         if (!(tsa.fStyle.equals(tsb.fStyle))) {
+            return false;
+        }
+        // The placeholder run takes its font metrics from the surrounding text style
+        if (!tsa.fTextStyle.equalsByFonts(tsb.fTextStyle)) {
             return false;
         }
         if (tsa.fRange.width() != tsb.fRange.width()) {
@@ -294,6 +329,7 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
     paragraph->fHasLineBreaks = entry->fValue->fHasLineBreaks;
     paragraph->fHasWhitespacesInside = entry->fValue->fHasWhitespacesInside;
     paragraph->fTrailingSpaces = entry->fValue->fTrailingSpaces;
+    paragraph->fFontSwitches = entry->fValue->fFontSwitches;
     for (auto& run : paragraph->fRuns) {
         run.setOwner(paragraph);
     }

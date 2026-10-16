@@ -6,6 +6,25 @@
 namespace skia {
 namespace textlayout {
 
+namespace {
+// Everything the shaper reads to build and measure a run's font; styles equal here can share
+// one shaping call (features and spacing are applied per style range on top of it)
+bool shapeWithSameFont(const TextStyle& a, const TextStyle& b) {
+    return a.getFontStyle() == b.getFontStyle() &&
+           a.getFontFamilies() == b.getFontFamilies() &&
+           a.getFontArguments() == b.getFontArguments() &&
+           nearlyEqual(a.getFontSize(), b.getFontSize()) &&
+           // The shaper sees only the effective height, which is zero without the override
+           nearlyEqual(a.getHeight(), b.getHeight()) &&
+           a.getHalfLeading() == b.getHalfLeading() &&
+           nearlyEqual(a.getBaselineShift(), b.getBaselineShift()) &&
+           a.getFontEdging() == b.getFontEdging() &&
+           a.getFontHinting() == b.getFontHinting() &&
+           a.getSubpixel() == b.getSubpixel() &&
+           a.getLocale() == b.getLocale();
+}
+}  // namespace
+
 const std::vector<SkString>* TextStyle::kDefaultFontFamilies =
         new std::vector<SkString>{SkString(DEFAULT_FONT_FAMILY)};
 
@@ -100,18 +119,12 @@ bool TextStyle::equals(const TextStyle& other) const {
 }
 
 bool TextStyle::equalsByFonts(const TextStyle& that) const {
-
+    // ParagraphCache reuses shaped runs on equality, so every field the shaper reads belongs here
     return !fIsPlaceholder && !that.fIsPlaceholder &&
-           fFontStyle == that.fFontStyle &&
-           fFontFamilies == that.fFontFamilies &&
+           shapeWithSameFont(*this, that) &&
            fFontFeatures == that.fFontFeatures &&
-           fFontArguments == that.getFontArguments() &&
            nearlyEqual(fLetterSpacing, that.fLetterSpacing) &&
-           nearlyEqual(fWordSpacing, that.fWordSpacing) &&
-           nearlyEqual(fHeight, that.fHeight) &&
-           nearlyEqual(fBaselineShift, that.fBaselineShift) &&
-           nearlyEqual(fFontSize, that.fFontSize) &&
-           fLocale == that.fLocale;
+           nearlyEqual(fWordSpacing, that.fWordSpacing);
 }
 
 bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) const {
@@ -150,14 +163,7 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
 
         case kFont:
             // TODO: should not we take typefaces in account?
-            return fFontStyle == other.fFontStyle &&
-                   fLocale == other.fLocale &&
-                   fFontFamilies == other.fFontFamilies &&
-                   fFontSize == other.fFontSize &&
-                   fHeight == other.fHeight &&
-                   fHalfLeading == other.fHalfLeading &&
-                   fBaselineShift == other.fBaselineShift &&
-                   fFontArguments == other.fFontArguments;
+            return shapeWithSameFont(*this, other);
         default:
             SkASSERT(false);
             return false;
