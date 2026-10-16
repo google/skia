@@ -64,10 +64,6 @@ namespace {
         }
     }
 
-    bool exactlyEqual(SkScalar x, SkScalar y) {
-        return x == y || (x != x && y != y);
-    }
-
 }  // namespace
 
 class ParagraphCacheKey {
@@ -183,7 +179,6 @@ uint32_t ParagraphCacheKey::computeHash() const {
         hash = mix(hash, SkGoodHash()(ts.fRange));
     }
 
-    hash = mix(hash, SkGoodHash()(relax(fParagraphStyle.getHeight())));
     hash = mix(hash, SkGoodHash()(fParagraphStyle.getTextDirection()));
     hash = mix(hash, SkGoodHash()(fParagraphStyle.getReplaceTabCharacters() ? 1 : 0));
 
@@ -223,9 +218,6 @@ bool ParagraphCacheKey::operator==(const ParagraphCacheKey& other) const {
     }
 
     // There is no need to compare default paragraph styles - they are included into fTextStyles
-    if (!exactlyEqual(fParagraphStyle.getHeight(), other.fParagraphStyle.getHeight())) {
-        return false;
-    }
     if (fParagraphStyle.getTextDirection() != other.fParagraphStyle.getTextDirection()) {
         return false;
     }

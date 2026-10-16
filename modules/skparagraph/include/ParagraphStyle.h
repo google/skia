@@ -109,6 +109,8 @@ struct ParagraphStyle {
     void setEllipsis(const std::u16string& ellipsis) {  fEllipsisUtf16 = ellipsis; }
     void setEllipsis(const SkString& ellipsis) { fEllipsis = ellipsis; }
 
+    // DEPRECATED: has no effect on layout, line height comes from TextStyle and StrutStyle.
+    // Kept until clients stop calling it
     SkScalar getHeight() const { return fHeight; }
     void setHeight(SkScalar height) { fHeight = height; }
 

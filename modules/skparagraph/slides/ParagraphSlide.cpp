@@ -2682,7 +2682,6 @@ public:
 
         ParagraphStyle paragraph_style;
         paragraph_style.setMaxLines(1);
-        paragraph_style.setHeight(0);
         paragraph_style.setEllipsis(u"\u2026");
         ParagraphBuilderImpl builder(paragraph_style, font_collection, get_unicode());
         TextStyle text_style;
