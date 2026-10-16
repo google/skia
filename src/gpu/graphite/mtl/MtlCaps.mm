@@ -111,11 +111,16 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
             MtlGraphicsPipeline::kIntrinsicUniformBufferIndex;
     fResourceBindingReqs.fCombinedUniformBufferBinding = MtlGraphicsPipeline::kCombinedUniformIndex;
     fResourceBindingReqs.fStorageBufferBinding = MtlGraphicsPipeline::kStorageBufferIndex;
+    fResourceBindingReqs.fMaxStorageBufferBytes = SkTo<int>(
+            std::min<uint64_t>([device maxBufferLength],
+                               ResourceBindingRequirements::kDefaultMaxStorageBufferBytes));
 
     // Metal does not distinguish between uniform and storage buffers.
     fRequiredStorageBufferAlignment = fRequiredUniformBufferAlignment;
 
+    // Metal technically always has storage buffer support for Graphite.
     fStorageBufferSupport = true;
+    SkASSERT(fStorageBufferSupport);
 
     fComputeSupport = true;
 

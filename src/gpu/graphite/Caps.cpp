@@ -74,9 +74,10 @@ void Caps::finishInitialization(const ContextOptions& options) {
     // Enable setting this flag from either the private or public context options.
     fDrawListLayer |= options.fUseDrawListLayer;
 
-    constexpr int kMaxFallbackTextureSize = 8192;
     fResourceBindingReqs.fMaxFallbackTextureSize =
-            std::max(std::min(kMaxFallbackTextureSize, fMaxTextureSize), 1);
+            std::max(std::min(ResourceBindingRequirements::kDefaultMaxFallbackTextureSize,
+                              fMaxTextureSize),
+                     1);
 
     constexpr int kBytesPerTexel = 16;  // 4 floats (RGBA32F) per fallback texel
     fResourceBindingReqs.fMaxFallbackTextureBytes =

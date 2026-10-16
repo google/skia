@@ -206,6 +206,9 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
             vendorID == skgpu::kAMD_VkVendor ? 32 : deviceLimits.maxVertexInputAttributes;
     fMaxUniformBufferRange = deviceLimits.maxUniformBufferRange;
     fMaxStorageBufferRange = deviceLimits.maxStorageBufferRange;
+    fResourceBindingReqs.fMaxStorageBufferBytes = SkTo<int>(
+            std::min<uint64_t>(fMaxStorageBufferRange,
+                               ResourceBindingRequirements::kDefaultMaxStorageBufferBytes));
 
 #ifdef SK_BUILD_FOR_ANDROID
     if (extensions->hasExtension(

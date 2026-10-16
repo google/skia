@@ -39,11 +39,23 @@ sk_sp<TextureProxy> create_texture_proxy(Recorder* recorder, int width, int heig
 
 }  // anonymous namespace
 
-StorageContext::StorageContext(int maxFallbackTextureSize, bool storageBufferSupport)
+StorageContext::StorageContext(const ResourceBindingRequirements& bindingReqs,
+                               bool storageBufferSupport)
+        : StorageContext(bindingReqs.fMaxFallbackTextureSize,
+                         storageBufferSupport,
+                         bindingReqs.fMaxStorageBufferBytes) {}
+
+StorageContext::StorageContext(int maxFallbackTextureSize,
+                               bool storageBufferSupport,
+                               int maxStorageBufferBytes)
         : fRunningLCM(1)
         , fMaxFallbackTextureSize(maxFallbackTextureSize)
+        , fMaxStorageBytes(storageBufferSupport
+                                   ? maxStorageBufferBytes
+                                   : maxFallbackTextureSize * maxFallbackTextureSize * kTexelBytes)
         , fStorageBufferSupport(storageBufferSupport) {
     SkASSERT(fMaxFallbackTextureSize > 0);
+    SkASSERT(fMaxStorageBytes > 0);
 }
 
 StorageContext::~StorageContext() {
@@ -69,7 +81,7 @@ void StorageContext::resetCache() {
 std::pair<float*, int> StorageContext::allocateGradientData(int numStops,
                                                             const SkGradientBaseShader* shader) {
     SkASSERT(!fFinalized);
-    if (numStops > GradientCache::kMaxGradientStops) {
+    if (numStops < 1 || numStops > GradientCache::kMaxGradientStops) {
         return {nullptr, -1};
     }
 
@@ -83,7 +95,8 @@ std::pair<float*, int> StorageContext::allocateGradientData(int numStops,
             ? (numStops * 5)
             : (SkAlign4(numStops) + numStops * 4);
     SkASSERT(fStorageBufferSupport || SkIsAlign4(floatCount));
-    if (GradientCache::kMaxStorageFloats - floatCount < floatOffset) {
+    const int maxStorageFloats = fMaxStorageBytes / static_cast<int>(sizeof(float));
+    if (floatCount > maxStorageFloats || maxStorageFloats - floatCount < floatOffset) {
         return {nullptr, -1};
     }
 
@@ -133,6 +146,13 @@ uint32_t StorageContext::appendVertices(const void* data,
     }
 
     uint32_t alignedVertOffset = SkAlignNonPow2(static_cast<uint32_t>(fVertexData.size()), align32);
+    const size_t maxStorageBytes = static_cast<size_t>(fMaxStorageBytes);
+    size_t newVertBytes = static_cast<size_t>(alignedVertOffset) + requiredBytes;
+    if (fGradientCache.fGradientDataSize > maxStorageBytes ||
+        newVertBytes > maxStorageBytes - fGradientCache.fGradientDataSize) {
+        return 0;
+    }
+
     if (alignedVertOffset > static_cast<uint32_t>(fVertexData.size())) {
         int padBytes = alignedVertOffset - fVertexData.size();
         SK_UNSAFE_TODO(memset(fVertexData.append(padBytes), 0, padBytes));
@@ -161,7 +181,7 @@ uint32_t StorageContext::appendVertices(const void* data,
 
 void StorageContext::finalizePrecachedStorageData() {
     fGradientCache.fGradientDataSize =
-            SkAlignNonPow2<size_t>(fGradientCache.fGradientDataSize, fRunningLCM);
+            SkAlignNonPow2<size_t>(fGradientCache.fGradientData.size_bytes(), fRunningLCM);
     SkDEBUGCODE(fFinalized = true;)
 }
 
@@ -171,21 +191,26 @@ std::optional<StorageContextResult> StorageContext::finalize(Recorder* recorder,
     SkASSERT(fFinalized);
     SkDEBUGCODE(fFinalized = false;)
 
-    if (this->isEmpty()) {
-        return std::nullopt;
+    std::optional<StorageContextResult> result;
+    if (!this->isEmpty()) {
+        if (fStorageBufferSupport) {
+            if (BindBufferInfo info = this->finalizeStorageBuffer(recorder)) {
+                result = info;
+            }
+        } else {
+            if (sk_sp<TextureProxy> proxy = this->finalizeTexture(recorder, drawContext)) {
+                result = std::move(proxy);
+            }
+        }
     }
 
-    if (fStorageBufferSupport) {
-        if (BindBufferInfo info = this->finalizeStorageBuffer(recorder)) {
-            return info;
-        }
-    } else {
-        if (sk_sp<TextureProxy> proxy = this->finalizeTexture(recorder, drawContext)) {
-            return proxy;
-        }
-    }
+    // Vertex data and LCM alignment are per-DrawPass, whereas the gradient cache persists across
+    // internal DrawPass flushes until Recorder::snap() calls resetCache().
+    fVertexData.clear();
+    fRunningLCM = 1;
+    fGradientCache.fGradientDataSize = fGradientCache.fGradientData.size_bytes();
 
-    return std::nullopt;
+    return result;
 }
 
 BindBufferInfo StorageContext::finalizeStorageBuffer(Recorder* recorder) {
@@ -193,25 +218,26 @@ BindBufferInfo StorageContext::finalizeStorageBuffer(Recorder* recorder) {
     SkASSERT(bufferMgr);
 
     size_t totalBytes = fGradientCache.fGradientDataSize + fVertexData.size_bytes();
+    if (totalBytes == 0 || totalBytes > static_cast<size_t>(fMaxStorageBytes)) {
+        return {};
+    }
 
     BindBufferInfo result;
-    if (totalBytes > 0) {
-        auto [writer, bufferInfo, _] = bufferMgr->getMappedStorageBuffer(totalBytes, /*stride=*/1);
-        if (writer) {
-            if (!fGradientCache.isEmpty()) {
-                writer.write(fGradientCache.fGradientData.data(),
-                             fGradientCache.fGradientData.size_bytes());
-                if (fGradientCache.fGradientDataSize > fGradientCache.fGradientData.size_bytes()) {
-                    writer.zeroBytes(fGradientCache.fGradientDataSize -
-                                     fGradientCache.fGradientData.size_bytes());
-                }
+    auto [writer, bufferInfo, _] = bufferMgr->getMappedStorageBuffer(totalBytes, /*stride=*/1);
+    if (writer) {
+        if (!fGradientCache.isEmpty()) {
+            writer.write(fGradientCache.fGradientData.data(),
+                         fGradientCache.fGradientData.size_bytes());
+            if (fGradientCache.fGradientDataSize > fGradientCache.fGradientData.size_bytes()) {
+                writer.zeroBytes(fGradientCache.fGradientDataSize -
+                                 fGradientCache.fGradientData.size_bytes());
             }
-            if (!fVertexData.empty()) {
-                writer.write(fVertexData.data(), fVertexData.size_bytes());
-            }
-
-            result = bufferInfo;
         }
+        if (!fVertexData.empty()) {
+            writer.write(fVertexData.data(), fVertexData.size_bytes());
+        }
+
+        result = bufferInfo;
     }
 
     return result;
@@ -224,7 +250,7 @@ sk_sp<TextureProxy> StorageContext::finalizeTexture(Recorder* recorder, DrawCont
     size_t gradSize = fGradientCache.fGradientDataSize;
     size_t vertSize = fVertexData.size_bytes();
     size_t totalBytes = gradSize + vertSize;
-    if (totalBytes == 0) {
+    if (totalBytes == 0 || totalBytes > static_cast<size_t>(fMaxStorageBytes)) {
         return nullptr;
     }
 

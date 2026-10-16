@@ -88,9 +88,14 @@ struct ResourceBindingRequirements {
     int fIntrinsicBufferBinding       = kUnassigned;
     int fCombinedUniformBufferBinding = kUnassigned;
     int fStorageBufferBinding         = kUnassigned;
-    /* Maximum texture atlas dimension for StorageBuffer fallback texture, defaults to 8192 */
-    int fMaxFallbackTextureSize       = kUnassigned;
-    int fMaxFallbackTextureBytes      = kUnassigned;
+    /* Maximum texture atlas dimension for StorageBuffer fallback texture, defaults to 2048 */
+    static constexpr int kDefaultMaxFallbackTextureSize = 2048;
+    // 128 MB is the minimum guaranteed storage buffer binding range across WebGPU/Dawn
+    // (maxStorageBufferBindingSize) and Vulkan (maxStorageBufferRange).
+    static constexpr int kDefaultMaxStorageBufferBytes  = 128 * 1024 * 1024;
+    int fMaxFallbackTextureSize                         = kUnassigned;
+    int fMaxFallbackTextureBytes                        = kUnassigned;
+    int fMaxStorageBufferBytes                          = kDefaultMaxStorageBufferBytes;
 };
 
 class Caps {
@@ -315,6 +320,8 @@ public:
                  fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430 ||
                  fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430_F16 ||
                  fResourceBindingReqs.fStorageBufferLayout == Layout::kMetal);
+        SkASSERT(fStorageBufferSupport ||
+                 fResourceBindingReqs.fBackendApi != BackendApi::kMetal);
         return fStorageBufferSupport;
     }
 

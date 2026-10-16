@@ -689,4 +689,60 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextFallbackStridedCopyTest,
     REPORTER_ASSERT(reporter, drawContext->snapDrawTask() != nullptr);
 }
 
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextCapacityLimitsTest,
+                                   reporter,
+                                   context,
+                                   CtsEnforcement::kApiLevel_202404) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    SkPoint pts[2] = {{0, 0}, {100, 100}};
+    SkColor4f colors[2] = {SkColors::kRed, SkColors::kBlue};
+    auto grad1 =
+            sk_make_sp<SkLinearGradient>(pts, SkGradient{{colors, {}, SkTileMode::kClamp}, {}});
+    auto grad2 =
+            sk_make_sp<SkLinearGradient>(pts, SkGradient{{colors, {}, SkTileMode::kRepeat}, {}});
+
+    // 1. Exceeding kMaxGradientStops (1M stops) fails gracefully
+    {
+        StorageContext ctx(recorder->priv().caps()->resourceBindingRequirements(),
+                           /*storageBufferSupport=*/true);
+        auto [ptr, offset] = ctx.allocateGradientData(1024 * 1024 + 1, grad1.get());
+        REPORTER_ASSERT(reporter, ptr == nullptr);
+        REPORTER_ASSERT(reporter, offset == -1);
+        REPORTER_ASSERT(reporter, ctx.isEmpty());
+    }
+
+    // 2. Exceeding fallback texture capacity (maxFallbackTextureSize = 2 -> 4 texels = 64 bytes)
+    // fails gracefully for both gradient allocation and vertex appending.
+    {
+        StorageContext ctx(/*maxFallbackTextureSize=*/2, /*storageBufferSupport=*/false);
+#if defined(GPU_TEST_UTILS)
+        REPORTER_ASSERT(reporter, ctx.maxStorageBytes() == 64);
+#endif
+        // A 2-stop gradient takes 12 floats = 48 bytes, which fits in 64 bytes
+        auto [ptr1, offset1] = ctx.allocateGradientData(2, grad1.get());
+        REPORTER_ASSERT(reporter, ptr1 != nullptr);
+        REPORTER_ASSERT(reporter, offset1 == 0);
+
+        // A second 2-stop gradient would require 96 bytes > 64 bytes, so it fails gracefully
+        auto [ptr2, offset2] = ctx.allocateGradientData(2, grad2.get());
+        REPORTER_ASSERT(reporter, ptr2 == nullptr);
+        REPORTER_ASSERT(reporter, offset2 == -1);
+
+        ctx.recordAlignment(/*stride=*/16, /*align=*/16);
+        ctx.finalizePrecachedStorageData();
+
+        // Appending 1 vertex of 16 bytes fits (48 + 16 = 64 bytes)
+        float vert[4] = {1.f, 2.f, 3.f, 4.f};
+        uint32_t vOffset1 = ctx.appendVertices(vert, /*count=*/1, /*stride=*/16, /*align=*/16);
+        REPORTER_ASSERT(reporter, vOffset1 == 48);
+
+        // Appending another vertex of 16 bytes exceeds 64 bytes and returns 0 without growing
+        uint32_t vOffset2 = ctx.appendVertices(vert, /*count=*/1, /*stride=*/16, /*align=*/16);
+        REPORTER_ASSERT(reporter, vOffset2 == 0);
+        SkDEBUGCODE(REPORTER_ASSERT(reporter, ctx.vertexSize() == 16);)
+    }
+}
+
 }  // namespace skgpu::graphite
+
