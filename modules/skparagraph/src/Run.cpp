@@ -57,7 +57,6 @@ Run::Run(ParagraphImpl* owner,
     fOffsets[info.glyphCount] = {0, 0};
     fClusterIndexes[info.glyphCount] = this->leftToRight() ? info.utf8Range.end() : info.utf8Range.begin();
     fEllipsis = false;
-    fHyphen = false;
     fPlaceholderIndex = std::numeric_limits<size_t>::max();
 }
 

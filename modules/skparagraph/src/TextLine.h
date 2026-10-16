@@ -150,9 +150,7 @@ public:
     bool endsWithHardLineBreak() const;
 
 private:
-    std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis,
-                                       const Cluster* cluster,
-                                       bool isHyphen = false);
+    std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis, const Cluster* cluster);
     void justify(SkScalar maxWidth);
 
     void buildTextBlob(TextRange textRange, const TextStyle& style, const ClipContext& context);

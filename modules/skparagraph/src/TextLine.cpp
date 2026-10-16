@@ -693,29 +693,30 @@ void TextLine::createSoftHyphen() {
     if (hyphenStr.isEmpty()) {
         return;
     }
-    fHyphen = this->shapeEllipsis(hyphenStr, &lastCluster, /*isHyphen=*/true);
+    fHyphen = this->shapeEllipsis(hyphenStr, &lastCluster);
     if (fHyphen) {
         fHyphen->fClusterStart = lastCluster.textRange().start;
+        // iterateThroughSingleRunByStyles builds testRange as
+        // [fClusterStart, fClusterStart + fTextRange.width()), so sizing fTextRange to
+        // lastCluster maps fHyphen directly to the U+00AD source range regardless of
+        // hyphenStr's UTF-8 byte length and removes the need for Run::isHyphen()
+        fHyphen->fTextRange = TextRange(0, lastCluster.textRange().width());
     }
 }
 
-std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis,
-                                             const Cluster* cluster,
-                                             bool isHyphen) {
+std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Cluster* cluster) {
 
     class ShapeHandler final : public SkShaper::RunHandler {
     public:
         ShapeHandler(SkScalar lineHeight,
                      bool useHalfLeading,
                      SkScalar baselineShift,
-                     const SkString& ellipsis,
-                     bool isHyphen)
+                     const SkString& ellipsis)
             : fRun(nullptr)
             , fLineHeight(lineHeight)
             , fUseHalfLeading(useHalfLeading)
             , fBaselineShift(baselineShift)
-            , fEllipsis(ellipsis)
-            , fIsHyphen(isHyphen) {}
+            , fEllipsis(ellipsis) {}
         std::unique_ptr<Run> run() & { return std::move(fRun); }
 
     private:
@@ -736,7 +737,6 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis,
             fRun->fAdvance.fY = fRun->advance().fY;
             fRun->fPlaceholderIndex = std::numeric_limits<size_t>::max();
             fRun->fEllipsis = true;
-            fRun->fHyphen = fIsHyphen;
         }
 
         void commitLine() override {}
@@ -746,7 +746,6 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis,
         bool fUseHalfLeading;
         SkScalar fBaselineShift;
         SkString fEllipsis;
-        bool fIsHyphen;
     };
 
     const Run& run = cluster->run();
@@ -779,11 +778,8 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis,
     }
 
     auto shaped = [&](sk_sp<SkTypeface> typeface, sk_sp<SkFontMgr> fallback) -> std::unique_ptr<Run> {
-        ShapeHandler handler(run.heightMultiplier(),
-                             run.useHalfLeading(),
-                             run.baselineShift(),
-                             ellipsis,
-                             isHyphen);
+        ShapeHandler handler(
+                run.heightMultiplier(), run.useHalfLeading(), run.baselineShift(), ellipsis);
         SkFont font(std::move(typeface), textStyle.getFontSize());
         font.setEdging(textStyle.getFontEdging());
         font.setHinting(textStyle.getFontHinting());
@@ -1203,16 +1199,21 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
     SkScalar totalWidth = 0;
     auto textRange = includingGhostSpaces ? this->textWithNewlines() : this->trimmedText();
 
+    // In RTL, the line-end affix sits at the left edge and is visited before text runs;
+    // honor a false return (e.g. from getGlyphPositionAtCoordinate when dx hits the affix)
+    // so subsequent runs do not overwrite the visitor's result
     if (this->ellipsis() != nullptr && fOwner->paragraphStyle().getTextDirection() == TextDirection::kRtl) {
         runOffset = this->ellipsis()->offset().fX;
-        if (visitor(ellipsis(), runOffset, ellipsis()->textRange(), &width)) {
+        if (!visitor(ellipsis(), runOffset, ellipsis()->textRange(), &width)) {
+            return;
         }
     }
 
     if (this->hyphen() != nullptr &&
         fOwner->paragraphStyle().getTextDirection() == TextDirection::kRtl) {
         runOffset = this->hyphen()->offset().fX;
-        if (visitor(hyphen(), runOffset, hyphen()->textRange(), &width)) {
+        if (!visitor(hyphen(), runOffset, hyphen()->textRange(), &width)) {
+            return;
         }
     }
 
@@ -1342,18 +1343,21 @@ void TextLine::getRectsForRange(TextRange textRange0,
     this->iterateThroughVisualRuns(true,
         [textRange0, rectHeightStyle, rectWidthStyle, &boxes, &lastRun, startBox, this]
         (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
-        // The rendered soft hyphen is a synthetic glyph run that does not correspond
-        // to any source text. Its synthetic textRange (offsets into the "-" string)
-        // would falsely intersect caller-supplied source ranges and produce a
-        // spurious selection rect at the line-end hyphen position. Skip it.
-        if (run->isHyphen()) {
-            return true;
-        }
+        // For fHyphen (which has fEllipsis = true), iterateThroughSingleRunByStyles
+        // always returns run->advance().fX for *runWidthInLine and passes the U+00AD
+        // cluster's source range as textRange to the visitor below
         *runWidthInLine = this->iterateThroughSingleRunByStyles(
         TextAdjustment::GraphemeGluster, run, runOffsetInLine, textRange, StyleType::kNone,
         [run, runOffsetInLine, textRange0, rectHeightStyle, rectWidthStyle, &boxes, &lastRun, startBox, this]
         (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& lineContext) {
-
+            if (fHyphen != nullptr && !run->isEllipsis()) {
+                // Exclude the line-final U+00AD cluster from normal text runs: its visual
+                // glyph is emitted by fHyphen, while the unrendered U+00AD cluster in the
+                // text run would emit a second box (breaking fallback fonts, letterSpacing,
+                // and BiDi lines where fHyphen and the text run are not adjacent)
+                textRange = textRange * TextRange(fTextIncludingNewlines.start,
+                                                  fHyphen->fClusterStart);
+            }
             auto intersect = textRange * textRange0;
             if (intersect.empty()) {
                 return true;
@@ -1558,9 +1562,17 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
         [this, dx, &result]
         (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
             if (run->isEllipsis()) {
-                auto utf16Index = fOwner->getUTF16Index(this->fText.end);
-                result = { SkToS32(utf16Index) , kDownstream };
-                return false;
+                // In LTR the affix is visited last (only reached when dx is past all text
+                // runs); in RTL it is visited first at the left edge, so report its width
+                // to offset subsequent runs and only stop if dx is within/left of the affix
+                *runWidthInLine = run->advance().fX;
+                if (fOwner->paragraphStyle().getTextDirection() == TextDirection::kLtr ||
+                    dx <= this->offset().fX + runOffsetInLine + run->advance().fX) {
+                    auto utf16Index = fOwner->getUTF16Index(this->fText.end);
+                    result = { SkToS32(utf16Index) , kDownstream };
+                    return false;
+                }
+                return true;
             }
 
             bool keepLooking = true;

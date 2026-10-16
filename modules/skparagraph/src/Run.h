@@ -112,7 +112,6 @@ public:
     ParagraphImpl* owner() const { return fOwner; }
 
     bool isEllipsis() const { return fEllipsis; }
-    bool isHyphen() const { return fHyphen; }
 
     void calculateMetrics();
     void updateMetrics(InternalLineMetrics* endlineMetrics);
@@ -215,7 +214,6 @@ private:
     SkScalar fCorrectLeading;
 
     bool fEllipsis;
-    bool fHyphen;
     uint8_t fBidiLevel;
     SkFourByteTag fScript;
     SkString fLanguage;
