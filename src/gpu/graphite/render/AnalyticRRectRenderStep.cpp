@@ -270,7 +270,7 @@ static constexpr float kComplexAAInsets = -1.f;
 
 static constexpr int kCornerVertexCount = 9; // sk_VertexID is divided by this in SkSL
 static constexpr int kVertexCount = 4 * kCornerVertexCount;
-static constexpr int kIndexCount = 69;
+static constexpr int kIndexCount = 73;
 
 // Represents the per-vertex attributes used in each instance.
 struct Vertex {
@@ -330,10 +330,10 @@ static void write_index_buffer(VertexWriter writer) {
 
     static const uint16_t kIndices[kIndexCount] = {
         // Exterior AA ramp outset
-        kTL+0,kTL+4,kTL+1,kTL+5,kTL+2,kTL+3,kTL+5,
-        kTR+0,kTR+4,kTR+1,kTR+5,kTR+2,kTR+3,kTR+5,
-        kBR+0,kBR+4,kBR+1,kBR+5,kBR+2,kBR+3,kBR+5,
-        kBL+0,kBL+4,kBL+1,kBL+5,kBL+2,kBL+3,kBL+5,
+        kTL+0,kTL+4,kTL+1,kTL+5,kTL+2,kTL+3, kTL+3,kTL+5,
+        kTR+0,kTR+4,kTR+1,kTR+5,kTR+2,kTR+3, kTR+3,kTR+5,
+        kBR+0,kBR+4,kBR+1,kBR+5,kBR+2,kBR+3, kBR+3,kBR+5,
+        kBL+0,kBL+4,kBL+1,kBL+5,kBL+2,kBL+3, kBL+3,kBL+5,
         kTL+0,kTL+4, // close and jump to next strip
         // Outer to inner edges
         kTL+4,kTL+6,kTL+5,kTL+7,
