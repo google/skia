@@ -2,6 +2,8 @@
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/TextWrapper.h"
 
+#include "include/core/SkFont.h"
+
 namespace skia {
 namespace textlayout {
 
@@ -49,7 +51,10 @@ struct LineBreakerWithLittleRounding {
 
 // Since we allow cluster clipping when they don't fit
 // we have to work with stretches - parts of clusters
-void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters, bool applyRoundingHack) {
+void TextWrapper::lookAhead(SkScalar maxWidth,
+                            Cluster* endOfClusters,
+                            bool applyRoundingHack,
+                            const SkString* softHyphen) {
 
     reset();
     fEndLine.metrics().clean();
@@ -59,6 +64,13 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters, bool appl
 
     LineBreakerWithLittleRounding breaker(maxWidth, applyRoundingHack);
     Cluster* nextNonBreakingSpace = nullptr;
+    // A line that breaks at a soft hyphen also draws the hyphen, so that break only fits if the
+    // hyphen does too. When the last break opportunity is a soft hyphen that doesn't fit with its
+    // hyphen, remember the words before it: if the line has to end there, end it before instead.
+    // (Like browsers, keep the soft hyphen break if there's no earlier opportunity on the line.)
+    bool softHyphenBreakTooWide = false;
+    TextStretch wordsBeforeSoftHyphen;
+    bool brokeForWidth = false;
     for (auto cluster = fEndLine.endCluster(); cluster < endOfClusters; ++cluster) {
         if (cluster->isHardBreak()) {
         } else if (
@@ -70,12 +82,14 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters, bool appl
                 fClusters.extend(cluster);
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, this->getClustersTrimmedWidth());
                 fWords.extend(fClusters);
+                softHyphenBreakTooWide = false;
                 continue;
             } else if (cluster->run().isPlaceholder()) {
                 if (!fClusters.empty()) {
                     // Placeholder ends the previous word
                     fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, this->getClustersTrimmedWidth());
                     fWords.extend(fClusters);
+                    softHyphenBreakTooWide = false;
                 }
 
                 if (cluster->width() > maxWidth && fWords.empty()) {
@@ -87,6 +101,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters, bool appl
                 } else {
                     // Placeholder does not fit the line; it will be considered again on the next line
                 }
+                brokeForWidth = true;
                 break;
             }
 
@@ -125,11 +140,13 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters, bool appl
                         fClusters = TextStretch(fClusters.startCluster(), nextNonBreakingSpace, fClusters.metrics().getForceStrut());
                         fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, nextShortWordLength);
                         fWords.extend(fClusters);
+                        softHyphenBreakTooWide = false;
                     } else {
                         // We can place the short word on the next line
                         fClusters.clean();
                     }
                     // Either way we are not in "word is too long" situation anymore
+                    brokeForWidth = true;
                     break;
                 }
                 // If the word is too long we can break it right now and hope it's enough
@@ -148,6 +165,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters, bool appl
                 fTooLongCluster = true;
                 fTooLongWord = true;
             }
+            brokeForWidth = true;
             break;
         }
 
@@ -161,12 +179,24 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters, bool appl
             // Placeholder is separate word and its width now is counted in minIntrinsicWidth
             fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, cluster->width());
             fWords.extend(cluster);
+            softHyphenBreakTooWide = false;
         } else {
             fClusters.extend(cluster);
 
             // Keep adding clusters/words
             if (fClusters.endOfWord()) {
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, getClustersTrimmedWidth());
+                bool tooWide = false;
+                if (softHyphen != nullptr && cluster->isSoftHyphen() && !fWords.empty()) {
+                    SkScalar hyphenWidth = cluster->run().font().measureText(
+                            softHyphen->c_str(), softHyphen->size(), SkTextEncoding::kUTF8);
+                    tooWide = breaker.breakLine(fWords.width() + fClusters.width() + hyphenWidth);
+                }
+                if (tooWide && !softHyphenBreakTooWide) {
+                    // Keep the last break that fits, even past several soft hyphens that don't.
+                    wordsBeforeSoftHyphen = fWords;
+                }
+                softHyphenBreakTooWide = tooWide;
                 fWords.extend(fClusters);
             }
         }
@@ -175,6 +205,11 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters, bool appl
             // Stop at the hard line break
             break;
         }
+    }
+
+    if (brokeForWidth && softHyphenBreakTooWide && !fTooLongWord) {
+        fWords = wordsBeforeSoftHyphen;
+        fClusters.clean();
     }
 }
 
@@ -290,6 +325,11 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     auto unlimitedLines = maxLines == std::numeric_limits<size_t>::max();
     auto endlessLine = !SkIsFinite(maxWidth);
     auto hasEllipsis = parent->paragraphStyle().ellipsized();
+    const SkString* softHyphen = nullptr;
+    if (parent->paragraphStyle().getRenderSoftHyphens() &&
+        !parent->paragraphStyle().getSoftHyphenString().isEmpty()) {
+        softHyphen = &parent->paragraphStyle().getSoftHyphenString();
+    }
 
     auto disableFirstAscent = parent->paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableFirstAscent;
     auto disableLastDescent = parent->paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableLastDescent;
@@ -303,10 +343,12 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     bool needEllipsis = false;
     while (fEndLine.endCluster() != end) {
 
-        this->lookAhead(maxWidth, end, parent->getApplyRoundingHack());
-
         auto lastLine = (hasEllipsis && unlimitedLines) || fLineNumber >= maxLines;
         needEllipsis = hasEllipsis && !endlessLine && lastLine;
+
+        // A line that gets an ellipsis draws no hyphen, so it needs no room for one.
+        this->lookAhead(
+                maxWidth, end, parent->getApplyRoundingHack(), needEllipsis ? nullptr : softHyphen);
 
         this->moveForward(needEllipsis);
         needEllipsis &= fEndLine.endCluster() < end - 1; // Only if we have some text to ellipsize

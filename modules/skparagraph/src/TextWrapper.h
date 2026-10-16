@@ -221,7 +221,11 @@ private:
         fHardLineBreak = false;
     }
 
-    void lookAhead(SkScalar maxWidth, Cluster* endOfClusters, bool applyRoundingHack);
+    // softHyphen is the string drawn at soft hyphen line breaks, or nullptr if none is drawn.
+    void lookAhead(SkScalar maxWidth,
+                   Cluster* endOfClusters,
+                   bool applyRoundingHack,
+                   const SkString* softHyphen);
     void moveForward(bool hasEllipsis);
     void trimEndSpaces(TextAlign align);
     std::tuple<Cluster*, size_t, SkScalar> trimStartSpaces(Cluster* endOfClusters);

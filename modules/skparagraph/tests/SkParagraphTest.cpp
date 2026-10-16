@@ -10432,6 +10432,221 @@ UNIX_ONLY_TEST(SkParagraph_SoftHyphenCustomString, reporter) {
     REPORTER_ASSERT(reporter, implEmpty->lines()[0].hyphen() == nullptr);
 }
 
+// Returns `text` with each '~' replaced by a soft hyphen (U+00AD).
+static std::string withSoftHyphens(const char* text) {
+    std::string result;
+    for (const char* c = text; *c != '\0'; ++c) {
+        if (*c == '~') {
+            result += "\xC2\xAD";
+        } else {
+            result += *c;
+        }
+    }
+    return result;
+}
+
+// Lays out `text`, with '~' for each soft hyphen, in Roboto 20 with rendered soft hyphens at
+// `width`. The rounding hack is off (as in Flutter) so that line widths can be compared exactly.
+static std::unique_ptr<Paragraph> layoutWithSoftHyphens(
+        sk_sp<ResourceFontCollection> fontCollection,
+        const char* text,
+        SkScalar width,
+        const std::function<void(ParagraphStyle&)>& configure = nullptr) {
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setApplyRoundingHack(false);
+    paragraph_style.setRenderSoftHyphens(true);
+    if (configure) {
+        configure(paragraph_style);
+    }
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    std::string utf8 = withSoftHyphens(text);
+    builder.addText(utf8.c_str(), utf8.size());
+    builder.pop();
+    auto paragraph = builder.Build();
+    paragraph->layout(width);
+    return paragraph;
+}
+
+// The width of `text` on a single line.
+static SkScalar singleLineWidth(sk_sp<ResourceFontCollection> fontCollection, const char* text) {
+    return layoutWithSoftHyphens(fontCollection, text, 10000)->getMaxIntrinsicWidth();
+}
+
+// Each line's text and whether it ends in a rendered hyphen, e.g. "xy|abcd-|efgh".
+static SkString describeLines(Paragraph* paragraph) {
+    auto impl = static_cast<ParagraphImpl*>(paragraph);
+    SkString result;
+    for (auto& line : impl->lines()) {
+        if (!result.isEmpty()) {
+            result.append("|");
+        }
+        auto range = line.trimmedText();
+        for (size_t i = range.start; i < range.end; ++i) {
+            char c = impl->text()[i];
+            // Leave out the soft hyphen's two UTF-8 bytes.
+            if ((c & 0x80) == 0) {
+                result.append(&c, 1);
+            }
+        }
+        if (line.hyphen() != nullptr) {
+            result.append("-");
+        }
+    }
+    return result;
+}
+
+// Checks describeLines(paragraph) against `expected`, reporting the actual lines if they differ.
+static void checkLines(skiatest::Reporter* reporter, Paragraph* paragraph, const char* expected) {
+    SkString lines = describeLines(paragraph);
+    REPORTER_ASSERT(reporter, lines.equals(expected), "lines: %s", lines.c_str());
+}
+
+// A soft hyphen break also draws a hyphen, so it only fits if the hyphen does too. If it
+// doesn't, the line breaks at the earlier space instead, like browsers do.
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenBreakReservesHyphenWidth, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    SkScalar hyphen = singleLineWidth(fontCollection, "-");
+    SkScalar width = singleLineWidth(fontCollection, "xy abcd") + hyphen / 2;
+    auto paragraph = layoutWithSoftHyphens(fontCollection, "xy abcd~efgh", width);
+    checkLines(reporter, paragraph.get(), "xy|abcd-|efgh");
+    REPORTER_ASSERT(reporter, paragraph->getLongestLine() <= width);
+}
+
+// Likewise, an earlier soft hyphen is used when the later one doesn't fit with its hyphen.
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenBreakFallsBackToEarlierSoftHyphen, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    SkScalar hyphen = singleLineWidth(fontCollection, "-");
+    SkScalar width = singleLineWidth(fontCollection, "abcd") + hyphen / 2;
+    auto paragraph = layoutWithSoftHyphens(fontCollection, "ab~cd~efgh", width);
+    checkLines(reporter, paragraph.get(), "ab-|cd-|efgh");
+    REPORTER_ASSERT(reporter, paragraph->getLongestLine() <= width);
+}
+
+// When several soft hyphen breaks don't fit with their hyphens, the line ends at the last break
+// that does: here, the space.
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenBreakFallsBackPastSoftHyphensThatDontFit, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    SkScalar hyphen = singleLineWidth(fontCollection, "-");
+    SkScalar width = singleLineWidth(fontCollection, "x ab") + hyphen / 2;
+    auto paragraph = layoutWithSoftHyphens(fontCollection, "x ab~cd~ef", width);
+    SkString lines = describeLines(paragraph.get());
+    REPORTER_ASSERT(reporter, lines.startsWith("x|ab-|"), "lines: %s", lines.c_str());
+    REPORTER_ASSERT(reporter, paragraph->getLongestLine() <= width);
+}
+
+// The room reserved is the width of the hyphen string that's drawn, not of "-".
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenBreakReservesCustomHyphenWidth, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    SkScalar hyphen = singleLineWidth(fontCollection, "-");
+    SkScalar width = singleLineWidth(fontCollection, "xy abcd") + hyphen * 1.5f;
+    const char* text = "xy abcd~efgh";
+    auto paragraph = layoutWithSoftHyphens(fontCollection, text, width);
+    checkLines(reporter, paragraph.get(), "xy abcd-|efgh");
+    paragraph = layoutWithSoftHyphens(fontCollection, text, width, [](ParagraphStyle& style) {
+        style.setSoftHyphenString(SkString("--"));
+    });
+    checkLines(reporter, paragraph.get(), "xy|abcd-|efgh");
+    REPORTER_ASSERT(reporter, paragraph->getLongestLine() <= width);
+}
+
+// A line that gets an ellipsis draws no hyphen, so it breaks the same whether or not soft
+// hyphens are rendered.
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenBreakOnEllipsisLineReservesNoRoom, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    SkScalar hyphen = singleLineWidth(fontCollection, "-");
+    SkScalar width = singleLineWidth(fontCollection, "xy abcd") + hyphen / 2;
+    const char* text = "xy abcd~efgh ijkl";
+    auto lines = [&](bool renderSoftHyphens) {
+        auto paragraph = layoutWithSoftHyphens(
+                fontCollection, text, width, [renderSoftHyphens](ParagraphStyle& style) {
+                    style.setRenderSoftHyphens(renderSoftHyphens);
+                    style.setMaxLines(1);
+                    style.setEllipsis(SkString("..."));
+                });
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        REPORTER_ASSERT(reporter, impl->lines().size() == 1);
+        REPORTER_ASSERT(reporter, impl->lines()[0].ellipsis() != nullptr);
+        REPORTER_ASSERT(reporter, impl->lines()[0].hyphen() == nullptr);
+        return impl->lines()[0].trimmedText();
+    };
+    REPORTER_ASSERT(reporter, lines(true) == lines(false));
+}
+
+// A placeholder that doesn't fit ends the line after the word before it, so an earlier soft
+// hyphen that wouldn't fit with its hyphen doesn't matter.
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenBreakBeforePlaceholderNeedsNoRoom, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text = "xy abcd~i";
+    SkScalar width = singleLineWidth(fontCollection, text) + 0.3f;
+    SkScalar hyphenated = singleLineWidth(fontCollection, "xy abcd-");
+    REPORTER_ASSERT(reporter, hyphenated > width + 0.3f, "%g vs %g", hyphenated, width);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setApplyRoundingHack(false);
+    paragraph_style.setRenderSoftHyphens(true);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    std::string utf8 = withSoftHyphens(text);
+    builder.addText(utf8.c_str(), utf8.size());
+    builder.addPlaceholder(PlaceholderStyle(
+            20, 20, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 0));
+    builder.pop();
+    auto paragraph = builder.Build();
+    paragraph->layout(width);
+    // The second line holds only the placeholder.
+    checkLines(reporter, paragraph.get(), "xy abcdi|");
+}
+
+// With no earlier break opportunity on the line, the soft hyphen break is still used and the
+// hyphen overflows, rather than breaking inside the word (also like browsers).
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenOnlyBreakMayOverflow, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    SkScalar hyphen = singleLineWidth(fontCollection, "-");
+    SkScalar width = singleLineWidth(fontCollection, "abcd") + hyphen / 2;
+    auto paragraph = layoutWithSoftHyphens(fontCollection, "abcd~efgh", width);
+    checkLines(reporter, paragraph.get(), "abcd-|efgh");
+    REPORTER_ASSERT(reporter, paragraph->getLongestLine() > width);
+}
+
+// The hyphen only counts if the line ends at the soft hyphen. Here the line would overflow if it
+// ended there, but the text after the soft hyphen is narrower than the hyphen, so the line can
+// continue past it to the next space.
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenBreakNotTakenNeedsNoRoom, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    SkScalar width = singleLineWidth(fontCollection, "xy abcd~i") + 0.3f;
+    SkScalar hyphenated = singleLineWidth(fontCollection, "xy abcd-");
+    REPORTER_ASSERT(reporter, hyphenated > width + 0.3f, "%g vs %g", hyphenated, width);
+    auto paragraph = layoutWithSoftHyphens(fontCollection, "xy abcd~i jklm", width);
+    checkLines(reporter, paragraph.get(), "xy abcdi|jklm");
+}
+
 #if defined(SK_UNICODE_ICU_IMPLEMENTATION)
 UNIX_ONLY_TEST(SkParagraph_ICU_EmojiRuns, reporter) {
     SkUnicode_Emoji(SkUnicodes::ICU::Make(), reporter);
