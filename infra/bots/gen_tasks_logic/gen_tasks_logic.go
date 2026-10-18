@@ -914,6 +914,10 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 		if os == "Win11" && b.GPU("IntelUHDGraphics770", "IntelArc140V") {
 			d["os"] = "Windows-11-26200"
 		}
+		// The GTX1660 machines were updated to Windows 11 26H2 along with their NVIDIA driver.
+		if os == "Win11" && b.GPU("GTX1660") {
+			d["os"] = "Windows-11-26300"
+		}
 		if strings.Contains(os, "iOS") {
 			d["pool"] = "SkiaIOS"
 			if b.Model("iPhone11") {
@@ -1050,7 +1054,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			// It's a GPU job.
 			if b.MatchOs("Win") {
 				gpu, ok := map[string]string{
-					"GTX1660":             "10de:2184-31.0.15.4601",
+					"GTX1660":             "10de:2184-32.0.16.1742",
 					"IntelArc140V":        "8086:64a0-32.0.101.7029",
 					"IntelArcB570":        "8086:e20c-32.0.101.8132",
 					"IntelHD4400":         "8086:0a16-10.0.26100.1",
