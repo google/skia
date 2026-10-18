@@ -5854,6 +5854,31 @@ DEF_TEST_DISABLED(SkParagraph_JSON2, reporter) {
     REPORTER_ASSERT(reporter, cluster <= 2);
 }
 
+UNIX_ONLY_TEST(SkParagraph_CachePreservesUnresolvedGlyphs, reporter) {
+    sk_sp<ResourceFontCollection> fonts = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fonts)
+    fonts->disableFontFallback();
+    ParagraphStyle style;
+    TextStyle textStyle;
+    textStyle.setFontFamilies({SkString("Roboto")});
+    textStyle.setFontSize(14);
+    style.setTextStyle(textStyle);
+    auto make = [&](SkScalar width) {
+        ParagraphBuilderImpl builder(style, fonts, get_unicode());
+        builder.addText("missing \xF3\xB0\x80\x80"); // U+F0000 has no Roboto glyph.
+        auto paragraph = builder.Build();
+        paragraph->layout(width);
+        return paragraph;
+    };
+    auto cold = make(120);
+    const auto unresolved = cold->unresolvedCodepoints();
+    REPORTER_ASSERT(reporter, cold->unresolvedGlyphs() == 1);
+    REPORTER_ASSERT(reporter, unresolved.size() == 1 && unresolved.count(0xF0000) == 1);
+    auto cached = make(180);
+    REPORTER_ASSERT(reporter, cached->unresolvedGlyphs() == cold->unresolvedGlyphs());
+    REPORTER_ASSERT(reporter, cached->unresolvedCodepoints() == unresolved);
+}
+
 UNIX_ONLY_TEST(SkParagraph_CacheText, reporter) {
     ParagraphCache cache;
     cache.turnOn(true);

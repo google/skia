@@ -110,6 +110,8 @@ public:
     ParagraphCacheValue(ParagraphCacheKey&& key, const ParagraphImpl* paragraph)
         : fKey(std::move(key))
         , fRuns(paragraph->fRuns)
+        , fUnresolvedGlyphs(paragraph->fUnresolvedGlyphs)
+        , fUnresolvedCodepoints(paragraph->fUnresolvedCodepoints)
         , fClusters(paragraph->fClusters)
         , fClustersIndexFromCodeUnit(paragraph->fClustersIndexFromCodeUnit)
         , fCodeUnitProperties(paragraph->fCodeUnitProperties)
@@ -125,6 +127,8 @@ public:
 
     // Shaped results
     TArray<Run, false> fRuns;
+    size_t fUnresolvedGlyphs;
+    std::unordered_set<SkUnichar> fUnresolvedCodepoints;
     TArray<Cluster, true> fClusters;
     TArray<size_t, true> fClustersIndexFromCodeUnit;
     // ICU results
@@ -321,6 +325,8 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
 
     paragraph->fRuns.clear();
     paragraph->fRuns = entry->fValue->fRuns;
+    paragraph->fUnresolvedGlyphs = entry->fValue->fUnresolvedGlyphs;
+    paragraph->fUnresolvedCodepoints = entry->fValue->fUnresolvedCodepoints;
     paragraph->fClusters = entry->fValue->fClusters;
     paragraph->fClustersIndexFromCodeUnit = entry->fValue->fClustersIndexFromCodeUnit;
     paragraph->fCodeUnitProperties = entry->fValue->fCodeUnitProperties;
