@@ -1693,7 +1693,7 @@ int main(int argc, char** argv) {
 #if defined(SK_ENABLE_SVG)
     SkGraphics::SetOpenTypeSVGDecoderFactory(SkSVGOpenTypeSVGDecoder::Make);
 #endif
-    SkFunctionalExecutors::Enabler enabled(FLAGS_threads);
+    SkExecutors::Enabler enabled(FLAGS_threads);
     CodecUtils::RegisterAllAvailable();
     ToolUtils::RegisterAvailableTypefaceFactories();
 

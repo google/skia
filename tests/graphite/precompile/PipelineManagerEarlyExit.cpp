@@ -73,19 +73,12 @@ void add_precompilation(PrecompileContext* precompileContext) {
 
 void run_test(GraphiteTestContext* testContext, const TestOptions& origOptions,
               bool allowThreads, bool keepPrecompileContextAlive) {
-#if defined(SK_GRAPHITE_USE_CALLBACK_EXECUTOR)
-    using ExecutorType = SkCallbackExecutor;
-#else
-    using ExecutorType = SkFunctionalExecutor;
-#endif
-
-    std::unique_ptr<ExecutorType> executor;
+    std::unique_ptr<SkExecutor> executor;
     if (allowThreads) {
         // Ensure the threaded PipelineManager will be used
-        executor = SkExecutors<ExecutorType>::MakeMultiListFIFOThreadPool(
-            /* numWorkLists= */ 2,
-            /* threads= */ 1,
-            /* allowBorrowing= */ false);
+        executor = SkExecutors::MakeMultiListFIFOThreadPool(/* numWorkLists= */ 2,
+                                                            /* threads= */ 1,
+                                                            /* allowBorrowing= */ false);
     }
 
     TestOptions newOptions(origOptions);

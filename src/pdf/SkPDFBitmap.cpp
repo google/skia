@@ -410,7 +410,7 @@ SkPDFIndirectReference SkPDFSerializeImage(const SkImage* img,
     SkASSERT(img);
     SkASSERT(doc);
     SkPDFIndirectReference ref = doc->reserveRef();
-    if (SkFunctionalExecutor* executor = doc->executor()) {
+    if (SkExecutor* executor = doc->executor()) {
         SkRef(img);
         doc->incrementJobCount();
         executor->add([img, encodingQuality, doc, ref]() {

@@ -56,7 +56,7 @@ sk_sp<SharedContext> MtlSharedContext::Make(const MtlBackendContext& context,
 MtlSharedContext::MtlSharedContext(sk_cfp<id<MTLDevice>> device,
                                    sk_sp<skgpu::MtlMemoryAllocator> memoryAllocator,
                                    std::unique_ptr<const MtlCaps> caps,
-                                   ExecutorType* executor,
+                                   SkExecutor* executor,
                                    SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects)
         : SharedContext(std::move(caps),
                         BackendApi::kMetal,
