@@ -34,11 +34,32 @@ StripGenerator::StripGenerator(int width,
 
 StripGenerator::~StripGenerator() = default;
 
+#if defined(GPU_TEST_UTILS)
+StripGenerator::DebugCaptureFn& StripGenerator::DebugCaptureCallbackStorage() {
+    // Leaked so that there is no exit-time destructor.
+    static DebugCaptureFn* gFn = new DebugCaptureFn();
+    return *gFn;
+}
+
+void StripGenerator::SetDebugCaptureCallback(DebugCaptureFn fn) {
+    DebugCaptureCallbackStorage() = std::move(fn);
+}
+
+const StripGenerator::DebugCaptureFn& StripGenerator::GetDebugCaptureCallback() {
+    return DebugCaptureCallbackStorage();
+}
+#endif
+
 bool StripGenerator::processGeometry(const SkPath& path, const SkMatrix& ctm) {
     return this->processGeometry(path, ctm, SkIRect::MakeWH(fWidth, fHeight));
 }
 
 bool StripGenerator::processGeometry(const SkPath& path, const SkMatrix& ctm, const SkIRect& clip) {
+#if defined(GPU_TEST_UTILS)
+    if (const DebugCaptureFn& captureFn = GetDebugCaptureCallback()) {
+        captureFn(path, ctm, clip, SkISize::Make(fWidth, fHeight));
+    }
+#endif
     fEnds.clear();
     fWides.clear();
 

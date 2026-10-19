@@ -15,8 +15,18 @@
 
 #include <cstdint>
 
+#if defined(GPU_TEST_UTILS)
+#include "include/core/SkSize.h"
+
+#include <functional>
+#endif
+
 class SkMatrix;
 class SkPath;
+
+#if defined(GPU_TEST_UTILS)
+class SparseStripsDebugSlide;
+#endif
 
 namespace skgpu::graphite {
 
@@ -40,6 +50,23 @@ public:
     bool cleanupNullCaps();
 
 private:
+#if defined(GPU_TEST_UTILS)
+    friend class ::SparseStripsDebugSlide;
+
+    // Debug-only hook which observes the exact inputs of every processGeometry() call, so that
+    // viewer's SparseStripsDebug slide can capture a frame for offline repro. Not thread safe;
+    // install and remove it from the thread that records draws. Pass an empty function to
+    // uninstall.
+    using DebugCaptureFn = std::function<void(const SkPath& path,
+                                              const SkMatrix& ctm,
+                                              const SkIRect& clip,
+                                              SkISize targetSize)>;
+    static void SetDebugCaptureCallback(DebugCaptureFn fn);
+    // Returns the installed hook, or an empty function if none is installed.
+    static const DebugCaptureFn& GetDebugCaptureCallback();
+    static DebugCaptureFn& DebugCaptureCallbackStorage();
+#endif
+
     int fWidth;
     int fHeight;
     const SparseStripConfig::LUTArray& fMaskLUT;
