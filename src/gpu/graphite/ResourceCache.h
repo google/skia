@@ -17,6 +17,7 @@
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #if defined(GPU_TEST_UTILS)
 #include <functional>
@@ -195,7 +196,7 @@ private:
     // down. Once set to that address, this will never change value.
     std::atomic<Resource*> fReturnQueue = nullptr;
 
-    SingleOwner* fSingleOwner = nullptr;
+    raw_ptr<SingleOwner, DanglingUntriaged> fSingleOwner = nullptr;
     SkDEBUGCODE(int fCount = 0;)
 };
 

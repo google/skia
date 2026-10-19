@@ -12,6 +12,7 @@
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <string_view>
 #include <tuple>
@@ -46,7 +47,7 @@ private:
                                                                  size_t requiredAlignment,
                                                                  std::string_view label);
 
-    ResourceProvider* fResourceProvider;
+    raw_ptr<ResourceProvider> fResourceProvider;
 
     sk_sp<Buffer> fReusedBuffer;
     const uint32_t fMinAlignment;

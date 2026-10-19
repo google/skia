@@ -16,10 +16,11 @@
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/ResourceCache.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/partition_alloc/raw_ptr.h"
 
+class SkTraceMemoryDump;
 struct AHardwareBuffer;
 struct SkSamplingOptions;
-class SkTraceMemoryDump;
 
 namespace skgpu {
 class SingleOwner;
@@ -42,8 +43,8 @@ class GraphicsPipelineHandle;
 class GraphiteResourceKey;
 class ResourceCache;
 class RuntimeEffectDictionary;
-class ShaderCodeDictionary;
 class Sampler;
+class ShaderCodeDictionary;
 class SharedContext;
 class Texture;
 class TextureInfo;
@@ -129,7 +130,7 @@ protected:
                      uint32_t recorderID,
                      size_t resourceBudget);
 
-    SharedContext* fSharedContext;
+    raw_ptr<SharedContext, DanglingUntriaged> fSharedContext;
     // Each ResourceProvider owns one local cache; for some resources it also refers out to the
     // global cache of the SharedContext, which is assumed to outlive the ResourceProvider.
     sk_sp<ResourceCache> fResourceCache;

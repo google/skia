@@ -25,6 +25,7 @@
 #include "src/gpu/graphite/dawn/DawnSampler.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 #include "src/gpu/graphite/dawn/DawnTexture.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLCompiler.h"
 
 namespace skgpu::graphite {
@@ -212,9 +213,9 @@ private:
     // them are purged OR until `pred` returns false.
     template<typename T> void purgeBuffersUntilDoneOrFalse(T pred);
 
-    DawnResourceProvider* const fResourceProvider;
+    const raw_ptr<DawnResourceProvider> fResourceProvider;
     // The current buffer being filled up, as well as the how much of it has been written to.
-    IntrinsicBuffer* fCurrentBuffer = nullptr;
+    raw_ptr<IntrinsicBuffer> fCurrentBuffer = nullptr;
 
     // All cached intrinsic buffers, in LRU order.
     SkTInternalLList<IntrinsicBuffer> fIntrinsicBuffersLRU;

@@ -23,6 +23,7 @@
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/Uniform.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <array>
 #include <cstddef>
@@ -236,7 +237,7 @@ public:
     SkSpan<const uint32_t> data() const { return fData; }
 
 private:
-    const ShaderSnippet* fEntry; // Owned by the ShaderCodeDictionary
+    raw_ptr<const ShaderSnippet> fEntry; // Owned by the ShaderCodeDictionary
     SkSpan<ShaderNode*> fChildren; // Owned by the ShaderInfo's arena
 
     int32_t fCodeID;

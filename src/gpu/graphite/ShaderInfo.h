@@ -17,6 +17,7 @@
 #include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 namespace skgpu::graphite {
 
@@ -123,8 +124,8 @@ private:
                                                   const RenderStep*);
 #endif
 
-    const ShaderCodeDictionary* fShaderCodeDictionary;
-    const RuntimeEffectDictionary* fRuntimeEffectDictionary;
+    raw_ptr<const ShaderCodeDictionary> fShaderCodeDictionary;
+    raw_ptr<const RuntimeEffectDictionary> fRuntimeEffectDictionary;
     const char* fUniformSsboIndex;
 
     // The final DepthStencilSettings for the pipeline, combined from the RenderStep's requirements

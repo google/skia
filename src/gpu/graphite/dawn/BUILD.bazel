@@ -86,6 +86,7 @@ skia_cc_library_with_testutil(
         "//src/core:core_priv",
         "//src/gpu",
         "//src/gpu/graphite",
+        "//src/partition_alloc:raw_ptr",
         "//src/sksl/codegen:wgsl",
         "//src/utils:shader_utils",
         "@dawn",

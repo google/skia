@@ -19,6 +19,7 @@
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/TextureFormat.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/text/gpu/SubRunControl.h"
 
 #include <cstddef>
@@ -527,7 +528,7 @@ protected:
      * If present, use this object to report shader compilation failures. If not, report failures
      * via SkDebugf and assert.
      */
-    ShaderErrorHandler* fShaderErrorHandler = nullptr;
+    raw_ptr<ShaderErrorHandler> fShaderErrorHandler = nullptr;
 
 #if defined(GPU_TEST_UTILS)
     std::string fDeviceName;

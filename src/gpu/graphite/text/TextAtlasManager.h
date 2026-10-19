@@ -13,6 +13,7 @@
 #include "include/private/SkAttributes.h"
 #include "src/gpu/MaskFormat.h"
 #include "src/gpu/graphite/DrawAtlas.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/text/gpu/GlyphVector.h"
 
 #include <cstdint>
@@ -148,7 +149,7 @@ private:
         return SK_UNSAFE_TODO(fAtlases[atlasIndex].get());
     }
 
-    Recorder* fRecorder;
+    raw_ptr<Recorder> fRecorder;
     DrawAtlas::AllowMultitexturing fAllowMultitexturing;
     std::unique_ptr<DrawAtlas> fAtlases[kMaskFormatCount];
     static_assert(kMaskFormatCount == 3);

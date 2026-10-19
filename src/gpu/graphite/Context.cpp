@@ -40,6 +40,7 @@
 #include "include/private/SkLog.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkOnce.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
 #include "src/capture/SkCapture.h"
@@ -297,6 +298,8 @@ bool Context::hasPendingGPUWork() const { return fQueueManager->hasPendingGPUWor
 
 template <typename SrcPixels>
 struct Context::AsyncParams {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     const SrcPixels* fSrcImage;
     SkIRect          fSrcRect;
     SkImageInfo      fDstImageInfo;

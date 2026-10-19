@@ -12,6 +12,7 @@
 #include "include/core/SkSize.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkTHash.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <string_view>
 
@@ -174,7 +175,7 @@ public:
     }
 
 private:
-    ResourceProvider* fResourceProvider;
+    raw_ptr<ResourceProvider> fResourceProvider;
 
     // ScratchResourceManager holds a pointer to each un-returned scratch resource that it's
     // fetched from the ResourceProvider that should be considered unavailable when making

@@ -11,6 +11,7 @@
 #include "include/private/SkEnumBitMask.h"
 
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
@@ -43,7 +44,7 @@ public:
 
 private:
     bool fArmed = true;
-    const DawnSharedContext* fSharedContext;
+    raw_ptr<const DawnSharedContext> fSharedContext;
 };
 
 }  // namespace skgpu::graphite

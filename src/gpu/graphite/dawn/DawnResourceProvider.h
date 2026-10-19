@@ -14,15 +14,16 @@
 #include "src/core/SkTHash.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 namespace skgpu::graphite {
 
+class DawnBuffer;
+class DawnCommandBuffer;
 class DawnGraphicsPipeline;
 class DawnSampler;
 class DawnSharedContext;
 class DawnTexture;
-class DawnBuffer;
-class DawnCommandBuffer;
 
 class DawnResourceProvider final : public ResourceProvider {
 public:
@@ -115,7 +116,7 @@ private:
     class IntrinsicConstantsManager;
     std::unique_ptr<IntrinsicConstantsManager> fIntrinsicConstantsManager;
 
-    SingleOwner* fSingleOwner = nullptr;
+    raw_ptr<SingleOwner> fSingleOwner = nullptr;
 };
 
 }  // namespace skgpu::graphite

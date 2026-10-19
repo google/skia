@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
 #include "src/gpu/graphite/dawn/DawnResourceProvider.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
@@ -185,10 +186,10 @@ private:
     sk_sp<DawnBuffer> fTimestampQueryBuffer;
     sk_sp<DawnBuffer> fTimestampQueryXferBuffer;
 
-    const DawnGraphicsPipeline* fActiveGraphicsPipeline = nullptr;
-    const DawnComputePipeline* fActiveComputePipeline = nullptr;
-    const DawnSharedContext* fSharedContext;
-    DawnResourceProvider* fResourceProvider;
+    raw_ptr<const DawnGraphicsPipeline> fActiveGraphicsPipeline = nullptr;
+    raw_ptr<const DawnComputePipeline> fActiveComputePipeline = nullptr;
+    raw_ptr<const DawnSharedContext> fSharedContext;
+    raw_ptr<DawnResourceProvider> fResourceProvider;
 };
 
 }  // namespace skgpu::graphite
