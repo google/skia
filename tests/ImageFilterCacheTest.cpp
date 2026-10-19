@@ -47,6 +47,7 @@
 #endif
 
 #include <cstddef>
+#include <cstdint>
 #include <tuple>
 #include <utility>
 
@@ -109,10 +110,12 @@ static void test_dont_find_if_diff_key(skiatest::Reporter* reporter,
     SkIRect clip2 = SkIRect::MakeWH(200, 200);
     SkImageFilterCacheKey key0(0, SkMatrix::I(), clip1, image->uniqueID(), image->subset());
     SkImageFilterCacheKey key1(1, SkMatrix::I(), clip1, image->uniqueID(), image->subset());
-    SkImageFilterCacheKey key2(0, SkMatrix::Translate(5, 5), clip1,
-                                   image->uniqueID(), image->subset());
-    SkImageFilterCacheKey key3(0, SkMatrix::I(), clip2, image->uniqueID(), image->subset());
-    SkImageFilterCacheKey key4(0, SkMatrix::I(), clip1, subset->uniqueID(), subset->subset());
+    SkImageFilterCacheKey key2(1ULL << 32, SkMatrix::I(), clip1,
+                               image->uniqueID(), image->subset());
+    SkImageFilterCacheKey key3(0, SkMatrix::Translate(5, 5), clip1,
+                               image->uniqueID(), image->subset());
+    SkImageFilterCacheKey key4(0, SkMatrix::I(), clip2, image->uniqueID(), image->subset());
+    SkImageFilterCacheKey key5(0, SkMatrix::I(), clip1, subset->uniqueID(), subset->subset());
 
     SkIPoint offset = SkIPoint::Make(3, 4);
     auto filter = make_filter();
@@ -123,6 +126,7 @@ static void test_dont_find_if_diff_key(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, !cache->get(key2, &foundImage));
     REPORTER_ASSERT(reporter, !cache->get(key3, &foundImage));
     REPORTER_ASSERT(reporter, !cache->get(key4, &foundImage));
+    REPORTER_ASSERT(reporter, !cache->get(key5, &foundImage));
 }
 
 // Test purging when the max cache size is exceeded
@@ -361,4 +365,46 @@ DEF_SERIAL_TEST(PurgeImageFilterCache, r) {
         cache = SkImageFilterCache::Get(SkImageFilterCache::CreateIfNecessary::kYes);
         REPORTER_ASSERT(r, cache);
     }
+}
+
+DEF_TEST(ImageFilterCache_64BitUniqueID, reporter) {
+    static const size_t kCacheSize = 1000000;
+    sk_sp<SkImageFilterCache> cache(SkImageFilterCache::Create(kCacheSize));
+
+    SkBitmap bm = create_bm();
+    const SkIRect full = SkIRect::MakeWH(kFullSize, kFullSize);
+    sk_sp<SkSpecialImage> img1(SkSpecialImages::MakeFromRaster(full, bm, SkSurfaceProps()));
+    sk_sp<SkSpecialImage> img2(SkSpecialImages::MakeFromRaster(full, bm, SkSurfaceProps()));
+
+    constexpr uint64_t kBaseId = 42;
+    constexpr uint64_t kUpperBitDiffId = kBaseId + (1ULL << 32);
+
+    SkIRect clip = SkIRect::MakeWH(100, 100);
+    SkImageFilterCacheKey key1(kBaseId, SkMatrix::I(), clip, img1->uniqueID(), img1->subset());
+    SkImageFilterCacheKey key2(
+            kUpperBitDiffId, SkMatrix::I(), clip, img1->uniqueID(), img1->subset());
+
+    REPORTER_ASSERT(reporter, key1 == key1);
+    REPORTER_ASSERT(reporter, key2 == key2);
+    REPORTER_ASSERT(reporter, !(key1 == key2));
+
+    auto filter1 = make_filter();
+    auto filter2 = make_filter();
+    SkIPoint offset1 = SkIPoint::Make(1, 2);
+    SkIPoint offset2 = SkIPoint::Make(5, 6);
+
+    cache->set(key1, filter1.get(), skif::FilterResult(img1, skif::LayerSpace<SkIPoint>(offset1)));
+
+    skif::FilterResult found;
+    REPORTER_ASSERT(reporter, cache->get(key1, &found));
+    REPORTER_ASSERT(reporter, found.image() == img1.get());
+    REPORTER_ASSERT(reporter, !cache->get(key2, &found));
+
+    cache->set(key2, filter2.get(), skif::FilterResult(img2, skif::LayerSpace<SkIPoint>(offset2)));
+    SkDEBUGCODE(REPORTER_ASSERT(reporter, 2 == cache->count());)
+
+    REPORTER_ASSERT(reporter, cache->get(key1, &found));
+    REPORTER_ASSERT(reporter, found.image() == img1.get());
+    REPORTER_ASSERT(reporter, cache->get(key2, &found));
+    REPORTER_ASSERT(reporter, found.image() == img2.get());
 }
