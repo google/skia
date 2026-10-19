@@ -7,4 +7,6 @@
 
 #pragma once
 
+// IWYU pragma: begin_exports
 #include "src/skcms_public.h"  // NO_G3_REWRITE
+// IWYU pragma: end_exports
