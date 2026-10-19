@@ -127,7 +127,7 @@ public:
     using MatrixCapability = skif::MatrixCapability;
     MatrixCapability getCTMCapability() const;
 
-    uint32_t uniqueID() const { return fUniqueID; }
+    uint64_t uniqueID() const { return fUniqueID; }
 
     static SkFlattenable::Type GetFlattenableType() {
         return kSkImageFilter_Type;
@@ -302,7 +302,7 @@ private:
     skia_private::AutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
 
     bool fUsesSrcInput;
-    uint32_t fUniqueID; // Globally unique
+    uint64_t fUniqueID; // Globally unique
 
     using INHERITED = SkImageFilter;
 };

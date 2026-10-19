@@ -135,10 +135,10 @@ sk_sp<SkImageFilter> SkImageFilter::makeWithLocalMatrix(const SkMatrix& matrix) 
 // SkImageFilter_Base
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static int32_t next_image_filter_unique_id() {
-    static std::atomic<int32_t> nextID{1};
+static uint64_t next_image_filter_unique_id() {
+    static std::atomic<uint64_t> nextID{1};
 
-    int32_t id;
+    uint64_t id;
     do {
         id = nextID.fetch_add(1, std::memory_order_relaxed);
     } while (id == 0);

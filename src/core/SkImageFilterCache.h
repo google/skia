@@ -21,7 +21,7 @@ class SkImageFilter;
 namespace skif { class FilterResult; }
 
 struct SkImageFilterCacheKey {
-    SkImageFilterCacheKey(const uint32_t uniqueID, const SkMatrix& matrix,
+    SkImageFilterCacheKey(const uint64_t uniqueID, const SkMatrix& matrix,
         const SkIRect& clipBounds, uint32_t srcGenID, const SkIRect& srcSubset)
         : fUniqueID(uniqueID)
         , fMatrix(matrix)
@@ -29,18 +29,20 @@ struct SkImageFilterCacheKey {
         , fSrcGenID(srcGenID)
         , fSrcSubset(srcSubset) {
         // Assert that Key is tightly-packed, since it is hashed.
-        static_assert(sizeof(SkImageFilterCacheKey) == sizeof(uint32_t) + sizeof(SkMatrix) +
-                                     sizeof(SkIRect) + sizeof(uint32_t) + 4 * sizeof(int32_t),
+        static_assert(sizeof(SkImageFilterCacheKey) == sizeof(uint64_t) + sizeof(SkMatrix) +
+                                     sizeof(SkIRect) + sizeof(uint32_t) + 4 * sizeof(int32_t) +
+                                     sizeof(uint32_t),
                                      "image_filter_key_tight_packing");
         fMatrix.getType();  // force initialization of type, so hashes match
         SkASSERT(fMatrix.isFinite());   // otherwise we can't rely on == self when comparing keys
     }
 
-    uint32_t fUniqueID;
+    uint64_t fUniqueID;
     SkMatrix fMatrix;
     SkIRect fClipBounds;
     uint32_t fSrcGenID;
     SkIRect fSrcSubset;
+    uint32_t fPad = 0;
 
     bool operator==(const SkImageFilterCacheKey& other) const {
         return fUniqueID == other.fUniqueID &&
