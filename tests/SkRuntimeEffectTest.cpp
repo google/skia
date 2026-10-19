@@ -667,6 +667,16 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r,
                  "vec4 main(vec2 p) { moveCoords(p); return vec4(p, 0, 1); }");
     effect.test({0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF});
 
+    // A local named like the coordinates in Graphite's generated code (`pos`) must neither
+    // redeclare them nor shadow them from a nested scope.
+    effect.build("half4 main(float2 p) { float2 pos = p - 0.5; return half4(half2(pos), 0, 1); }");
+    effect.test({0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF});
+    effect.build(
+            "half4 main(float2 p) {"
+            "    { float2 pos = float2(0); return half4(half2(p - 0.5 + pos), 0, 1); }"
+            "}");
+    effect.test({0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF});
+
     //
     // Sampling children
     //
@@ -1223,6 +1233,33 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffect_Blender_GPU,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
     test_RuntimeEffect_Blenders(r, ctxInfo.directContext(), /*graphite=*/nullptr);
+}
+#endif
+
+#if defined(SK_GRAPHITE)
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffect_BlenderLocalNames_Graphite,
+                                         r,
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
+    std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();
+    GraphiteInfo graphite = {context, recorder.get()};
+    TestBlend effect(r, /*grContext=*/nullptr, &graphite);
+
+    // Locals named like the color parameters in Graphite's generated code (`inColor`, `destColor`)
+    // must neither redeclare them nor shadow them from a nested scope. The results don't depend on
+    // `d`, so they don't rely on how the backend reads the destination.
+    effect.build(
+            "half4 main(half4 s, half4 d) {"
+            "    half4 inColor = half4(1, 0, 0, 1);"
+            "    half4 destColor = s;"
+            "    return half4(inColor.r, destColor.gba);"
+            "}");
+    effect.test(0xFF8888FF);
+    effect.build(
+            "half4 main(half4 s, half4 d) {"
+            "    { half4 inColor = half4(0); return s + inColor; }"
+            "}");
+    effect.test(0xFF888888);
 }
 #endif
 
