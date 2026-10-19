@@ -8,12 +8,15 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkDeque.h"
 #include "include/private/SkMalloc.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstddef>
 
 struct SkDeque::Block {
-    Block*  fNext;
-    Block*  fPrev;
+    // RAW_PTR_EXCLUSION: Blocks come from sk_malloc_throw or caller-provided
+    // storage and are never constructed or destroyed.
+    RAW_PTR_EXCLUSION Block* fNext;
+    RAW_PTR_EXCLUSION Block* fPrev;
     char*   fBegin; // start of used section in this chunk
     char*   fEnd;   // end of used section in this chunk
     char*   fStop;  // end of the allocated chunk

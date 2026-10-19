@@ -36,6 +36,7 @@
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecords.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/utils/SkPatchUtils.h"
 
 #include <algorithm>
@@ -277,7 +278,11 @@ private:
     struct SaveBounds {
         int controlOps;        // Number of control ops in this Save block, including the Save.
         Bounds bounds;         // Bounds of everything in the block.
-        const SkPaint* paint;  // Unowned.  If set, adjusts the bounds of all ops in this block.
+        // Unowned.  If set, adjusts the bounds of all ops in this block.
+        // RAW_PTR_EXCLUSION: SaveBounds live in an SkTDArray, which never runs
+        // constructors or destructors. A raw_ptr would start uninitialized
+        // and leak its BackupRefPtr reference.
+        RAW_PTR_EXCLUSION const SkPaint* paint;
         SkMatrix ctm;
     };
 

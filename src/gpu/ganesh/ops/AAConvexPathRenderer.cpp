@@ -56,6 +56,7 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #if defined(GPU_TEST_UTILS)
 #include "src/core/SkRandom.h"
@@ -937,7 +938,10 @@ private:
     bool fWideColor;
 
     struct MeshDraw {
-        GrSimpleMesh* fMeshes;
+        // RAW_PTR_EXCLUSION: MeshDraws live in an SkTDArray, which never runs
+        // constructors or destructors. Also, fMeshes points into an arena
+        // owned by the flush state.
+        RAW_PTR_EXCLUSION GrSimpleMesh* fMeshes;
         int fMeshCount;
     };
 
