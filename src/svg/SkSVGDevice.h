@@ -11,12 +11,12 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
+#include "include/cpu/Recorder.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTypeTraits.h"
 #include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkParsePath.h"
 #include "src/core/SkClipStackDevice.h"
-#include "src/cpu/Recorder.h"
 
 #include <cstdint>
 #include <memory>

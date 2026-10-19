@@ -16,13 +16,13 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"  // IWYU pragma: keep
 #include "include/core/SkYUVAInfo.h"
+#include "include/cpu/Recorder.h"
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkNextID.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkYUVPlanesCache.h"
-#include "src/cpu/Recorder.h"
 
 #include <utility>
 

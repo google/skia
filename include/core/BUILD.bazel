@@ -16,6 +16,7 @@ PUBLIC_HEADERS = [
     "SkBlendMode.h",
     "SkBlender.h",
     "SkBlurTypes.h",
+    "SkCPURecorder.h",
     "SkCanvas.h",
     "SkCanvasVirtualEnforcer.h",
     "SkCapabilities.h",

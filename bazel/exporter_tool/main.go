@@ -190,6 +190,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_core_public",
 			Rules: []string{
 				"//include/core:core_hdrs",
+				"//include/cpu:core_hdrs",
 			}},
 		{Var: "skia_core_sources",
 			Rules: []string{
@@ -203,8 +204,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/core:core_priv_srcs",
 				"//src/core:core_srcs",
 				"//src/core:textual_hdrs",
-				"//src/cpu:cpu_hdrs",
-				"//src/cpu:cpu_srcs",
 				"//src/image:image_hdrs",
 				"//src/image:image_srcs",
 				"//src/lazy:lazy",
