@@ -8,19 +8,21 @@
 #ifndef skgpu_graphite_SharedContext_DEFINED
 #define skgpu_graphite_SharedContext_DEFINED
 
-#include <memory>
+#include "include/core/SkTypes.h"
+
+#include "include/core/SkExecutor.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
-#include "include/private/SingleOwner.h"
-
 #include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/private/SingleOwner.h"
 #include "src/capture/SkCaptureManager.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/PipelineManager.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
+#include <memory>
+
 class SkCaptureManager;
-class SkExecutor;
 
 namespace skgpu {
 class SingleOwner;
@@ -39,6 +41,13 @@ class TextureInfo;
 class ThreadSafeResourceProvider;
 
 class SharedContext : public SkRefCnt {
+protected:
+#if defined(SK_GRAPHITE_USE_CALLBACK_EXECUTOR)
+    using ExecutorType = SkCallbackExecutor;
+#else
+    using ExecutorType = SkFunctionalExecutor;
+#endif
+
 public:
     ~SharedContext() override;
 
@@ -97,7 +106,7 @@ public:
 protected:
     SharedContext(std::unique_ptr<const Caps>,
                   BackendApi,
-                  SkExecutor* executor,
+                  ExecutorType* executor,
                   SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 
     // All the resources in the ThreadSafeResourceProvider should be 0-sized.

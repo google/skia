@@ -4,6 +4,7 @@
 #define SkPDFDocument_DEFINED
 
 #include "include/core/SkDocument.h"
+#include "include/core/SkExecutor.h"
 #include "include/core/SkMilestone.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -20,7 +21,6 @@
 class SkCanvas;
 class SkCodec;
 class SkData;
-class SkExecutor;
 class SkPDFArray;
 class SkPDFStructTree;
 class SkPixmap;
@@ -178,7 +178,7 @@ struct Metadata {
 
     /** Executor to handle threaded work within PDF Backend. If this is nullptr,
         then all work will be done serially on the main thread. To have worker
-        threads assist with various tasks, set this to a valid SkExecutor
+        threads assist with various tasks, set this to a valid SkFunctionalExecutor
         instance. Currently used for executing Deflate algorithm in parallel.
 
         If set, the PDF output will be non-reproducible in the order and
@@ -186,7 +186,7 @@ struct Metadata {
 
         Experimental.
     */
-    SkExecutor* fExecutor = nullptr;
+    SkFunctionalExecutor* fExecutor = nullptr;
 
     /** PDF streams may be compressed to save space.
         Use this to specify the desired compression vs time tradeoff.

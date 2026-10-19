@@ -18,16 +18,16 @@
 #include <atomic>
 
 namespace skgpu {
+class VulkanMemoryAllocator;
 struct VulkanBackendContext;
 struct VulkanInterface;
-class VulkanMemoryAllocator;
 }
 
 namespace skgpu::graphite {
 
-struct ContextOptions;
 class VulkanCaps;
 class VulkanRenderPass;
+struct ContextOptions;
 
 class VulkanThreadSafeResourceProvider final : public ThreadSafeResourceProvider {
 public:
@@ -73,7 +73,7 @@ private:
                         sk_sp<const skgpu::VulkanInterface>,
                         sk_sp<skgpu::VulkanMemoryAllocator>,
                         std::unique_ptr<const VulkanCaps>,
-                        SkExecutor*,
+                        ExecutorType*,
                         PersistentPipelineStorage*,
                         SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 

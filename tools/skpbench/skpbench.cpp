@@ -295,15 +295,16 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext,
 
     // In comparable modes, there is no GPU thread. The following pointers are all null.
     // Otherwise, we transfer testContext onto the GPU thread until after the bench.
-    std::unique_ptr<SkExecutor> gpuThread;
+    std::unique_ptr<SkFunctionalExecutor> gpuThread;
     std::unique_ptr<SkTaskGroup> gpuTaskGroup;
-    std::unique_ptr<SkExecutor> recordingThreadPool;
+    std::unique_ptr<SkFunctionalExecutor> recordingThreadPool;
     std::unique_ptr<SkTaskGroup> recordingTaskGroup;
     if (!FLAGS_comparableDDL && !FLAGS_comparableSKP) {
-        gpuThread = SkExecutors::MakeFIFOThreadPool(1, /* allowBorrowing= */ false);
+        gpuThread = SkFunctionalExecutors::MakeFIFOThreadPool(1, /* allowBorrowing= */ false);
         gpuTaskGroup = std::make_unique<SkTaskGroup>(*gpuThread);
-        recordingThreadPool = SkExecutors::MakeFIFOThreadPool(FLAGS_ddlNumRecordingThreads,
-                                                              /* allowBorrowing= */ false);
+        recordingThreadPool =
+            SkFunctionalExecutors::MakeFIFOThreadPool(FLAGS_ddlNumRecordingThreads,
+                                                       /* allowBorrowing= */ false);
         recordingTaskGroup = std::make_unique<SkTaskGroup>(*recordingThreadPool);
         testContext->makeNotCurrent();
         gpuTaskGroup->add([=]{ testContext->makeCurrent(); });

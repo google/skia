@@ -44,6 +44,7 @@ public:
 
 private:
     friend class PipelineManager; // for entire API and fPipeline
+    friend class PipelineManagerUtils; // for entire API and fPipeline
     friend class GraphicsPipelineHandle; // for fPipeline in pipelineOrNull()
 
     PipelineCreationTask(SharedContext* sharedContext,

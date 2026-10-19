@@ -590,7 +590,7 @@ int main(int argc, char** argv) {
     std::vector<double> frames_ms(frame_count);
 
     const auto thread_count = FLAGS_gpu ? 0 : FLAGS_threads - 1;
-    SkExecutors::Enabler enabler(thread_count);
+    SkFunctionalExecutors::Enabler enabler(thread_count);
 
     SkTaskGroup tg;
     {

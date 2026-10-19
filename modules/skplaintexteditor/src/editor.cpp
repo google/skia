@@ -6,7 +6,12 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkExecutor.h"
 #include "include/core/SkPath.h"
+#include "include/private/SkSemaphore.h"
 #include "src/core/SkUTF.h"
+
+#ifdef SK_EDITOR_GO_FAST
+#include "src/core/SkExecutors.h"
+#endif
 
 #include "modules/skplaintexteditor/src/shape.h"
 
@@ -470,9 +475,10 @@ void Editor::reshapeAll() {
             fLines.push_back(TextLine());
         }
         float shape_width = (float)(fWidth);
-        #ifdef SK_EDITOR_GO_FAST
+#ifdef SK_EDITOR_GO_FAST
         SkSemaphore semaphore;
-        std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool(100);
+        std::unique_ptr<SkFunctionalExecutor> executor =
+                SkFunctionalExecutors::MakeFIFOThreadPool(100);
         int jobCount = 0;
         for (TextLine& line : fLines) {
             if (!line.fShaped) {
@@ -491,7 +497,7 @@ void Editor::reshapeAll() {
             });
         }
         while (jobCount-- > 0) { semaphore.wait(); }
-        #else
+#else
         for (TextLine& line : fLines) {
             if (!line.fShaped) {
                 ShapeResult result = Shape(line.fText.begin(), line.fText.size(),
@@ -504,7 +510,7 @@ void Editor::reshapeAll() {
                 line.fShaped = true;
             }
         }
-        #endif
+#endif // SK_EDITOR_GO_FAST
         int y = 0;
         for (TextLine& line : fLines) {
             line.fOrigin = {0, y};

@@ -11,12 +11,12 @@
 #include <type_traits>
 #include <utility>
 
-SkTaskGroup::SkTaskGroup(SkExecutor& executor) : fPending(0), fExecutor(executor) {}
+SkTaskGroup::SkTaskGroup(SkFunctionalExecutor& executor) : fPending(0), fExecutor(executor) {}
 
-void SkTaskGroup::add(std::function<void()> fn, int workList) {
+void SkTaskGroup::add(std::function<void()> work, int workList) {
     fPending.fetch_add(+1, std::memory_order_relaxed);
-    fExecutor.add([this, fn{std::move(fn)}] {
-                      fn();
+    fExecutor.add([this, originalWork{std::move(work)}] {
+                      originalWork();
                       fPending.fetch_add(-1, std::memory_order_release);
                   },
                   workList);

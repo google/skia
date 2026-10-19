@@ -76,7 +76,7 @@ private:
     DawnSharedContext(const DawnBackendContext&,
                       std::unique_ptr<const DawnCaps>,
                       wgpu::ShaderModule noopFragment,
-                      SkExecutor*,
+                      ExecutorType*,
                       SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 
     void createUniformBuffersBindGroupLayout();
