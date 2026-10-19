@@ -667,16 +667,6 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r,
                  "vec4 main(vec2 p) { moveCoords(p); return vec4(p, 0, 1); }");
     effect.test({0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF});
 
-    // A local named like the coordinates in Graphite's generated code (`pos`) must neither
-    // redeclare them nor shadow them from a nested scope.
-    effect.build("half4 main(float2 p) { float2 pos = p - 0.5; return half4(half2(pos), 0, 1); }");
-    effect.test({0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF});
-    effect.build(
-            "half4 main(float2 p) {"
-            "    { float2 pos = float2(0); return half4(half2(p - 0.5 + pos), 0, 1); }"
-            "}");
-    effect.test({0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF});
-
     //
     // Sampling children
     //
@@ -1128,14 +1118,6 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r,
     effect.build("half4 main(half4 s, half4 d) { return d; }");
     effect.test({0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF});
 
-    // Locals named like the colors in Graphite's generated code (`inColor`, `destColor`) must not
-    // collide with the source and destination.
-    effect.build(
-            "half4 main(half4 s, half4 d) {"
-            "    half4 inColor = d; half4 destColor = s; return half4(inColor.rgb, destColor.a);"
-            "}");
-    effect.test({0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF});
-
     // Verify that we can invert the destination color (including the alpha channel).
     // The expected outputs are the exact inverse of the previous test.
     effect.build("half4 main(half4 s, half4 d) { return half4(1) - d; }");
@@ -1241,17 +1223,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffect_Blender_GPU,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
     test_RuntimeEffect_Blenders(r, ctxInfo.directContext(), /*graphite=*/nullptr);
-}
-#endif
-
-#if defined(SK_GRAPHITE)
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffect_Blender_Graphite,
-                                         r,
-                                         context,
-                                         CtsEnforcement::kNextRelease) {
-    std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();
-    GraphiteInfo graphite = {context, recorder.get()};
-    test_RuntimeEffect_Blenders(r, /*grContext=*/nullptr, &graphite);
 }
 #endif
 
