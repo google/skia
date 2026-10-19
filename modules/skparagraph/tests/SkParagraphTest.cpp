@@ -10567,3 +10567,76 @@ DEF_TEST(SkParagraph_BidiIsolateStyledBlockNoSpaceFont, reporter) {
                                              RectWidthStyle::kTight);
     REPORTER_ASSERT(reporter, !rects.empty());
 }
+
+namespace {
+// Counts fallback requests and finds no fallback typeface
+class CountingFallbackFontMgr : public TypefaceFontProvider {
+public:
+    int fallbackCount() const { return fFallbackCount; }
+
+private:
+    sk_sp<SkTypeface> onMatchFamilyStyleCharacter(
+            const char[], const SkFontStyle&, const char*[], int, SkUnichar) const override {
+        ++fFallbackCount;
+        return nullptr;
+    }
+
+    mutable int fFallbackCount = 0;
+};
+}  // namespace
+
+// Verify that CR LF, which is one grapheme (UAX #29 GB3) but two glyphs, does not ask for a
+// fallback font, the same as a lone CR or LF
+DEF_TEST(SkParagraph_CrLfDoesNotRequestFallback, reporter) {
+    sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
+    // abc.ttf has no glyphs for CR and LF
+    auto abcTypeface = mgr->makeFromStream(GetResourceAsStream("fonts/abc/abc.ttf"), {});
+    // Portable font manager returns null for stream-backed typefaces when native fonts are disabled
+    if (!abcTypeface) {
+        return;
+    }
+
+    auto fontProvider = sk_make_sp<TypefaceFontProvider>();
+    fontProvider->registerTypeface(abcTypeface, SkString("AbcFont"));
+
+    auto check = [&](const char* name, const char* text, size_t expectedLines) {
+        auto fallbackMgr = sk_make_sp<CountingFallbackFontMgr>();
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setAssetFontManager(fontProvider);
+        fontCollection->setDefaultFontManager(fallbackMgr);
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraphStyle;
+        TextStyle style;
+        style.setFontFamilies({SkString("AbcFont")});
+        style.setFontSize(14.0f);
+        paragraphStyle.setTextStyle(style);
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        builder.pushStyle(style);
+        builder.addText(text);
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(1000.0f);
+
+        REPORTER_ASSERT(reporter,
+                        fallbackMgr->fallbackCount() == 0,
+                        "%s: %d fallback requests",
+                        name,
+                        fallbackMgr->fallbackCount());
+        REPORTER_ASSERT(reporter,
+                        paragraph->lineNumber() == expectedLines,
+                        "%s: %zu lines",
+                        name,
+                        paragraph->lineNumber());
+        return paragraph->getHeight();
+    };
+
+    check("CR", "a\rb", 1);
+    auto lfHeight = check("LF", "a\nb", 2);
+    auto crLfHeight = check("CR LF", "a\r\nb", 2);
+    REPORTER_ASSERT(reporter, crLfHeight == lfHeight);
+    auto lfLfHeight = check("LF LF", "a\n\nb", 3);
+    auto crLfCrLfHeight = check("CR LF CR LF", "a\r\n\r\nb", 3);
+    REPORTER_ASSERT(reporter, crLfCrLfHeight == lfLfHeight);
+}

@@ -325,12 +325,13 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
         // Inspect the glyph
         auto glyph = fCurrentRun->fGlyphs[i];
 
-        GraphemeIndex gi = fParagraph->findPreviousGraphemeBoundary(ci);
-        if ((fCurrentRun->leftToRight() ? gi > graphemeStart : gi < graphemeStart) || graphemeStart == EMPTY_INDEX) {
-            // This is the Flutter change
-            // Do not count control codepoints as unresolved
-            // HarfBuzz merges hidden default-ignorables into the adjacent glyph cluster,
-            // so a cluster is control-only only if every code unit in its text range is kControl
+        // This is the Flutter change
+        // Do not count control codepoints as unresolved
+        // HarfBuzz merges hidden default-ignorables into the adjacent glyph cluster,
+        // so a cluster is control-only only if every code unit in its text range is kControl
+        // Check every glyph: CR LF is one grapheme (UAX #29 GB3) but two glyphs
+        bool glyphResolved = glyph != 0;
+        if (!glyphResolved) {
             TextRange textRange = normalizeTextRange(GlyphRange(i, i + 1));
             bool isControl8 = true;
             for (TextIndex ch = textRange.start; ch < textRange.end; ++ch) {
@@ -339,10 +340,15 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
                     break;
                 }
             }
+            glyphResolved = isControl8;
+        }
+
+        GraphemeIndex gi = fParagraph->findPreviousGraphemeBoundary(ci);
+        if ((fCurrentRun->leftToRight() ? gi > graphemeStart : gi < graphemeStart) || graphemeStart == EMPTY_INDEX) {
             // We only count glyph resolved if all the glyphs in its grapheme are resolved
-            graphemeResolved = glyph != 0 || isControl8;
+            graphemeResolved = glyphResolved;
             graphemeStart = gi;
-        } else if (glyph == 0) {
+        } else if (!glyphResolved) {
             // Found unresolved glyph - the entire grapheme is unresolved now
             graphemeResolved = false;
         }
