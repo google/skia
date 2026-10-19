@@ -3734,6 +3734,13 @@ if (skia_enable_tools) {
           ":common_flags_graphite",
           ":gpu_tool_utils",
         ]
+        if (skia_enable_sparse_strips) {
+          sources += [
+            "tests/graphite/sparse_strips/Oracle.cpp",
+            "tests/graphite/sparse_strips/Oracle.h",
+            "tools/viewer/SparseStripsDebugSlide.cpp",
+          ]
+        }
       }
     }
   }
