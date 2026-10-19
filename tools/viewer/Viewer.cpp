@@ -809,6 +809,14 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->changeZoomLevel(-1.f / 32.f);
         fWindow->inval();
     });
+    fCommands.addCommand('R', "Transform", "Reset view", [this]() {
+        // Undo mouse/touch panning and zooming, and the Up/Down zoom level. This replaces the old
+        // double-tap/click reset, which conflicted with slides that handle clicks; nothing else
+        // resets the gesture transform (it even persists across slide changes).
+        fGesture.reset();
+        fZoomLevel = 0.0f;
+        fWindow->inval();
+    });
 
     fCommands.addCommand('d', "Modes", "Change rendering backend", [this]() {
         int currIdx = -1;
@@ -1537,9 +1545,6 @@ void Viewer::setupCurrentSlide() {
             }
         }
 
-        // Prevent the user from dragging content so far outside the window they can't find it again
-        fGesture.setTransLimit(slideBounds, windowRect, this->computePreTouchMatrix());
-
         if (!fDisplayOverrides.fSurfaceProps.fPixelGeometry) {
             const skwindow::DisplayParams* params = fWindow->getRequestedDisplayParams();
             uint32_t flags = params->surfaceProps().flags();
@@ -1574,14 +1579,6 @@ void Viewer::setupCurrentSlide() {
 void Viewer::changeZoomLevel(float delta) {
     fZoomLevel += delta;
     fZoomLevel = SkTPin(fZoomLevel, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
-    this->updateGestureTransLimit();
-}
-
-void Viewer::updateGestureTransLimit() {
-    // Update the trans limit as the transform changes.
-    const SkRect slideBounds = SkRect::Make(this->currentSlideSize());
-    const SkRect windowRect = SkRect::MakeIWH(fWindow->width(), fWindow->height());
-    fGesture.setTransLimit(slideBounds, windowRect, this->computePreTouchMatrix());
 }
 
 SkMatrix Viewer::computePerspectiveMatrix() {
@@ -2121,9 +2118,6 @@ void Viewer::drawSlide(SkSurface* surface) {
         paint.setColor(0x40FFFF00);
         canvas->drawRect(r, paint);
     }
-
-    // Allow drawing to update the slide bounds.
-    this->updateGestureTransLimit();
 }
 
 void Viewer::onBackendCreated() {
@@ -2268,6 +2262,9 @@ bool Viewer::onMouse(int x, int y, skui::InputState state, skui::ModifierKey mod
 }
 
 bool Viewer::onMouseWheel(float delta, int x, int y, skui::ModifierKey) {
+    if (fGesture.isBeingTouched()) {
+        return true;
+    }
     // Rather than updating the fixed zoom level, treat a mouse wheel event as a gesture, which
     // applies a pre- and post-translation to the transform, resulting in a zoom effect centered at
     // the mouse cursor position.
@@ -2578,7 +2575,6 @@ void Viewer::drawImGui() {
 
             if (ImGui::CollapsingHeader("Transform")) {
                 if (ImGui::Checkbox("Apply Backing Scale", &fApplyBackingScale)) {
-                    this->updateGestureTransLimit();
                     // NOTE: Do not call onResize() as we are in the middle of ImgGui processing,
                     // and onResize() modifies ImgGui state that is otherwise locked. The backing
                     // scale factor only affects the slide itself, so adjust that directly.
@@ -2591,33 +2587,27 @@ void Viewer::drawImGui() {
                 float zoom = fZoomLevel;
                 if (ImGui::SliderFloat("Zoom", &zoom, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL)) {
                     fZoomLevel = zoom;
-                    this->updateGestureTransLimit();
                     uiParamsChanged = true;
                 }
                 float deg = fRotation;
                 if (ImGui::SliderFloat("Rotate", &deg, -30, 360, "%.3f deg")) {
                     fRotation = deg;
-                    this->updateGestureTransLimit();
                     uiParamsChanged = true;
                 }
                 if (ImGui::CollapsingHeader("Subpixel offset", ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
                     if (ImGui_DragLocation(&fOffset)) {
-                        this->updateGestureTransLimit();
                         uiParamsChanged = true;
                     }
                 } else if (fOffset != SkVector{0.5f, 0.5f}) {
-                    this->updateGestureTransLimit();
                     uiParamsChanged = true;
                     fOffset = {0.5f, 0.5f};
                 }
                 int perspectiveMode = static_cast<int>(fPerspectiveMode);
                 if (ImGui::Combo("Perspective", &perspectiveMode, "Off\0Real\0Fake\0\0")) {
                     fPerspectiveMode = static_cast<PerspectiveMode>(perspectiveMode);
-                    this->updateGestureTransLimit();
                     uiParamsChanged = true;
                 }
                 if (perspectiveMode != kPerspective_Off && ImGui_DragQuad(fPerspectivePoints)) {
-                    this->updateGestureTransLimit();
                     uiParamsChanged = true;
                 }
             }
@@ -3458,8 +3448,12 @@ void Viewer::onIdle() {
     // not be visible, though. So we need to redraw if there is at least one visible window, or
     // more than one active window. Newly created windows are active but not visible for one frame
     // while they determine their layout and sizing.
-    if (animateWantsInval || fStatsLayer.getActive() || fRefresh ||
-        io.MetricsActiveWindows > 1 || io.MetricsRenderWindows > 0) {
+    // We also keep redrawing while a fling is animating (it only advances when drawn), and
+    // while ImGui wants the mouse: io.WantCaptureMouse is only recomputed in ImGui::NewFrame(),
+    // so without new frames it can get stuck (e.g. after closing a window under the cursor) and
+    // swallow all mouse input.
+    if (animateWantsInval || fStatsLayer.getActive() || fRefresh || fGesture.isActive() ||
+        io.WantCaptureMouse || io.MetricsActiveWindows > 1 || io.MetricsRenderWindows > 0) {
         fWindow->inval();
     }
 }

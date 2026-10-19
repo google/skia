@@ -12,9 +12,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
 #include "src/core/SkTime.h"
-#include "tools/timer/TimeUtils.h"
 
-#include <algorithm>
 #include <cmath>
 
 #define DISCRETIZE_TRANSLATE_TO_AVOID_FLICKER   true
@@ -95,9 +93,19 @@ bool TouchGesture::FlingState::evaluateMatrix(SkMatrix* matrix) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const TimeUtils::MSec MAX_DBL_TAP_INTERVAL = 300;
-static const float MAX_DBL_TAP_DISTANCE = 100;
 static const float MAX_JITTER_RADIUS = 2;
+
+// Time constant (in seconds) used to smooth the velocity of a moving touch.
+static const float VELOCITY_SMOOTHING_SECS = 0.04f;
+
+// Releasing a single dragged touch only starts a fling (inertia) if the touch moved at least
+// MIN_FLING_DRAG_DISTANCE pixels from where it started, was still moving within the last
+// MAX_FLING_RELEASE_DELAY seconds, and is moving faster than MIN_FLING_SPEED pixels/second. This
+// keeps clicks/taps (e.g. a slide selecting whatever is under the cursor), and drags that came to
+// rest before being released, from setting the view in motion.
+static const float  MIN_FLING_DRAG_DISTANCE = 8;
+static const double MAX_FLING_RELEASE_DELAY = 0.05;
+static const float  MIN_FLING_SPEED = 100;
 
 // if true, then ignore the touch-move, 'cause its probably just jitter
 static bool close_enough_for_jitter(float x0, float y0, float x1, float y1) {
@@ -115,17 +123,14 @@ TouchGesture::~TouchGesture() {
 }
 
 void TouchGesture::resetTouchState() {
-    fIsTransLimited = false;
     fTouches.reset();
     fState = kEmpty_State;
     fLocalM.reset();
-
-    fLastUpMillis = SkTime::GetMSecs() - 2*MAX_DBL_TAP_INTERVAL;
-    fLastUpP.set(0, 0);
 }
 
 void TouchGesture::reset() {
     fGlobalM.reset();
+    fFlinger.stop();
     this->resetTouchState();
 }
 
@@ -146,9 +151,10 @@ const SkMatrix& TouchGesture::localM() {
 void TouchGesture::appendNewRec(void* owner, float x, float y) {
     Rec* rec = fTouches.append();
     rec->fOwner = owner;
-    rec->fStartX = rec->fPrevX = rec->fLastX = x;
-    rec->fStartY = rec->fPrevY = rec->fLastY = y;
-    rec->fLastT = rec->fPrevT = static_cast<float>(SkTime::GetSecs());
+    rec->fStartX = rec->fLastX = x;
+    rec->fStartY = rec->fLastY = y;
+    rec->fLastT = SkTime::GetSecs();
+    rec->fVelX = rec->fVelY = 0;
 }
 
 void TouchGesture::touchBegin(void* owner, float x, float y) {
@@ -196,6 +202,8 @@ static SkScalar center(float pos0, float pos1) {
 }
 
 void TouchGesture::startZoom() {
+    this->flushLocalM();
+    fFlinger.stop();
     fState = kZoom_State;
 }
 
@@ -234,10 +242,19 @@ void TouchGesture::touchMoved(void* owner, float x, float y) {
         }
     }
 
-    rec.fPrevX = rec.fLastX; rec.fLastX = x;
-    rec.fPrevY = rec.fLastY; rec.fLastY = y;
-    rec.fPrevT = rec.fLastT;
-    rec.fLastT = static_cast<float>(SkTime::GetSecs());
+    const double now = SkTime::GetSecs();
+    const float dt = static_cast<float>(now - rec.fLastT);
+    if (dt > 0) {
+        // Exponentially smooth the velocity. For small dt the weight is roughly
+        // dt/VELOCITY_SMOOTHING_SECS, so moves that get handled almost simultaneously (e.g. queued
+        // up behind a slow frame) add ~distance/VELOCITY_SMOOTHING_SECS, not a huge distance/dt.
+        const float w = 1 - std::exp(-dt / VELOCITY_SMOOTHING_SECS);
+        rec.fVelX += w * ((x - rec.fLastX) / dt - rec.fVelX);
+        rec.fVelY += w * ((y - rec.fLastY) / dt - rec.fVelY);
+    }
+    rec.fLastX = x;
+    rec.fLastY = y;
+    rec.fLastT = now;
 
     switch (fTouches.size()) {
         case 1: {
@@ -273,20 +290,18 @@ void TouchGesture::touchEnd(void* owner) {
         return;
     }
 
-    const Rec& rec = fTouches[index];
-    if (this->handleDblTap(rec.fLastX, rec.fLastY)) {
-        return;
-    }
-
     // count() reflects the number before we removed the owner
     switch (fTouches.size()) {
         case 1: {
             this->flushLocalM();
-            float dx = rec.fLastX - rec.fPrevX;
-            float dy = rec.fLastY - rec.fPrevY;
-            float dur = rec.fLastT - rec.fPrevT;
-            if (dur > 0) {
-                fFlinger.reset(dx / dur, dy / dur);
+            // Only fling a drag that is still moving when it's released (see MIN_FLING_SPEED).
+            const Rec& rec = fTouches[index];
+            if (kTranslate_State == fState &&
+                SkPoint::Length(rec.fLastX - rec.fStartX, rec.fLastY - rec.fStartY) >=
+                        MIN_FLING_DRAG_DISTANCE &&
+                SkTime::GetSecs() - rec.fLastT <= MAX_FLING_RELEASE_DELAY &&
+                SkPoint::Length(rec.fVelX, rec.fVelY) >= MIN_FLING_SPEED) {
+                fFlinger.reset(rec.fVelX, rec.fVelY);
             }
             fState = kEmpty_State;
         } break;
@@ -299,8 +314,6 @@ void TouchGesture::touchEnd(void* owner) {
     }
 
     fTouches.removeShuffle(index);
-
-    limitTrans();
 }
 
 bool TouchGesture::isFling(SkPoint* dir) {
@@ -325,48 +338,4 @@ float TouchGesture::computePinch(const Rec& rec0, const Rec& rec1) {
 
     double scale = dist1 / dist0;
     return (float)scale;
-}
-
-bool TouchGesture::handleDblTap(float x, float y) {
-    bool found = false;
-    double now = SkTime::GetMSecs();
-    if (now - fLastUpMillis <= MAX_DBL_TAP_INTERVAL) {
-        if (SkPoint::Length(fLastUpP.fX - x,
-                            fLastUpP.fY - y) <= MAX_DBL_TAP_DISTANCE) {
-            fFlinger.stop();
-            fLocalM.reset();
-            fGlobalM.reset();
-            fTouches.reset();
-            fState = kEmpty_State;
-            found = true;
-        }
-    }
-
-    fLastUpMillis = now;
-    fLastUpP.set(x, y);
-    return found;
-}
-
-void TouchGesture::setTransLimit(const SkRect& contentRect, const SkRect& windowRect,
-                                   const SkMatrix& preTouchMatrix) {
-    fIsTransLimited = true;
-    fContentRect = contentRect;
-    fWindowRect = windowRect;
-    fPreTouchM = preTouchMatrix;
-}
-
-void TouchGesture::limitTrans() {
-    if (!fIsTransLimited) {
-        return;
-    }
-
-    SkRect scaledContent = fContentRect;
-    fPreTouchM.mapRect(&scaledContent);
-    fGlobalM.mapRect(&scaledContent);
-    const SkScalar ZERO = 0;
-
-    fGlobalM.postTranslate(ZERO, std::min(ZERO, fWindowRect.fBottom - scaledContent.fTop));
-    fGlobalM.postTranslate(ZERO, std::max(ZERO, fWindowRect.fTop - scaledContent.fBottom));
-    fGlobalM.postTranslate(std::min(ZERO, fWindowRect.fRight - scaledContent.fLeft), ZERO);
-    fGlobalM.postTranslate(std::max(ZERO, fWindowRect.fLeft - scaledContent.fRight), ZERO);
 }

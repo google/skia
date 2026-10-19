@@ -10,7 +10,6 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/private/SkTDArray.h"
 
@@ -37,9 +36,6 @@ public:
     const SkMatrix& localM();
     const SkMatrix& globalM() const { return fGlobalM; }
 
-    void setTransLimit(const SkRect& contentRect, const SkRect& windowRect,
-                       const SkMatrix& preTouchM);
-
 private:
     enum State {
         kEmpty_State,
@@ -50,14 +46,17 @@ private:
     struct Rec {
         void*   fOwner;
         float   fStartX, fStartY;
-        float   fPrevX, fPrevY;
         float   fLastX, fLastY;
-        float   fPrevT, fLastT;
+        // SkTime::GetSecs() of the last update. This must be a double: GetSecs() is relative to an
+        // arbitrary epoch (e.g. system boot), and as a float it quickly loses sub-second precision.
+        double  fLastT;
+        // Smoothed velocity of this touch, in pixels per second.
+        float   fVelX, fVelY;
     };
     SkTDArray<Rec> fTouches;
 
     State           fState;
-    SkMatrix        fLocalM, fGlobalM, fPreTouchM;
+    SkMatrix        fLocalM, fGlobalM;
 
     struct FlingState {
         FlingState() : fActive(false) {}
@@ -80,19 +79,11 @@ private:
         bool        fActive;
     };
     FlingState      fFlinger;
-    double          fLastUpMillis;
-    SkPoint         fLastUpP;
 
-    // The following rects are used to limit the translation so the content never leaves the window
-    SkRect          fContentRect, fWindowRect;
-    bool            fIsTransLimited = false;
-
-    void limitTrans(); // here we only limit the translation with respect to globalM
     void flushLocalM();
     int findRec(void* owner) const;
     void appendNewRec(void* owner, float x, float y);
     float computePinch(const Rec&, const Rec&);
-    bool handleDblTap(float, float);
 };
 
 #endif

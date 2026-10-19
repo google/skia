@@ -120,12 +120,18 @@ bool ImGuiLayer::onMouse(int x, int y, skui::InputState state, skui::ModifierKey
     } else if (skui::InputState::kUp == state) {
         io.MouseDown[0] = false;
     }
+    if (io.WantCaptureMouse) {
+        fWindow->inval();
+    }
     return io.WantCaptureMouse;
 }
 
 bool ImGuiLayer::onMouseWheel(float delta, int, int, skui::ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
     io.MouseWheel += delta;
+    if (io.WantCaptureMouse) {
+        fWindow->inval();
+    }
     return io.WantCaptureMouse;
 }
 
