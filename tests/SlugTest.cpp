@@ -278,6 +278,12 @@ protected:
     }
 };
 
+sk_sp<SkTypeface> make_path_typeface() {
+    SkCustomTypefaceBuilder builder;
+    builder.setGlyph(1, 1.0f, SkPath::Rect(kGlyphRect));
+    return builder.detach();
+}
+
 sk_sp<SkTypeface> make_drawable_typeface() {
     SkCustomTypefaceBuilder builder;
     builder.setGlyph(1, 1.0f, sk_make_sp<RectGlyphDrawable>(), kGlyphRect);
@@ -310,19 +316,18 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(Slug_draw_then_serialize_PathSubRun,
                                        CtsEnforcement::kNextRelease) {
     auto dContext = ctxInfo.directContext();
     auto surface = SkSurfaces::RenderTarget(
-            dContext, skgpu::Budgeted::kNo, SkImageInfo::MakeN32Premul(512, 420));
+            dContext, skgpu::Budgeted::kNo, SkImageInfo::MakeN32Premul(64, 64));
     REPORTER_ASSERT(reporter, surface);
 
     // 400pt exceeds fGlyphsAsPathsFontSize (324 on desktop, 384 on Android), forcing PathSubRun
-    auto typeface = ToolUtils::CreatePortableTypeface("serif", SkFontStyle());
-    auto blob = SkTextBlob::MakeFromString("AB", SkFont(typeface, 400));
+    auto blob = make_blob(make_path_typeface(), /*size=*/400);
     REPORTER_ASSERT(reporter, blob != nullptr);
 
     SkPaint paint;
     paint.setAntiAlias(true);
 
     sk_sp<sktext::gpu::Slug> slug =
-            sktext::gpu::Slug::ConvertBlob(surface->getCanvas(), *blob, {10, 360}, paint);
+            sktext::gpu::Slug::ConvertBlob(surface->getCanvas(), *blob, {0, 64}, paint);
     REPORTER_ASSERT(reporter, slug != nullptr);
 
     // Before the first draw, PathOpSubmitter::fIDsOrPaths holds the original SkGlyphIDs
@@ -331,6 +336,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(Slug_draw_then_serialize_PathSubRun,
 
     // Drawing the Slug triggers PathOpSubmitter::submitDraws, which resolves each glyph's SkPath.
     SkBitmap expectedPixels = render_slug(surface.get(), *slug, paint);
+    REPORTER_ASSERT(reporter, expectedPixels.getColor(32, 32) == SK_ColorBLACK);
 
     // Verify that serializing after a draw still preserves the original SkGlyphIDs and data.
     sk_sp<SkData> postDrawData = slug->serialize();
@@ -381,13 +387,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(Slug_draw_then_serialize_DrawableSubRun,
     REPORTER_ASSERT(reporter, preDrawData->equals(postDrawData.get()));
 
     // Verify that deserializing postDrawData produces a Slug that renders matching pixels.
-    if (preDrawData->equals(postDrawData.get())) {
-        sk_sp<sktext::gpu::Slug> deserializedSlug =
-                sktext::gpu::Slug::Deserialize(postDrawData->data(), postDrawData->size(), nullptr);
-        REPORTER_ASSERT(reporter, deserializedSlug != nullptr);
-        SkBitmap actualPixels = render_slug(surface.get(), *deserializedSlug, paint);
-        REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(expectedPixels, actualPixels));
-    }
+    sk_sp<sktext::gpu::Slug> deserializedSlug =
+            sktext::gpu::Slug::Deserialize(postDrawData->data(), postDrawData->size(), nullptr);
+    REPORTER_ASSERT(reporter, deserializedSlug != nullptr);
+    SkBitmap actualPixels = render_slug(surface.get(), *deserializedSlug, paint);
+    REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(expectedPixels, actualPixels));
 }
 
 
