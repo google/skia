@@ -1,0 +1,1 @@
+Added `fHdrMetadata` (`const skhdr::Metadata*`) to `SkJpegEncoder::Options`, `SkPngRustEncoder::Options`, and `SkWebpEncoder::Options`, and changed `SkPngEncoder::Options::fHdrMetadata` to `const skhdr::Metadata*`. When provided, the HDR metadata is embedded into the encoded image's ICC profile.

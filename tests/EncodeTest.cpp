@@ -27,6 +27,7 @@
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkHdrMetadata.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skcms/src/skcms_public.h"
@@ -848,6 +849,72 @@ DEF_TEST(Encode_jpeg_blend_to_black, r) {
                     }
                 }
             }
+        }
+    }
+}
+
+DEF_TEST(Encode_HdrMetadata, r) {
+    auto info = SkImageInfo::Make(8,
+                                  8,
+                                  kRGBA_8888_SkColorType,
+                                  kOpaque_SkAlphaType,
+                                  SkColorSpace::MakeRGB(SkNamedTransferFn::kPQ,
+                                                        SkNamedGamut::kRec2020));
+    SkBitmap bm;
+    bm.allocPixels(info);
+    bm.eraseColor(SK_ColorRED);
+
+    skhdr::AdaptiveGlobalToneMap agtm;
+    agtm.fHdrReferenceWhite = 123.f;
+    skhdr::Metadata hdrMetadata;
+    hdrMetadata.setAdaptiveGlobalToneMap(agtm);
+    sk_sp<const SkData> expectedAgtm = hdrMetadata.getSerializedAgtm();
+    REPORTER_ASSERT(r, expectedAgtm && !expectedAgtm->empty());
+
+    std::vector<sk_sp<SkData>> encodedList;
+    {
+        SkJpegEncoder::Options opts;
+        opts.fHdrMetadata = &hdrMetadata;
+        encodedList.push_back(SkJpegEncoder::Encode(bm.pixmap(), opts));
+    }
+    {
+        SkPngEncoder::Options opts;
+        opts.fHdrMetadata = &hdrMetadata;
+        encodedList.push_back(SkPngEncoder::Encode(bm.pixmap(), opts));
+    }
+    {
+        SkWebpEncoder::Options opts;
+        opts.fHdrMetadata = &hdrMetadata;
+        encodedList.push_back(SkWebpEncoder::Encode(bm.pixmap(), opts));
+    }
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+    {
+        SkPngRustEncoder::Options opts;
+        opts.fHdrMetadata = &hdrMetadata;
+        encodedList.push_back(SkPngRustEncoder::Encode(bm.pixmap(), opts));
+    }
+#endif
+
+    for (const auto& encoded : encodedList) {
+        REPORTER_ASSERT(r, encoded);
+        if (!encoded) {
+            continue;
+        }
+        auto codec = SkCodec::MakeFromData(encoded);
+        REPORTER_ASSERT(r, codec);
+        if (!codec) {
+            continue;
+        }
+        const skcms_ICCProfile* profile = codec->getICCProfile();
+        REPORTER_ASSERT(r, profile);
+        if (!profile) {
+            continue;
+        }
+        REPORTER_ASSERT(r, profile->has_HAGC);
+        REPORTER_ASSERT(r, profile->HAGC.size == expectedAgtm->size());
+        if (profile->has_HAGC && profile->HAGC.size == expectedAgtm->size()) {
+            REPORTER_ASSERT(
+                    r, memcmp(profile->HAGC.buffer, expectedAgtm->bytes(), expectedAgtm->size()) == 0);
         }
     }
 }

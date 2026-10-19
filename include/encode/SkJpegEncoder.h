@@ -15,15 +15,19 @@
 #include <memory>
 #include <optional>
 
+class GrDirectContext;
 class SkColorSpace;
 class SkData;
 class SkEncoder;
+class SkImage;
 class SkPixmap;
 class SkWStream;
-class SkImage;
-class GrDirectContext;
 class SkYUVAPixmaps;
 struct skcms_ICCProfile;
+
+namespace skhdr {
+class Metadata;
+}
 
 namespace SkJpegEncoder {
 
@@ -78,6 +82,11 @@ struct Options {
      *  Optional XMP metadata.
      */
     const SkData* xmpMetadata = nullptr;
+
+    /**
+     *  Container for any HDR metadata to include in the encoded image.
+     */
+    const skhdr::Metadata* fHdrMetadata = nullptr;
 
     std::optional<SkEncodedOrigin> fOrigin;
 };

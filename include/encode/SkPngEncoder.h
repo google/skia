@@ -11,7 +11,6 @@
 #include "include/core/SkDataTable.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAPI.h"
-#include "include/private/SkHdrMetadata.h"
 
 // TODO(kjlubick) update clients to directly include this
 #include "include/encode/SkEncoder.h"  // IWYU pragma: keep
@@ -23,8 +22,12 @@ class SkData;
 class SkImage;
 class SkPixmap;
 class SkWStream;
-struct skcms_ICCProfile;
 struct SkGainmapInfo;
+struct skcms_ICCProfile;
+
+namespace skhdr {
+class Metadata;
+}
 
 namespace SkPngEncoder {
 
@@ -76,7 +79,7 @@ struct Options {
     /**
      * Container for any HDR metadata to include in the encoded image.
      */
-    skhdr::Metadata fHdrMetadata;
+    const skhdr::Metadata* fHdrMetadata = nullptr;
 
     /**
      * If non-null, then a gainmap and its metadata will be encoded as png chunks.

@@ -460,7 +460,7 @@ namespace SkJpegMetadataEncoder {
 void AppendICC(SegmentList& segmentList,
                const SkJpegEncoder::Options& options,
                const SkColorSpace* colorSpace) {
-    sk_sp<SkData> icc = SkWriteICCProfile(colorSpace);
+    sk_sp<SkData> icc = SkWriteICCProfile(colorSpace, options.fHdrMetadata);
     if (!icc) {
         return;
     }

@@ -212,9 +212,11 @@ bool WriteGainmapChunks(rust_png::Writer& writer, const SkPngRustEncoder::Option
     // Encode gainmap pixels (options.fGainmapInfo is true, options.fGainmap is non-null)
 
     // When we encode the gainmap, we need to remove the gainmap from its
-    // own encoding options, so that we don't recurse.
+    // own encoding options, so that we don't recurse. Remove the HDR metadata
+    // because it isn't needed for the gainmap image.
     auto modifiedOptions = options;
     modifiedOptions.fGainmap = nullptr;
+    modifiedOptions.fHdrMetadata = nullptr;
 
     auto gainmapInfo = *(options.fGainmapInfo);
     auto gainmapPixels = *(options.fGainmap);
@@ -280,8 +282,9 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
 
     sk_sp<SkData> encodedProfile;
     rust::Slice<const uint8_t> encodedProfileSlice;
-    if (const SkColorSpace* colorSpace = src.colorSpace(); colorSpace && !colorSpace->isSRGB()) {
-        encodedProfile = SkWriteICCProfile(colorSpace);
+    if (const SkColorSpace* colorSpace = src.colorSpace();
+        colorSpace && (!colorSpace->isSRGB() || options.fHdrMetadata)) {
+        encodedProfile = SkWriteICCProfile(colorSpace, options.fHdrMetadata);
         if (encodedProfile) {
             encodedProfileSlice =
                     rust::Slice<const uint8_t>(encodedProfile->bytes(), encodedProfile->size());

@@ -26,6 +26,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkGainmapInfo.h"
+#include "include/private/SkHdrMetadata.h"
 #include "include/private/SkNoncopyable.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkPngPriv.h"
@@ -275,8 +276,11 @@ bool SkPngEncoderMgr::setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
     return true;
 }
 
-static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkImageInfo& info) {
-    sk_sp<SkData> icc = SkWriteICCProfile(info.colorSpace());
+static void set_icc(png_structp png_ptr,
+                    png_infop info_ptr,
+                    const SkImageInfo& info,
+                    const SkPngEncoder::Options& options) {
+    sk_sp<SkData> icc = SkWriteICCProfile(info.colorSpace(), options.fHdrMetadata);
     if (!icc) {
         return;
     }
@@ -297,10 +301,10 @@ bool SkPngEncoderMgr::setColorSpace(const SkImageInfo& info, const SkPngEncoder:
         return false;
     }
 
-    if (info.colorSpace() && info.colorSpace()->isSRGB()) {
+    if (info.colorSpace() && info.colorSpace()->isSRGB() && !options.fHdrMetadata) {
         png_set_sRGB(fPngPtr, fInfoPtr, PNG_sRGB_INTENT_PERCEPTUAL);
     } else {
-        set_icc(fPngPtr, fInfoPtr, info);
+        set_icc(fPngPtr, fInfoPtr, info, options);
     }
 
     return true;
@@ -325,37 +329,41 @@ bool SkPngEncoderMgr::setHdrMetadata(const SkPngEncoder::Options& options) {
     // even though it will not be written to. In fact, `data` will be copied by the call to
     // `png_set_unknown_chunks`, so it is safe for it to be deallocated immediately after
     // the call.
-    skhdr::ContentLightLevelInformation clli;
-    if (options.fHdrMetadata.getContentLightLevelInformation(&clli)) {
-        auto data = clli.serializePngChunk();
-        png_unknown_chunk chunk = {
-            {'c', 'L', 'L', 'I', 0},
-            reinterpret_cast<png_byte*>(data->writable_data()),
-            data->size(),
-            PNG_HAVE_IHDR,
-        };
-        png_set_unknown_chunks(fPngPtr, fInfoPtr, &chunk, 1);
-    }
+    if (options.fHdrMetadata) {
+        skhdr::ContentLightLevelInformation clli;
+        if (options.fHdrMetadata->getContentLightLevelInformation(&clli)) {
+            auto data = clli.serializePngChunk();
+            png_unknown_chunk chunk = {
+                {'c', 'L', 'L', 'I', 0},
+                reinterpret_cast<png_byte*>(data->writable_data()),
+                data->size(),
+                PNG_HAVE_IHDR,
+            };
+            png_set_unknown_chunks(fPngPtr, fInfoPtr, &chunk, 1);
+        }
 
-    skhdr::MasteringDisplayColorVolume mdcv;
-    if (options.fHdrMetadata.getMasteringDisplayColorVolume(&mdcv)) {
-        auto data = mdcv.serialize();
-        png_unknown_chunk chunk = {
-            {'m', 'D', 'C', 'V', 0},
-            reinterpret_cast<png_byte*>(data->writable_data()),
-            data->size(),
-            PNG_HAVE_IHDR,
-        };
-        png_set_unknown_chunks(fPngPtr, fInfoPtr, &chunk, 1);
+        skhdr::MasteringDisplayColorVolume mdcv;
+        if (options.fHdrMetadata->getMasteringDisplayColorVolume(&mdcv)) {
+            auto data = mdcv.serialize();
+            png_unknown_chunk chunk = {
+                {'m', 'D', 'C', 'V', 0},
+                reinterpret_cast<png_byte*>(data->writable_data()),
+                data->size(),
+                PNG_HAVE_IHDR,
+            };
+            png_set_unknown_chunks(fPngPtr, fInfoPtr, &chunk, 1);
+        }
     }
 
     if (options.fGainmapInfo && options.fGainmap) {
         sk_sp<SkData> gainmapVersion = SkGainmapInfo::SerializeVersion();
 
         // When we encode the gainmap, we need to remove the gainmap from its
-        // own encoding options, so that we don't recurse.
+        // own encoding options, so that we don't recurse. Remove the HDR metadata
+        // because it isn't needed for the gainmap image.
         auto modifiedOptions = options;
         modifiedOptions.fGainmap = nullptr;
+        modifiedOptions.fHdrMetadata = nullptr;
 
         auto gainmapInfo = *(options.fGainmapInfo);
         auto gainmapPixels = *(options.fGainmap);

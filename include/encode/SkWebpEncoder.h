@@ -13,12 +13,16 @@
 #include "include/encode/SkEncoder.h"
 #include "include/private/SkAPI.h"
 
+class GrDirectContext;
+class SkData;
+class SkImage;
 class SkPixmap;
 class SkWStream;
-class SkData;
-class GrDirectContext;
-class SkImage;
 struct skcms_ICCProfile;
+
+namespace skhdr {
+class Metadata;
+}
 
 namespace SkWebpEncoder {
 
@@ -42,6 +46,11 @@ struct SK_API Options {
      */
     Compression fCompression = Compression::kLossy;
     float fQuality = 100.0f;
+
+    /**
+     *  Container for any HDR metadata to include in the encoded image.
+     */
+    const skhdr::Metadata* fHdrMetadata = nullptr;
 };
 
 /**
