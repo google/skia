@@ -4,5 +4,4 @@ void main(){}
 
 /*%%*
 expected a type, found 'bufferThree'
-invalid type
 *%%*/

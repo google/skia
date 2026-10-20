@@ -1,0 +1,11 @@
+// In runtime effects, private types like sampler2D are aliases of the invalid type.
+// See kPrivateTypes in SkSLModuleLoader.cpp for the exhaustive list.
+struct S { sampler2D x; };
+struct T { texture2D x; };
+
+void main() {}
+
+/*%%*
+invalid type
+invalid type
+*%%*/

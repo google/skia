@@ -303,7 +303,8 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,
                                          const Type* baseType,
                                          std::unique_ptr<Expression>& value) {
     if (baseType->matches(*context.fTypes.fInvalid)) {
-        context.fErrors->error(var.fPosition, "invalid type");
+        // Parser::type() has already reported the error (e.g. a reserved type name like sampler2D
+        // in a runtime effect). Skip the declaration so it doesn't cause further errors.
         return false;
     }
     if (baseType->isVoid()) {
