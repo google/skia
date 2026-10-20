@@ -38,6 +38,7 @@ class SkRecord;
 class SkRecorder;
 class SkRegion;
 class SkShader;
+class SkSnapshotArray;
 class SkSurface;
 class SkSurfaceProps;
 class SkTextBlob;

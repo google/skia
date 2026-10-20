@@ -13,6 +13,7 @@
 #include "include/core/SkRefCnt.h"  // IWYU pragma: keep
 #include "include/gpu/graphite/Recording.h"
 #include "include/private/SkOnlyStackAllocatable.h"
+#include "src/capture/SkCaptureAsset.h"
 
 #include <cstdint>
 #include <memory>
@@ -72,10 +73,10 @@ public:
     uint32_t recorderID() const { return fRecording->fRecorderID; }
     uint32_t uniqueID() const { return fRecording->fUniqueID; }
 
-    const skia_private::TArray<sk_sp<SkPicture>>& capturedPictures() const {
+    const skia_private::TArray<sk_sp<SkCaptureAsset>>& capturedPictures() const {
         return fRecording->fCapturedPictures;
     }
-    void setCapturedPictures(skia_private::TArray<sk_sp<SkPicture>>&& pictures) {
+    void setCapturedPictures(skia_private::TArray<sk_sp<SkCaptureAsset>>&& pictures) {
         fRecording->fCapturedPictures = std::move(pictures);
     }
 

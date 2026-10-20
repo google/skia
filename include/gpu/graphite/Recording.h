@@ -17,8 +17,9 @@
 #include <unordered_set>
 #include <vector>
 
-struct SkISize;
+class SkCaptureAsset;
 class SkPicture;
+struct SkISize;
 
 namespace skgpu {
 class RefCntedCallback;
@@ -95,7 +96,7 @@ private:
 
     skia_private::TArray<sk_sp<RefCntedCallback>> fFinishedProcs;
 
-    skia_private::TArray<sk_sp<SkPicture>> fCapturedPictures;
+    skia_private::TArray<sk_sp<SkCaptureAsset>> fCapturedPictures;
 };
 
 } // namespace skgpu::graphite
