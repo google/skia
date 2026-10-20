@@ -327,6 +327,60 @@ DEF_TEST_DISABLED(FontMgrFontConfig_MatchFonts, reporter) {
 }
 #endif
 
+DEF_TEST(FontMgrFontConfig_MatchFamilyStyleCharacter, reporter) {
+    FcConfig* config = build_fontconfig_with_fontfile("/fonts/Roboto-Regular.ttf");
+    sk_sp<SkFontMgr> fontMgr(SkFontMgr_New_FontConfig(config, SkFontScanner_Make_FreeType()));
+    const char* bcp47[] = {"en"};
+
+    // Each character is found in a font which has it, also when the request repeats.
+    for (SkUnichar character : {'A', 'b', 'A'}) {
+        sk_sp<SkTypeface> typeface(fontMgr->matchFamilyStyleCharacter(
+                "Roboto", SkFontStyle(), bcp47, std::size(bcp47), character));
+        REPORTER_ASSERT(reporter, typeface);
+        REPORTER_ASSERT(reporter, typeface && typeface->unicharToGlyph(character) != 0);
+    }
+
+    // No font has a private use character of plane 16.
+    sk_sp<SkTypeface> none(fontMgr->matchFamilyStyleCharacter(
+            "Roboto", SkFontStyle(), bcp47, std::size(bcp47), 0x10FFFD));
+    REPORTER_ASSERT(reporter, !none);
+
+    // Unicode has no character above U+10FFFF. FcCharSet keeps a page number in 16 bits, so the
+    // page of 0x1000041 has the number of the page of 'A' there.
+    for (SkUnichar character : {-1, 0x110000, 0x1000000, 0x1000041}) {
+        sk_sp<SkTypeface> outOfUnicode(fontMgr->matchFamilyStyleCharacter(
+                "Roboto", SkFontStyle(), bcp47, std::size(bcp47), character));
+        REPORTER_ASSERT(reporter, !outOfUnicode);
+    }
+}
+
+DEF_TEST(FontMgrFontConfig_MatchFamilyStyleCharacter_Color, reporter) {
+    // FcFontMatch ranks FC_COLOR above FC_CHARSET, so a color font without the character wins.
+    const char* content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                          "<!DOCTYPE fontconfig SYSTEM \"fonts.dtd\">"
+                          "<fontconfig>"
+                          "<match target=\"pattern\">"
+                          "<edit name=\"color\" mode=\"assign\"><bool>true</bool></edit>"
+                          "</match>"
+                          "</fontconfig>";
+    FcConfig* config = FcConfigCreate();
+    FcConfigParseAndLoadFromMemory(config, reinterpret_cast<const FcChar8*>(content), FcTrue);
+    for (const char* file : {"fonts/Roboto-Regular.ttf", "fonts/planetcolr.ttf"}) {
+        FcConfigAppFontAddFile(config,
+                               reinterpret_cast<const FcChar8*>(GetResourcePath(file).c_str()));
+    }
+    FcConfigBuildFonts(config);
+    sk_sp<SkFontMgr> fontMgr(SkFontMgr_New_FontConfig(config, SkFontScanner_Make_FreeType()));
+
+    sk_sp<SkTypeface> none(
+            fontMgr->matchFamilyStyleCharacter("Roboto", SkFontStyle(), nullptr, 0, 'A'));
+    REPORTER_ASSERT(reporter, !none);
+
+    sk_sp<SkTypeface> color(
+            fontMgr->matchFamilyStyleCharacter("Roboto", SkFontStyle(), nullptr, 0, 0x263F));
+    REPORTER_ASSERT(reporter, color && color->unicharToGlyph(0x263F) != 0);
+}
+
 DEF_TEST(FontMgrFontConfig_remove_weak, reporter) {
     using UniqueFcPattern = std::unique_ptr<FcPattern, SkFunctionObject<FcPatternDestroy>>;
 

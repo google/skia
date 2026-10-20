@@ -27,8 +27,10 @@
 #include "include/private/SkThreadAnnotations.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
+#include "src/core/SkLRUCache.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkScalerContext.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkTSort.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/ports/SkTypeface_proxy.h"
@@ -593,7 +595,8 @@ class SkFontMgr_fontconfig : public SkFontMgr {
     /** Creates a typeface using a typeface cache.
      *  @param pattern a complete pattern from FcFontRenderPrepare.
      */
-    sk_sp<SkTypeface> createTypefaceFromFcPattern(SkAutoFcPattern pattern) const {
+    sk_sp<SkTypeface> createTypefaceFromFcPattern(SkAutoFcPattern pattern,
+                                                  bool checkAccessible = false) const {
         if (!pattern) {
             return nullptr;
         }
@@ -603,12 +606,13 @@ class SkFontMgr_fontconfig : public SkFontMgr {
         sk_sp<SkTypeface> face = [&]() {
             FCLocker lock;
             sk_sp<SkTypeface> face = fTFCache.findByProcAndRef(FindByFcPattern, pattern);
-            if (face) {
+            // A cached typeface was made from an accessible file, so do not read the file again.
+            if (face || (checkAccessible && !FontAccessible(pattern))) {
                 pattern.reset();
             }
             return face;
         }();
-        if (!face) {
+        if (!face && pattern) {
             // Cannot hold FCLocker around Make; may need to destory pattern.
             face = SkTypeface_fontconfig::Make(std::move(pattern), fSysroot, fScanner.get());
             if (face) {
@@ -619,13 +623,59 @@ class SkFontMgr_fontconfig : public SkFontMgr {
         return face;
     }
 
+    /** The fallback results for one request (family, style, languages).
+     *  FcFontMatch scores each font by itself, and the first font with the lowest score wins.
+     *  If that font has the character, it also wins among only the fonts which have the
+     *  character, and in that subset the FC_CHARSET score of all fonts is the same. So the
+     *  result depends only on the request and the subset (the coverage class of the character).
+     *  A font without the character wins only by a better score on the elements ranked above
+     *  FC_CHARSET. Then every font with the best score on these elements wins over the subset.
+     */
+    struct FallbackSet {
+        SkAutoFcPattern fPattern;  // The substituted request, without FC_CHARSET.
+        // A font with the best score on the elements ranked above FC_CHARSET, or null if no
+        // font is found.
+        FcPattern* fBestRanked = nullptr;
+        THashMap<int, sk_sp<SkTypeface>> fTypefaces;  // Coverage class to result.
+
+        ~FallbackSet() {
+            // Typefaces lock when destroyed, so release them before taking the lock.
+            fTypefaces.reset();
+            FCLocker lock;
+            fPattern.reset();
+        }
+    };
+    /** Which fonts have each character. The same for all requests. This manager owns fFC and
+     *  does not change its fonts, so the font pointers stay valid without a reference.
+     *  Fonts without FC_CHARSET are not candidates. FcFreeTypeQuery always sets it.
+     */
+    struct Coverage {
+        TArray<FcPattern*> fFonts;  // System fonts, then application fonts, as in FcFontMatch.
+        struct CharSet {
+            int fFont;
+            FcCharSet* fCharSet;
+        };
+        TArray<CharSet> fCharSets;  // Each FC_CHARSET value of each font.
+        THashMap<uint32_t, std::array<int, 256>> fPageClasses;  // Page to class of each char.
+        THashSet<uint32_t> fEmptyPages;  // Pages up to U+10FFFF which no font has.
+        THashMap<SkString, int> fClassIds;  // Fonts (pointers as bytes) to class id.
+        TArray<TArray<FcPattern*>> fClasses;  // Class id to fonts. Class 0 has no font.
+        // The ranked elements of a request (as FcNameUnparse gives them) to fBestRanked.
+        THashMap<SkString, FcPattern*> fBestRanked;
+    };
+    mutable SkMutex fFallbackMutex;
+    mutable SkLRUCache<SkString, std::unique_ptr<FallbackSet>> fFallbackSets
+            SK_GUARDED_BY(fFallbackMutex);
+    mutable Coverage fCoverage SK_GUARDED_BY(fFallbackMutex);
+
 public:
     /** Takes control of the reference to 'config'. */
     SkFontMgr_fontconfig(FcConfig* config, std::unique_ptr<SkFontScanner> scanner)
             : fFC(config ? config : FcInitLoadConfigAndFonts())
             , fSysroot(reinterpret_cast<const char*>(FcConfigGetSysRoot(fFC)))
             , fFamilyNames(GetFamilyNames(fFC))
-            , fScanner(std::move(scanner)) {
+            , fScanner(std::move(scanner))
+            , fFallbackSets(64) {
         SkASSERT(fScanner);
     }
 
@@ -837,42 +887,194 @@ protected:
                                                   int bcp47Count,
                                                   SkUnichar character) const override
     {
-        SkAutoFcPattern font([&](){
+        // Each string ends with its '\0', which no string has, so no two requests have one key.
+        SkString key = SkStringPrintf("%d,%d,%d,%d,",
+                                      style.weight(),
+                                      style.width(),
+                                      static_cast<int>(style.slant()),
+                                      familyName ? 1 : 0);
+        if (familyName) {
+            key.append(familyName, strlen(familyName) + 1);
+        }
+        for (int i = 0; i < bcp47Count; ++i) {
+            key.append(bcp47[i], strlen(bcp47[i]) + 1);
+        }
+
+        SkAutoMutexExclusive ama(fFallbackMutex);
+        std::unique_ptr<FallbackSet>* set = fFallbackSets.find(key);
+        if (!set) {
+            set = fFallbackSets.insert(key,
+                                       this->makeFallbackSet(familyName, style, bcp47, bcp47Count));
+        }
+
+        SkAutoFcPattern font(nullptr);
+        int classId;
+        {
             FCLocker lock;
-
-            SkAutoFcPattern pattern;
-            if (familyName) {
-                FcValue familyNameValue;
-                familyNameValue.type = FcTypeString;
-                familyNameValue.u.s = reinterpret_cast<const FcChar8*>(familyName);
-                FcPatternAddWeak(pattern, FC_FAMILY, familyNameValue, FcFalse);
+            classId = this->coverageClass(character);
+            if (classId == 0) {
+                return nullptr;
             }
-            fcpattern_from_skfontstyle(style, pattern);
-
+            if (sk_sp<SkTypeface>* typeface = (*set)->fTypefaces.find(classId)) {
+                return *typeface;
+            }
+            // Same as FcFontMatch, but only over the fonts which have the character. The best
+            // ranked font wins only if FcFontMatch gives a font without the character.
+            TArray<FcPattern*>& fonts = fCoverage.fClasses[classId];
+            FcFontSet classSet = {fonts.size(), fonts.size(), fonts.data()};
+            FcFontSet bestSet = {1, 1, &(*set)->fBestRanked};
+            FcFontSet* sets[] = {&classSet, &bestSet};
+            SkAutoFcPattern pattern(FcPatternDuplicate((*set)->fPattern));
             SkAutoFcCharSet charSet;
             FcCharSetAddChar(charSet, character);
             FcPatternAddCharSet(pattern, FC_CHARSET, charSet);
-
-            if (bcp47Count > 0) {
-                SkASSERT(bcp47);
-                SkAutoFcLangSet langSet;
-                for (int i = bcp47Count; i --> 0;) {
-                    FcLangSetAdd(langSet, (const FcChar8*)bcp47[i]);
-                }
-                FcPatternAddLangSet(pattern, FC_LANG, langSet);
-            }
-
-            FcConfigSubstitute(fFC, pattern, FcMatchPattern);
-            FcDefaultSubstitute(pattern);
-
             FcResult result;
-            SkAutoFcPattern font(FcFontMatch(fFC, pattern, &result));
-            if (!font || !FontContainsCharacter(font, character) || !FontAccessible(font)) {
+            font.reset(FcFontSetMatch(fFC, sets, (*set)->fBestRanked ? 2 : 1, pattern, &result));
+            if (!font || !FontContainsCharacter(font, character)) {
                 font.reset();
             }
-            return font;
-        }());
-        return this->createTypefaceFromFcPattern(std::move(font));
+        }
+        sk_sp<SkTypeface> typeface = this->createTypefaceFromFcPattern(std::move(font), true);
+        (*set)->fTypefaces.set(classId, typeface);
+        return typeface;
+    }
+
+    /** Returns the id of the ordered set of fonts which have the character. */
+    int coverageClass(SkUnichar character) const SK_REQUIRES(fFallbackMutex) {
+        FCLocker::AssertHeld();
+        if (fCoverage.fClasses.empty()) {
+            fCoverage.fClasses.push_back();
+            for (FcSetName setName : {FcSetSystem, FcSetApplication}) {
+                FcFontSet* fonts = FcConfigGetFonts(fFC, setName);
+                for (int i = 0; fonts && i < fonts->nfont; ++i) {
+                    FcCharSet* charSet;
+                    for (int id = 0; FcPatternGetCharSet(fonts->fonts[i], FC_CHARSET, id,
+                                                         &charSet) == FcResultMatch; ++id) {
+                        fCoverage.fCharSets.push_back({fCoverage.fFonts.size(), charSet});
+                    }
+                    fCoverage.fFonts.push_back(fonts->fonts[i]);
+                }
+            }
+        }
+
+        uint32_t page = static_cast<uint32_t>(character) >> 8;
+        // Unicode has no character above U+10FFFF. FcCharSet keeps a page in 16 bits, so a
+        // larger page can find a page of Unicode.
+        if (page > 0x10FF) {
+            return 0;
+        }
+        if (std::array<int, 256>* classes = fCoverage.fPageClasses.find(page)) {
+            return (*classes)[character & 0xFF];
+        }
+        if (fCoverage.fEmptyPages.contains(page)) {
+            return 0;
+        }
+        // The characters of this page in each font, as bits.
+        TArray<std::array<FcChar32, FC_CHARSET_MAP_SIZE>> maps;
+        maps.push_back_n(fCoverage.fFonts.size(), std::array<FcChar32, FC_CHARSET_MAP_SIZE>{});
+        bool found = false;
+        for (const Coverage::CharSet& charSet : fCoverage.fCharSets) {
+            FcChar32 map[FC_CHARSET_MAP_SIZE];
+            // Gives the first page from 'next' on.
+            FcChar32 next = page << 8;
+            if (FcCharSetNextPage(charSet.fCharSet, map, &next) == page << 8) {
+                found = true;
+                for (int i = 0; i < FC_CHARSET_MAP_SIZE; ++i) {
+                    maps[charSet.fFont][i] |= map[i];
+                }
+            }
+        }
+        if (!found) {
+            fCoverage.fEmptyPages.add(page);
+            return 0;
+        }
+        // A character has the class of the previous one when no font differs between the two.
+        std::array<FcChar32, FC_CHARSET_MAP_SIZE> changes = {};
+        for (const std::array<FcChar32, FC_CHARSET_MAP_SIZE>& map : maps) {
+            for (int i = 0; i < FC_CHARSET_MAP_SIZE; ++i) {
+                changes[i] |= map[i] ^ (map[i] << 1 | (i > 0 ? map[i - 1] >> 31 : 0));
+            }
+        }
+        std::array<int, 256> classes;
+        TArray<FcPattern*> fonts;
+        for (int i = 0; i < 256; ++i) {
+            if (i > 0 && !(changes[i / 32] & (1u << (i % 32)))) {
+                classes[i] = classes[i - 1];
+                continue;
+            }
+            fonts.clear();
+            for (int font = 0; font < maps.size(); ++font) {
+                if (maps[font][i / 32] & (1u << (i % 32))) {
+                    fonts.push_back(fCoverage.fFonts[font]);
+                }
+            }
+            SkString fontsKey(reinterpret_cast<const char*>(fonts.data()),
+                              fonts.size() * sizeof(FcPattern*));
+            int* id = fCoverage.fClassIds.find(fontsKey);
+            if (!id) {
+                int newId = fonts.empty() ? 0 : fCoverage.fClasses.size();
+                id = fCoverage.fClassIds.set(fontsKey, newId);
+                if (*id) {
+                    fCoverage.fClasses.push_back(fonts);
+                }
+            }
+            classes[i] = *id;
+        }
+        return (*fCoverage.fPageClasses.set(page, classes))[character & 0xFF];
+    }
+
+    std::unique_ptr<FallbackSet> makeFallbackSet(const char familyName[],
+                                                 const SkFontStyle& style,
+                                                 const char* bcp47[],
+                                                 int bcp47Count) const
+            SK_REQUIRES(fFallbackMutex) {
+        FCLocker lock;
+        auto set = std::make_unique<FallbackSet>();
+
+        FcPattern* pattern = set->fPattern;
+        if (familyName) {
+            FcValue familyNameValue;
+            familyNameValue.type = FcTypeString;
+            familyNameValue.u.s = reinterpret_cast<const FcChar8*>(familyName);
+            FcPatternAddWeak(pattern, FC_FAMILY, familyNameValue, FcFalse);
+        }
+        fcpattern_from_skfontstyle(style, pattern);
+
+        if (bcp47Count > 0) {
+            SkASSERT(bcp47);
+            SkAutoFcLangSet langSet;
+            for (int i = bcp47Count; i --> 0;) {
+                FcLangSetAdd(langSet, (const FcChar8*)bcp47[i]);
+            }
+            FcPatternAddLangSet(pattern, FC_LANG, langSet);
+        }
+
+        FcConfigSubstitute(fFC, pattern, FcMatchPattern);
+        FcDefaultSubstitute(pattern);
+
+        // FcFontMatch ranks these elements above FC_CHARSET in all fontconfig versions.
+        SkAutoFcObjectSet ranked;
+        for (const char* object : {"hash", "file", "fontwrapper", "fontformat", "variable",
+                                   "namedinstance", "scalable", "color", "foundry"}) {
+            FcObjectSetAdd(ranked, object);
+        }
+        SkAutoFcPattern rankedPattern(FcPatternFilter(pattern, ranked));
+        FcChar8* name = FcNameUnparse(rankedPattern);
+        SkString rankedKey(name ? reinterpret_cast<const char*>(name) : "");
+        FcStrFree(name);
+        // Most requests have the same ranked elements, for example only FC_VARIABLE.
+        FcPattern** best = fCoverage.fBestRanked.find(rankedKey);
+        if (!best) {
+            FcFontSet* sets[] = {FcConfigGetFonts(fFC, FcSetSystem),
+                                 FcConfigGetFonts(fFC, FcSetApplication)};
+            FcResult result;
+            SkAutoFcFontSet sorted(FcFontSetSort(fFC, sets, std::size(sets), rankedPattern,
+                                                 FcFalse, nullptr, &result));
+            best = fCoverage.fBestRanked.set(
+                    rankedKey, sorted && sorted->nfont > 0 ? sorted->fonts[0] : nullptr);
+        }
+        set->fBestRanked = *best;
+        return set;
     }
 
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
