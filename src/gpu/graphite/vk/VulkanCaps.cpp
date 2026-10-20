@@ -272,7 +272,7 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     fIsInputAttachmentReadCoherent = fSupportsRasterizationOrderColorAttachmentAccess ||
                                      vendorID == kARM_VkVendor || vendorID == kImagination_VkVendor;
 
-    this->initShaderCaps(enabledFeatures, vendorID);
+    this->initShaderCaps(enabledFeatures, vendorID, deviceProperties.fSubgroup);
 
     // Vulkan 1.0 dynamic state is always supported.  Dynamic state based on features of
     // VK_EXT_extended_dynamic_state and VK_EXT_extended_dynamic_state2 are also considered basic
@@ -365,6 +365,7 @@ VulkanCaps::EnabledFeatures VulkanCaps::getEnabledFeatures(
                     const auto* feature =
                             reinterpret_cast<const VkPhysicalDeviceVulkan13Features*>(pNext);
                     enabled.fPipelineCreationCacheControl = feature->pipelineCreationCacheControl;
+                    enabled.fSubgroupSizeControl = feature->subgroupSizeControl;
                     break;
                 }
                 case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES: {
@@ -379,6 +380,19 @@ VulkanCaps::EnabledFeatures VulkanCaps::getEnabledFeatures(
                             reinterpret_cast<
                                 const VkPhysicalDevicePipelineCreationCacheControlFeatures*>(pNext);
                     enabled.fPipelineCreationCacheControl = feature->pipelineCreationCacheControl;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES: {
+                    const auto* feature =
+                            reinterpret_cast<const VkPhysicalDeviceSubgroupSizeControlFeatures*>(
+                                    pNext);
+                    enabled.fSubgroupSizeControl = feature->subgroupSizeControl;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR: {
+                    const auto* feature = reinterpret_cast<
+                            const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(pNext);
+                    enabled.fShaderMaximalReconvergence = feature->shaderMaximalReconvergence;
                     break;
                 }
                 case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES: {
@@ -509,6 +523,11 @@ void VulkanCaps::getProperties(const skgpu::VulkanInterface* vkInterface,
     VkImageLayout hicCopyDstLayoutStorage[kHicCopyDstLayoutMax] = {};
     props->fHic.copyDstLayoutCount = kHicCopyDstLayoutMax;
     props->fHic.pCopyDstLayouts = hicCopyDstLayoutStorage;
+
+    // Core in Vulkan 1.1, which Graphite requires, so this can always be chained.
+    props->fSubgroup = {};
+    props->fSubgroup.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES;
+    AddToPNextChain(&props->fBase, &props->fSubgroup);
 
     const bool hasDriverProperties =
             physicalDeviceVersion >= VK_API_VERSION_1_2 ||
@@ -715,9 +734,19 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const PhysicalDevicePropertie
     if (isQualcommProprietary && driverVersion < skgpu::DriverVersion(512, 822)) {
         fMSAARenderToSingleSampledSupport = false;
     }
+
+#if defined(SK_BUILD_FOR_ANDROID)
+    // Dawn doesn't use SPIR-V maximal reconvergence on Android Imagination GPUs (Pixel 10),
+    // crbug.com/379673383. Follow suit; compute shaders force reconvergence with barriers instead.
+    if (isImagination) {
+        fShaderCaps->fSubgroupMaximalReconvergence = false;
+    }
+#endif
 }
 
-void VulkanCaps::initShaderCaps(const EnabledFeatures enabledFeatures, const uint32_t vendorID) {
+void VulkanCaps::initShaderCaps(const EnabledFeatures enabledFeatures,
+                                const uint32_t vendorID,
+                                const VkPhysicalDeviceSubgroupProperties& subgroupProperties) {
     // TODO(skbug.com/40045541): We must force std430 array stride when using SSBOs since SPIR-V
     // generation cannot handle mixed array strides being passed into functions.
     fShaderCaps->fForceStd430ArrayLayout =
@@ -727,6 +756,32 @@ void VulkanCaps::initShaderCaps(const EnabledFeatures enabledFeatures, const uin
     // (skbug.com/421927604)
     fShaderCaps->fCannotUseRelaxedPrecisionOnImageSample = vendorID == kNvidia_VkVendor;
     fShaderCaps->fDualSourceBlendingSupport = enabledFeatures.fDualSrcBlend;
+
+    // Subgroup support requirements:
+    // - SkSL exposes subgroups in compute shaders only, so only the compute stage is required
+    //   (Dawn additionally requires fragment).
+    // - fSubgroupSupport covers every operation family that SkSL can emit, so all of them are
+    //   required. Quad and relative-shuffle operations are not exposed by SkSL and not required
+    //   (Dawn requires both for WGSL).
+    // - subgroupSizeControl (VK_EXT_subgroup_size_control or Vulkan 1.3) is mandatory so that
+    //   compute pipelines can control and query the subgroup size, matching Dawn.
+    //   VulkanPreferredFeatures enables it when available. computeFullSubgroups is not required.
+    // - SkSL's half lowers to 32-bit float with RelaxedPrecision in SPIR-V, so
+    //   shaderSubgroupExtendedTypes is not needed (Dawn needs it for f16).
+    constexpr VkSubgroupFeatureFlags kRequiredSubgroupOps =
+            VK_SUBGROUP_FEATURE_BASIC_BIT | VK_SUBGROUP_FEATURE_VOTE_BIT |
+            VK_SUBGROUP_FEATURE_ARITHMETIC_BIT | VK_SUBGROUP_FEATURE_BALLOT_BIT |
+            VK_SUBGROUP_FEATURE_SHUFFLE_BIT;
+    fShaderCaps->fSubgroupSupport =
+            fComputeSupport && enabledFeatures.fSubgroupSizeControl &&
+            (subgroupProperties.supportedStages & VK_SHADER_STAGE_COMPUTE_BIT) &&
+            (subgroupProperties.supportedOperations & kRequiredSubgroupOps) == kRequiredSubgroupOps;
+
+    // Maximal reconvergence is optional; without it, compute shaders force reconvergence with
+    // barriers. VulkanPreferredFeatures enables VK_KHR_shader_maximal_reconvergence when available,
+    // and the SPIR-V generator opts compute shaders into it (MaximallyReconvergesKHR) when set.
+    fShaderCaps->fSubgroupMaximalReconvergence =
+            fShaderCaps->fSubgroupSupport && enabledFeatures.fShaderMaximalReconvergence;
 }
 
 void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,

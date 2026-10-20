@@ -65,6 +65,7 @@ void AddPreferredFeatures(const wgpu::Adapter& adapter, std::vector<wgpu::Featur
     addFeature(wgpu::FeatureName::ImplicitDeviceSynchronization);
     addFeature(wgpu::FeatureName::MSAARenderToSingleSampled);
     addFeature(wgpu::FeatureName::ShaderF16);
+    addFeature(wgpu::FeatureName::Subgroups);
     addFeature(wgpu::FeatureName::TextureCompressionBC);
     addFeature(wgpu::FeatureName::TextureCompressionETC2);
     addFeature(wgpu::FeatureName::TextureFormatsTier1);

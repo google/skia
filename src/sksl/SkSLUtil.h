@@ -117,6 +117,23 @@ struct ShaderCaps {
     bool fNoPerspectiveInterpolationSupport = false;
     bool fSampleMaskSupport = false;
     bool fExternalTextureSupport = false;
+    /**
+     * Compute shaders may use subgroup builtins and the vote, ballot, broadcast, shuffle, and
+     * arithmetic (reduce/scan) subgroup intrinsics. This is a single flag rather than one per
+     * operation family; backends only set it when every family is supported in compute.
+     */
+    bool fSubgroupSupport = false;
+    /**
+     * Subgroup operations in compute shaders observe maximal reconvergence: invocations that
+     * diverge at a branch reconverge where its control flow merges (after an if/else or switch, or
+     * once every invocation has left a loop), so a subgroup operation after divergent code sees the
+     * same invocations as one before it. When false, which invocations are active after divergence
+     * is implementation-defined, and compute shaders must force reconvergence (e.g. with a barrier)
+     * before subgroup operations that depend on it. Only set if fSubgroupSupport is set. Vulkan
+     * requires shaders to opt in, which the SPIR-V generator does for compute programs when this is
+     * set.
+     */
+    bool fSubgroupMaximalReconvergence = false;
 
     /** isinf() is defined + floating point infinities are handled according to IEEE standards. */
     bool fInfinitySupport = false;

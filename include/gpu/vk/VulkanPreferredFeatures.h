@@ -192,6 +192,12 @@ private:
     // Feature of VK_EXT_pipeline_creation_cache_control or Vulkan 1.3
     VkPhysicalDevicePipelineCreationCacheControlFeatures fPipelineCreationCacheControl = {};
 
+    // Feature of VK_EXT_subgroup_size_control or Vulkan 1.3
+    VkPhysicalDeviceSubgroupSizeControlFeatures fSubgroupSizeControl = {};
+
+    // Feature of VK_KHR_shader_maximal_reconvergence
+    VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR fShaderMaximalReconvergence = {};
+
     // Feature of VK_EXT_frame_boundary
     VkPhysicalDeviceFrameBoundaryFeaturesEXT fFrameBoundary = {};
 

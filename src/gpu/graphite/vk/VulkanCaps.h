@@ -155,6 +155,10 @@ private:
         // From VkPhysicalDevicePipelineProtectedAccessFeaturesEXT or
         // VkPhysicalDeviceVulkan14Features:
         bool fPipelineProtectedAccess = false;
+        // From VkPhysicalDeviceSubgroupSizeControlFeatures or VkPhysicalDeviceVulkan13Features
+        bool fSubgroupSizeControl = false;
+        // From VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR
+        bool fShaderMaximalReconvergence = false;
         // From VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT
         bool fFormatRGBA10x6WithoutYCbCrSampler = false;
     };
@@ -166,6 +170,7 @@ private:
         VkPhysicalDeviceDriverProperties fDriver;
         VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT fGpl;
         VkPhysicalDeviceHostImageCopyPropertiesEXT fHic;
+        VkPhysicalDeviceSubgroupProperties fSubgroup;
         bool fHicHasShaderReadOnlyDstLayout = false;
     };
     void getProperties(const skgpu::VulkanInterface*,
@@ -177,7 +182,9 @@ private:
 
     void applyDriverCorrectnessWorkarounds(const PhysicalDeviceProperties&);
 
-    void initShaderCaps(const EnabledFeatures, const uint32_t vendorID);
+    void initShaderCaps(const EnabledFeatures,
+                        const uint32_t vendorID,
+                        const VkPhysicalDeviceSubgroupProperties&);
 
     void initFormatTable(const skgpu::VulkanInterface*,
                          VkPhysicalDevice,

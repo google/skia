@@ -49,6 +49,7 @@ sksl_compute_tests = [
   "compute/DesaturateFunction.compute",
   "compute/DesaturateReadWrite.compute",
   "compute/MatrixMultiply.compute",
+  "compute/MaximalReconvergence.compute",
   "compute/ModuleStructInArray.compute",
   "compute/ModuleStructInExpression.compute",
   "compute/ModuleStructInInterfaceBlock.compute",

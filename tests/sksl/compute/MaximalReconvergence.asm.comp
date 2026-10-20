@@ -1,0 +1,249 @@
+               OpCapability Shader
+               OpExtension "SPV_KHR_maximal_reconvergence"
+          %5 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %sk_LocalInvocationID
+               OpExecutionMode %main LocalSize 64 1 1
+               OpExecutionMode %main MaximallyReconvergesKHR
+
+               ; Debug Information
+               OpName %outputBlock "outputBlock"    ; id %11
+               OpMemberName %outputBlock 0 "values"
+               OpName %sk_LocalInvocationID "sk_LocalInvocationID"  ; id %13
+               OpName %clampValue_II "clampValue_II"                ; id %6
+               OpName %main "main"                                  ; id %7
+               OpName %id "id"                                      ; id %32
+               OpName %value "value"                                ; id %35
+               OpName %i "i"                                        ; id %52
+               OpName %small "small"                                ; id %91
+               OpName %large "large"                                ; id %102
+
+               ; Annotations
+               OpDecorate %_runtimearr_uint ArrayStride 4
+               OpMemberDecorate %outputBlock 0 Offset 0
+               OpDecorate %outputBlock BufferBlock
+               OpDecorate %8 Binding 0
+               OpDecorate %8 DescriptorSet 0
+               OpDecorate %sk_LocalInvocationID BuiltIn LocalInvocationId
+
+               ; Types, variables and constants
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+       %uint = OpTypeInt 32 0
+%_runtimearr_uint = OpTypeRuntimeArray %uint        ; ArrayStride 4
+%outputBlock = OpTypeStruct %_runtimearr_uint       ; BufferBlock
+%_ptr_Uniform_outputBlock = OpTypePointer Uniform %outputBlock
+          %8 = OpVariable %_ptr_Uniform_outputBlock Uniform     ; Binding 0, DescriptorSet 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%sk_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input     ; BuiltIn LocalInvocationId
+%_ptr_Function_uint = OpTypePointer Function %uint
+         %17 = OpTypeFunction %uint %_ptr_Function_uint
+     %uint_8 = OpConstant %uint 8
+       %bool = OpTypeBool
+       %void = OpTypeVoid
+         %30 = OpTypeFunction %void
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+     %uint_2 = OpConstant %uint 2
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+     %uint_3 = OpConstant %uint 3
+   %uint_100 = OpConstant %uint 100
+     %uint_4 = OpConstant %uint 4
+%_ptr_Function_bool = OpTypePointer Function %bool
+      %false = OpConstantFalse %bool
+    %uint_16 = OpConstant %uint 16
+       %true = OpConstantTrue %bool
+  %uint_1000 = OpConstant %uint 1000
+    %uint_63 = OpConstant %uint 63
+
+
+               ; Function clampValue_II
+%clampValue_II = OpFunction %uint None %17
+         %18 = OpFunctionParameter %_ptr_Function_uint
+
+         %19 = OpLabel
+         %20 =   OpLoad %uint %18
+         %22 =   OpUGreaterThan %bool %20 %uint_8
+                 OpSelectionMerge %25 None
+                 OpBranchConditional %22 %24 %25
+
+         %24 =     OpLabel
+         %26 =       OpLoad %uint %18
+         %27 =       OpISub %uint %26 %uint_8
+                     OpReturnValue %27
+
+         %25 = OpLabel
+         %28 =   OpLoad %uint %18
+                 OpReturnValue %28
+               OpFunctionEnd
+
+
+               ; Function main
+       %main = OpFunction %void None %30
+
+         %31 = OpLabel
+         %id =   OpVariable %_ptr_Function_uint Function
+      %value =   OpVariable %_ptr_Function_uint Function
+          %i =   OpVariable %_ptr_Function_uint Function
+         %89 =   OpVariable %_ptr_Function_uint Function
+      %small =   OpVariable %_ptr_Function_bool Function
+      %large =   OpVariable %_ptr_Function_bool Function
+        %113 =   OpVariable %_ptr_Function_uint Function
+        %118 =   OpVariable %_ptr_Function_uint Function
+         %33 =   OpLoad %v3uint %sk_LocalInvocationID
+         %34 =   OpCompositeExtract %uint %33 0
+                 OpStore %id %34
+         %37 =   OpAccessChain %_ptr_Uniform_uint %8 %int_0 %34
+         %39 =   OpLoad %uint %37
+                 OpStore %value %39
+         %41 =   OpUMod %uint %34 %uint_2
+         %43 =   OpIEqual %bool %41 %uint_0
+                 OpSelectionMerge %46 None
+                 OpBranchConditional %43 %44 %45
+
+         %44 =     OpLabel
+         %48 =       OpIAdd %uint %39 %uint_1
+                     OpStore %value %48
+                     OpBranch %46
+
+         %45 =     OpLabel
+         %49 =       OpLoad %uint %value
+         %51 =       OpIMul %uint %49 %uint_3
+                     OpStore %value %51
+                     OpBranch %46
+
+         %46 = OpLabel
+                 OpStore %i %uint_0
+                 OpBranch %53
+
+         %53 = OpLabel
+                 OpLoopMerge %57 %56 None
+                 OpBranch %54
+
+         %54 =     OpLabel
+         %58 =       OpLoad %uint %i
+         %59 =       OpLoad %uint %id
+         %60 =       OpULessThan %bool %58 %59
+                     OpBranchConditional %60 %55 %57
+
+         %55 =         OpLabel
+         %61 =           OpLoad %uint %value
+         %63 =           OpUGreaterThan %bool %61 %uint_100
+                         OpSelectionMerge %65 None
+                         OpBranchConditional %63 %64 %65
+
+         %64 =             OpLabel
+                             OpBranch %57
+
+         %65 =         OpLabel
+         %66 =           OpLoad %uint %i
+         %67 =           OpBitwiseAnd %uint %66 %uint_1
+         %68 =           OpIEqual %bool %67 %uint_1
+                         OpSelectionMerge %70 None
+                         OpBranchConditional %68 %69 %70
+
+         %69 =             OpLabel
+                             OpBranch %56
+
+         %70 =         OpLabel
+         %71 =           OpLoad %uint %value
+         %72 =           OpLoad %uint %i
+         %73 =           OpIAdd %uint %71 %72
+                         OpStore %value %73
+                         OpBranch %56
+
+         %56 =   OpLabel
+         %74 =     OpLoad %uint %i
+         %75 =     OpIAdd %uint %74 %uint_1
+                   OpStore %i %75
+                   OpBranch %53
+
+         %57 = OpLabel
+         %76 =   OpLoad %uint %value
+         %78 =   OpUMod %uint %76 %uint_4
+         %79 =   OpBitcast %int %78
+                 OpSelectionMerge %80 None
+                 OpSwitch %79 %83 0 %81 1 %82
+
+         %81 =     OpLabel
+         %84 =       OpLoad %uint %value
+         %85 =       OpIAdd %uint %84 %uint_4
+                     OpStore %value %85
+                     OpBranch %82
+
+         %82 =     OpLabel
+         %86 =       OpLoad %uint %value
+         %87 =       OpIAdd %uint %86 %uint_1
+                     OpStore %value %87
+                     OpBranch %80
+
+         %83 =     OpLabel
+         %88 =       OpLoad %uint %value
+                     OpStore %89 %88
+         %90 =       OpFunctionCall %uint %clampValue_II %89
+                     OpStore %value %90
+                     OpBranch %80
+
+         %80 = OpLabel
+         %94 =   OpLoad %uint %value
+         %96 =   OpULessThan %bool %94 %uint_16
+                 OpSelectionMerge %98 None
+                 OpBranchConditional %96 %97 %98
+
+         %97 =     OpLabel
+         %99 =       OpLoad %uint %id
+        %100 =       OpINotEqual %bool %99 %uint_0
+                     OpBranch %98
+
+         %98 = OpLabel
+        %101 =   OpPhi %bool %false %80 %100 %97
+                 OpStore %small %101
+        %104 =   OpLoad %uint %value
+        %106 =   OpUGreaterThan %bool %104 %uint_1000
+                 OpSelectionMerge %108 None
+                 OpBranchConditional %106 %108 %107
+
+        %107 =     OpLabel
+        %109 =       OpLoad %uint %id
+        %111 =       OpIEqual %bool %109 %uint_63
+                     OpBranch %108
+
+        %108 = OpLabel
+        %112 =   OpPhi %bool %true %98 %111 %107
+                 OpStore %large %112
+                 OpSelectionMerge %116 None
+                 OpBranchConditional %101 %114 %115
+
+        %114 =     OpLabel
+        %117 =       OpLoad %uint %value
+                     OpStore %113 %117
+                     OpBranch %116
+
+        %115 =     OpLabel
+                     OpSelectionMerge %121 None
+                     OpBranchConditional %112 %119 %120
+
+        %119 =         OpLabel
+                         OpStore %118 %uint_0
+                         OpBranch %121
+
+        %120 =         OpLabel
+        %122 =           OpLoad %uint %value
+        %123 =           OpIAdd %uint %122 %uint_1
+                         OpStore %118 %123
+                         OpBranch %121
+
+        %121 =     OpLabel
+        %124 =       OpLoad %uint %118
+                     OpStore %113 %124
+                     OpBranch %116
+
+        %116 = OpLabel
+        %125 =   OpLoad %uint %113
+        %126 =   OpLoad %uint %id
+        %127 =   OpAccessChain %_ptr_Uniform_uint %8 %int_0 %126
+                 OpStore %127 %125
+                 OpReturn
+               OpFunctionEnd

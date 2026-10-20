@@ -151,6 +151,19 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
         shaderCaps->fFBFetchSupport = true;
         shaderCaps->fFBFetchColorName = "sk_LastFragColor";
     }
+
+    // SIMD-scoped permute operations (broadcast/shuffle/ballot) require Apple6+ or Mac2, and
+    // SIMD-scoped reduction operations (sum/min/max/prefix sums) require Apple7+ or Mac2. See
+    // https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf. fSubgroupSupport covers both.
+    // Intel Gen-9 GPUs miscompute simd_broadcast on half values (crbug.com/391680973), and Dawn
+    // disables subgroups there by default; we conservatively skip all Intel Macs.
+    shaderCaps->fSubgroupSupport =
+            fComputeSupport && !isIntel && (this->isMac() || fGPUFamily >= MTLGPUFamilyApple7);
+
+    // Metal has no reconvergence model to query or opt into. We assume the GPUs above reconverge
+    // SIMD-groups where structured control flow merges (i.e. maximal reconvergence), so compute
+    // shaders don't need barriers to force it. Clear this if a device turns out not to.
+    shaderCaps->fSubgroupMaximalReconvergence = shaderCaps->fSubgroupSupport;
 }
 
 

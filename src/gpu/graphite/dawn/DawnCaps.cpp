@@ -489,6 +489,34 @@ void DawnCaps::initShaderCaps(const wgpu::Device& device) {
         shaderCaps->fFBFetchSupport = true;
     }
 #endif
+
+    // Dawn only exposes Subgroups when vote, ballot, shuffle, and arithmetic operations are all
+    // available in compute, which matches what fSubgroupSupport promises. The client must request
+    // the feature when creating the device.
+    if (device.HasFeature(wgpu::FeatureName::Subgroups)) {
+        shaderCaps->fSubgroupSupport = true;
+    }
+
+    // WebGPU cannot query or request maximal reconvergence. Maximal reconvergence can be toggled
+    // directly through dawn native, but currently dawn does not distinguish between maximal
+    // reconvergence and subgroup uniformity control. In the future these will be differentiated in
+    // dawn, and chromium will attempt to toggle maximal reconvergence.
+    //
+    // For backends other than Vulkan:
+    // - D3D12: HLSL's wave model requires the active lanes to exactly match the programmer's view
+    //   of flow control (https://github.com/microsoft/DirectXShaderCompiler/wiki/Wave-Intrinsics).
+    //   Dawn requires DXC for subgroups on D3D12.
+    // - Metal: assumed, as in MtlCaps.
+    // WASM can't query the backend, so compute shaders there force reconvergence with barriers.
+    shaderCaps->fSubgroupMaximalReconvergence = false;
+#if !defined(__EMSCRIPTEN__)
+    if (shaderCaps->fSubgroupSupport) {
+        wgpu::AdapterInfo info;
+        device.GetAdapter().GetInfo(&info);
+        shaderCaps->fSubgroupMaximalReconvergence = info.backendType == wgpu::BackendType::D3D12 ||
+                                                    info.backendType == wgpu::BackendType::Metal;
+    }
+#endif
 }
 
 // TextureFormat is backed by a uint8_t, so 8 bits are always sufficient (including using

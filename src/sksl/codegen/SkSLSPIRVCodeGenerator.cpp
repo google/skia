@@ -1105,6 +1105,7 @@ static bool is_globally_reachable_op(SpvOp_ op) {
         case SpvOpExecutionMode:
         case SpvOpMemoryModel:
         case SpvOpCapability:
+        case SpvOpExtension:
         case SpvOpExtInstImport:
         case SpvOpEntryPoint:
         case SpvOpSource:
@@ -5753,6 +5754,13 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, SPIRVBlob& ou
         }
     }
     this->writeCapabilities(out);
+    // On Vulkan, maximal reconvergence only applies to entry points that opt in, so this is what
+    // makes ShaderCaps::fSubgroupMaximalReconvergence hold. Subgroups are only exposed in compute.
+    const bool maximallyReconverges = ProgramConfig::IsCompute(program.fConfig->fKind) &&
+                                      fCaps.fSubgroupMaximalReconvergence;
+    if (maximallyReconverges) {
+        this->writeInstruction(SpvOpExtension, "SPV_KHR_maximal_reconvergence", out);
+    }
     this->writeInstruction(SpvOpExtInstImport, fGLSLExtendedInstructions, "GLSL.std.450", out);
     this->writeInstruction(SpvOpMemoryModel, SpvAddressingModelLogical, SpvMemoryModelGLSL450, out);
     this->writeOpCode(SpvOpEntryPoint,
@@ -5785,6 +5793,12 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, SPIRVBlob& ou
                                SpvExecutionModeLocalSize,
                                localSizeX, localSizeY, localSizeZ,
                                out);
+        if (maximallyReconverges) {
+            this->writeInstruction(SpvOpExecutionMode,
+                                   fFunctionMap[mainKey],
+                                   SpvExecutionModeMaximallyReconvergesKHR,
+                                   out);
+        }
     }
     for (const ProgramElement* e : program.elements()) {
         if (e->is<Extension>()) {

@@ -44,6 +44,8 @@ struct VulkanExts {
     bool fHostImageCopyEXT = true;
     bool fPipelineCreationCacheControlEXT = true;
     bool fPipelineProtectedAccessEXT = true;
+    bool fSubgroupSizeControlEXT = true;
+    bool fShaderMaximalReconvergenceKHR = true;
     bool fDriverPropertiesKHR = true;
     bool fCreateRenderpass2KHR = true;
     bool fLoadStoreOpNoneEXT = true;
@@ -95,6 +97,8 @@ static std::vector<VkExtensionProperties> get_device_exts(const VulkanExts& conf
     ADD_EXT(fHostImageCopyEXT, VK_EXT_HOST_IMAGE_COPY);
     ADD_EXT(fPipelineCreationCacheControlEXT, VK_EXT_PIPELINE_CREATION_CACHE_CONTROL);
     ADD_EXT(fPipelineProtectedAccessEXT, VK_EXT_PIPELINE_PROTECTED_ACCESS);
+    ADD_EXT(fSubgroupSizeControlEXT, VK_EXT_SUBGROUP_SIZE_CONTROL);
+    ADD_EXT(fShaderMaximalReconvergenceKHR, VK_KHR_SHADER_MAXIMAL_RECONVERGENCE);
     ADD_EXT(fDriverPropertiesKHR, VK_KHR_DRIVER_PROPERTIES);
     ADD_EXT(fCreateRenderpass2KHR, VK_KHR_CREATE_RENDERPASS_2);
     ADD_EXT(fLoadStoreOpNoneEXT, VK_EXT_LOAD_STORE_OP_NONE);
@@ -156,6 +160,8 @@ static void enable_device_features(const VulkanExts& config, void* basePNext) {
             SET_FEATURES(VULKAN_1_3_FEATURES,
                          Vulkan13Features,
                          SET_IF(fPipelineCreationCacheControlEXT, pipelineCreationCacheControl);
+                         SET_IF(fSubgroupSizeControlEXT, subgroupSizeControl);
+                         SET_IF(fSubgroupSizeControlEXT, computeFullSubgroups);
                          SET_IF(fSynchronization2KHR, synchronization2);
                          SET_IF(fDynamicRenderingKHR, dynamicRendering))
 
@@ -238,6 +244,15 @@ static void enable_device_features(const VulkanExts& config, void* basePNext) {
             SET_FEATURES(PIPELINE_PROTECTED_ACCESS_FEATURES,
                          PipelineProtectedAccessFeatures,
                          SET_IF(fPipelineProtectedAccessEXT, pipelineProtectedAccess))
+
+            SET_FEATURES(SUBGROUP_SIZE_CONTROL_FEATURES,
+                         SubgroupSizeControlFeatures,
+                         SET_IF(fSubgroupSizeControlEXT, subgroupSizeControl);
+                         SET_IF(fSubgroupSizeControlEXT, computeFullSubgroups))
+
+            SET_FEATURES(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR,
+                         ShaderMaximalReconvergenceFeaturesKHR,
+                         SET_IF(fShaderMaximalReconvergenceKHR, shaderMaximalReconvergence))
 
             SET_FEATURES(FRAME_BOUNDARY_FEATURES_EXT,
                          FrameBoundaryFeaturesEXT,
@@ -409,6 +424,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan11, reporter) {
     CHECK_EXT_ENABLED(VK_EXT_HOST_IMAGE_COPY);
     CHECK_EXT_ENABLED(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL);
     CHECK_EXT_ENABLED(VK_EXT_PIPELINE_PROTECTED_ACCESS);
+    CHECK_EXT_ENABLED(VK_EXT_SUBGROUP_SIZE_CONTROL);
     CHECK_EXT_ENABLED(VK_KHR_DRIVER_PROPERTIES);
     CHECK_EXT_ENABLED(VK_KHR_CREATE_RENDERPASS_2);
     CHECK_EXT_DISABLED(VK_EXT_LOAD_STORE_OP_NONE);
@@ -431,6 +447,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan11, reporter) {
     CHECK_EXT_DISABLED(VK_EXT_SAMPLER_FILTER_MINMAX);
     CHECK_EXT_DISABLED(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER);
     CHECK_EXT_DISABLED(VK_KHR_PUSH_DESCRIPTOR);
+    CHECK_EXT_ENABLED(VK_KHR_SHADER_MAXIMAL_RECONVERGENCE);
     CHECK_EXT_ENABLED(VK_EXT_FRAME_BOUNDARY);
 
     CHECK_FEATURE_ENABLED(RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT,
@@ -499,6 +516,15 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan11, reporter) {
                           PipelineProtectedAccessFeatures,
                           pipelineProtectedAccess);
 
+    CHECK_FEATURE_ENABLED(
+            SUBGROUP_SIZE_CONTROL_FEATURES, SubgroupSizeControlFeatures, subgroupSizeControl);
+    CHECK_FEATURE_DISABLED(
+            SUBGROUP_SIZE_CONTROL_FEATURES, SubgroupSizeControlFeatures, computeFullSubgroups);
+
+    CHECK_FEATURE_ENABLED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR,
+                          ShaderMaximalReconvergenceFeaturesKHR,
+                          shaderMaximalReconvergence);
+
     CHECK_FEATURE_ENABLED(FRAME_BOUNDARY_FEATURES_EXT,
                           FrameBoundaryFeaturesEXT,
                           frameBoundary);
@@ -550,6 +576,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan12, reporter) {
     CHECK_EXT_ENABLED(VK_EXT_HOST_IMAGE_COPY);
     CHECK_EXT_ENABLED(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL);
     CHECK_EXT_ENABLED(VK_EXT_PIPELINE_PROTECTED_ACCESS);
+    CHECK_EXT_ENABLED(VK_EXT_SUBGROUP_SIZE_CONTROL);
     CHECK_EXT_DISABLED(VK_KHR_DRIVER_PROPERTIES);
     CHECK_EXT_DISABLED(VK_KHR_CREATE_RENDERPASS_2);
     CHECK_EXT_DISABLED(VK_EXT_LOAD_STORE_OP_NONE);
@@ -566,6 +593,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan12, reporter) {
     CHECK_EXT_DISABLED(VK_EXT_SAMPLER_FILTER_MINMAX);
     CHECK_EXT_DISABLED(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER);
     CHECK_EXT_DISABLED(VK_KHR_PUSH_DESCRIPTOR);
+    CHECK_EXT_ENABLED(VK_KHR_SHADER_MAXIMAL_RECONVERGENCE);
     CHECK_EXT_ENABLED(VK_EXT_FRAME_BOUNDARY);
 
     CHECK_EXCLUSIVE(VULKAN_1_1_FEATURES, 16BIT_STORAGE_FEATURES);
@@ -664,6 +692,15 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan12, reporter) {
                           PipelineProtectedAccessFeatures,
                           pipelineProtectedAccess);
 
+    CHECK_FEATURE_ENABLED(
+            SUBGROUP_SIZE_CONTROL_FEATURES, SubgroupSizeControlFeatures, subgroupSizeControl);
+    CHECK_FEATURE_DISABLED(
+            SUBGROUP_SIZE_CONTROL_FEATURES, SubgroupSizeControlFeatures, computeFullSubgroups);
+
+    CHECK_FEATURE_ENABLED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR,
+                          ShaderMaximalReconvergenceFeaturesKHR,
+                          shaderMaximalReconvergence);
+
     CHECK_FEATURE_ENABLED(FRAME_BOUNDARY_FEATURES_EXT,
                           FrameBoundaryFeaturesEXT,
                           frameBoundary);
@@ -715,6 +752,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan13, reporter) {
     CHECK_EXT_ENABLED(VK_EXT_HOST_IMAGE_COPY);
     CHECK_EXT_DISABLED(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL);
     CHECK_EXT_ENABLED(VK_EXT_PIPELINE_PROTECTED_ACCESS);
+    CHECK_EXT_DISABLED(VK_EXT_SUBGROUP_SIZE_CONTROL);
     CHECK_EXT_DISABLED(VK_KHR_DRIVER_PROPERTIES);
     CHECK_EXT_DISABLED(VK_KHR_CREATE_RENDERPASS_2);
     CHECK_EXT_DISABLED(VK_EXT_LOAD_STORE_OP_NONE);
@@ -731,6 +769,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan13, reporter) {
     CHECK_EXT_DISABLED(VK_EXT_SAMPLER_FILTER_MINMAX);
     CHECK_EXT_DISABLED(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER);
     CHECK_EXT_DISABLED(VK_KHR_PUSH_DESCRIPTOR);
+    CHECK_EXT_ENABLED(VK_KHR_SHADER_MAXIMAL_RECONVERGENCE);
     CHECK_EXT_ENABLED(VK_EXT_FRAME_BOUNDARY);
 
     CHECK_EXCLUSIVE(VULKAN_1_1_FEATURES, 16BIT_STORAGE_FEATURES);
@@ -775,6 +814,9 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan13, reporter) {
     CHECK_FEATURE_DISABLED(VULKAN_1_2_FEATURES, Vulkan12Features, shaderOutputLayer);
 
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, pipelineCreationCacheControl);
+    CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, subgroupSizeControl);
+    CHECK_FEATURE_DISABLED(VULKAN_1_3_FEATURES, Vulkan13Features, computeFullSubgroups);
+    CHECK_NOT_CHAINED(SUBGROUP_SIZE_CONTROL_FEATURES);
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, synchronization2);
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, dynamicRendering);
 
@@ -844,6 +886,10 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan13, reporter) {
                           PipelineProtectedAccessFeatures,
                           pipelineProtectedAccess);
 
+    CHECK_FEATURE_ENABLED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR,
+                          ShaderMaximalReconvergenceFeaturesKHR,
+                          shaderMaximalReconvergence);
+
     CHECK_FEATURE_ENABLED(FRAME_BOUNDARY_FEATURES_EXT,
                           FrameBoundaryFeaturesEXT,
                           frameBoundary);
@@ -895,6 +941,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan14, reporter) {
     CHECK_EXT_DISABLED(VK_EXT_HOST_IMAGE_COPY);
     CHECK_EXT_DISABLED(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL);
     CHECK_EXT_DISABLED(VK_EXT_PIPELINE_PROTECTED_ACCESS);
+    CHECK_EXT_DISABLED(VK_EXT_SUBGROUP_SIZE_CONTROL);
     CHECK_EXT_DISABLED(VK_KHR_DRIVER_PROPERTIES);
     CHECK_EXT_DISABLED(VK_KHR_CREATE_RENDERPASS_2);
     CHECK_EXT_DISABLED(VK_EXT_LOAD_STORE_OP_NONE);
@@ -911,6 +958,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan14, reporter) {
     CHECK_EXT_DISABLED(VK_EXT_SAMPLER_FILTER_MINMAX);
     CHECK_EXT_DISABLED(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER);
     CHECK_EXT_DISABLED(VK_KHR_PUSH_DESCRIPTOR);
+    CHECK_EXT_ENABLED(VK_KHR_SHADER_MAXIMAL_RECONVERGENCE);
     CHECK_EXT_ENABLED(VK_EXT_FRAME_BOUNDARY);
 
     CHECK_EXCLUSIVE(VULKAN_1_1_FEATURES, 16BIT_STORAGE_FEATURES);
@@ -967,6 +1015,9 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan14, reporter) {
     CHECK_FEATURE_DISABLED(VULKAN_1_2_FEATURES, Vulkan12Features, shaderOutputLayer);
 
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, pipelineCreationCacheControl);
+    CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, subgroupSizeControl);
+    CHECK_FEATURE_DISABLED(VULKAN_1_3_FEATURES, Vulkan13Features, computeFullSubgroups);
+    CHECK_NOT_CHAINED(SUBGROUP_SIZE_CONTROL_FEATURES);
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, synchronization2);
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, dynamicRendering);
 
@@ -1040,6 +1091,10 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan14, reporter) {
                            PipelineProtectedAccessFeatures,
                            pipelineProtectedAccess);
 
+    CHECK_FEATURE_ENABLED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR,
+                          ShaderMaximalReconvergenceFeaturesKHR,
+                          shaderMaximalReconvergence);
+
     CHECK_FEATURE_ENABLED(FRAME_BOUNDARY_FEATURES_EXT,
                           FrameBoundaryFeaturesEXT,
                           frameBoundary);
@@ -1071,6 +1126,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan11, reporter) {
     config.fExtendedDynamicState2EXT = false;
     config.fCreateRenderpass2KHR = false;
     config.fFrameBoundaryEXT = false;
+    config.fShaderMaximalReconvergenceKHR = false;
 
     const std::vector<VkExtensionProperties> exts = get_device_exts(config);
 
@@ -1142,6 +1198,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan11, reporter) {
     CHECK_EXT_ENABLED(VK_EXT_SUBGROUP_SIZE_CONTROL);
     CHECK_EXT_ENABLED(VK_KHR_MAINTENANCE_4);
     CHECK_EXT_ENABLED(VK_KHR_PUSH_DESCRIPTOR);
+    CHECK_EXT_DISABLED(VK_KHR_SHADER_MAXIMAL_RECONVERGENCE);
     CHECK_EXT_DISABLED(VK_EXT_FRAME_BOUNDARY);
 
     CHECK_FEATURE_ENABLED(RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT,
@@ -1211,9 +1268,14 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan11, reporter) {
     // Features enabled by the app must remain enabled
     CHECK_FEATURE_ENABLED(
             SUBGROUP_SIZE_CONTROL_FEATURES, SubgroupSizeControlFeatures, subgroupSizeControl);
+    // Skia only disables computeFullSubgroups in its own struct; the app's struct is untouched.
+    CHECK_FEATURE_ENABLED(
+            SUBGROUP_SIZE_CONTROL_FEATURES, SubgroupSizeControlFeatures, computeFullSubgroups);
     CHECK_FEATURE_ENABLED(SHADER_OBJECT_FEATURES_EXT, ShaderObjectFeaturesEXT, shaderObject);
     CHECK_FEATURE_ENABLED(MAINTENANCE_5_FEATURES, Maintenance5Features, maintenance5);
     CHECK_FEATURE_ENABLED(HOST_IMAGE_COPY_FEATURES, HostImageCopyFeatures, hostImageCopy);
+
+    CHECK_NOT_CHAINED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR);
 
     CHECK_FEATURE_DISABLED(FRAME_BOUNDARY_FEATURES_EXT,
                           FrameBoundaryFeaturesEXT,
@@ -1256,6 +1318,9 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan12, reporter) {
           PipelineCreationCacheControlFeatures,
           pipelineCreationCacheControl);
     CHAIN(SHADER_ATOMIC_INT64_FEATURES, ShaderAtomicInt64Features, shaderSharedInt64Atomics);
+    CHAIN(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR,
+          ShaderMaximalReconvergenceFeaturesKHR,
+          shaderMaximalReconvergence);
 
     // Ask Skia to add its features to query
     preferred.addFeaturesToQuery(exts.data(), exts.size(), features);
@@ -1269,6 +1334,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan12, reporter) {
     ADDEXT(VK_KHR_SHADER_DRAW_PARAMETERS);
     ADDEXT(VK_EXT_DESCRIPTOR_INDEXING);
     ADDEXT(VK_KHR_SAMPLER_MIRROR_CLAMP_TO_EDGE);
+    ADDEXT(VK_KHR_SHADER_MAXIMAL_RECONVERGENCE);
 
     // Ask Skia to enable available features
     preferred.addFeaturesToEnable(enabledExts, features);
@@ -1296,6 +1362,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan12, reporter) {
     CHECK_EXT_DISABLED(VK_EXT_HOST_IMAGE_COPY);
     CHECK_EXT_ENABLED(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL);
     CHECK_EXT_ENABLED(VK_EXT_PIPELINE_PROTECTED_ACCESS);
+    CHECK_EXT_ENABLED(VK_EXT_SUBGROUP_SIZE_CONTROL);
     CHECK_EXT_DISABLED(VK_KHR_DRIVER_PROPERTIES);
     CHECK_EXT_DISABLED(VK_KHR_CREATE_RENDERPASS_2);
     CHECK_EXT_DISABLED(VK_EXT_LOAD_STORE_OP_NONE);
@@ -1315,6 +1382,8 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan12, reporter) {
     CHECK_EXT_ENABLED(VK_KHR_SHADER_DRAW_PARAMETERS);
     CHECK_EXT_ENABLED(VK_EXT_DESCRIPTOR_INDEXING);
     CHECK_EXT_ENABLED(VK_KHR_SAMPLER_MIRROR_CLAMP_TO_EDGE);
+    // Enabled by the app; must not be added a second time.
+    CHECK_EXT_ENABLED(VK_KHR_SHADER_MAXIMAL_RECONVERGENCE);
     CHECK_EXT_DISABLED(VK_EXT_FRAME_BOUNDARY);
 
     CHECK_FEATURE_ENABLED(VULKAN_1_1_FEATURES, Vulkan11Features, samplerYcbcrConversion);
@@ -1430,10 +1499,18 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan12, reporter) {
     // Features enabled by the app must remain enabled
     CHECK_FEATURE_ENABLED(
             SUBGROUP_SIZE_CONTROL_FEATURES, SubgroupSizeControlFeatures, subgroupSizeControl);
+    // Skia only disables computeFullSubgroups in its own struct; the app's struct is untouched.
+    CHECK_FEATURE_ENABLED(
+            SUBGROUP_SIZE_CONTROL_FEATURES, SubgroupSizeControlFeatures, computeFullSubgroups);
     CHECK_FEATURE_ENABLED(SHADER_OBJECT_FEATURES_EXT, ShaderObjectFeaturesEXT, shaderObject);
     CHECK_FEATURE_ENABLED(PIPELINE_CREATION_CACHE_CONTROL_FEATURES,
                           PipelineCreationCacheControlFeatures,
                           pipelineCreationCacheControl);
+    // The app's struct is kept and Skia doesn't chain a second one.
+    CHECK_CHAINED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR);
+    CHECK_FEATURE_ENABLED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR,
+                          ShaderMaximalReconvergenceFeaturesKHR,
+                          shaderMaximalReconvergence);
 
     CHECK_FEATURE_DISABLED(FRAME_BOUNDARY_FEATURES_EXT,
                           FrameBoundaryFeaturesEXT,
@@ -1482,11 +1559,17 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan13, reporter) {
     CHAIN(PIPELINE_CREATION_CACHE_CONTROL_FEATURES,
           PipelineCreationCacheControlFeatures,
           pipelineCreationCacheControl);
+    CHAIN(SUBGROUP_SIZE_CONTROL_FEATURES, SubgroupSizeControlFeatures, computeFullSubgroups);
+    CHAIN(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR,
+          ShaderMaximalReconvergenceFeaturesKHR,
+          shaderMaximalReconvergence);
 
     // Ask Skia to add its features to query
     preferred.addFeaturesToQuery(exts.data(), exts.size(), features);
     // Populate the requested features
     enable_device_features(config, features.pNext);
+    // The app queries maximal reconvergence but doesn't request it; Skia should enable it anyway.
+    appShaderMaximalReconvergenceFeaturesKHR.shaderMaximalReconvergence = VK_FALSE;
 
     std::vector<const char*> enabledExts;
     ADDEXT(VK_EXT_SHADER_OBJECT);
@@ -1512,6 +1595,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan13, reporter) {
     CHECK_NOT_CHAINED(SYNCHRONIZATION_2_FEATURES);
     CHECK_NOT_CHAINED(SHADER_INTEGER_DOT_PRODUCT_FEATURES);
     CHECK_NOT_CHAINED(PIPELINE_CREATION_CACHE_CONTROL_FEATURES);
+    CHECK_NOT_CHAINED(SUBGROUP_SIZE_CONTROL_FEATURES);
 
     CHECK_EXT_DISABLED(VK_ARM_RASTERIZATION_ORDER_ATTACHMENT_ACCESS);
     CHECK_EXT_ENABLED(VK_EXT_RASTERIZATION_ORDER_ATTACHMENT_ACCESS);
@@ -1527,6 +1611,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan13, reporter) {
     CHECK_EXT_DISABLED(VK_EXT_HOST_IMAGE_COPY);
     CHECK_EXT_DISABLED(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL);
     CHECK_EXT_ENABLED(VK_EXT_PIPELINE_PROTECTED_ACCESS);
+    CHECK_EXT_DISABLED(VK_EXT_SUBGROUP_SIZE_CONTROL);
     CHECK_EXT_DISABLED(VK_KHR_CREATE_RENDERPASS_2);
     CHECK_EXT_DISABLED(VK_EXT_LOAD_STORE_OP_NONE);
     CHECK_EXT_ENABLED(VK_KHR_LOAD_STORE_OP_NONE);
@@ -1546,6 +1631,8 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan13, reporter) {
     CHECK_EXT_ENABLED(VK_KHR_SHADER_DRAW_PARAMETERS);
     CHECK_EXT_ENABLED(VK_EXT_DESCRIPTOR_INDEXING);
     CHECK_EXT_ENABLED(VK_KHR_DYNAMIC_RENDERING);
+    // The app chained the struct without enabling the extension; Skia adds it.
+    CHECK_EXT_ENABLED(VK_KHR_SHADER_MAXIMAL_RECONVERGENCE);
     CHECK_EXT_ENABLED(VK_EXT_FRAME_BOUNDARY);
 
     CHECK_FEATURE_ENABLED(VULKAN_1_1_FEATURES, Vulkan11Features, multiview);
@@ -1608,6 +1695,8 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan13, reporter) {
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, dynamicRendering);
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, synchronization2);
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, pipelineCreationCacheControl);
+    CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, subgroupSizeControl);
+    CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, computeFullSubgroups);
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, shaderIntegerDotProduct);
     CHECK_FEATURE_ENABLED(
             VULKAN_1_3_FEATURES, Vulkan13Features, shaderZeroInitializeWorkgroupMemory);
@@ -1654,6 +1743,13 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan13, reporter) {
 
     // Features enabled by the app must remain enabled
     CHECK_FEATURE_ENABLED(SHADER_OBJECT_FEATURES_EXT, ShaderObjectFeaturesEXT, shaderObject);
+
+    // The app's struct is kept (Skia doesn't chain a second one) and Skia enables the feature the
+    // app left disabled.
+    CHECK_CHAINED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR);
+    CHECK_FEATURE_ENABLED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR,
+                          ShaderMaximalReconvergenceFeaturesKHR,
+                          shaderMaximalReconvergence);
 
     CHECK_FEATURE_ENABLED(FRAME_BOUNDARY_FEATURES_EXT,
                           FrameBoundaryFeaturesEXT,
@@ -1737,6 +1833,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan14, reporter) {
     CHECK_EXT_DISABLED(VK_EXT_HOST_IMAGE_COPY);
     CHECK_EXT_DISABLED(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL);
     CHECK_EXT_DISABLED(VK_EXT_PIPELINE_PROTECTED_ACCESS);
+    CHECK_EXT_DISABLED(VK_EXT_SUBGROUP_SIZE_CONTROL);
     CHECK_EXT_DISABLED(VK_KHR_DRIVER_PROPERTIES);
     CHECK_EXT_DISABLED(VK_KHR_CREATE_RENDERPASS_2);
     CHECK_EXT_DISABLED(VK_EXT_LOAD_STORE_OP_NONE);
@@ -1757,6 +1854,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan14, reporter) {
     CHECK_EXT_ENABLED(VK_EXT_SHADER_OBJECT);
     CHECK_EXT_ENABLED(VK_EXT_DESCRIPTOR_INDEXING);
     CHECK_EXT_ENABLED(VK_KHR_DYNAMIC_RENDERING_LOCAL_READ);
+    CHECK_EXT_ENABLED(VK_KHR_SHADER_MAXIMAL_RECONVERGENCE);
     CHECK_EXT_ENABLED(VK_EXT_FRAME_BOUNDARY);
 
     CHECK_FEATURE_ENABLED(VULKAN_1_1_FEATURES, Vulkan11Features, samplerYcbcrConversion);
@@ -1774,6 +1872,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan14, reporter) {
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, dynamicRendering);
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, synchronization2);
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, pipelineCreationCacheControl);
+    CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, subgroupSizeControl);
 
     CHECK_FEATURE_ENABLED(VULKAN_1_4_FEATURES, Vulkan14Features, maintenance5);
     CHECK_FEATURE_ENABLED(VULKAN_1_4_FEATURES, Vulkan14Features, maintenance6);
@@ -1819,6 +1918,11 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan14, reporter) {
     // Features enabled by the app must remain enabled
     CHECK_FEATURE_ENABLED(SHADER_OBJECT_FEATURES_EXT, ShaderObjectFeaturesEXT, shaderObject);
 
+    // Not promoted to core, so Skia chains its own struct even with Vulkan 1.4.
+    CHECK_CHAINED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR);
+    CHECK_FEATURE_ENABLED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR,
+                          ShaderMaximalReconvergenceFeaturesKHR,
+                          shaderMaximalReconvergence);
 
     CHECK_FEATURE_ENABLED(FRAME_BOUNDARY_FEATURES_EXT,
                           FrameBoundaryFeaturesEXT,
@@ -1901,6 +2005,7 @@ DEF_TEST(VkPreferredFeaturesTest_EmptyEnableChain, reporter) {
     //CHECK_EXT_ENABLED(VK_EXT_HOST_IMAGE_COPY);
     CHECK_EXT_DISABLED(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL);
     CHECK_EXT_ENABLED(VK_EXT_PIPELINE_PROTECTED_ACCESS);
+    CHECK_EXT_DISABLED(VK_EXT_SUBGROUP_SIZE_CONTROL);
     CHECK_EXT_DISABLED(VK_KHR_DRIVER_PROPERTIES);
     CHECK_EXT_DISABLED(VK_KHR_CREATE_RENDERPASS_2);
     CHECK_EXT_DISABLED(VK_EXT_LOAD_STORE_OP_NONE);
@@ -1920,6 +2025,7 @@ DEF_TEST(VkPreferredFeaturesTest_EmptyEnableChain, reporter) {
     CHECK_EXT_ENABLED(VK_KHR_MAINTENANCE_5);
     CHECK_EXT_ENABLED(VK_KHR_PUSH_DESCRIPTOR);
     CHECK_EXT_ENABLED(VK_EXT_SHADER_OBJECT);
+    CHECK_EXT_ENABLED(VK_KHR_SHADER_MAXIMAL_RECONVERGENCE);
     CHECK_EXT_DISABLED(VK_EXT_FRAME_BOUNDARY);
 
     CHECK_FEATURE_ENABLED(VULKAN_1_1_FEATURES, Vulkan11Features, samplerYcbcrConversion);
@@ -1936,6 +2042,9 @@ DEF_TEST(VkPreferredFeaturesTest_EmptyEnableChain, reporter) {
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, dynamicRendering);
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, synchronization2);
     CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, pipelineCreationCacheControl);
+    CHECK_FEATURE_ENABLED(VULKAN_1_3_FEATURES, Vulkan13Features, subgroupSizeControl);
+    CHECK_FEATURE_DISABLED(VULKAN_1_3_FEATURES, Vulkan13Features, computeFullSubgroups);
+    CHECK_NOT_CHAINED(SUBGROUP_SIZE_CONTROL_FEATURES);
 
     CHECK_FEATURE_ENABLED(RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT,
                           RasterizationOrderAttachmentAccessFeaturesEXT,
@@ -1978,6 +2087,12 @@ DEF_TEST(VkPreferredFeaturesTest_EmptyEnableChain, reporter) {
     // Features enabled by the app must remain enabled
     CHECK_FEATURE_ENABLED(SHADER_OBJECT_FEATURES_EXT, ShaderObjectFeaturesEXT, shaderObject);
     CHECK_FEATURE_ENABLED(MAINTENANCE_5_FEATURES, Maintenance5Features, maintenance5);
+
+    // Not in the app's new chain, so Skia must add its own struct back.
+    CHECK_CHAINED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR);
+    CHECK_FEATURE_ENABLED(SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR,
+                          ShaderMaximalReconvergenceFeaturesKHR,
+                          shaderMaximalReconvergence);
 
     CHECK_FEATURE_DISABLED(FRAME_BOUNDARY_FEATURES_EXT,
                            FrameBoundaryFeaturesEXT,

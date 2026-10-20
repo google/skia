@@ -1,0 +1,55 @@
+/*#pragma settings SubgroupMaximalReconvergence*/
+
+// When the caps guarantee maximal reconvergence, SPIR-V compute programs opt into it with
+// SPV_KHR_maximal_reconvergence. That execution mode adds CFG rules (distinct branch targets, and
+// only merge/continue/switch targets may have multiple predecessors), which the divergent control
+// flow below must satisfy for the module to validate.
+
+layout(local_size_x = 64) in;
+
+layout(set=0, binding=0) buffer outputBlock {
+    uint[] values;
+};
+
+noinline uint clampValue(uint x) {
+    if (x > 8) {
+        return x - 8;
+    }
+    return x;
+}
+
+void main() {
+    uint id = sk_LocalInvocationID.x;
+    uint value = values[id];
+
+    if (id % 2 == 0) {
+        value += 1;
+    } else {
+        value *= 3;
+    }
+
+    for (uint i = 0; i < id; ++i) {
+        if (value > 100) {
+            break;
+        }
+        if ((i & 1) == 1) {
+            continue;
+        }
+        value += i;
+    }
+
+    switch (int(value % 4)) {
+        case 0:
+            value += 4;
+        case 1:
+            value += 1;
+            break;
+        default:
+            value = clampValue(value);
+            break;
+    }
+
+    bool small = value < 16 && id != 0;
+    bool large = value > 1000 || id == 63;
+    values[id] = small ? value : (large ? 0 : value + 1);
+}

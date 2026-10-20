@@ -303,6 +303,16 @@ public:
         return sCaps;
     }
 
+    static const SkSL::ShaderCaps* SubgroupMaximalReconvergence() {
+        static const SkSL::ShaderCaps* sCaps = [] {
+            std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
+            caps->fSubgroupSupport = true;
+            caps->fSubgroupMaximalReconvergence = true;
+            return caps.release();
+        }();
+        return sCaps;
+    }
+
     static const SkSL::ShaderCaps* UnfoldShortCircuitAsTernary() {
         static const SkSL::ShaderCaps* sCaps = [] {
             std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
@@ -434,6 +444,9 @@ static bool detect_shader_settings(const std::string& text,
                 }
                 if (consume_suffix(&settingsText, " ShaderDerivativeExtensionString")) {
                     *caps = Factory::ShaderDerivativeExtensionString();
+                }
+                if (consume_suffix(&settingsText, " SubgroupMaximalReconvergence")) {
+                    *caps = Factory::SubgroupMaximalReconvergence();
                 }
                 if (consume_suffix(&settingsText, " UnfoldShortCircuitAsTernary")) {
                     *caps = Factory::UnfoldShortCircuitAsTernary();
