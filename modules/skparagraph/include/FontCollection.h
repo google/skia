@@ -15,8 +15,8 @@
 namespace skia {
 namespace textlayout {
 
-class TextStyle;
 class Paragraph;
+class TextStyle;
 class FontCollection : public SkRefCnt {
 public:
     FontCollection();
@@ -61,6 +61,8 @@ private:
     std::unique_ptr<FaceCache> fFaceCache;
     struct VariationCache;
     std::unique_ptr<VariationCache> fVariationCache;
+    struct FallbackCache;
+    std::unique_ptr<FallbackCache> fFallbackCache;
     bool fEnableFontFallback;
     sk_sp<SkFontMgr> fDefaultFontManager;
     sk_sp<SkFontMgr> fAssetFontManager;

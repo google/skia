@@ -125,27 +125,6 @@ private:
     std::shared_ptr<Run> fCurrentRun;
     std::deque<RunBlock> fUnresolvedBlocks;
     std::vector<RunBlock> fResolvedBlocks;
-
-    // Keeping all resolved typefaces
-    struct FontKey {
-
-        FontKey() {}
-
-        FontKey(SkUnichar unicode, SkFontStyle fontStyle, SkString locale, const std::optional<FontArguments>& fontArgs)
-                : fUnicode(unicode), fFontStyle(fontStyle), fLocale(std::move(locale)), fFontArgs(fontArgs) { }
-        SkUnichar fUnicode;
-        SkFontStyle fFontStyle;
-        SkString fLocale;
-        std::optional<FontArguments> fFontArgs;
-
-        bool operator==(const FontKey& other) const;
-
-        struct Hasher {
-            uint32_t operator()(const FontKey& key) const;
-        };
-    };
-
-    skia_private::THashMap<FontKey, sk_sp<SkTypeface>, FontKey::Hasher> fFallbackFonts;
 };
 
 }  // namespace textlayout

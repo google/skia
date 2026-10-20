@@ -38,6 +38,7 @@
 #include "modules/skparagraph/tests/SkShaperJSONWriter.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
 #include "modules/skshaper/utils/FactoryHelpers.h"
+#include "src/core/SkExecutors.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTSort.h"
 #include "src/core/SkTaskGroup.h"
@@ -11631,4 +11632,219 @@ DEF_TEST(SkParagraph_CrLfDoesNotRequestFallback, reporter) {
     auto lfLfHeight = check("LF LF", "a\n\nb", 3);
     auto crLfCrLfHeight = check("CR LF CR LF", "a\r\n\r\nb", 3);
     REPORTER_ASSERT(reporter, crLfCrLfHeight == lfLfHeight);
+}
+
+namespace {
+std::unique_ptr<Paragraph> layoutWith(sk_sp<FontCollection> fontCollection, const char* text) {
+    ParagraphStyle paragraphStyle;
+    TextStyle textStyle;
+    textStyle.setFontSize(30.0f);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+    builder.pushStyle(textStyle);
+    builder.addText(text);
+    builder.pop();
+    auto paragraph = builder.Build();
+    paragraph->layout(1000.0f);
+    return paragraph;
+}
+// Forwards to another font manager and counts the fallback queries.
+class CountingFontMgr : public SkFontMgr {
+public:
+    explicit CountingFontMgr(sk_sp<SkFontMgr> fontMgr) : fFontMgr(std::move(fontMgr)) {}
+    mutable int fCharacterMatches = 0;
+    mutable int fFamilyStyleMatches = 0;
+
+protected:
+    int onCountFamilies() const override { return fFontMgr->countFamilies(); }
+    void onGetFamilyName(int index, SkString* familyName) const override {
+        fFontMgr->getFamilyName(index, familyName);
+    }
+    sk_sp<SkFontStyleSet> onCreateStyleSet(int index) const override {
+        return fFontMgr->createStyleSet(index);
+    }
+    sk_sp<SkFontStyleSet> onMatchFamily(const char familyName[]) const override {
+        return fFontMgr->matchFamily(familyName);
+    }
+    sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[],
+                                         const SkFontStyle& style) const override {
+        ++fFamilyStyleMatches;
+        return fFontMgr->matchFamilyStyle(familyName, style);
+    }
+    sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char familyName[],
+                                                  const SkFontStyle& style,
+                                                  const char* bcp47[],
+                                                  int bcp47Count,
+                                                  SkUnichar character) const override {
+        ++fCharacterMatches;
+        return fFontMgr->matchFamilyStyleCharacter(familyName, style, bcp47, bcp47Count, character);
+    }
+    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
+        return fFontMgr->makeFromData(std::move(data), ttcIndex);
+    }
+    sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
+                                            int ttcIndex) const override {
+        return fFontMgr->makeFromStream(std::move(stream), ttcIndex);
+    }
+    sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
+                                           const SkFontArguments& args) const override {
+        return fFontMgr->makeFromStream(std::move(stream), args);
+    }
+    sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
+        return fFontMgr->makeFromFile(path, ttcIndex);
+    }
+    sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[],
+                                           SkFontStyle style) const override {
+        return fFontMgr->legacyMakeTypeface(familyName, style);
+    }
+
+private:
+    sk_sp<SkFontMgr> fFontMgr;
+};
+}  // namespace
+
+// Paragraphs with different text must share the system fallback results
+DEF_TEST(SkParagraph_FallbackCacheAcrossParagraphs, reporter) {
+    auto fontMgr = sk_make_sp<CountingFontMgr>(ToolUtils::TestFontMgr());
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(fontMgr);
+    auto queries = [&] { return fontMgr->fCharacterMatches + fontMgr->fFamilyStyleMatches; };
+
+    auto first = layoutWith(fontCollection, "a 一 ❯ \U0001F600");
+    const int firstQueries = queries();
+    REPORTER_ASSERT(reporter, firstQueries > 0);
+    auto second = layoutWith(fontCollection, "b 一 ❯ \U0001F600");
+    REPORTER_ASSERT(reporter, queries() == firstQueries);
+    // A cached fallback must give the same font as a new query
+    auto family = [](Paragraph* paragraph, TextIndex index) {
+        SkString name;
+        if (SkTypeface* typeface = paragraph->getFontAt(index).getTypeface()) {
+            typeface->getFamilyName(&name);
+        }
+        return name;
+    };
+    for (TextIndex index = 2; index < 14; ++index) {
+        REPORTER_ASSERT(reporter, family(first.get(), index) == family(second.get(), index));
+    }
+
+    fontCollection->clearCaches();
+    layoutWith(fontCollection, "c 一 ❯ \U0001F600");
+    REPORTER_ASSERT(reporter, queries() == 2 * firstQueries);
+
+    auto otherFontMgr = sk_make_sp<CountingFontMgr>(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(otherFontMgr);
+    layoutWith(fontCollection, "d 一 ❯ \U0001F600");
+    REPORTER_ASSERT(
+            reporter,
+            otherFontMgr->fCharacterMatches + otherFontMgr->fFamilyStyleMatches == firstQueries);
+
+    // Distinct emoji codepoints must not re-query family-based Apple Color Emoji fallback
+    layoutWith(fontCollection, "e 一 ❯ \U0001F602");
+    REPORTER_ASSERT(reporter, otherFontMgr->fFamilyStyleMatches <= 1);
+
+    // Emoji fallback must work when only a non-default font manager is configured
+    auto testFontMgr = sk_make_sp<CountingFontMgr>(ToolUtils::TestFontMgr());
+    auto testCollection = sk_make_sp<FontCollection>();
+    testCollection->setTestFontManager(testFontMgr);
+    testCollection->defaultEmojiFallback(0x1F600, SkFontStyle(), SkString());
+    testCollection->defaultEmojiFallback(0x1F602, SkFontStyle(), SkString());
+    REPORTER_ASSERT(reporter, testFontMgr->fFamilyStyleMatches <= 1);
+
+    // Styles with different families[0] in one paragraph must not share fallback entries
+    auto layoutTwoFamilies = [&](const char* firstFamily, const char* secondFamily) {
+        ParagraphStyle paragraphStyle;
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        TextStyle firstStyle;
+        firstStyle.setFontFamilies({SkString(firstFamily)});
+        builder.pushStyle(firstStyle);
+        builder.addText("一");
+        builder.pop();
+        TextStyle secondStyle;
+        secondStyle.setFontFamilies({SkString(secondFamily)});
+        builder.pushStyle(secondStyle);
+        builder.addText("一");
+        builder.pop();
+        auto paragraph = builder.Build();
+        paragraph->layout(1000.0f);
+    };
+    const int beforeFamilies = otherFontMgr->fCharacterMatches;
+    layoutTwoFamilies("FamilyA", "FamilyB");
+    REPORTER_ASSERT(reporter, otherFontMgr->fCharacterMatches == beforeFamilies + 2);
+    layoutTwoFamilies("FamilyB", "FamilyA");
+    REPORTER_ASSERT(reporter, otherFontMgr->fCharacterMatches == beforeFamilies + 2);
+}
+
+// The fallback cache must not grow with each new codepoint
+DEF_TEST(SkParagraph_FallbackCacheIsBounded, reporter) {
+    auto fallbackMgr = sk_make_sp<CountingFallbackFontMgr>();
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(fallbackMgr);
+    auto queriesAfter = [&](SkUnichar unicode) {
+        fontCollection->defaultFallback(unicode, {}, SkFontStyle(), SkString(), std::nullopt);
+        return fallbackMgr->fallbackCount();
+    };
+
+    // All 65536 codepoints of Supplementary Private Use Area-A, more than the cache keeps
+    for (SkUnichar unicode = 0xF0000; unicode <= 0xFFFFF; ++unicode) {
+        queriesAfter(unicode);
+    }
+    const int queries = fallbackMgr->fallbackCount();
+    REPORTER_ASSERT(reporter, queries == 0x10000);
+    REPORTER_ASSERT(reporter, queriesAfter(0xFFFFF) == queries);
+    REPORTER_ASSERT(reporter, queriesAfter(0xF0000) == queries + 1);
+}
+
+// Threads that share one FontCollection must get the same fallback results as one thread
+DEF_TEST(SkParagraph_FallbackCacheConcurrently, reporter) {
+    constexpr int kThreadCount = 8;
+    constexpr int kRounds = 10;
+    std::vector<SkUnichar> codepoints = {'a', 0x276F};
+    for (SkUnichar unicode = 0x4E00; unicode < 0x4E00 + 100; ++unicode) {
+        codepoints.push_back(unicode);
+    }
+    auto familyOf = [](const sk_sp<SkTypeface>& typeface) {
+        SkString name;
+        if (typeface) {
+            typeface->getFamilyName(&name);
+        }
+        return name;
+    };
+    // cloneTypeface() locks fVariationCache after the fallback cache lock is released
+    const FontArguments fontArgs(SkFontArguments().setCollectionIndex(0));
+    auto resolve = [&](FontCollection* fontCollection, size_t index) {
+        if (index % 2) {
+            return familyOf(
+                    fontCollection->defaultEmojiFallback(0x1F600, SkFontStyle(), SkString()));
+        }
+        return familyOf(fontCollection->defaultFallback(
+                codepoints[index / 2], {}, SkFontStyle(), SkString(), fontArgs));
+    };
+    const size_t kLookups = 2 * codepoints.size();
+
+    auto expectedCollection = sk_make_sp<FontCollection>();
+    expectedCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    std::vector<SkString> expected(kLookups);
+    for (size_t i = 0; i < kLookups; ++i) {
+        expected[i] = resolve(expectedCollection.get(), i);
+    }
+
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    std::vector<int> mismatches(kThreadCount);
+    auto executor = SkFunctionalExecutors::MakeFIFOThreadPool(kThreadCount, false);
+    SkTaskGroup tasks(*executor);
+    for (int thread = 0; thread < kThreadCount; ++thread) {
+        tasks.add([&, thread] {
+            // Most lookups are hits, and a hit also changes the LRU list
+            for (size_t n = 0; n < kRounds * kLookups; ++n) {
+                size_t i = (n + thread * kLookups / kThreadCount) % kLookups;
+                if (resolve(fontCollection.get(), i) != expected[i]) {
+                    ++mismatches[thread];
+                }
+            }
+        });
+    }
+    tasks.wait();
+    for (int count : mismatches) {
+        REPORTER_ASSERT(reporter, count == 0);
+    }
 }

@@ -494,23 +494,12 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
 
                 sk_sp<SkTypeface> typeface = nullptr;
                 if (emojiStart == -1) {
-                    // First try to find in in a cache
-                    FontKey fontKey(codepoint, textStyle.getFontStyle(), textStyle.getLocale(), textStyle.getFontArguments());
-                    auto found = fFallbackFonts.find(fontKey);
-                    if (found != nullptr) {
-                        typeface = *found;
-                    }
-                    if (typeface == nullptr) {
-                        typeface = fParagraph->fFontCollection->defaultFallback(
-                                                    codepoint,
-                                                    textStyle.getFontFamilies(),
-                                                    textStyle.getFontStyle(),
-                                                    textStyle.getLocale(),
-                                                    textStyle.getFontArguments());
-                        if (typeface != nullptr) {
-                            fFallbackFonts.set(fontKey, typeface);
-                        }
-                    }
+                    typeface = fParagraph->fFontCollection->defaultFallback(
+                                                codepoint,
+                                                textStyle.getFontFamilies(),
+                                                textStyle.getFontStyle(),
+                                                textStyle.getLocale(),
+                                                textStyle.getFontArguments());
                 } else {
                     typeface = fParagraph->fFontCollection->defaultEmojiFallback(
                                                 emojiStart,
@@ -809,17 +798,6 @@ TextRange OneLineShaper::clusteredText(GlyphRange& glyphs) {
     }
 
     return { textRange.start, textRange.end };
-}
-
-bool OneLineShaper::FontKey::operator==(const OneLineShaper::FontKey& other) const {
-    return fUnicode == other.fUnicode && fFontStyle == other.fFontStyle && fLocale == other.fLocale && fFontArgs == other.fFontArgs;
-}
-
-uint32_t OneLineShaper::FontKey::Hasher::operator()(const OneLineShaper::FontKey& key) const {
-    return SkGoodHash()(key.fUnicode) ^
-           SkGoodHash()(key.fFontStyle) ^
-           SkGoodHash()(key.fLocale) ^
-           std::hash<std::optional<FontArguments>>()(key.fFontArgs);
 }
 
 
