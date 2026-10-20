@@ -7,7 +7,6 @@
 
 #include "src/gpu/graphite/PipelineManager.h"
 
-#include "include/core/SkExecutor.h"
 #include "include/private/SkLog.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/GraphicsPipelineHandle.h"
@@ -15,6 +14,8 @@
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/SharedContext.h"
+
+#include <type_traits>
 
 // The threaded PipelineManager is set up to work with a executor with two worklists.
 // All work from the first work list must be completed before work from the second list
@@ -50,7 +51,7 @@ GraphicsPipelineHandle::GraphicsPipelineHandle(sk_sp<PipelineCreationTask> task)
 GraphicsPipelineHandle::GraphicsPipelineHandle(sk_sp<GraphicsPipeline> pipeline)
     : fTaskOrPipeline(std::move(pipeline)) {}
 
-PipelineManager::PipelineManager(SkExecutor* executor) : fExecutor(executor) {}
+PipelineManager::PipelineManager(ExecutorType* executor) : fExecutor(executor) {}
 
 PipelineManager::~PipelineManager() {
     // The executor should've been detached in Context's destructor (via shutDown()).
@@ -126,54 +127,80 @@ GraphicsPipelineHandle PipelineManager::createHandle(
     return GraphicsPipelineHandle(std::move(task));
 }
 
-bool PipelineManager::InlineCompile(const sk_sp<PipelineCreationTask>& task) {
-    SkASSERT(task);
+class PipelineManagerUtils {
+public:
+    // Returns true if compilation occurred; false otherwise.
+    // All callers must hold a ref on the PipelineCreationTask.
+    static bool InlineCompile(const sk_sp<PipelineCreationTask>& task) {
+        SkASSERT(task);
 
-    // Since there might be threaded contention to execute the compilation for the same
-    // task (e.g., if a low priority compile got duplicated as a high priority compile
-    // or an immediate compile was required), we check the 'fStarted' atomic so only
-    // one does the work.
-    if (task->fStarted.exchange(true)) {
-        // If we got here it means some other thread beat us to it so don't compile
-        // the pipeline.
-        return false;
+        // Since there might be threaded contention to execute the compilation for the same
+        // task (e.g., if a low priority compile got duplicated as a high priority compile
+        // or an immediate compile was required), we check the 'fStarted' atomic so only
+        // one does the work.
+        if (task->fStarted.exchange(true)) {
+            // If we got here it means some other thread beat us to it so don't compile
+            // the pipeline.
+            return false;
+        }
+
+        SkASSERT(task->fSharedContext);
+
+        SharedContext* sharedContext = task->fSharedContext;
+        PipelineManager* pipelineManager = sharedContext->pipelineManager();
+
+        // This is a bit racy but the exact correctness of the actual cause for the compilation
+        // isn't crucial. In essence, this tries to give the SharedContext a best guess about
+        // the driver behind the compilation. The exact race is if a precompile compilation
+        // was usurped by a normal compilation but we still report a precompile compilation
+        // to the SharedContext.
+        PipelineCreationFlags flags = task->isLowPriority()
+                                          ? PipelineCreationFlags::kForPrecompilation
+                                          : PipelineCreationFlags::kNone;
+
+        task->fPipeline = sharedContext->findOrCreateGraphicsPipeline(
+                task->fRuntimeDict.get(),
+                task->fPipelineKey,
+                task->fGraphicsPipelineDesc,
+                task->fRenderPassDesc,
+                flags);
+
+        if (!task->fPipeline) {
+            SKIA_LOG_W("Failed to create GraphicsPipeline!");
+        }
+
+        task->fSharedContext = nullptr;
+
+        task->fCompleted.store(true, std::memory_order_release);
+        // The Context thread is the only place that resolves handles so we will only
+        // ever be waiting on a task on a single thread.
+        task->fCompleted.notify_one();
+
+        pipelineManager->removeTask(task);
+        return true;
     }
 
-    SkASSERT(task->fSharedContext);
+    // An adapter for the callback-style executor
+    static void InlineCompileWrapper(void* context) {
+        // Adopt the raw PipelineCreationTask pointer.
+        sk_sp<PipelineCreationTask> task(static_cast<PipelineCreationTask*>(context));
 
-    SharedContext* sharedContext = task->fSharedContext;
-    PipelineManager* pipelineManager = sharedContext->pipelineManager();
-
-    // This is a bit racy but the exact correctness of the actual cause for the compilation
-    // isn't crucial. In essence, this tries to give the SharedContext a best guess about
-    // the driver behind the compilation. The exact race is if a precompile compilation
-    // was usurped by a normal compilation but we still report a precompile compilation
-    // to the SharedContext.
-    PipelineCreationFlags flags = task->isLowPriority()
-                                      ? PipelineCreationFlags::kForPrecompilation
-                                      : PipelineCreationFlags::kNone;
-
-    task->fPipeline = sharedContext->findOrCreateGraphicsPipeline(
-            task->fRuntimeDict.get(),
-            task->fPipelineKey,
-            task->fGraphicsPipelineDesc,
-            task->fRenderPassDesc,
-            flags);
-
-    if (!task->fPipeline) {
-        SKIA_LOG_W("Failed to create GraphicsPipeline!");
+        InlineCompile(task);
     }
 
-    task->fSharedContext = nullptr;
-
-    task->fCompleted.store(true, std::memory_order_release);
-    // The Context thread is the only place that resolves handles so we will only
-    // ever be waiting on a task on a single thread.
-    task->fCompleted.notify_one();
-
-    pipelineManager->removeTask(task);
-    return true;
-}
+    template <typename ExecutorType>
+    static void AddWork(ExecutorType* executor,
+                        int workList,
+                        sk_sp<PipelineCreationTask> task) {
+        if constexpr (std::is_same_v<ExecutorType, SkCallbackExecutor>) {
+            // Note: Although the task is being passed as a raw PipelineCreationTask* it
+            // still has an extra ref which is adopted in InlineCompileWrapper.
+            executor->add({ InlineCompileWrapper, task.release() } , workList);
+        } else {
+            executor->add([task]{ InlineCompile(task); } , workList);
+        }
+    }
+};  // class PipelineManagerUtils
 
 void PipelineManager::addTaskToWorkList(SharedContext* sharedContext,
                                         sk_sp<PipelineCreationTask> task,
@@ -185,7 +212,7 @@ void PipelineManager::addTaskToWorkList(SharedContext* sharedContext,
             int workList = priority == Priority::kLow ? kLowPriorityWorkList
                                                       : kHighPriorityWorkList;
 
-            fExecutor->add([task]{ InlineCompile(task); } , workList);
+            PipelineManagerUtils::AddWork(fExecutor, workList, std::move(task));
             return;
         }
     }
@@ -196,7 +223,7 @@ void PipelineManager::addTaskToWorkList(SharedContext* sharedContext,
     // will kick in to eliminate duplicate work. This does mean, as in the SkExecutor case,
     // that the task's Pipeline need not be resolved at the end of 'compileTask'. That is,
     // after all, the purview of 'resolveHandle'.
-    InlineCompile(task);
+    PipelineManagerUtils::InlineCompile(task);
 }
 
 sk_sp<GraphicsPipeline> PipelineManager::resolveHandle(const GraphicsPipelineHandle& handle) {
@@ -239,7 +266,7 @@ sk_sp<PipelineCreationTask> PipelineManager::getWork(bool inclInProgress) {
 void PipelineManager::wait() {
     // First, try to steal any work that hasn't yet been started and run it locally.
     while (sk_sp<PipelineCreationTask> task = this->getWork(/* inclInProgress= */ false)) {
-        InlineCompile(task);
+        PipelineManagerUtils::InlineCompile(task);
     }
     // Then wait on any work that is in progress but hasn't been completed.
     while (sk_sp<PipelineCreationTask> task = this->getWork(/* inclInProgress= */ true)) {
@@ -322,7 +349,7 @@ void PipelineManager::removeTask(const sk_sp<PipelineCreationTask>& task) {
 void PipelineManager::potentiallyWaitOn(const sk_sp<PipelineCreationTask>& task) {
     // If we can preempt some thread that is scheduled to compile this Pipeline, do so rather
     // than waiting.
-    if (InlineCompile(task)) {
+    if (PipelineManagerUtils::InlineCompile(task)) {
         return;
     }
 

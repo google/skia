@@ -8,31 +8,57 @@
 #ifndef SkExecutor_DEFINED
 #define SkExecutor_DEFINED
 
-#include <functional>
-#include <memory>
 #include "include/core/SkTypes.h"
 
-class SK_API SkExecutor {
+#include <functional>
+#include <utility>
+
+template <typename WorkT>
+class SkExecutorBase {
 public:
-    virtual ~SkExecutor();
+    using WorkType = WorkT;
+
+    virtual ~SkExecutorBase() = default;
 
     // Add work to execute.
-    virtual void add(std::function<void(void)> fn, int /* workList */) { this->add(std::move(fn)); }
+    virtual void add(WorkT work, int /* workList */) { this->add(std::move(work)); }
 
     // deprecated
-    virtual void add(std::function<void(void)>) = 0;
+    virtual void add(WorkT work) = 0;
 
     // If it makes sense for this executor, use this thread to execute work for a little while.
     virtual void borrow() {}
 
+protected:
+    SkExecutorBase() = default;
+    SkExecutorBase(const SkExecutorBase&) = delete;
+    SkExecutorBase& operator=(const SkExecutorBase&) = delete;
+};
+
+//--------------------------------------------------------------------------------------------------
+extern template class SkExecutorBase<std::function<void()>>;
+
+// deprecated. A class (vs. a using declaration) to keep pre-existing client functionality working.
+class SK_API SkExecutor : public SkExecutorBase<std::function<void()>> {
+public:
     // Does not take ownership.  Not thread safe.
     // deprecated
     static void SetDefault(SkExecutor*);
-
-protected:
-    SkExecutor() = default;
-    SkExecutor(const SkExecutor&) = delete;
-    SkExecutor& operator=(const SkExecutor&) = delete;
 };
+
+using SkFunctionalExecutor = SkExecutor;
+
+//--------------------------------------------------------------------------------------------------
+using SkExecutorCallbackContext = void*;
+using SkExecutorCallbackFunction = void(*)(SkExecutorCallbackContext);
+
+struct SkExecutorCallbackWork {
+    SkExecutorCallbackFunction fCallback = nullptr;
+    SkExecutorCallbackContext  fContext  = nullptr;
+};
+
+extern template class SkExecutorBase<SkExecutorCallbackWork>;
+
+using SkCallbackExecutor = SkExecutorBase<SkExecutorCallbackWork>;
 
 #endif // SkExecutor_DEFINED

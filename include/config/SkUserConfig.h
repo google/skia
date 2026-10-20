@@ -150,4 +150,10 @@
 // #define SKVX_DISABLE_SIMD
 // #define SKRP_CPU_SCALAR
 
+/*
+ * By default, Graphite uses a std::function-based SkExecutor. This define can
+ * be used to switch it to be a callback-based SkExecutor.
+ */
+// #define SK_GRAPHITE_USE_CALLBACK_EXECUTOR
+
 #endif

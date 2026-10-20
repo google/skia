@@ -70,7 +70,7 @@ struct SK_API SkContextOptions {
      * compilation or software path rendering). If nullptr, all work is performed serially on the
      * calling thread.
      */
-    std::unique_ptr<SkExecutor> fExecutor;
+    std::unique_ptr<SkFunctionalExecutor> fExecutor;
 
     /**
      * Custom log handler for receiving Skia diagnostic and error messages scoped to this context.

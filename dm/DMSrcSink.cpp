@@ -1821,8 +1821,8 @@ Result GaneshPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStrea
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config, const GrContextOptions& ctxOptions)
         : INHERITED(config, ctxOptions)
-        , fRecordingExecutor(SkExecutors::MakeLIFOThreadPool(1))
-        , fGPUExecutor(SkExecutors::MakeFIFOThreadPool(1, /* allowBorrowing= */ false)) {
+        , fRecordingExecutor(SkFunctionalExecutors::MakeLIFOThreadPool(1))
+        , fGPUExecutor(SkFunctionalExecutors::MakeFIFOThreadPool(1, /* allowBorrowing= */ false)) {
 }
 
 Result GPUDDLSink::ddlDraw(const Src& src,
@@ -2036,7 +2036,7 @@ Result PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
     metadata.jpegDecoder = SkPDF::JPEG::Decode;
     metadata.jpegEncoder = SkPDF::JPEG::Encode;
 #if SK_PDF_TEST_EXECUTOR
-    std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool();
+    std::unique_ptr<SkFunctionalExecutor> executor = SkFunctionalExecutors::MakeFIFOThreadPool();
     metadata.fExecutor = executor.get();
 #endif
     auto doc = SkPDF::MakeDocument(dst, metadata);

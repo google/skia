@@ -18,16 +18,16 @@
 #include <functional>
 #include <memory>
 
-// This class simply wraps an SkExecutor and keeps a count of the extant work.
+// This class simply wraps an SkFunctionalExecutor and keeps a count of the extant work.
 // It adds a wait() method which blocks until all the added work is complete.
 class SkTaskGroup : SkNoncopyable {
 public:
     // Tasks added to this SkTaskGroup will run on its executor.
-    explicit SkTaskGroup(SkExecutor& executor = SkExecutors::GetDefault());
+    explicit SkTaskGroup(SkFunctionalExecutor& executor = SkFunctionalExecutors::GetDefault());
     ~SkTaskGroup() { this->wait(); }
 
     // Add a task to this SkTaskGroup.
-    void add(std::function<void()> fn, int workList = 0);
+    void add(std::function<void()> work, int workList = 0);
 
     // Returns true if all Tasks previously add()ed to this SkTaskGroup have run.
     // It is safe to reuse this SkTaskGroup once done().
@@ -37,8 +37,8 @@ public:
     void wait();
 
 private:
-    std::atomic<int32_t> fPending;
-    SkExecutor&          fExecutor;
+    std::atomic<int32_t>   fPending;
+    SkFunctionalExecutor& fExecutor;
 };
 
 #endif//SkTaskGroup_DEFINED

@@ -9,6 +9,7 @@
 #define GrContextOptions_DEFINED
 
 #include "include/core/SkData.h"
+#include "include/core/SkExecutor.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/ShaderErrorHandler.h"
@@ -18,8 +19,6 @@
 
 #include <optional>
 #include <vector>
-
-class SkExecutor;
 
 struct SK_API GrContextOptions {
     enum class Enable {
@@ -87,10 +86,10 @@ struct SK_API GrContextOptions {
     /**
      * Executor to handle threaded work within Ganesh. If this is nullptr, then all work will be
      * done serially on the main thread. To have worker threads assist with various tasks, set this
-     * to a valid SkExecutor instance. Currently, used for software path rendering, but may be used
-     * for other tasks.
+     * to a valid SkFunctionalExecutor instance. Currently, used for software path rendering, but
+     * may be used for other tasks.
      */
-    SkExecutor* fExecutor = nullptr;
+    SkFunctionalExecutor* fExecutor = nullptr;
 
     /**
      * Cache in which to store compiled shader binaries between runs.
