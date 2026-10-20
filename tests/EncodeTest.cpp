@@ -607,6 +607,108 @@ DEF_TEST(Encode_WebpOptions, r) {
     REPORTER_ASSERT(r, almost_equals(bm2, bm3, 50));
 }
 
+DEF_TEST(Encode_WebpMethod, r) {
+    // Opaque source: unless WebPConfig::exact is set, lossless encoding may rewrite RGB
+    // under fully transparent pixels, and how it does so depends on the method.
+    SkBitmap bitmap;
+    if (!ToolUtils::GetResourceAsBitmap("images/mandrill_128.png", &bitmap)) {
+        return;
+    }
+
+    SkPixmap src;
+    REPORTER_ASSERT(r, bitmap.peekPixels(&src));
+
+    SkWebpEncoder::Options options;
+    options.fCompression = SkWebpEncoder::Compression::kLossless;
+    options.fQuality = 100.0f;
+
+    // The default method is 0 for lossless, so an explicit 0 must match the default.
+    sk_sp<SkData> dataDefault = SkWebpEncoder::Encode(src, options);
+    options.fMethod = 0;
+    sk_sp<SkData> dataFast = SkWebpEncoder::Encode(src, options);
+    options.fMethod = 6;
+    sk_sp<SkData> dataSlow = SkWebpEncoder::Encode(src, options);
+    REPORTER_ASSERT(r, dataDefault && dataFast && dataSlow);
+    REPORTER_ASSERT(r, dataDefault->equals(dataFast.get()));
+    REPORTER_ASSERT(r, dataSlow->size() < dataFast->size());
+
+    // A higher method only spends more effort; lossless pixels are unchanged.
+    SkBitmap bmFast, bmSlow;
+    SkImages::DeferredFromEncodedData(dataFast)->asLegacyBitmap(&bmFast);
+    SkImages::DeferredFromEncodedData(dataSlow)->asLegacyBitmap(&bmSlow);
+    REPORTER_ASSERT(r, almost_equals(bmFast, bmSlow, 0));
+
+    options.fCompression = SkWebpEncoder::Compression::kLossy;
+    options.fQuality = 80.0f;
+    options.fMethod = 0;
+    dataFast = SkWebpEncoder::Encode(src, options);
+    options.fMethod = 6;
+    dataSlow = SkWebpEncoder::Encode(src, options);
+    REPORTER_ASSERT(r, dataFast && dataSlow);
+    REPORTER_ASSERT(r, dataSlow->size() < dataFast->size());
+
+    // Out of range methods are rejected by libwebp.
+    options.fMethod = 7;
+    REPORTER_ASSERT(r, !SkWebpEncoder::Encode(src, options));
+}
+
+// Lossless encoding preserves alpha and every visible pixel at any method, but libwebp is free
+// to rewrite the RGB of fully transparent pixels (WebPConfig::exact is 0), and what it writes
+// there varies with the method.
+DEF_TEST(Encode_WebpMethod_Alpha, r) {
+    constexpr int kSize = 64;
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
+                                         kUnpremul_SkAlphaType));
+    auto pixel = [&bitmap](int x, int y) { return static_cast<uint8_t*>(bitmap.getAddr(x, y)); };
+    for (int y = 0; y < kSize; y++) {
+        for (int x = 0; x < kSize; x++) {
+            // Left third opaque, middle third half transparent, right third fully
+            // transparent with varying hidden RGB.
+            uint8_t* p = pixel(x, y);
+            p[0] = (x * 7) & 0xFF;
+            p[1] = (y * 5) & 0xFF;
+            p[2] = (x ^ y) & 0xFF;
+            p[3] = x < kSize / 3 ? 0xFF : x < 2 * kSize / 3 ? 0x80 : 0x00;
+        }
+    }
+
+    SkWebpEncoder::Options options;
+    options.fCompression = SkWebpEncoder::Compression::kLossless;
+    options.fQuality = 100.0f;
+    options.fMethod = 0;
+    sk_sp<SkData> dataFast = SkWebpEncoder::Encode(bitmap.pixmap(), options);
+    options.fMethod = 6;
+    sk_sp<SkData> dataSlow = SkWebpEncoder::Encode(bitmap.pixmap(), options);
+    REPORTER_ASSERT(r, dataFast && dataSlow);
+
+    auto decode = [](const sk_sp<SkData>& data) {
+        int width = 0, height = 0;
+        uint8_t* rgba = WebPDecodeRGBA(data->bytes(), data->size(), &width, &height);
+        SkASSERT_RELEASE(rgba && width == kSize && height == kSize);
+        return std::unique_ptr<uint8_t, void (*)(void*)>(rgba, WebPFree);
+    };
+    auto fast = decode(dataFast);
+    auto slow = decode(dataSlow);
+
+    for (int y = 0; y < kSize; y++) {
+        for (int x = 0; x < kSize; x++) {
+            const uint8_t* expected = pixel(x, y);
+            const uint8_t* f = fast.get() + 4 * (y * kSize + x);
+            const uint8_t* s = slow.get() + 4 * (y * kSize + x);
+            REPORTER_ASSERT(r, f[3] == expected[3] && s[3] == expected[3],
+                            "alpha changed at %d,%d", x, y);
+            if (expected[3] == 0) {
+                continue;
+            }
+            REPORTER_ASSERT(r, 0 == memcmp(f, expected, 4), "method 0 pixel changed at %d,%d",
+                            x, y);
+            REPORTER_ASSERT(r, 0 == memcmp(s, expected, 4), "method 6 pixel changed at %d,%d",
+                            x, y);
+        }
+    }
+}
+
 DEF_TEST(Encode_WebpAnimated, r) {
     const int frameCount = 3;
     const int width = 16;

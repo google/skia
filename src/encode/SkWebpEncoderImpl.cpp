@@ -74,8 +74,8 @@ static bool preprocess_webp_picture(WebPPicture* pic,
 
     // Set compression, method, and pixel format.
     // libwebp recommends using BGRA for lossless and YUV for lossy.
-    // The choices of |webp_config.method| currently just match Chrome's defaults.  We
-    // could potentially expose this decision to the client.
+    // Unless the client picks |opts.fMethod|, the choices of |webp_config.method| just
+    // match Chrome's defaults.
     if (SkWebpEncoder::Compression::kLossy == opts.fCompression) {
         webp_config->lossless = 0;
 #ifndef SK_WEBP_ENCODER_USE_DEFAULT_METHOD
@@ -86,6 +86,9 @@ static bool preprocess_webp_picture(WebPPicture* pic,
         webp_config->lossless = 1;
         webp_config->method = 0;
         pic->use_argb = 1;
+    }
+    if (opts.fMethod >= 0) {
+        webp_config->method = opts.fMethod;
     }
 
     {
