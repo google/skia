@@ -20,6 +20,7 @@ public:
     static void Dump(const GrAtlasManager*, GrDirectContext*);
     static void SetAtlasDimensionsToMinimum(GrAtlasManager*);
     static void SetMaxPages(GrAtlasManager*, uint32_t maxPages);
+    static bool HasAtlas(const GrAtlasManager*, skgpu::MaskFormat);
 };
 
 class GrDrawOpAtlasTools {

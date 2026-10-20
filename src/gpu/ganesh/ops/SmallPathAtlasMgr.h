@@ -81,6 +81,10 @@ public:
         }
     }
 
+    void onFlushFailed() override {
+        this->reset();
+    }
+
     // This object has the same lifetime as the GrContext so we want it to survive freeGpuResources
     // calls
     bool retainOnFreeGpuResources() override { return true; }
@@ -89,6 +93,8 @@ public:
         *numActiveProxies = fAtlas->numActivePages();
         return fAtlas->getViews();
     }
+
+    bool hasAtlas() const { return fAtlas != nullptr; }
 
     void deleteCacheEntry(SmallPathShapeData*);
 

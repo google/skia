@@ -35,6 +35,7 @@
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
+#include "src/gpu/ganesh/ops/SmallPathAtlasMgr.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -307,3 +308,86 @@ DEF_GANESH_TEST(GrDrawOpAtlasConfig_Basic, reporter, options, CtsEnforcement::kA
     test_atlas_config(reporter, 65536, 0, MaskFormat::kA8,
                       { 512, 512 }, { 256, 256 });
 }
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrOpFlushStateAbort,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    auto dContext = ctxInfo.directContext();
+    auto gpu = dContext->priv().getGpu();
+    auto resourceProvider = dContext->priv().resourceProvider();
+
+    TestingUploadTarget uploadTarget;
+    GrOpFlushState flushState(gpu, resourceProvider, uploadTarget.writeableTokenTracker());
+
+    // Advance draw token by simulating an uncompleted draw
+    uploadTarget.issueDrawToken();
+    REPORTER_ASSERT(reporter,
+                    uploadTarget.tokenTracker()->nextDrawToken() !=
+                    uploadTarget.tokenTracker()->nextFlushToken());
+
+    // abort() should catch up flush tokens
+    flushState.abort();
+    REPORTER_ASSERT(reporter,
+                    uploadTarget.tokenTracker()->nextDrawToken() ==
+                    uploadTarget.tokenTracker()->nextFlushToken());
+    flushState.reset();
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrAtlasManagerOnFlushFailed,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    auto dContext = ctxInfo.directContext();
+    auto atlasManager = dContext->priv().getAtlasManager();
+    if (!atlasManager) {
+        return;
+    }
+
+    unsigned int numProxies = 0;
+    const GrSurfaceProxyView* views = atlasManager->getViews(MaskFormat::kA8, &numProxies);
+    REPORTER_ASSERT(reporter, views != nullptr);
+    REPORTER_ASSERT(reporter, GrAtlasManagerTools::HasAtlas(atlasManager, MaskFormat::kA8));
+
+    // Calling onFlushFailed should free all atlases
+    atlasManager->onFlushFailed();
+    REPORTER_ASSERT(reporter, !GrAtlasManagerTools::HasAtlas(atlasManager, MaskFormat::kA8));
+
+    // After onFlushFailed, atlas is re-initialized on demand
+    views = atlasManager->getViews(MaskFormat::kA8, &numProxies);
+    REPORTER_ASSERT(reporter, views != nullptr);
+    REPORTER_ASSERT(reporter, GrAtlasManagerTools::HasAtlas(atlasManager, MaskFormat::kA8));
+}
+
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SmallPathAtlasMgrOnFlushFailed,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    auto dContext = ctxInfo.directContext();
+    auto smallPathAtlasMgr = dContext->priv().getSmallPathAtlasMgr();
+    if (!smallPathAtlasMgr) {
+        return;
+    }
+
+    bool initSuccess = smallPathAtlasMgr->initAtlas(dContext->priv().proxyProvider(),
+                                                    dContext->priv().caps());
+    REPORTER_ASSERT(reporter, initSuccess);
+    REPORTER_ASSERT(reporter, smallPathAtlasMgr->hasAtlas());
+
+    int numProxies = 0;
+    const GrSurfaceProxyView* views = smallPathAtlasMgr->getViews(&numProxies);
+    REPORTER_ASSERT(reporter, views != nullptr);
+
+    // Calling onFlushFailed should reset the atlas manager and free the atlas
+    smallPathAtlasMgr->onFlushFailed();
+    REPORTER_ASSERT(reporter, !smallPathAtlasMgr->hasAtlas());
+
+    // After onFlushFailed, atlas can be re-initialized on demand
+    initSuccess = smallPathAtlasMgr->initAtlas(dContext->priv().proxyProvider(),
+                                               dContext->priv().caps());
+    REPORTER_ASSERT(reporter, initSuccess);
+    REPORTER_ASSERT(reporter, smallPathAtlasMgr->hasAtlas());
+}
+#endif
+

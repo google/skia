@@ -120,6 +120,12 @@ void GrAtlasManagerTools::SetMaxPages(GrAtlasManager* am, uint32_t maxPages) {
     }
 }
 
+bool GrAtlasManagerTools::HasAtlas(const GrAtlasManager* am, skgpu::MaskFormat format) {
+    SkASSERT(am);
+    int atlasIndex = GrAtlasManager::MaskFormatToAtlasIndex(am->resolveMaskFormat(format));
+    return am->fAtlases[atlasIndex] != nullptr;
+}
+
 int GrDrawOpAtlasTools::NumAllocated(const GrDrawOpAtlas* doa) {
     SkASSERT(doa);
     int count = 0;

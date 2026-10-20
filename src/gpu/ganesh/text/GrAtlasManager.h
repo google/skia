@@ -128,6 +128,10 @@ public:
         }
     }
 
+    void onFlushFailed() override {
+        this->freeAll();
+    }
+
     // The AtlasGlyph cache always survives freeGpuResources so we want it to remain in the active
     // OnFlushCallbackObject list
     bool retainOnFreeGpuResources() override { return true; }

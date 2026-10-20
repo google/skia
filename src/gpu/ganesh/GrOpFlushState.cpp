@@ -99,8 +99,7 @@ bool GrOpFlushState::preExecuteDraws() {
     if (!fVertexPool.unmap() ||
         !fIndexPool.unmap() ||
         !fDrawIndirectPool.unmap()) {
-        fCurrDraw = fDraws.end();
-        fCurrUpload = fInlineUploads.end();
+        this->abort();
         return false;
     }
     for (auto& upload : fASAPUploads) {
@@ -113,6 +112,14 @@ bool GrOpFlushState::preExecuteDraws() {
     fCurrUpload = fInlineUploads.begin();
     fGpu->willExecute();
     return true;
+}
+
+void GrOpFlushState::abort() {
+    fCurrDraw = fDraws.end();
+    fCurrUpload = fInlineUploads.end();
+    if (fTokenTracker) {
+        fTokenTracker->catchUpFlushToken();
+    }
 }
 
 void GrOpFlushState::reset() {

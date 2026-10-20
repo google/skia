@@ -39,6 +39,13 @@ public:
     virtual void postFlush(skgpu::Token startTokenForNextFlush) {}
 
     /**
+     * Called when GrDrawingManager::flush() fails (e.g. execution/submit failure or failed
+     * instantiation). Cached resources or atlas plots that were modified during the failed flush
+     * must be invalidated.
+     */
+    virtual void onFlushFailed() {}
+
+    /**
      * Tells the callback owner to hold onto this object when freeing GPU resources.
      */
     virtual bool retainOnFreeGpuResources() { return false; }

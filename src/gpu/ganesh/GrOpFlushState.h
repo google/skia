@@ -86,6 +86,7 @@ public:
     GrGpu* gpu() { return fGpu; }
 
     void reset();
+    void abort();
 
     /** Additional data required on a per-op basis when executing GrOps. */
     struct OpArgs {

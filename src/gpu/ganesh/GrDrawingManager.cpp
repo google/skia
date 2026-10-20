@@ -225,6 +225,9 @@ GrDirectContext::FlushResult GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> pro
         // NOTE: passing a null resource cache means to drop all unique refs, not just enough to
         // get under a cache's budget.
         fContext->priv().threadSafeCache()->dropUniqueRefs(/*resourceCache=*/nullptr);
+        for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
+            onFlushCBObject->onFlushFailed();
+        }
     }
 
     GrDirectContext::FlushResult flushResult = gpu->executeFlushInfo(proxies, access, info,
@@ -315,6 +318,10 @@ GrRenderTask::ExecutionResult GrDrawingManager::executeRenderTasks(GrOpFlushStat
             bool success = flushState->gpu()->submitToGpu();
             result.fAllTasksSuccessful &= success;
             numRenderTasksExecuted = 0;
+            if (!success) {
+                flushState->abort();
+                break;
+            }
         }
     }
 

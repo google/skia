@@ -92,6 +92,7 @@ private:
 
     Token issueDrawToken() { return ++fCurrentDrawToken; }
     Token issueFlushToken() { return ++fCurrentFlushToken; }
+    void catchUpFlushToken() { fCurrentFlushToken = fCurrentDrawToken; }
 
     Token fCurrentDrawToken = Token::InvalidToken();
     Token fCurrentFlushToken = Token::InvalidToken();
