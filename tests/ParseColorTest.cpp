@@ -178,9 +178,14 @@ DEF_TEST(ParseNamedColor, reporter) {
         for (int l = strlen(c.fName) - 1; l >= 0; --l) {
             SkString s(c.fName, l);
             // some substrings are valid color names
-            if (is_valid_name(s)) continue;
+            if (is_valid_name(s)) {
+                REPORTER_ASSERT(reporter,
+                                SkParse::FindNamedColor(c.fName, l, &color) == c.fName + l);
+                continue;
+            }
 
             REPORTER_ASSERT(reporter, SkParse::FindNamedColor(s.c_str(), l, &color) == nullptr);
+            REPORTER_ASSERT(reporter, SkParse::FindNamedColor(c.fName, l, &color) == nullptr);
         }
 
         // check suffixes
