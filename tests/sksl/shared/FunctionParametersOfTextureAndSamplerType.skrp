@@ -5,28 +5,40 @@ layout(set = 0, binding = 1) readonly texture2D aTexture;
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 1: invalid type
 layout(set = 0, binding = 1) readonly texture2D aTexture;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                      ^^^^^^^^^
 error: 2: invalid type
 layout(set = 0, binding = 2) sampler2D aSampledTexture;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             ^^^^^^^^^
 error: 3: invalid type
 layout(set = 0, binding = 3) sampler2D aSecondSampledTexture;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             ^^^^^^^^^
 error: 5: 'in' is not permitted here
 layout(location = 1) in float2 c;
 ^^^^^^^^^^^^^^^^^^^^^^^
 error: 5: layout qualifier 'location' is not permitted here
 layout(location = 1) in float2 c;
 ^^^^^^^^^^^^^^^^^^^^^^^
+error: 7: invalid type
+noinline half4 helpers_helper(sampler2D s, readonly texture2D t) {
+                              ^^^^^^^^^
 error: 7: type 'texture2D' does not support qualifier 'readonly'
 noinline half4 helpers_helper(sampler2D s, readonly texture2D t) {
                                            ^^^^^^^^
+error: 7: invalid type
+noinline half4 helpers_helper(sampler2D s, readonly texture2D t) {
+                                                    ^^^^^^^^^
 error: 8: unknown identifier 'sample'
     return sample(s, c);
            ^^^^^^
 error: 11: type 'texture2D' does not support qualifier 'readonly'
 noinline half4 helper(readonly texture2D t, sampler2D s) {
                       ^^^^^^^^
+error: 11: invalid type
+noinline half4 helper(readonly texture2D t, sampler2D s) {
+                               ^^^^^^^^^
+error: 11: invalid type
+noinline half4 helper(readonly texture2D t, sampler2D s) {
+                                            ^^^^^^^^^
 error: 15: 'main' must return: 'vec4', 'float4', or 'half4'
 void main() {
 ^^^^^^^^^^^
@@ -57,4 +69,4 @@ error: 18: unknown identifier 'aTexture'
 error: 18: unknown identifier 'aSampledTexture'
     sk_FragColor = helper(aTexture, aSampledTexture);
                                     ^^^^^^^^^^^^^^^
-19 errors
+23 errors

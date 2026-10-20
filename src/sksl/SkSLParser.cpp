@@ -1292,6 +1292,12 @@ const Type* Parser::type(Modifiers* modifiers) {
         this->error(type, "expected a type, found '" + std::string(this->text(type)) + "'");
         return fCompiler.context().fTypes.fInvalid.get();
     }
+    if (result->matches(*fCompiler.context().fTypes.fInvalid)) {
+        // In runtime effects, reserved type names (e.g. sampler2D and texture2D) are aliases of the
+        // invalid type. Reject the type whenever it is used.
+        this->error(type, "invalid type");
+        return result;
+    }
     Token bracket;
     while (this->checkNext(Token::Kind::TK_LBRACKET, &bracket)) {
         if (this->checkNext(Token::Kind::TK_RBRACKET)) {
