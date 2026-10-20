@@ -2,6 +2,7 @@
 #include "modules/skparagraph/include/FontCollection.h"
 
 #include "include/core/SkTypeface.h"
+#include "include/private/SkMutex.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skshaper/include/SkShaper_harfbuzz.h"
@@ -47,7 +48,10 @@ struct FontCollection::FaceCache {
             }
         };
     };
-    skia_private::THashMap<FamilyKey, std::vector<sk_sp<SkTypeface>>, FamilyKey::Hasher> fTypefaces;
+    // Synchronize fTypefaces inside the pimpl struct to preserve FontCollection's ABI layout
+    mutable SkMutex fMutex;
+    skia_private::THashMap<FamilyKey, std::vector<sk_sp<SkTypeface>>, FamilyKey::Hasher> fTypefaces
+            SK_GUARDED_BY(fMutex);
 };
 
 struct FontCollection::VariationCache {
@@ -72,7 +76,9 @@ struct FontCollection::VariationCache {
             }
         };
     };
-    skia_private::THashMap<Key, sk_sp<SkTypeface>, Key::Hasher> fTypefaces;
+    // Synchronize fTypefaces inside the pimpl struct to preserve FontCollection's ABI layout
+    mutable SkMutex fMutex;
+    skia_private::THashMap<Key, sk_sp<SkTypeface>, Key::Hasher> fTypefaces SK_GUARDED_BY(fMutex);
 };
 
 FontCollection::FontCollection()
@@ -138,9 +144,14 @@ std::vector<sk_sp<SkTypeface>> FontCollection::findTypefaces(const std::vector<S
 std::vector<sk_sp<SkTypeface>> FontCollection::findTypefaces(const std::vector<SkString>& familyNames, SkFontStyle fontStyle, const std::optional<FontArguments>& fontArgs) {
     // Look inside the font collections cache first
     FaceCache::FamilyKey familyKey(familyNames, fontStyle, fontArgs);
-    auto found = fFaceCache->fTypefaces.find(familyKey);
-    if (found) {
-        return *found;
+    {
+        // Release fFaceCache->fMutex before matchTypeface and cloneTypeface so font manager
+        // queries do not block cache hits and cloneTypeface can lock fVariationCache safely
+        SkAutoMutexExclusive lock(fFaceCache->fMutex);
+        auto found = fFaceCache->fTypefaces.find(familyKey);
+        if (found) {
+            return *found;
+        }
     }
 
     std::vector<sk_sp<SkTypeface>> typefaces;
@@ -178,6 +189,11 @@ std::vector<sk_sp<SkTypeface>> FontCollection::findTypefaces(const std::vector<S
         }
     }
 
+    // Reuse the cached vector if another thread populated familyKey while unlocked
+    SkAutoMutexExclusive lock(fFaceCache->fMutex);
+    if (auto* found = fFaceCache->fTypefaces.find(familyKey)) {
+        return *found;
+    }
     fFaceCache->fTypefaces.set(familyKey, typefaces);
     return typefaces;
 }
@@ -273,11 +289,21 @@ sk_sp<SkTypeface> FontCollection::defaultFallback() {
 sk_sp<SkTypeface> FontCollection::cloneTypeface(const sk_sp<SkTypeface>& typeface,
                                                 const FontArguments& args) {
     VariationCache::Key variationKey(typeface->uniqueID(), args);
-    auto found = fVariationCache->fTypefaces.find(variationKey);
-    if (found) {
-        return *found;
+    {
+        // Clone outside the lock so typeface variation instantiation does not block cache hits
+        SkAutoMutexExclusive lock(fVariationCache->fMutex);
+        auto found = fVariationCache->fTypefaces.find(variationKey);
+        if (found) {
+            return *found;
+        }
     }
     sk_sp<SkTypeface> clone = args.CloneTypeface(typeface);
+    // Return the cached clone if a concurrent thread inserted variationKey first so callers
+    // observe a single canonical SkTypefaceID
+    SkAutoMutexExclusive lock(fVariationCache->fMutex);
+    if (auto* found = fVariationCache->fTypefaces.find(variationKey)) {
+        return *found;
+    }
     fVariationCache->fTypefaces.set(variationKey, clone);
     return clone;
 }
@@ -287,8 +313,16 @@ void FontCollection::enableFontFallback() { fEnableFontFallback = true; }
 
 void FontCollection::clearCaches() {
     fParagraphCache.reset();
-    fFaceCache->fTypefaces.reset();
-    fVariationCache->fTypefaces.reset();
+    {
+        // Acquire each cache mutex independently to match the lock order in findTypefaces
+        SkAutoMutexExclusive lock(fFaceCache->fMutex);
+        fFaceCache->fTypefaces.reset();
+    }
+    {
+        // Reset variation clones after face cache entries that reference them
+        SkAutoMutexExclusive lock(fVariationCache->fMutex);
+        fVariationCache->fTypefaces.reset();
+    }
     SkShapers::HB::PurgeCaches();
 }
 
