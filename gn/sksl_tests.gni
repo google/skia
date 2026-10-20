@@ -547,6 +547,7 @@ sksl_rte_error_tests = [
   "runtime_errors/InvalidColorFilterFeatures.rtcf",
   "runtime_errors/InvalidColorFilterMain.rtcf",
   "runtime_errors/InvalidShaderMain.rts",
+  "runtime_errors/InvalidTypeInStruct.rts",
   "runtime_errors/InvalidUniformTypes.rts",
   "runtime_errors/InvalidUniformTypesES3.rts",
   "runtime_errors/LoopConditionErrors.rts",
