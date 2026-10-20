@@ -8,6 +8,7 @@
 #ifndef SKSL_CODEGENERATOR
 #define SKSL_CODEGENERATOR
 
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -63,6 +64,8 @@ protected:
 
 class AutoOutputStream {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     // Maintains the current indentation level while writing to the new output stream.
     AutoOutputStream(CodeGenerator* codeGen, OutputStream* newOutput)
             : fCodeGen(codeGen)

@@ -9,6 +9,7 @@
 #define SKSL_PARSER
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLOperator.h"
@@ -29,9 +30,9 @@ class Compiler;
 class ErrorReporter;
 class Expression;
 class FunctionDeclaration;
+class ProgramElement;
 struct Module;
 struct Program;
-class ProgramElement;
 enum class ProgramKind : int8_t;
 class Statement;
 class SymbolTable;
@@ -161,6 +162,8 @@ private:
     bool defineFunction(SkSL::FunctionDeclaration* decl);
 
     struct VarDeclarationsPrefix {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         Position fPosition;
         Modifiers fModifiers;
         const Type* fType;

@@ -8,14 +8,16 @@
 #ifndef SkSLProgramVisitor_DEFINED
 #define SkSLProgramVisitor_DEFINED
 
+#include "include/private/SkOnlyStackAllocatable.h"
+
 #include <memory>
 
 namespace SkSL {
 
-struct Program;
 class Expression;
-class Statement;
 class ProgramElement;
+class Statement;
+struct Program;
 
 /**
  * Utility class to visit every element, statement, and expression in an SkSL program IR.
@@ -34,6 +36,8 @@ class ProgramElement;
 template <typename T>
 class TProgramVisitor {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     virtual ~TProgramVisitor() = default;
 
 protected:

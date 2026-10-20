@@ -10,6 +10,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkEnumBitMask.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkStringView.h"
@@ -649,6 +650,8 @@ private:
 
 class AutoLoopTarget {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     AutoLoopTarget(Generator* gen, int* targetPtr) : fGenerator(gen), fLoopTargetPtr(targetPtr) {
         fLabelID = fGenerator->builder()->nextLabelID();
         fPreviousLoopTarget = *fLoopTargetPtr;

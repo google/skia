@@ -10,6 +10,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkEnumBitMask.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -134,6 +135,8 @@ private:
     void writeProgramElementSecondPass(const ProgramElement& e);
 
     struct AutoOutputBuffer {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         AutoOutputBuffer(PipelineStageCodeGenerator* generator) : fGenerator(generator) {
             fOldBuffer = fGenerator->fBuffer;
             fGenerator->fBuffer = &fBuffer;

@@ -9,6 +9,7 @@
 #define SKSL_VARIABLE
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLLayout.h"
@@ -77,6 +78,8 @@ public:
      * Useful when doing IR rewrites, e.g. inlining a function call.
      */
     struct ScratchVariable {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         const Variable* fVarSymbol;
         std::unique_ptr<Statement> fVarDecl;
     };

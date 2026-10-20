@@ -9,6 +9,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/private/SkEnumBitMask.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/SkSLVersion.h"
 #include "src/core/SkNoDestructor.h"
@@ -128,6 +129,8 @@ private:
 
 class Parser::AutoSymbolTable {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     AutoSymbolTable(Parser* p, std::unique_ptr<SymbolTable>* newSymbolTable, bool enable = true) {
         if (enable) {
             fParser = p;
@@ -152,6 +155,8 @@ private:
 
 class Parser::Checkpoint {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     Checkpoint(Parser* p) : fParser(p) {
         Context& context = fParser->fCompiler.context();
         fPushbackCheckpoint = fParser->fPushback;

@@ -10,6 +10,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkEnumBitMask.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkTHash.h"
@@ -260,6 +261,8 @@ private:
 // know if the base (`x`) is assignable; the index expression (`1`) doesn't need to be.
 class IsAssignableVisitor {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     IsAssignableVisitor(ErrorReporter* errors) : fErrors(errors) {}
 
     bool visit(Expression& expr, Analysis::AssignmentInfo* info) {

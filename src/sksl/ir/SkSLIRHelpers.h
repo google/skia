@@ -9,6 +9,7 @@
 #define SKSL_IRHELPERS
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
@@ -37,6 +38,8 @@ class Statement;
 class Variable;
 
 struct IRHelpers {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     IRHelpers(const Context& c) : fContext(c) {}
 
     // Note that this class doesn't adhere to the typical Skia style rules; function names are

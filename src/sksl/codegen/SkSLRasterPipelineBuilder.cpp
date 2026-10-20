@@ -9,6 +9,7 @@
 
 #include "include/core/SkStream.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
@@ -2489,6 +2490,8 @@ void Program::makeStages(TArray<Stage>* pipeline,
 
 class Program::Dumper {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     Dumper(const Program& p) : fProgram(p) {}
 
     void dump(SkWStream* out, bool writeInstructionCount);

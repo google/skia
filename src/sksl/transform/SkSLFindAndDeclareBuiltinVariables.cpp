@@ -7,6 +7,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -38,6 +39,8 @@ namespace {
 
 class BuiltinVariableScanner {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     BuiltinVariableScanner(const Context& context, const SymbolTable& symbols)
             : fContext(context)
             , fSymbols(symbols) {}

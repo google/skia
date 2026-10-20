@@ -12,6 +12,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkEnumBitMask.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLDefines.h"
@@ -709,6 +710,8 @@ struct InlineCandidateList {
 
 class InlineCandidateAnalyzer {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     // A list of all the inlining candidates we found during analysis.
     InlineCandidateList* fCandidateList;
 

@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLCompiler.h"
 
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -42,6 +43,8 @@ Compiler::OverrideFlag Compiler::sInliner = OverrideFlag::kDefault;
 
 class AutoProgramConfig {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     AutoProgramConfig(Context& context, ProgramConfig* config)
             : fContext(context)
             , fOldConfig(context.fConfig) {

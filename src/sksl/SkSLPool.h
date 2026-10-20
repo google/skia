@@ -8,6 +8,8 @@
 #ifndef SKSL_POOL
 #define SKSL_POOL
 
+#include "include/private/SkOnlyStackAllocatable.h"
+
 #include <cstddef>
 #include <memory>
 
@@ -75,6 +77,8 @@ public:
  */
 class AutoAttachPoolToThread {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     AutoAttachPoolToThread(Pool* p) : fPool(p) {
         if (fPool) {
             fPool->attachToThread();

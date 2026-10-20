@@ -8,6 +8,7 @@
 #ifndef SkSLAnalysis_DEFINED
 #define SkSLAnalysis_DEFINED
 
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkTArray.h"
 
@@ -146,6 +147,8 @@ LoopControlFlowInfo GetLoopControlFlowInfo(const Statement& stmt);
  * are not actually writable.
  */
 struct AssignmentInfo {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     VariableReference* fAssignedVar = nullptr;
 };
 bool IsAssignable(Expression& expr, AssignmentInfo* info = nullptr,
@@ -266,6 +269,8 @@ skia_private::TArray<const SkSL::Variable*> GetComputeShaderMainParams(const Con
  */
 class SymbolTableStackBuilder {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     // If the passed-in statement holds a symbol table, adds it to the stack.
     SymbolTableStackBuilder(const Statement* stmt, std::vector<SymbolTable*>* stack);
 

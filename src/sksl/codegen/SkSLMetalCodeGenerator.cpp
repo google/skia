@@ -9,6 +9,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkEnumBitMask.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkScopeExit.h"
@@ -389,6 +390,8 @@ static const char* operator_name(Operator op) {
 
 class MetalCodeGenerator::GlobalStructVisitor {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     virtual ~GlobalStructVisitor() = default;
     virtual void visitInterfaceBlock(const InterfaceBlock& block, std::string_view blockName) {}
     virtual void visitTexture(const Type& type, std::string_view name) {}
@@ -399,6 +402,8 @@ public:
 
 class MetalCodeGenerator::ThreadgroupStructVisitor {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     virtual ~ThreadgroupStructVisitor() = default;
     virtual void visitNonconstantVariable(const Variable& var) = 0;
 };

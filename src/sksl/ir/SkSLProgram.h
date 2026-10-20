@@ -8,6 +8,7 @@
 #ifndef SKSL_PROGRAM
 #define SKSL_PROGRAM
 
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <cstdint>
@@ -74,6 +75,8 @@ struct Program {
 
     class ElementsCollection {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         class iterator {
         public:
             const ProgramElement* operator*() {
