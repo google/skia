@@ -10921,6 +10921,239 @@ UNIX_ONLY_TEST(SkParagraph_SoftHyphenBreakNotTakenNeedsNoRoom, reporter) {
     checkLines(reporter, paragraph.get(), "xy abcdi|jklm");
 }
 
+// Laid out at its min intrinsic width, text with soft hyphens doesn't overflow: as in CSS
+// min-content, the min intrinsic width includes the hyphen drawn at a soft hyphen break.
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenMinIntrinsicWidthIncludesHyphen, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text = "xy abcd~ef";
+    SkScalar minWidth = layoutWithSoftHyphens(fontCollection, text, 1000)->getMinIntrinsicWidth();
+    auto paragraph = layoutWithSoftHyphens(fontCollection, text, minWidth);
+    checkLines(reporter, paragraph.get(), "xy|abcd-|ef");
+    REPORTER_ASSERT(reporter,
+                    paragraph->getLongestLine() <= minWidth + EPSILON100,
+                    "%g > %g",
+                    paragraph->getLongestLine(),
+                    minWidth);
+}
+
+// The hyphen counts with the width of the string that's drawn, and only where one is drawn.
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenMinIntrinsicWidthCountsDrawnHyphen, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    auto minWidth = [&](const char* text, bool render, const char* hyphen) {
+        auto configure = [&](ParagraphStyle& style) {
+            style.setRenderSoftHyphens(render);
+            style.setSoftHyphenString(SkString(hyphen));
+        };
+        return layoutWithSoftHyphens(fontCollection, text, 1000, configure)->getMinIntrinsicWidth();
+    };
+    // "abcd" is the widest word, so the hidden case is its width.
+    SkScalar hidden = minWidth("xy abcd~ef", false, "-");
+    for (const char* hyphen : {"-", "--"}) {
+        SkScalar extra = minWidth("xy abcd~ef", true, hyphen) - hidden;
+        SkScalar hyphenWidth = singleLineWidth(fontCollection, hyphen);
+        REPORTER_ASSERT(reporter,
+                        SkScalarNearlyEqual(extra, hyphenWidth, EPSILON100),
+                        "%s: %g vs %g",
+                        hyphen,
+                        extra,
+                        hyphenWidth);
+    }
+    // A soft hyphen at the end of the text never breaks a line, so no hyphen is drawn for it.
+    SkScalar atEnd = minWidth("xy abcd~", true, "-");
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(atEnd, minWidth("xy abcd~", false, "-")));
+}
+
+// The min intrinsic width doesn't depend on the layout width: a word too long for the line still
+// counts with its hyphen.
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenMinIntrinsicWidthOfTooLongWord, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text = "xy abcdefghij~k";
+    SkScalar wide = layoutWithSoftHyphens(fontCollection, text, 1000)->getMinIntrinsicWidth();
+    SkScalar narrow = layoutWithSoftHyphens(fontCollection, text, 30)->getMinIntrinsicWidth();
+    auto hide = [](ParagraphStyle& style) { style.setRenderSoftHyphens(false); };
+    SkScalar hidden = layoutWithSoftHyphens(fontCollection, text, 30, hide)->getMinIntrinsicWidth();
+    REPORTER_ASSERT(
+            reporter, SkScalarNearlyEqual(narrow, wide, EPSILON100), "%g vs %g", narrow, wide);
+    REPORTER_ASSERT(reporter, narrow > hidden + 1, "%g vs %g", narrow, hidden);
+}
+
+// Verifies that letter-spaced words ending at a soft hyphen include U+00AD's letterSpacing in
+// nextWordLength when the word is too long or breaks directly on the U+00AD cluster
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenMinIntrinsicWidthLetterSpacing, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    auto buildAndLayout = [&](SkScalar width) {
+        ParagraphStyle paragraphStyle;
+        paragraphStyle.turnHintingOff();
+        paragraphStyle.setApplyRoundingHack(false);
+        paragraphStyle.setRenderSoftHyphens(true);
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+
+        TextStyle textStyle;
+        textStyle.setFontFamilies({SkString("Roboto")});
+        textStyle.setFontSize(20);
+        textStyle.setLetterSpacing(10);
+        builder.pushStyle(textStyle);
+        std::string utf8 = withSoftHyphens("xy abcdefghij~k");
+        builder.addText(utf8.c_str(), utf8.size());
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(width);
+        return paragraph;
+    };
+
+    SkScalar wide = buildAndLayout(1000)->getMinIntrinsicWidth();
+    SkScalar narrow = buildAndLayout(30)->getMinIntrinsicWidth();
+    REPORTER_ASSERT(
+            reporter, SkScalarNearlyEqual(narrow, wide, EPSILON100), "%g vs %g", narrow, wide);
+
+    // Also test breaking right on the U+00AD cluster itself when letterSpacing > 0 gives it width:
+    // "xy abcd" fits, "xy abcd~" exceeds maxWidth by U+00AD's letterSpacing
+    ParagraphStyle ps;
+    ps.turnHintingOff();
+    ps.setApplyRoundingHack(false);
+    TextStyle ts;
+    ts.setFontFamilies({SkString("Roboto")});
+    ts.setFontSize(20);
+    ts.setLetterSpacing(10);
+
+    ParagraphBuilderImpl b2(ps, fontCollection, get_unicode());
+    b2.pushStyle(ts);
+    b2.addText("xy abcd", 7);
+    b2.pop();
+    auto p2 = b2.Build();
+    p2->layout(1000);
+    SkScalar xyAbcdWidth = p2->getMaxIntrinsicWidth();
+
+    ps.setRenderSoftHyphens(true);
+    auto buildShort = [&]() {
+        ParagraphBuilderImpl b(ps, fontCollection, get_unicode());
+        b.pushStyle(ts);
+        std::string shortUtf8 = withSoftHyphens("xy abcd~ef");
+        b.addText(shortUtf8.c_str(), shortUtf8.size());
+        b.pop();
+        return b.Build();
+    };
+    auto pWide = buildShort();
+    pWide->layout(1000);
+    SkScalar expectedMin = pWide->getMinIntrinsicWidth();
+
+    auto pOnShy = buildShort();
+    pOnShy->layout(xyAbcdWidth + 5);
+    REPORTER_ASSERT(reporter,
+                    SkScalarNearlyEqual(pOnShy->getMinIntrinsicWidth(), expectedMin, EPSILON100),
+                    "%g vs %g",
+                    pOnShy->getMinIntrinsicWidth(),
+                    expectedMin);
+}
+
+// Verifies that fMinIntrinsicWidth counts the hyphenated word width when nextWordLength <= maxWidth
+// in lookAhead and in the post-maxLines remainder loop
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenMinIntrinsicWidthMaxLines, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text = "xy za abcd~i";
+    SkScalar expectedMin =
+            layoutWithSoftHyphens(fontCollection, text, 1000)->getMinIntrinsicWidth();
+    SkScalar abcdWidth = singleLineWidth(fontCollection, "abcd");
+
+    // Layout at width between width("abcd") and width("abcd-") with maxLines=2:
+    // Line 1 breaks after "xy" and Line 2 breaks after "za" because "za abcd" exceeds maxWidth,
+    // while in lookAhead's further loop nextWordLength ("abcd") <= maxWidth, and the post-maxLines
+    // remainder loop scans "abcd~i" without splitting at the soft hyphen or adding hyphenWidth
+    SkScalar actualMin =
+            layoutWithSoftHyphens(fontCollection, text, abcdWidth + 1, [](ParagraphStyle& style) {
+                style.setMaxLines(2);
+            })->getMinIntrinsicWidth();
+    REPORTER_ASSERT(reporter,
+                    SkScalarNearlyEqual(actualMin, expectedMin, EPSILON100),
+                    "%g vs %g",
+                    actualMin,
+                    expectedMin);
+
+    // Also verify that a word split at a non-breaking space (U+00A0) in lookAhead is not
+    // inflated to the unsplit "aa\u00A0bbbb" width in fMinIntrinsicWidth
+    SkScalar xxxxAaWidth = singleLineWidth(fontCollection, "xxxx aa");
+    SkScalar unsplitNbspWidth = singleLineWidth(fontCollection,
+                                                "aa\xC2\xA0"
+                                                "bbbb");
+    auto nbspParagraph = layoutWithSoftHyphens(fontCollection,
+                                               "xxxx aa\xC2\xA0"
+                                               "bbbb",
+                                               xxxxAaWidth + 2);
+    REPORTER_ASSERT(reporter,
+                    nbspParagraph->getMinIntrinsicWidth() < unsplitNbspWidth - 1,
+                    "%g vs %g",
+                    nbspParagraph->getMinIntrinsicWidth(),
+                    unsplitNbspWidth);
+}
+
+// Verifies that layout(0), which places 1 cluster per line and tracks the max single-cluster
+// width in nextWordLength, does not inflate fMinIntrinsicWidth by nextWordHyphenWidth
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenMinIntrinsicWidthZeroLayoutWidth, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text = "xy abcd~ef";
+    SkScalar zero = layoutWithSoftHyphens(fontCollection, text, 0)->getMinIntrinsicWidth();
+    auto hide = [](ParagraphStyle& style) { style.setRenderSoftHyphens(false); };
+    SkScalar hiddenZero =
+            layoutWithSoftHyphens(fontCollection, text, 0, hide)->getMinIntrinsicWidth();
+    REPORTER_ASSERT(reporter,
+                    SkScalarNearlyEqual(zero, hiddenZero, EPSILON100),
+                    "%g vs %g",
+                    zero,
+                    hiddenZero);
+}
+
+// Verifies that softHyphenWidth shapes with font fallback when the word's font lacks the hyphen
+// glyph, matching the hyphen run shaped by TextLine::createSoftHyphen
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenFallbackFontWidth, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    auto buildWithFallbackHyphen = [&](SkScalar width) {
+        ParagraphStyle paragraphStyle;
+        paragraphStyle.turnHintingOff();
+        paragraphStyle.setApplyRoundingHack(false);
+        paragraphStyle.setRenderSoftHyphens(true);
+        // U+4E00 is absent from Roboto and falls back to Source Han Serif CN in shapeEllipsis,
+        // whose fullwidth glyph (20px) is wider than Roboto's .notdef glyph
+        paragraphStyle.setSoftHyphenString(SkString("\xE4\xB8\x80"));
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+
+        TextStyle textStyle;
+        textStyle.setFontFamilies({SkString("Roboto"), SkString("Source Han Serif CN")});
+        textStyle.setFontSize(20);
+        builder.pushStyle(textStyle);
+        std::string utf8 = withSoftHyphens("xy abcd~efgh");
+        builder.addText(utf8.c_str(), utf8.size());
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(width);
+        return paragraph;
+    };
+
+    SkScalar minWidth = buildWithFallbackHyphen(1000)->getMinIntrinsicWidth();
+    auto atMin = buildWithFallbackHyphen(minWidth);
+    checkLines(reporter, atMin.get(), "xy|abcd-|efgh");
+    REPORTER_ASSERT(reporter,
+                    atMin->getLongestLine() <= minWidth + EPSILON100,
+                    "%g > %g",
+                    atMin->getLongestLine(),
+                    minWidth);
+}
+
 #if defined(SK_UNICODE_ICU_IMPLEMENTATION)
 UNIX_ONLY_TEST(SkParagraph_ICU_EmojiRuns, reporter) {
     SkUnicode_Emoji(SkUnicodes::ICU::Make(), reporter);

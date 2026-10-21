@@ -222,10 +222,12 @@ private:
     }
 
     // softHyphen is the string drawn at soft hyphen line breaks, or nullptr if none is drawn.
+    // A line that may get an ellipsis draws no hyphen, so it needs no room for one
     void lookAhead(SkScalar maxWidth,
                    Cluster* endOfClusters,
                    bool applyRoundingHack,
-                   const SkString* softHyphen);
+                   const SkString* softHyphen,
+                   bool lineMayEllipsize);
     void moveForward(bool hasEllipsis);
     void trimEndSpaces(TextAlign align);
     std::tuple<Cluster*, size_t, SkScalar> trimStartSpaces(Cluster* endOfClusters);
