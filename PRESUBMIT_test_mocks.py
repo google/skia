@@ -156,37 +156,44 @@ class MockOutputApi(object):
     """
 
     class PresubmitResult(object):
-        def __init__(self, message, items=None, long_text=''):
+        def __init__(self, message, items=None, long_text='', locations=None):
             self.message = message
             self.items = items
             self.long_text = long_text
+            self.locations = locations or []
 
         def __repr__(self):
             return self.message
 
     class PresubmitError(PresubmitResult):
-        def __init__(self, message, items=None, long_text=''):
+        def __init__(self, message, items=None, long_text='', locations=None):
             MockOutputApi.PresubmitResult.__init__(
-                self, message, items, long_text)
+                self, message, items, long_text, locations)
             self.type = 'error'
 
     class PresubmitPromptWarning(PresubmitResult):
-        def __init__(self, message, items=None, long_text=''):
+        def __init__(self, message, items=None, long_text='', locations=None):
             MockOutputApi.PresubmitResult.__init__(
-                self, message, items, long_text)
+                self, message, items, long_text, locations)
             self.type = 'warning'
 
     class PresubmitNotifyResult(PresubmitResult):
-        def __init__(self, message, items=None, long_text=''):
+        def __init__(self, message, items=None, long_text='', locations=None):
             MockOutputApi.PresubmitResult.__init__(
-                self, message, items, long_text)
+                self, message, items, long_text, locations)
             self.type = 'notify'
 
     class PresubmitPromptOrNotify(PresubmitResult):
-        def __init__(self, message, items=None, long_text=''):
+        def __init__(self, message, items=None, long_text='', locations=None):
             MockOutputApi.PresubmitResult.__init__(
-                self, message, items, long_text)
+                self, message, items, long_text, locations)
             self.type = 'promptOrNotify'
+
+    class PresubmitResultLocation(object):
+        def __init__(self, file_path, start_line, end_line):
+            self.file_path = file_path
+            self.start_line = start_line
+            self.end_line = end_line
 
     def __init__(self):
         self.more_cc = []

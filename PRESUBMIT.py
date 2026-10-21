@@ -10,11 +10,16 @@ See http://dev.chromium.org/developers/how-tos/depottools/presubmit-scripts
 for more details about the presubmit API built into gcl.
 """
 
+import dataclasses
 import difflib
 import os
 import re
 import subprocess
 import sys
+
+from typing import Optional
+from typing import Sequence
+from typing import Tuple
 
 
 RELEASE_NOTES_DIR = 'relnotes'
@@ -29,6 +34,50 @@ SERVICE_ACCOUNT_SUFFIX = [
         'skia-corp.google.com', 'chops-service-accounts']]
 
 USE_PYTHON3 = True
+
+
+# Copied from Chrome's BanRule.
+@dataclasses.dataclass
+class BanRule:
+  # String pattern. If the pattern begins with a slash, the pattern will be
+  # treated as a regular expression instead.
+  pattern: str
+
+  # Explanation as a sequence of strings. Each string in the sequence will be
+  # printed on its own line.
+  explanation: Tuple[str, ...]
+
+  # Whether or not to treat this ban as a fatal error.
+  treat_as_error: bool = False
+
+  # Paths that should be excluded from the ban check. Each string is a regular
+  # expression that will be matched against the path of the file being checked
+  # relative to the root of the source tree.
+  excluded_paths: Optional[Sequence[str]] = None
+
+  # If True, surfaces any violation as a Gerrit comment on the CL after
+  # running the CQ.
+  surface_as_gerrit_lint: Optional[bool] = None
+
+
+# Configuration for banned patterns checks.
+_BANNED_CPP_PATTERNS: Sequence[BanRule] = (
+    BanRule(
+        pattern=r'/\bSK_UNSAFE_TODO\b',
+        explanation=(
+            'Do not introduce new instances of SK_UNSAFE_TODO. ',
+            'Use SK_UNSAFE_BUFFERS with a // SAFETY: comment instead, ',
+            'or rewrite to be safe.',
+        ),
+        treat_as_error=False,
+        surface_as_gerrit_lint=True,
+    ),
+)
+
+# C/C++/Objective-C source file extensions checked by the unsafe buffers
+# presubmit checks.
+_CPP_SOURCE_EXTENSIONS = ('.h', '.cpp', '.cc', '.m', '.mm')
+
 
 def np(path):
   """normalize path
@@ -592,6 +641,162 @@ def _CheckBannedAPIs(input_api, output_api):
   return []
 
 
+def _CheckPresubmitTests(input_api, output_api):
+  """Run PRESUBMIT_test.py during presubmit."""
+  return input_api.RunTests(
+      input_api.canned_checks.GetUnitTestsInDirectory(
+          input_api,
+          output_api,
+          '.',
+          files_to_check=[r'^PRESUBMIT_test\.py$']))
+
+
+def _CheckUnsafeBuffersSafetyComments(input_api, output_api):
+  """Checks that SK_UNSAFE_BUFFERS is accompanied by a // SAFETY: comment."""
+  # We only check C++ source files.
+  file_filter = lambda f: f.LocalPath().endswith(_CPP_SOURCE_EXTENSIONS)
+
+  unsafe_buffers_regex = input_api.re.compile(r'\bSK_UNSAFE_BUFFERS\b')
+  safety_comment_regex = input_api.re.compile(r'//.*\bSAFETY\b')
+  statement_terminators = (';', '{', '}')
+
+  problems = []
+
+  for f in input_api.AffectedSourceFiles(file_filter):
+    # Only flag SK_UNSAFE_BUFFERS on lines touched by this change.
+    changed = [(line_num, line) for line_num, line in f.ChangedContents()
+               if unsafe_buffers_regex.search(line) and
+               not line.strip().startswith('//')]
+    if not changed:
+      continue
+    # The full file is needed to look back for a preceding // SAFETY: comment,
+    # which may be on an unchanged line.
+    lines = f.NewContents()
+    for line_num, line in changed:
+      # Check if safety comment is on the same line.
+      if safety_comment_regex.search(line):
+        continue
+
+      # Check preceding lines for a SAFETY comment.
+      has_safety = False
+      for check_line_num in range(line_num - 1, 0, -1):
+        check_line = lines[check_line_num - 1].strip()
+        if not check_line:
+          continue
+        if check_line.startswith('//'):
+          if safety_comment_regex.search(check_line):
+            has_safety = True
+            break
+        else:
+          # Not a comment line. If it looks like the end of a statement, stop
+          # searching. A trailing // comment would hide the terminator, so
+          # also check the code before it. The whole line is still checked in
+          # case the '//' is inside a string literal (e.g. a URL).
+          code = check_line.split('//', 1)[0].rstrip()
+          if (check_line.endswith(statement_terminators) or
+              code.endswith(statement_terminators)):
+            break
+
+      if not has_safety:
+        problems.append('%s:%d: SK_UNSAFE_BUFFERS usage must be accompanied '
+                        'by a // SAFETY: comment.' % (f.LocalPath(), line_num))
+
+  if problems:
+    return [output_api.PresubmitPromptWarning(
+        'SK_UNSAFE_BUFFERS usages must be accompanied by a // SAFETY: '
+        'comment explaining why they are safe.',
+        items=problems)]
+  return []
+
+
+# Copied from Chrome's _GetMessageForMatchingType.
+def _GetMessageForMatchingType(input_api, affected_file, line_number, line,
+                               ban_rule):
+  """Helper method for checking for banned constructs.
+
+  Returns a list of strings composed of the name of the file, the line number
+  where the match has been found and the additional text passed as
+  |explanation| in case the target type name matches the text inside the
+  line passed as parameter.
+  """
+  result = []
+
+  # Ignore comments about banned types.
+  if input_api.re.search(r'^ *//', line):
+    return result
+  # A // nocheck comment will bypass this error.
+  if line.endswith(' nocheck'):
+    return result
+
+  matched = False
+  if ban_rule.pattern[0:1] == '/':
+    regex = ban_rule.pattern[1:]
+    if input_api.re.search(regex, line):
+      matched = True
+  elif ban_rule.pattern in line:
+    matched = True
+
+  if matched:
+    result.append('    %s:%d:' % (affected_file.LocalPath(), line_number))
+    for line in ban_rule.explanation:
+      result.append('      %s' % line)
+
+  return result
+
+
+# Copied from Chrome's CheckNoBannedPatterns with modifications.
+def _CheckNoBannedPatterns(input_api, output_api):
+  """Make sure that banned patterns are not used."""
+  results = []
+
+  def IsExcludedFile(affected_file, excluded_paths):
+    if not excluded_paths:
+      return False
+
+    local_path = np(affected_file.LocalPath())
+    for item in excluded_paths:
+      if input_api.re.match(item, local_path):
+        return True
+    return False
+
+  def CheckForMatch(affected_file, line_num, line, ban_rule):
+    if IsExcludedFile(affected_file, ban_rule.excluded_paths):
+      return
+
+    message = _GetMessageForMatchingType(input_api, affected_file, line_num,
+                                         line, ban_rule)
+    if not message:
+      return
+
+    result_loc = []
+    if ban_rule.surface_as_gerrit_lint:
+      if hasattr(output_api, 'PresubmitResultLocation'):
+        result_loc.append(output_api.PresubmitResultLocation(
+            file_path=affected_file.LocalPath(),
+            start_line=line_num,
+            end_line=line_num,
+        ))
+
+    if ban_rule.treat_as_error:
+      result_type = output_api.PresubmitError
+    else:
+      result_type = output_api.PresubmitPromptWarning
+
+    text = 'A banned pattern was used.\n' + '\n'.join(message)
+    if result_loc:
+      results.append(result_type(text, locations=result_loc))
+    else:
+      results.append(result_type(text))
+
+  file_filter = lambda f: f.LocalPath().endswith(_CPP_SOURCE_EXTENSIONS)
+  for f in input_api.AffectedSourceFiles(file_filter):
+    for line_num, line in f.ChangedContents():
+      for ban_rule in _BANNED_CPP_PATTERNS:
+        CheckForMatch(f, line_num, line, ban_rule)
+
+  return results
+
+
 def _CheckDEPS(input_api, output_api):
   """If DEPS was modified, run the deps_parser to update bazel/deps.json"""
   files = []
@@ -688,6 +893,9 @@ def _CommonChecks(input_api, output_api):
   results.extend(_CheckBazelBUILDFiles(input_api, output_api))
   results.extend(_CheckBannedAPIs(input_api, output_api))
   results.extend(_CheckSKCMS(input_api, output_api))
+  results.extend(_CheckPresubmitTests(input_api, output_api))
+  results.extend(_CheckUnsafeBuffersSafetyComments(input_api, output_api))
+  results.extend(_CheckNoBannedPatterns(input_api, output_api))
   return results
 
 

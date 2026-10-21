@@ -194,6 +194,261 @@ class SKCMSTest(unittest.TestCase):
         mock_output_api = MockOutputApi()
         results = PRESUBMIT._CheckSKCMS(mock_input_api, mock_output_api)
 
+class CheckUnsafeBuffersSafetyCommentsTest(unittest.TestCase):
+    def _run(self, contents, path='src/core/SkFoo.cpp'):
+        mock_input_api = MockInputApi()
+        mock_input_api.files = [MockFile(path, contents)]
+        return PRESUBMIT._CheckUnsafeBuffersSafetyComments(
+            mock_input_api, MockOutputApi())
+
+    def testNoUsage(self):
+        results = self._run([
+            'void Foo() {',
+            '    int x = 0;',
+            '}',
+        ])
+        self.assertEqual(0, len(results))
+
+    def testValidUsageSameLine(self):
+        results = self._run([
+            'void Foo() {',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0); // SAFETY: safe',
+            '}',
+        ])
+        self.assertEqual(0, len(results))
+
+    def testValidUsagePrecedingLine(self):
+        results = self._run([
+            'void Foo() {',
+            '    // SAFETY: safe',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '}',
+        ])
+        self.assertEqual(0, len(results))
+
+    def testValidUsagePrecedingLineWithOtherComments(self):
+        results = self._run([
+            'void Foo() {',
+            '    // SAFETY: safe',
+            '    // some other info',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '}',
+        ])
+        self.assertEqual(0, len(results))
+
+    def testValidUsageBrokenLine(self):
+        results = self._run([
+            'void Foo() {',
+            '    // SAFETY: safe',
+            '    int very_long_line_due_lots_of_stuff = line_broken_by_clang_format +',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '}',
+        ])
+        self.assertEqual(0, len(results))
+
+    def testValidUsageBrokenLineWithTrailingComment(self):
+        results = self._run([
+            'void Foo() {',
+            '    // SAFETY: safe',
+            '    int total = base +  // offset',
+            '                SK_UNSAFE_BUFFERS(ptr[0]);',
+            '}',
+        ])
+        self.assertEqual(0, len(results))
+
+    def testValidUsageSafetyCommentWithCodeSyntax(self):
+        results = self._run([
+            'void Foo() {',
+            '    // SAFETY: Explanation too large to display in one line of comment',
+            '    // and use of c++ syntax to justify usage. This is safe because',
+            '    // dummy[1] = dummy[0]++; is safe',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '}',
+        ])
+        self.assertEqual(0, len(results))
+
+    def testValidUsageInHeader(self):
+        results = self._run([
+            'inline void Foo() {',
+            '    // SAFETY: safe',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '}',
+        ], path='include/private/SkFoo.h')
+        self.assertEqual(0, len(results))
+
+    def testNonSourceFileIgnored(self):
+        results = self._run([
+            'SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+        ], path='docs/examples/foo.md')
+        self.assertEqual(0, len(results))
+
+    def testInvalidUsageCommentSeparatedByForLoop(self):
+        results = self._run([
+            'void Foo() {',
+            '    // SAFETY: safe',
+            '    for (int b = 0; b < buffer_size; b++) {',
+            '        SK_UNSAFE_BUFFERS(dummy[b] += x);',
+            '    }',
+            '}',
+        ])
+        self.assertEqual(1, len(results))
+
+    def testInvalidUsageNoComment(self):
+        results = self._run([
+            'void Foo() {',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '}',
+        ])
+        self.assertEqual(1, len(results))
+        self.assertIsInstance(
+            results[0], MockOutputApi.PresubmitPromptWarning, 'Not a warning')
+        self.assertIn('SK_UNSAFE_BUFFERS usage must be accompanied',
+                      results[0].items[0])
+        self.assertIn('src/core/SkFoo.cpp:2:', results[0].items[0])
+
+    def testInvalidUsageCommentNotSafety(self):
+        results = self._run([
+            'void Foo() {',
+            '    // this is a comment but not safety',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '}',
+        ])
+        self.assertEqual(1, len(results))
+
+    def testInvalidUsageCommentSeparatedByCode(self):
+        results = self._run([
+            'void Foo() {',
+            '    // SAFETY: safe',
+            '    int x = 0;',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '}',
+        ])
+        self.assertEqual(1, len(results))
+
+    def testInvalidUsageCommentSeparatedByCodeWithTrailingComment(self):
+        results = self._run([
+            'void Foo() {',
+            '    // SAFETY: safe',
+            '    int x = 0;  // init',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '}',
+        ])
+        self.assertEqual(1, len(results))
+
+    def testInvalidUsageCommentSeparatedByCodeWithSlashesInString(self):
+        results = self._run([
+            'void Foo() {',
+            '    // SAFETY: safe',
+            '    const char* kUrl = "https://skia.org";',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '}',
+        ])
+        self.assertEqual(1, len(results))
+
+    def testIgnoreCommentedUsage(self):
+        results = self._run([
+            'void Foo() {',
+            '    // SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '}',
+        ])
+        self.assertEqual(0, len(results))
+
+    def testUnchangedUsageIgnored(self):
+        contents = [
+            'void Foo() {',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '    int x = 0;',
+            '}',
+        ]
+        mock_file = MockFile('src/core/SkFoo.cpp', contents)
+        # Only line 3 was changed; the pre-existing usage on line 2 is ignored.
+        mock_file._changed_contents = [(3, contents[2])]
+        mock_input_api = MockInputApi()
+        mock_input_api.files = [mock_file]
+        results = PRESUBMIT._CheckUnsafeBuffersSafetyComments(
+            mock_input_api, MockOutputApi())
+        self.assertEqual(0, len(results))
+
+    def testSafetyCommentOnUnchangedLine(self):
+        contents = [
+            'void Foo() {',
+            '    // SAFETY: safe',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+            '}',
+        ]
+        mock_file = MockFile('src/core/SkFoo.cpp', contents)
+        # Only the usage line changed; the SAFETY comment above it is old.
+        mock_file._changed_contents = [(3, contents[2])]
+        mock_input_api = MockInputApi()
+        mock_input_api.files = [mock_file]
+        results = PRESUBMIT._CheckUnsafeBuffersSafetyComments(
+            mock_input_api, MockOutputApi())
+        self.assertEqual(0, len(results))
+
+
+class CheckNoBannedPatternsTest(unittest.TestCase):
+    def _run(self, contents, path='src/core/SkFoo.cpp'):
+        mock_input_api = MockInputApi()
+        mock_input_api.files = [MockFile(path, contents)]
+        return PRESUBMIT._CheckNoBannedPatterns(
+            mock_input_api, MockOutputApi())
+
+    def testNoUsage(self):
+        results = self._run([
+            'void Foo() {',
+            '    int x = 0;',
+            '}',
+        ])
+        self.assertEqual(0, len(results))
+
+    def testBannedUnsafeTodo(self):
+        results = self._run([
+            'void Foo() {',
+            '    SK_UNSAFE_TODO(ptr[0] = 0);',
+            '}',
+        ])
+        self.assertEqual(1, len(results))
+        self.assertIsInstance(
+            results[0], MockOutputApi.PresubmitPromptWarning, 'Not a warning')
+        self.assertIn('A banned pattern was used.', results[0].message)
+        self.assertIn('src/core/SkFoo.cpp:2:', results[0].message)
+        self.assertIn('Do not introduce new instances of SK_UNSAFE_TODO',
+                      results[0].message)
+        self.assertEqual(1, len(results[0].locations))
+        loc = results[0].locations[0]
+        self.assertEqual('src/core/SkFoo.cpp', loc.file_path)
+        self.assertEqual(2, loc.start_line)
+        self.assertEqual(2, loc.end_line)
+
+    def testCommentedUsageIgnored(self):
+        results = self._run([
+            '// SK_UNSAFE_TODO(ptr[0] = 0);',
+        ])
+        self.assertEqual(0, len(results))
+
+    def testNoCheckBypass(self):
+        results = self._run([
+            '    SK_UNSAFE_TODO(ptr[0] = 0); // nocheck',
+        ])
+        self.assertEqual(0, len(results))
+
+    def testSubstringNotMatched(self):
+        results = self._run([
+            '    SK_UNSAFE_TODOISH(ptr[0] = 0);',
+        ])
+        self.assertEqual(0, len(results))
+
+    def testNonSourceFileIgnored(self):
+        results = self._run([
+            'SK_UNSAFE_TODO(ptr[0] = 0);',
+        ], path='tools/foo.py')
+        self.assertEqual(0, len(results))
+
+    def testSafeBuffersMacroNotBanned(self):
+        results = self._run([
+            '    // SAFETY: safe',
+            '    SK_UNSAFE_BUFFERS(ptr[0] = 0);',
+        ])
         self.assertEqual(0, len(results))
 
 
