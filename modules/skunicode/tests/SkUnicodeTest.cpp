@@ -723,6 +723,107 @@ DEF_TEST_ICU_UNICODES(SkUnicode_ComputeCodeUnitFlags, reporter) {
     }
 }
 
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
+DEF_TEST(SkUnicode_ICU_ComputeCodeUnitFlagsMultiByte, reporter) {
+    auto icu = SkUnicodes::ICU::Make();
+    // Windows test bots do not ship icudtl.dat, so ICU cannot load there
+#if !defined(SK_BUILD_FOR_WIN)
+    REPORTER_ASSERT(reporter, icu);
+#endif
+    if (!icu) {
+        return;
+    }
+    // Every UTF-8 code unit of a code point gets the code point flags.
+    // a U+4E2D U+3000 U+0085 U+20000 U+1D173 \t
+    SkString text("a\xE4\xB8\xAD\xE3\x80\x80\xC2\x85\xF0\xA0\x80\x80\xF0\x9D\x85\xB3\t");
+    constexpr auto kWhiteSpace =
+            SkUnicode::kPartOfWhiteSpaceBreak | SkUnicode::kPartOfIntraWordBreak;
+    struct {
+        int start, end;
+        SkUnicode::CodeUnitFlags flags;
+    } expected[] = {
+        { 0,  1, SkUnicode::kNoCodeUnitFlag},
+        { 1,  4, SkUnicode::kIdeographic},
+        { 4,  7, kWhiteSpace},
+        { 7,  9, SkUnicode::kPartOfIntraWordBreak | SkUnicode::kControl},
+        { 9, 13, SkUnicode::kIdeographic},
+        {13, 17, SkUnicode::kControl},
+        {17, 18, kWhiteSpace | SkUnicode::kTabulation},  // replaced with a space
+    };
+    constexpr auto kMask = kWhiteSpace | SkUnicode::kControl | SkUnicode::kIdeographic |
+                           SkUnicode::kTabulation;
+    TArray<SkUnicode::CodeUnitFlags, true> results;
+    REPORTER_ASSERT(reporter, icu->computeCodeUnitFlags(text.data(), text.size(),
+                                                        /*replaceTabs=*/true, &results));
+    REPORTER_ASSERT(reporter, results.size() == SkToInt(text.size() + 1));
+    for (auto& e : expected) {
+        for (int i = e.start; i < e.end; ++i) {
+            REPORTER_ASSERT(reporter, (results[i] & kMask) == e.flags,
+                            "code unit %d: %x != %x", i, (unsigned)(results[i] & kMask),
+                            (unsigned)e.flags);
+        }
+    }
+}
+
+DEF_TEST(SkUnicode_ICU_ComputeCodeUnitFlagsSurrogatePair, reporter) {
+    auto icu = SkUnicodes::ICU::Make();
+    // Windows test bots do not ship icudtl.dat, so ICU cannot load there
+#if !defined(SK_BUILD_FOR_WIN)
+    REPORTER_ASSERT(reporter, icu);
+#endif
+    if (!icu) {
+        return;
+    }
+    // Both UTF-16 code units of a surrogate pair get the code point flags.
+    // a U+1D173 b
+    char16_t text[] = {u'a', 0xD834, 0xDD73, u'b'};
+    constexpr int kUnits = std::size(text);
+    constexpr auto kMask = SkUnicode::kPartOfIntraWordBreak | SkUnicode::kPartOfWhiteSpaceBreak |
+                           SkUnicode::kControl;
+    TArray<SkUnicode::CodeUnitFlags, true> results;
+    REPORTER_ASSERT(reporter, icu->computeCodeUnitFlags(text, kUnits, false, &results));
+    REPORTER_ASSERT(reporter, results.size() == kUnits + 1);
+    for (int i = 1; i <= 2; ++i) {
+        REPORTER_ASSERT(reporter, (results[i] & kMask) == SkUnicode::kControl,
+                        "code unit %d: %x", i, (unsigned)(results[i] & kMask));
+    }
+}
+
+DEF_TEST(SkUnicode_ICU_ComputeCodeUnitFlagsAscii, reporter) {
+    auto icu = SkUnicodes::ICU::Make();
+    // Windows test bots do not ship icudtl.dat, so ICU cannot load there
+#if !defined(SK_BUILD_FOR_WIN)
+    REPORTER_ASSERT(reporter, icu);
+#endif
+    if (!icu) {
+        return;
+    }
+    // The UTF-8 flags of each ASCII character agree with the ICU property queries.
+    constexpr auto kMask = SkUnicode::kPartOfIntraWordBreak | SkUnicode::kPartOfWhiteSpaceBreak |
+                           SkUnicode::kControl | SkUnicode::kIdeographic;
+    for (SkUnichar c = 0; c < 128; ++c) {
+        SkUnicode::CodeUnitFlags expected = SkUnicode::kNoCodeUnitFlag;
+        if (icu->isSpace(c)) {
+            expected |= SkUnicode::kPartOfIntraWordBreak;
+        }
+        if (icu->isWhitespace(c)) {
+            expected |= SkUnicode::kPartOfWhiteSpaceBreak;
+        }
+        if (icu->isControl(c)) {
+            expected |= SkUnicode::kControl;
+        }
+        if (icu->isIdeographic(c)) {
+            expected |= SkUnicode::kIdeographic;
+        }
+        TArray<SkUnicode::CodeUnitFlags, true> results;
+        char utf8[] = {(char)c};
+        REPORTER_ASSERT(reporter, icu->computeCodeUnitFlags(utf8, 1, false, &results));
+        REPORTER_ASSERT(reporter, (results[0] & kMask) == expected,
+                        "utf8 %d: %x != %x", c, (unsigned)(results[0] & kMask), (unsigned)expected);
+    }
+}
+#endif
+
 DEF_TEST_UNICODES(SkUnicode_ReorderVisual, reporter) {
     if (!unicode) {
         return;
