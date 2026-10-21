@@ -41,10 +41,10 @@ public:
     struct Loaders : public SkNVRefCnt<Loaders> {
         Loaders(IDWriteFactory* factory,
                 IDWriteFontFileLoader* fontFileLoader,
-                IDWriteFontCollectionLoader* fontCollectionLoader)
+                IDWriteFontCollectionLoader* fontCollectionLoader = nullptr)
             : fFactory(SkRefComPtr(factory))
             , fDWriteFontFileLoader(SkRefComPtr(fontFileLoader))
-            , fDWriteFontCollectionLoader(SkRefComPtr(fontCollectionLoader))
+            , fDWriteFontCollectionLoader(SkSafeRefComPtr(fontCollectionLoader))
         {}
         Loaders(const Loaders&) = delete;
         Loaders& operator=(const Loaders&) = delete;
