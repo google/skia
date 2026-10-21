@@ -177,7 +177,12 @@ static sk_sp<SkSpecialImage> eval_blur_passes(PassMaker* makerX, PassMaker* make
 
     SkBitmap dst;
     const SkIPoint dstOrigin = dstBounds.topLeft();
-    if (!dst.tryAllocPixels(src.info().makeWH(dstBounds.width(), dstBounds.height()))) {
+    SkImageInfo dstII = src.info().makeWH(dstBounds.width(), dstBounds.height());
+    // A kDecal blur's edges are transparent, so an opaque input's output is not opaque.
+    if (dstII.alphaType() == kOpaque_SkAlphaType) {
+        dstII = dstII.makeAlphaType(kPremul_SkAlphaType);
+    }
+    if (!dst.tryAllocPixels(dstII)) {
         return nullptr;
     }
     dst.eraseColor(SK_ColorTRANSPARENT);
