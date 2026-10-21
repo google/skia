@@ -83,7 +83,6 @@ NATIVE_OPENGL_AUTOGEN_SRCS = [
 # These are also easier to hardcode rather than running the generator.
 VERSION_AUTOGEN_HEADERS = [
     "include/dawn/dawn_version.h",
-    "src/dawn/common/Version_autogen.h",
 ]
 
 DAWN_PUBLIC_HDRS = HEADERS_WEBGPU_HDRS + DAWNCPP_HEADERS_WEBGPU_HDRS + PROC_HDRS
