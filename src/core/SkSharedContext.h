@@ -10,6 +10,8 @@
 
 #include "include/core/SkRefCnt.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 
 class SkOpenTypeSVGDecoder;
@@ -37,6 +39,26 @@ public:
     const SkTypefaceCache* typefaceCache() const { return fTypefaceCache.get(); }
     SkTypefaceCache* typefaceCache() { return fTypefaceCache.get(); }
 
+    size_t fontCacheLimit() const;
+    size_t setFontCacheLimit(size_t bytes);
+    size_t fontCacheUsed() const;
+
+    int fontCacheCountLimit() const;
+    int setFontCacheCountLimit(int count);
+    int fontCacheCountUsed() const;
+
+    void purgeFontCache();
+    void purgePinnedFontCache();
+
+    size_t resourceCacheTotalBytesUsed() const;
+    size_t resourceCacheTotalByteLimit() const;
+    size_t setResourceCacheTotalByteLimit(size_t newLimit);
+
+    size_t resourceCacheSingleAllocationByteLimit() const;
+    size_t setResourceCacheSingleAllocationByteLimit(size_t newLimit);
+
+    void purgeResourceCache();
+
     int typefaceCacheCountLimit() const { return fTypefaceCacheCountLimit; }
     int setTypefaceCacheCountLimit(int count) {
         const int prev = fTypefaceCacheCountLimit;
@@ -44,11 +66,13 @@ public:
         return prev;
     }
 
-    int setSVGDecoderFactory(OpenTypeSVGDecoderFactory factory) {
-        const int prev = fSVGDecoderFactory != nullptr;
+    OpenTypeSVGDecoderFactory setSVGDecoderFactory(OpenTypeSVGDecoderFactory factory) {
+        const OpenTypeSVGDecoderFactory prev = fSVGDecoderFactory;
         fSVGDecoderFactory = std::move(factory);
         return prev;
     }
+
+    OpenTypeSVGDecoderFactory svgDecoderFactory() const { return fSVGDecoderFactory; }
 
 private:
     int fTypefaceCacheCountLimit = 1024;  // historical default value

@@ -14,7 +14,9 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMutex.h"
+#include "src/core/SkContextPriv.h"
 #include "src/core/SkDescriptor.h"
+#include "src/core/SkSharedContext.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeSpec.h"
 
@@ -31,8 +33,7 @@ SkStrikeCache* SkStrikeCache::GlobalStrikeCache() {
     static thread_local auto* cache = new SkStrikeCache;
     return cache;
 #else
-    static auto* cache = new SkStrikeCache;
-    return cache;
+    return SkContexts::GetGlobalSkContext()->priv().sharedContext()->strikeCache();
 #endif
 }
 
@@ -50,9 +51,7 @@ sk_sp<StrikeForGPU> SkStrikeCache::findOrCreateScopedStrike(const SkStrikeSpec& 
     return this->findOrCreateStrike(strikeSpec);
 }
 
-void SkStrikeCache::PurgeAll() {
-    GlobalStrikeCache()->purgeAll();
-}
+void SkStrikeCache::PurgeAll() { GlobalStrikeCache()->purgeAll(); }
 
 void SkStrikeCache::Dump() {
     SkDebugf("GlyphCache [     used    budget ]\n");
@@ -68,25 +67,26 @@ void SkStrikeCache::Dump() {
     GlobalStrikeCache()->forEachStrike(visitor);
 }
 
-void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
-    dump->dumpNumericValue(kGlyphCacheDumpName, "size", "bytes", SkGraphics::GetFontCacheUsed());
-    dump->dumpNumericValue(kGlyphCacheDumpName, "budget_size", "bytes",
-                           SkGraphics::GetFontCacheLimit());
-    dump->dumpNumericValue(kGlyphCacheDumpName, "glyph_count", "objects",
-                           SkGraphics::GetFontCacheCountUsed());
-    dump->dumpNumericValue(kGlyphCacheDumpName, "budget_glyph_count", "objects",
-                           SkGraphics::GetFontCacheCountLimit());
+void SkStrikeCache::dumpMemoryStatistics(SkTraceMemoryDump* dump) const {
+    dump->dumpNumericValue(kGlyphCacheDumpName, "size", "bytes", this->getTotalMemoryUsed());
+    dump->dumpNumericValue(kGlyphCacheDumpName, "budget_size", "bytes", this->getCacheSizeLimit());
+    dump->dumpNumericValue(
+            kGlyphCacheDumpName, "glyph_count", "objects", this->getCacheCountUsed());
+    dump->dumpNumericValue(
+            kGlyphCacheDumpName, "budget_glyph_count", "objects", this->getCacheCountLimit());
 
     if (dump->getRequestedDetails() == SkTraceMemoryDump::kLight_LevelOfDetail) {
         dump->setMemoryBacking(kGlyphCacheDumpName, "malloc", nullptr);
         return;
     }
 
-    auto visitor = [&](const SkStrike& strike) {
-        strike.dumpMemoryStatistics(dump);
-    };
+    auto visitor = [&](const SkStrike& strike) { strike.dumpMemoryStatistics(dump); };
 
-    GlobalStrikeCache()->forEachStrike(visitor);
+    this->forEachStrike(visitor);
+}
+
+void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
+    GlobalStrikeCache()->dumpMemoryStatistics(dump);
 }
 
 sk_sp<SkStrike> SkStrikeCache::findStrike(const SkDescriptor& desc) {
