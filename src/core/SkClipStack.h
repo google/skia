@@ -440,8 +440,6 @@ public:
      */
     class B2TIter : private Iter {
     public:
-        SK_ONLY_STACK_ALLOCATABLE;
-
         B2TIter() {}
 
         /**

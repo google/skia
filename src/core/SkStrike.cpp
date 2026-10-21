@@ -15,6 +15,7 @@
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTFitsIn.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
@@ -59,6 +60,8 @@ SkStrike::SkStrike(SkStrikeCache* strikeCache,
 
 class SK_SCOPED_CAPABILITY SkStrike::Monitor {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     Monitor(SkStrike* strike) SK_ACQUIRE(strike->fStrikeLock)
             : fStrike{strike} {
         fStrike->lock();

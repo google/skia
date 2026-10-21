@@ -16,6 +16,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkSafeMath.h"
 
@@ -184,6 +185,8 @@ private:
  */
 class SK_SPI SkTextBlobRunIterator {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     explicit SkTextBlobRunIterator(const SkTextBlob* blob);
 
     enum GlyphPositioning : uint8_t {

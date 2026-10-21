@@ -11,6 +11,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkMeshPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
@@ -571,6 +572,8 @@ void validate_linearsrgb_node(const ShaderNode* node) {
 //--------------------------------------------------------------------------------------------------
 class GraphitePipelineCallbacks : public SkSL::PipelineStage::Callbacks {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     GraphitePipelineCallbacks(const ShaderInfo& shaderInfo,
                               const ShaderNode* node,
                               std::string* preamble,
@@ -677,6 +680,8 @@ private:
 
 class MeshProgramCallbacks : public SkSL::PipelineStage::Callbacks {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     MeshProgramCallbacks(std::string mainFn,
                          const ShaderInfo* shaderInfo,
                          const ShaderNode* node)

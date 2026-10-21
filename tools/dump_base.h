@@ -13,6 +13,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkStream.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/capture/SkCapture.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkRecord.h"
@@ -33,6 +34,8 @@
 // and writing to the desired output stream (fOutput).
 class SkRecordDumper {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     // Constructor for benchmarking / canvas playback (e.g. dump_record)
     SkRecordDumper(SkCanvas* canvas,
                    int totalCommands,

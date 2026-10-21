@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkPixelStorage.h"
 #include "include/private/SkTo.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
@@ -154,6 +155,8 @@ private:
 // Volatile texture proxy that deinstantiates itself on destruction.
 class AutoDeinstantiateTextureProxy {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     AutoDeinstantiateTextureProxy(TextureProxy* textureProxy) : fTextureProxy(textureProxy) {}
 
     ~AutoDeinstantiateTextureProxy() {

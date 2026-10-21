@@ -10,6 +10,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkEndian.h"
 
@@ -108,6 +109,8 @@ static int count_tables(SkStream* stream, int ttcIndex, size_t* offsetToDir) {
 ///////////////////////////////////////////////////////////////////////////////
 
 struct SfntHeader {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SfntHeader() : fCount(0), fDir(nullptr) {}
     ~SfntHeader() { sk_free(fDir); }
 
