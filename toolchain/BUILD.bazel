@@ -240,6 +240,9 @@ filegroup(
 filegroup(
     name = "compile_windows_files",
     srcs = [
+        # Skia's copts pass this file to Clang via --warning-suppression-mappings, so it must be
+        # an input of every compile action. See //include/config/copts.bzl.
+        "//tools/unsafe_buffers:unsafe_buffers_mappings.txt",
         "@clang_windows_amd64//:compile_files",
     ],
 )

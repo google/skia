@@ -123,3 +123,15 @@ selects.config_setting_group(
     ],
     visibility = ["//:__subpackages__"],
 )
+
+# Skia's hermetic Windows toolchain. Its Clang (23) supports --warning-suppression-mappings, so
+# //include/config/copts.bzl enforces -Wunsafe-buffer-usage with it.
+# TODO(b/532990050): Add other platforms once their hermetic Clang supports it (20+).
+config_setting(
+    name = "hermetic_windows",
+    constraint_values = [
+        "@platforms//os:windows",
+        "//bazel/platform:use_hermetic_toolchain",
+    ],
+    visibility = ["//:__subpackages__"],
+)

@@ -60,6 +60,10 @@ OPT_LEVEL = select({
     ],
 })
 
+# Execroot-relative path of the -Wunsafe-buffer-usage suppression mappings file. Only used with
+# Skia's hermetic Windows toolchain, i.e. when Skia is the main repository.
+_UNSAFE_BUFFERS_MAPPINGS = "tools/unsafe_buffers/unsafe_buffers_mappings.txt"
+
 WARNINGS = [
     "-fcolor-diagnostics",
     "-Wall",
@@ -87,7 +91,6 @@ WARNINGS = [
     "-Wno-undefined-func-template",
     "-Wno-unused-parameter",  # It is common to have unused parameters in src/
     "-Wno-zero-as-null-pointer-constant",  # VK_NULL_HANDLE is defined as 0
-    "-Wno-unsafe-buffer-usage",
     #### Warnings we would like to fix ####
     "-Wno-abstract-vbase-init",
     "-Wno-cast-align",
@@ -173,6 +176,30 @@ WARNINGS = [
         "-D_CRT_USE_BUILTIN_OFFSETOF",
     ],
     "//conditions:default": [],
+}) + select({
+    # -Wunsafe-buffer-usage (part of -Weverything) flags pointer arithmetic that cannot be bounds
+    # checked. It is enforced, except in the paths listed in the suppression mappings file, only
+    # with the hermetic Windows toolchain, whose Clang (23) supports
+    # --warning-suppression-mappings. Everywhere else it stays off (b/532990050).
+    #
+    # These are copts rather than toolchain flags so that they only apply to Skia's own code: a
+    # toolchain feature also reaches third-party code and tools like Rust build scripts (cc-rs),
+    # which run Clang outside the execroot where the relative mappings path does not resolve.
+    # The mappings file is made an input of every compile by the toolchain's compiler_files.
+    # https://clang.llvm.org/docs/WarningSuppressionMappings.html
+    "//bazel/common_config_settings:hermetic_windows": [
+        "-Wunsafe-buffer-usage",
+        # TODO(skbug.com/571083401): Remove this once Skia's string story is improved.
+        # Temporarily don't flag calls to printf-like (SK_PRINTF_LIKE) functions such as
+        # SkDebugf, SkStringPrintf, SkLog, and SkSL::String::printf/appendf. The warning fires at
+        # every call site whose %s arguments aren't provably null-terminated, and it cannot be
+        # suppressed from within the function or a wrapping macro.
+        "-Wno-unsafe-buffer-usage-in-format-attr-call",
+        "--warning-suppression-mappings=" + _UNSAFE_BUFFERS_MAPPINGS,
+    ],
+    "//conditions:default": [
+        "-Wno-unsafe-buffer-usage",
+    ],
 })
 
 DEFAULT_COPTS = CORE_COPTS + OPT_LEVEL + WARNINGS
