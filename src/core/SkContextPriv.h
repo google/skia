@@ -22,12 +22,10 @@ class SkContext;
     data members or virtual methods.*/
 class SkContextPrivConst {
 public:
-    SkStrikeCache* strikeCache() const { return fConstContext->strikeCache(); }
+    const SkSharedContext* sharedContext() const { return fConstContext->fSharedContext.get(); }
 
 protected:
     explicit SkContextPrivConst(const SkContext* context) : fConstContext(context) {}
-
-    size_t fontCacheLimit() const { return fConstContext->fontCacheLimit(); }
 
 private:
     // No taking addresses of this type.
@@ -70,7 +68,6 @@ public:
     // Ganesh and Graphite
     static std::unique_ptr<SkContext> MakeContext(const SkContextOptions& options,
                                                   std::unique_ptr<SkGPUContext> gpuContext);
-
 };
 
 namespace SkContexts {

@@ -18,6 +18,18 @@
 
 #include <cstddef>
 
+#ifndef SK_DEFAULT_IMAGE_CACHE_LIMIT
+    #define SK_DEFAULT_IMAGE_CACHE_LIMIT (32 * 1024 * 1024)
+#endif
+
+#ifndef SK_DEFAULT_FONT_CACHE_COUNT_LIMIT
+    #define SK_DEFAULT_FONT_CACHE_COUNT_LIMIT 2048
+#endif
+
+#ifndef SK_DEFAULT_FONT_CACHE_LIMIT
+    #define SK_DEFAULT_FONT_CACHE_LIMIT (2 * 1024 * 1024)
+#endif
+
 struct SK_API SkContextOptions {
     SkContextOptions() = default;
 
@@ -32,7 +44,7 @@ struct SK_API SkContextOptions {
      * scaled images, and other decoded resources. Entries are purged from the cache when memory
      * usage exceeds this limit.
      */
-    size_t fResourceCacheTotalByteLimit = 32 * 1024 * 1024;
+    size_t fResourceCacheTotalByteLimit = SK_DEFAULT_IMAGE_CACHE_LIMIT;
 
     /**
      * Maximum size (in bytes) for a single allocation in the CPU resource cache. When a cacheable
@@ -48,13 +60,13 @@ struct SK_API SkContextOptions {
      * Maximum number of entries (strikes) in the font cache. A cache entry is associated with each
      * unique combination of typeface, point size, and matrix.
      */
-    int fFontCacheCountLimit = 2048;
+    int fFontCacheCountLimit = SK_DEFAULT_FONT_CACHE_COUNT_LIMIT;
 
     /**
      * Maximum total memory (in bytes) used by the font/strike cache for glyph metrics, masks, and
      * paths. If the cache needs to allocate more, it will purge previous entries.
      */
-    size_t fFontCacheLimit = 2 * 1024 * 1024;
+    size_t fFontCacheLimit = SK_DEFAULT_FONT_CACHE_LIMIT;
 
     /**
      * When true, shared caches (such as SkStrikeCache, SkResourceCache, and
