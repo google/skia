@@ -1719,11 +1719,15 @@ void Device::drawGeometry(const Transform& localToDevice,
     // must be included in the pixels required when using an atlas). This is important so that
     // all bounds overlap checks take into account pixels touched by rasterization, even if the
     // calculated coverage for a pixel is 0.
-    //
-    // TODO (thomsmit): Add handling specifically for EndCaps to align the clip to tile size.
     if (!renderer || renderer->outsetBoundsForAA()) {
         clip.outsetBoundsForAA();
     }
+#if defined(SK_ENABLE_SPARSE_STRIPS)
+    // EndCaps rasterize whole tiles, which can extend up to a tile past the shape's bounds.
+    if (renderer && renderer->step(0).renderStepID() == RenderStep::RenderStepID::kEndCap) {
+        clip.outsetBoundsToGrid();
+    }
+#endif
 
     TextureFormat format = fDC->target().proxy()->format();
     ShadingParams shading{fRecorder->priv().caps(),
@@ -1764,7 +1768,7 @@ void Device::drawGeometry(const Transform& localToDevice,
         const SkPath& finalPath = geometry.shape().asPath();
         SkMatrix ctm = localToDevice.matrix().asM33();
 
-        SkIRect clipBounds = clip.drawBounds().makeRoundOut().asSkIRect();
+        SkIRect clipBounds = clip.drawBounds().asSkIRect(); // Grid-snapped, so integral.
         if (!fStripGenerator->processGeometry(finalPath, ctm, clipBounds)) {
             SKIA_LOG_E("Failed to process geometry for sparse strips!");
             return;

@@ -38,7 +38,6 @@ EndCapRenderStep::EndCapRenderStep(Layout layout)
                      RenderStepID::kEndCap,
                      Flags::kAppendInstances | Flags::kEmitsCoverage
                                              | Flags::kPerformsShading
-                                             | Flags::kOutsetBoundsForAA
                                              | Flags::kHasTextures
                                              | Flags::kNoSelfIntersections,
                      /*uniforms=*/{},

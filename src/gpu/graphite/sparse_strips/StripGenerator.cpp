@@ -67,6 +67,11 @@ bool StripGenerator::processGeometry(const SkPath& path, const SkMatrix& ctm, co
     if (!tileClip.intersect(SkIRect::MakeWH(fWidth, fHeight))) {
         return true;
     }
+
+    // Snap the top-left down to the tile grid so that the first tile row and column are whole.
+    // Although the clip does get tile aligned when outsetBoundsToGrid() is called, it is
+    // immediately intersected with the scissor afterwards, so the clip still requires aligning
+    // here.
     tileClip.fLeft =
             (tileClip.fLeft / SparseStripConfig::kTileWidth) * SparseStripConfig::kTileWidth;
     tileClip.fTop =

@@ -14,7 +14,9 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkTDArray.h"
+#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/geom/EndCaps.h"
+#include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/WideTiles.h"
 #include "src/gpu/graphite/sparse_strips/AlphaAtlasManager.h"
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
@@ -704,6 +706,108 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_StripGeneratorHis
                     "Expected %zu WideTiles for the enclosing rect, got %zu",
                     kDeviceRows,
                     gen.wides().size());
+}
+
+// Device records a SparseStrips draw with the clip's draw bounds, which must contain every pixel in
+// the scissor that the draw's EndCaps and WideTiles touch, even where their coverage is zero.
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_StripsInsideDrawBounds,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kToBeDetermined) {
+    auto recorder = context->makeRecorder();
+    const SparseStripConfig::LUTArray lut = GenerateMSAALUT();
+    constexpr int kDeviceSize = 128;
+    const SkIRect device = SkIRect::MakeWH(kDeviceSize, kDeviceSize);
+    StripGenerator gen(kDeviceSize, kDeviceSize, lut, recorder.get());
+
+    // The circle's bounds are not tile aligned, so its EndCaps reach past its AA-outset bounds.
+    const SkPath circle = SkPath::Circle(37.3f, 29.6f, 17.2f);
+    SkPath inverseCircle = circle;
+    inverseCircle.setFillType(SkPathFillType::kInverseWinding);
+
+    struct Case {
+        const char* fName;
+        SkPath fPath;
+        SkMatrix fCtm;
+        SkIRect fScissor;
+        bool fReachesPastAABounds;
+    };
+    const Case cases[] = {
+            {"Unclipped", circle, SkMatrix::I(), device, true},
+            // Clips the circle's left and bottom, off of the tile grid.
+            {"Scissored", circle, SkMatrix::I(), SkIRect::MakeLTRB(26, 0, 128, 43), true},
+            {"Transformed",
+             circle,
+             SkMatrix::Translate(60.25f, 70.5f) * SkMatrix::Scale(1.5f, 0.75f),
+             device,
+             true},
+            // An inverse fill's draw bounds are already the scissor.
+            {"Inverse", inverseCircle, SkMatrix::I(), SkIRect::MakeLTRB(26, 18, 101, 93), false},
+    };
+
+    for (const Case& c : cases) {
+        // Mirror Device::drawGeometry: the clip stack's bounds, then the AA and tile outsets.
+        const bool isInverse = c.fPath.isInverseFillType();
+        const Rect shapeBounds = c.fCtm.mapRect(c.fPath.getBounds());
+        const Rect scissor(c.fScissor);
+        Clip clip(isInverse ? scissor : shapeBounds.makeIntersect(scissor),
+                  shapeBounds,
+                  c.fScissor,
+                  /*nonMSAAClip=*/{},
+                  /*shader=*/nullptr);
+        clip.outsetBoundsForAA();
+        const SkIRect aaBounds = clip.drawBounds().makeRoundOut().asSkIRect();
+        clip.outsetBoundsToGrid();
+        // Device passes these to the StripGenerator without rounding them out.
+        const SkIRect drawBounds = clip.drawBounds().asSkIRect();
+        REPORTER_ASSERT(reporter,
+                        clip.drawBounds() == Rect(drawBounds),
+                        "[%s] Expected integral draw bounds",
+                        c.fName);
+        REPORTER_ASSERT(reporter,
+                        !isInverse || drawBounds == c.fScissor,
+                        "[%s] Expected the draw bounds to stay equal to the scissor",
+                        c.fName);
+
+        REPORTER_ASSERT(reporter, gen.processGeometry(c.fPath, c.fCtm, drawBounds));
+        bool reachesPastAABounds = false;
+        auto checkTouched = [&](const char* kind, int x, int y, int w) {
+            SkIRect touched = SkIRect::MakeXYWH(x, y, w, SparseStripConfig::kTileHeight);
+            if (!touched.intersect(c.fScissor)) {
+                return;  // Entirely scissored out.
+            }
+            if (!aaBounds.contains(touched)) {
+                reachesPastAABounds = true;
+            }
+            REPORTER_ASSERT(reporter,
+                            drawBounds.contains(touched),
+                            "[%s] %s touches (%d, %d, %d, %d), outside of the draw bounds "
+                            "(%d, %d, %d, %d)",
+                            c.fName,
+                            kind,
+                            touched.fLeft,
+                            touched.fTop,
+                            touched.fRight,
+                            touched.fBottom,
+                            drawBounds.fLeft,
+                            drawBounds.fTop,
+                            drawBounds.fRight,
+                            drawBounds.fBottom);
+        };
+        for (const EndCaps::EndCap& end : gen.ends().caps()) {
+            checkTouched("EndCap", end.fX, end.fY, end.fWidth);
+        }
+        for (const WideTiles::WideTile& wide : gen.wides().tiles()) {
+            checkTouched("WideTile", wide.fX, wide.fY, wide.fWidth);
+        }
+        // The regular fills must reach past the AA-outset bounds, or they'd pass without the tile
+        // outset.
+        REPORTER_ASSERT(reporter,
+                        reachesPastAABounds == c.fReachesPastAABounds,
+                        "[%s] Expected the strips %sto reach past the AA-outset bounds",
+                        c.fName,
+                        c.fReachesPastAABounds ? "" : "not ");
+    }
 }
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_SKP_SIMD_4x4,
