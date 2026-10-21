@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkExecutor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
+#include "include/core/SkMaskFilter.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
@@ -40,11 +42,13 @@
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
+#include "tools/fonts/TestEmptyTypeface.h"
 
 #include <array>
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <functional>
 #include <initializer_list>
 #include <memory>
@@ -295,3 +299,93 @@ DEF_TEST(SkStrike_FlattenByType, reporter) {
     REPORTER_ASSERT(reporter, dstDrawableGlyph->setDrawableHasBeenCalled());
     REPORTER_ASSERT(reporter, dstDrawableGlyph->drawable() != nullptr);
 }
+
+DEF_TEST(SkScalerContext_GetImageNonDeterministicBounds, reporter) {
+    class NonDeterministicTypeface final : public TestEmptyTypeface {
+    public:
+        explicit NonDeterministicTypeface(SkRect secondBounds) : fSecondBounds(secondBounds) {}
+
+    protected:
+        std::unique_ptr<SkScalerContext> onCreateScalerContext(
+                const SkScalerContextEffects& effects, const SkDescriptor* desc) const override {
+            class ScalerContext final : public SkScalerContext {
+            public:
+                ScalerContext(NonDeterministicTypeface& tf,
+                              const SkScalerContextEffects& effects,
+                              const SkDescriptor* desc,
+                              SkRect secondBounds)
+                        : SkScalerContext(tf, effects, desc), fSecondBounds(secondBounds) {}
+
+            protected:
+                GlyphMetrics generateMetrics(const SkGlyph& glyph, SkArenaAlloc*) override {
+                    GlyphMetrics mx(glyph.maskFormat());
+                    // Force the raster getImage() path instead of drawing from a glyph path
+                    mx.neverRequestPath = true;
+                    // Return valid 10x10 bounds on initial makeGlyph(), then fSecondBounds when
+                    // getImage() reloads the unfiltered glyph for mask filtering
+                    mx.bounds =
+                            (fMetricsCallCount++ == 0) ? SkRect::MakeWH(10, 10) : fSecondBounds;
+                    return mx;
+                }
+
+                void generateImage(const SkGlyph& glyph, void* imageBuffer) override {
+                    // Intentionally use rowBytes() * height() like SkScalerContextFTUtils does;
+                    // if getImage() fails to reject an imageTooLarge() or empty unfiltered glyph,
+                    // this overflows the small origGlyph buffer or dereferences nullptr
+                    memset(imageBuffer, 0xAA, glyph.rowBytes() * glyph.height());
+                }
+
+                std::optional<GeneratedPath> generatePath(const SkGlyph&) override {
+                    return std::nullopt;
+                }
+
+                void generateFontMetrics(SkFontMetrics*) override {}
+
+            private:
+                const SkRect fSecondBounds;
+                int fMetricsCallCount = 0;
+            };
+
+            return std::make_unique<ScalerContext>(
+                    *const_cast<NonDeterministicTypeface*>(this), effects, desc, fSecondBounds);
+        }
+
+    private:
+        const SkRect fSecondBounds;
+    };
+
+    for (const SkRect& secondBounds : {
+                 // Exceeds kMaxGlyphWidth so imageTooLarge() is true and imageSize() returns 0
+                 SkRect::MakeWH(1 << 14, 10),
+                 // Zero-area unfiltered glyph on the second load
+                 SkRect::MakeEmpty(),
+                 // Unfiltered bounds disjoint horizontally and vertically from the 10x10 dstMask
+                 SkRect::MakeXYWH(500, 0, 10, 10),
+                 SkRect::MakeXYWH(0, 500, 10, 10),
+         }) {
+        sk_sp<SkTypeface> tf = sk_make_sp<NonDeterministicTypeface>(secondBounds);
+        SkFont font(tf, 16.0f);
+        SkPaint paint;
+        // A mask filter triggers the second makeGlyph() call inside SkScalerContext::getImage
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 1.0f));
+
+        SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
+                font, paint, SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                SkScalerContextFlags::kNone, SkMatrix::I());
+        std::unique_ptr<SkScalerContext> context = strikeSpec.createScalerContext();
+
+        SkArenaAlloc alloc{256};
+        SkGlyph glyph = context->makeGlyph(SkPackedGlyphID((SkGlyphID)1), &alloc);
+        REPORTER_ASSERT(reporter, !glyph.isEmpty());
+        REPORTER_ASSERT(reporter, !glyph.imageTooLarge());
+
+        REPORTER_ASSERT(reporter, glyph.setImage(&alloc, context.get()));
+        REPORTER_ASSERT(reporter, glyph.image() != nullptr);
+
+        const uint8_t* bytes = static_cast<const uint8_t*>(glyph.image());
+        for (size_t i = 0; i < glyph.imageSize(); ++i) {
+            REPORTER_ASSERT(reporter, bytes[i] == 0);
+        }
+    }
+}
+

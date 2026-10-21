@@ -711,6 +711,14 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         tmpGlyph = this->makeGlyph(origGlyph.getPackedID(), &tmpGlyphPathDataStorage);
         fMaskFilter = std::move(mf);
 
+        // makeGlyph() may not be deterministic across loads, and imageSize() is 0 for
+        // both empty and too-large glyphs (which would falsely pass the storage check
+        // below). Bail out and clear origGlyph's image if tmpGlyph is empty or too large
+        if (tmpGlyph.isEmpty() || tmpGlyph.imageTooLarge()) {
+            sk_bzero(origGlyph.fImage, origGlyph.imageSize());
+            return;
+        }
+
         // Use the origGlyph storage for the temporary unfiltered mask if it will fit.
         if (tmpGlyph.fMaskFormat == origGlyph.fMaskFormat &&
             tmpGlyph.imageSize() <= origGlyph.imageSize())
@@ -780,6 +788,13 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
                                               origGlyph.iRect(), origGlyph.rowBytes(),
                                               origGlyph.maskFormat());
         SkIRect origBounds = dstMask.fBounds;
+
+        // If the unfiltered and the filtered bounds diverged so far that they do not
+        // overlap, there is nothing valid to copy; leave origGlyph's image cleared
+        if (!SkIRect::Intersects(srcMask.fBounds, dstMask.fBounds)) {
+            sk_bzero(origGlyph.fImage, origGlyph.imageSize());
+            return;
+        }
 
         // Find the intersection of src and dst while updating the fImages.
         if (srcMask.fBounds.fTop < dstMask.fBounds.fTop) {
