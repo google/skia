@@ -9,6 +9,7 @@
 #define SKSL_SYMBOL
 
 #include "include/private/SkAssert.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 
@@ -61,7 +62,7 @@ public:
 
 private:
     std::string_view fName;
-    const Type* fType;
+    raw_ptr<const Type, DanglingUntriaged> fType;
 
     using INHERITED = IRNode;
 };

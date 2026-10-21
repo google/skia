@@ -13,6 +13,7 @@
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkTHash.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
@@ -268,7 +269,7 @@ private:
     using INHERITED = Type;
 
     const Type* fCoercibleTypes[9];
-    const Type* fSlotType;
+    raw_ptr<const Type> fSlotType;
     size_t fNumTypes;
 };
 

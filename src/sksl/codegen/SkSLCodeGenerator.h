@@ -9,6 +9,7 @@
 #define SKSL_CODEGENERATOR
 
 #include "include/private/SkOnlyStackAllocatable.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -59,7 +60,7 @@ protected:
     const Program& fProgram;
     Context fContext;
     const ShaderCaps& fCaps;
-    OutputStream* fOut;
+    raw_ptr<OutputStream> fOut;
 };
 
 class AutoOutputStream {

@@ -8,6 +8,7 @@
 #ifndef SKSL_MODULE
 #define SKSL_MODULE
 
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
@@ -47,7 +48,7 @@ enum class ModuleType : int8_t {
 };
 
 struct Module {
-    const Module*                                fParent = nullptr;
+    raw_ptr<const Module>                        fParent = nullptr;
     std::unique_ptr<SymbolTable>                 fSymbols;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
     ModuleType                                   fModuleType = ModuleType::unknown;

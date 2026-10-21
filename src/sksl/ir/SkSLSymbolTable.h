@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 
 #include <cstddef>
@@ -198,7 +199,7 @@ public:
         fAtModuleBoundary = true;
     }
 
-    SymbolTable* fParent = nullptr;
+    raw_ptr<SymbolTable, DanglingUntriaged> fParent = nullptr;
 
     std::vector<std::unique_ptr<Symbol>> fOwnedSymbols;
 

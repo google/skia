@@ -9,6 +9,7 @@
 #define SKSL_STRUCTDEFINITION
 
 #include "include/private/SkTArray.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -52,7 +53,7 @@ public:
     std::string description() const override;
 
 private:
-    const Type* fType = nullptr;
+    raw_ptr<const Type> fType = nullptr;
 
     using INHERITED = ProgramElement;
 };

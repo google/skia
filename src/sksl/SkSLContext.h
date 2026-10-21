@@ -9,14 +9,15 @@
 #define SKSL_CONTEXT
 
 #include "include/private/SkAssert.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 namespace SkSL {
 
 class BuiltinTypes;
 class ErrorReporter;
+class SymbolTable;
 struct Module;
 struct ProgramConfig;
-class SymbolTable;
 
 /**
  * Contains compiler-wide objects and state.
@@ -30,10 +31,10 @@ public:
     const BuiltinTypes& fTypes;
 
     // The Context holds a pointer to the configuration of the program being compiled.
-    ProgramConfig* fConfig = nullptr;
+    raw_ptr<ProgramConfig, DanglingUntriaged> fConfig = nullptr;
 
     // The Context holds a pointer to our error reporter.
-    ErrorReporter* fErrors;
+    raw_ptr<ErrorReporter> fErrors;
 
     void setErrorReporter(ErrorReporter* e) {
         SkASSERT(e);
@@ -41,11 +42,11 @@ public:
     }
 
     // The Context holds a pointer to our module with built-in declarations.
-    const Module* fModule = nullptr;
+    raw_ptr<const Module> fModule = nullptr;
 
     // This is the current symbol table of the code we are processing, and therefore changes during
     // compilation.
-    SymbolTable* fSymbolTable = nullptr;
+    raw_ptr<SymbolTable> fSymbolTable = nullptr;
 };
 
 }  // namespace SkSL
