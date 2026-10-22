@@ -2026,3 +2026,36 @@ DEF_TEST(SkRuntimeColorFilter_b520831887, r) {
         REPORTER_ASSERT(r, cf != nullptr);
     }
 }
+
+DEF_TEST(SkRuntimeBlender_b562761166, r) {
+    // b/562761166: Under fuzzer builds, kLoopTerminationLimit is 257 so loops with <= 256
+    // iterations succeed while loops with > 256 iterations are rejected at compile time
+    auto make_loop = [](int limit) {
+        return SkRuntimeEffect::MakeForBlender(SkStringPrintf(
+                "half4 main(half4 src, half4 dst) {"
+                "    half y = 1.0;"
+                "    for (int c = 0; c < %d; ++c) {"
+                "        y += 1.0;"
+                "    }"
+                "    return half4(y);"
+                "}",
+                limit));
+    };
+
+    // 256 iterations should succeed in all builds.
+    {
+        auto [effect, err] = make_loop(256);
+        REPORTER_ASSERT(r, effect != nullptr, "%s", err.c_str());
+    }
+
+    // 257 iterations (> 256) should be rejected in fuzzer builds.
+    {
+        auto [effect, err] = make_loop(257);
+#if defined(SK_BUILD_FOR_FUZZER)
+        REPORTER_ASSERT(r, !effect);
+        REPORTER_ASSERT(r, err.contains("loop must guarantee termination in fewer iterations"));
+#else
+        REPORTER_ASSERT(r, effect != nullptr, "%s", err.c_str());
+#endif
+    }
+}
