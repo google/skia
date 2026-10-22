@@ -11,8 +11,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAPI.h"
 
-#include <cstddef>
-#include <cstdint>
 #include <memory>
 
 class SkCapture;
@@ -20,9 +18,11 @@ class SkCaptureManager;
 class SkContextPriv;
 class SkContextPrivConst;
 class SkGPUContext;
-class SkOpenTypeSVGDecoder;
+class SkResourceCache;
 class SkSharedContext;
+class SkStrikeCache;
 class SkTraceMemoryDump;
+class SkTypefaceCache;
 struct SkContextOptions;
 
 /**
@@ -52,6 +52,18 @@ public:
      */
     sk_sp<SkCapture> endCapture();
 
+private:
+    SkContext(const SkContextOptions&);
+    SkContext(const SkContextOptions&, std::unique_ptr<SkGPUContext> gpuContext);
+
+    friend class SkContextPrivConst;
+    friend class SkContextPriv;
+    friend class SkContextCtorAccessor;
+
+    SkResourceCache* resourceCache() const;
+    SkStrikeCache* strikeCache() const;
+    SkTypefaceCache* typefaceCache() const;
+
     size_t fontCacheLimit() const;
     size_t setFontCacheLimit(size_t bytes);
     size_t fontCacheUsed() const;
@@ -63,26 +75,7 @@ public:
     void purgeFontCache();
     void purgePinnedFontCache();
 
-    size_t resourceCacheTotalBytesUsed() const;
-    size_t resourceCacheTotalByteLimit() const;
-    size_t setResourceCacheTotalByteLimit(size_t newLimit);
-
-    size_t resourceCacheSingleAllocationByteLimit() const;
-    size_t setResourceCacheSingleAllocationByteLimit(size_t newLimit);
-
-    void purgeResourceCache();
-
-    int typefaceCacheCountLimit() const;
-    int setTypefaceCacheCountLimit(int count);
-
     void dumpMemoryStatistics(SkTraceMemoryDump* dump);
-
-private:
-    explicit SkContext(const SkContextOptions&, std::unique_ptr<SkGPUContext> gpuContext = nullptr);
-
-    friend class SkContextPrivConst;
-    friend class SkContextPriv;
-    friend class SkContextCtorAccessor;
 
     sk_sp<SkCaptureManager> fCaptureManager;
     sk_sp<SkSharedContext> fSharedContext;

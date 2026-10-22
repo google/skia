@@ -46,13 +46,17 @@ void init_globals_if_needed() {
 }
 }  // namespace
 
-SkContext::SkContext(const SkContextOptions& options, std::unique_ptr<SkGPUContext> gpuContext)
-        : fGPUContext(std::move(gpuContext)) {
+SkContext::SkContext(const SkContextOptions& options) {
     init_globals_if_needed();
     if (options.fEnableCapture) {
         fCaptureManager = sk_make_sp<SkCaptureManager>();
     }
     fSharedContext = sk_make_sp<SkSharedContext>(options);
+}
+
+SkContext::SkContext(const SkContextOptions& options, std::unique_ptr<SkGPUContext> gpuContext)
+        : SkContext(options) {
+    fGPUContext = std::move(gpuContext);
 }
 
 SkContext::~SkContext() = default;
@@ -77,55 +81,33 @@ sk_sp<SkCapture> SkContext::endCapture() {
     return fCaptureManager->getLastCapture();
 }
 
-size_t SkContext::fontCacheLimit() const { return fSharedContext->fontCacheLimit(); }
+SkResourceCache* SkContext::resourceCache() const {
+    return fSharedContext->synchronizedResourceCache();
+}
+
+SkStrikeCache* SkContext::strikeCache() const { return fSharedContext->strikeCache(); }
+
+SkTypefaceCache* SkContext::typefaceCache() const { return fSharedContext->typefaceCache(); }
+
+size_t SkContext::fontCacheLimit() const { return this->strikeCache()->getCacheSizeLimit(); }
 
 size_t SkContext::setFontCacheLimit(size_t bytes) {
-    return fSharedContext->setFontCacheLimit(bytes);
+    return this->strikeCache()->setCacheSizeLimit(bytes);
 }
 
-size_t SkContext::fontCacheUsed() const { return fSharedContext->fontCacheUsed(); }
+size_t SkContext::fontCacheUsed() const { return this->strikeCache()->getTotalMemoryUsed(); }
 
-int SkContext::fontCacheCountLimit() const { return fSharedContext->fontCacheCountLimit(); }
+int SkContext::fontCacheCountLimit() const { return this->strikeCache()->getCacheCountLimit(); }
 
 int SkContext::setFontCacheCountLimit(int count) {
-    return fSharedContext->setFontCacheCountLimit(count);
+    return this->strikeCache()->setCacheCountLimit(count);
 }
 
-int SkContext::fontCacheCountUsed() const { return fSharedContext->fontCacheCountUsed(); }
+int SkContext::fontCacheCountUsed() const { return this->strikeCache()->getCacheCountUsed(); }
 
-void SkContext::purgeFontCache() { fSharedContext->purgeFontCache(); }
+void SkContext::purgeFontCache() { this->strikeCache()->purgeAll(); }
 
-void SkContext::purgePinnedFontCache() { fSharedContext->purgePinnedFontCache(); }
-
-size_t SkContext::resourceCacheTotalBytesUsed() const {
-    return fSharedContext->resourceCacheTotalBytesUsed();
-}
-
-size_t SkContext::resourceCacheTotalByteLimit() const {
-    return fSharedContext->resourceCacheTotalByteLimit();
-}
-
-size_t SkContext::setResourceCacheTotalByteLimit(size_t newLimit) {
-    return fSharedContext->setResourceCacheTotalByteLimit(newLimit);
-}
-
-size_t SkContext::resourceCacheSingleAllocationByteLimit() const {
-    return fSharedContext->resourceCacheSingleAllocationByteLimit();
-}
-
-size_t SkContext::setResourceCacheSingleAllocationByteLimit(size_t newLimit) {
-    return fSharedContext->setResourceCacheSingleAllocationByteLimit(newLimit);
-}
-
-void SkContext::purgeResourceCache() { fSharedContext->purgeResourceCache(); }
-
-int SkContext::typefaceCacheCountLimit() const {
-    return fSharedContext->typefaceCacheCountLimit();
-}
-
-int SkContext::setTypefaceCacheCountLimit(int count) {
-    return fSharedContext->setTypefaceCacheCountLimit(count);
-}
+void SkContext::purgePinnedFontCache() { this->strikeCache()->purgePinned(); }
 
 namespace {
 void sk_trace_dump_visitor(const SkResourceCache::Rec& rec, void* context) {
@@ -146,8 +128,8 @@ void sk_trace_dump_visitor(const SkResourceCache::Rec& rec, void* context) {
 }  // namespace
 
 void SkContext::dumpMemoryStatistics(SkTraceMemoryDump* dump) {
-    fSharedContext->synchronizedResourceCache()->visitAll(sk_trace_dump_visitor, dump);
-    fSharedContext->strikeCache()->dumpMemoryStatistics(dump);
+    this->resourceCache()->visitAll(sk_trace_dump_visitor, dump);
+    SkStrikeCache::DumpMemoryStatistics(dump);
 }
 
 std::unique_ptr<SkContext> SkContextCtorAccessor::MakeContext(const SkContextOptions& options) {
@@ -168,5 +150,4 @@ SkContext* GetGlobalSkContext() {
     static SkContext* gSkContext = SkContexts::MakeRaster({}).release();
     return gSkContext;
 }
-
 }  // namespace SkContexts

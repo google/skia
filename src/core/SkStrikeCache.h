@@ -63,9 +63,7 @@ public:
     // SkTraceMemoryDump interface.
     static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
 
-    void dumpMemoryStatistics(SkTraceMemoryDump* dump) const SK_EXCLUDES(fLock);
-
-    void purgeAll() SK_EXCLUDES(fLock);  // does not change budget
+    void purgeAll() SK_EXCLUDES(fLock); // does not change budget
     void purgePinned(size_t minBytesNeeded = 0) SK_EXCLUDES(fLock);
 
     int getCacheCountLimit() const SK_EXCLUDES(fLock);
@@ -80,10 +78,10 @@ private:
     friend class SkStrike;  // for SkStrike::updateDelta
     static constexpr char kGlyphCacheDumpName[] = "skia/sk_glyph_cache";
     sk_sp<SkStrike> internalFindStrikeOrNull(const SkDescriptor& desc) SK_REQUIRES(fLock);
-    sk_sp<SkStrike> internalCreateStrike(const SkStrikeSpec& strikeSpec,
-                                         SkFontMetrics* maybeMetrics = nullptr,
-                                         std::unique_ptr<SkStrikePinner> = nullptr)
-            SK_REQUIRES(fLock);
+    sk_sp<SkStrike> internalCreateStrike(
+            const SkStrikeSpec& strikeSpec,
+            SkFontMetrics* maybeMetrics = nullptr,
+            std::unique_ptr<SkStrikePinner> = nullptr) SK_REQUIRES(fLock);
 
     // The following methods can only be called when mutex is already held.
     void internalRemoveStrike(SkStrike* strike) SK_REQUIRES(fLock);
@@ -100,8 +98,8 @@ private:
     void forEachStrike(std::function<void(const SkStrike&)> visitor) const SK_EXCLUDES(fLock);
 
     mutable SkMutex fLock;
-    SkStrike* fHead SK_GUARDED_BY(fLock){nullptr};
-    SkStrike* fTail SK_GUARDED_BY(fLock){nullptr};
+    SkStrike* fHead SK_GUARDED_BY(fLock) {nullptr};
+    SkStrike* fTail SK_GUARDED_BY(fLock) {nullptr};
     struct StrikeTraits {
         static const SkDescriptor& GetKey(const sk_sp<SkStrike>& strike);
         static uint32_t Hash(const SkDescriptor& descriptor);
@@ -109,11 +107,11 @@ private:
     skia_private::THashTable<sk_sp<SkStrike>, SkDescriptor, StrikeTraits> fStrikeLookup
             SK_GUARDED_BY(fLock);
 
-    size_t fCacheSizeLimit{SK_DEFAULT_FONT_CACHE_LIMIT};
-    size_t fTotalMemoryUsed SK_GUARDED_BY(fLock){0};
+    size_t  fCacheSizeLimit{SK_DEFAULT_FONT_CACHE_LIMIT};
+    size_t  fTotalMemoryUsed SK_GUARDED_BY(fLock) {0};
     int32_t fCacheCountLimit{SK_DEFAULT_FONT_CACHE_COUNT_LIMIT};
-    int32_t fCacheCount SK_GUARDED_BY(fLock){0};
-    int32_t fPinnerCount SK_GUARDED_BY(fLock){0};
+    int32_t fCacheCount SK_GUARDED_BY(fLock) {0};
+    int32_t fPinnerCount SK_GUARDED_BY(fLock) {0};
 };
 
 #endif  // SkStrikeCache_DEFINED

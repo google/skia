@@ -18,9 +18,7 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkChecksum.h"
-#include "src/core/SkContextPriv.h"
 #include "src/core/SkMessageBus.h"
-#include "src/core/SkSharedContext.h"
 #include "src/core/SkSynchronizedResourceCache.h"
 #include "src/core/SkTHash.h"
 
@@ -464,8 +462,15 @@ void SkResourceCache::checkMessages() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkResourceCache* get_cache() {
-    return SkContexts::GetGlobalSkContext()->priv().sharedContext()->synchronizedResourceCache();
+static SkSynchronizedResourceCache* get_cache() {
+#if defined(SK_USE_DISCARDABLE_SCALEDIMAGECACHE)
+    static SkSynchronizedResourceCache* gResourceCache =
+            new SkSynchronizedResourceCache(SkDiscardableMemory::Create);
+#else
+    static SkSynchronizedResourceCache* gResourceCache =
+            new SkSynchronizedResourceCache(SK_DEFAULT_IMAGE_CACHE_LIMIT);
+#endif
+    return gResourceCache;
 }
 
 size_t SkResourceCache::GetTotalBytesUsed() {
