@@ -11,7 +11,9 @@
 #include "include/core/SkSpan.h"
 #include "include/private/SkEnumBitMask.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTFitsIn.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkSafeMath.h"
 #include "src/core/SkStringView.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkUtils.h"
@@ -139,9 +141,13 @@ public:
     /** Returns the total number of slots consumed. */
     int slotCount() const { return fSlotCount; }
 
+    /** Returns true if the slot count overflowed. */
+    bool overflowed() const { return fOverflowed; }
+
 private:
     THashMap<const IRNode*, SlotRange> fSlotMap;
     int fSlotCount = 0;
+    bool fOverflowed = false;
     std::vector<SlotDebugInfo>* fSlotDebugInfo;
 };
 
@@ -217,6 +223,13 @@ public:
      * The FunctionDebugInfo slot will be created if it doesn't already exist.
      */
     int getFunctionDebugInfo(const FunctionDeclaration& decl);
+
+    /** Returns true if any slot table overflowed. */
+    bool hasOverflowed() const {
+        return fProgramSlots.overflowed() ||
+               fUniformSlots.overflowed() ||
+               fImmutableSlots.overflowed();
+    }
 
     /** Returns true for variables with slots in fProgramSlots; immutables or uniforms are false. */
     bool hasVariableSlots(const Variable& v) {
@@ -1174,25 +1187,31 @@ SlotRange SlotManager::createSlots(std::string name,
     if (nslots == 0) {
         return {};
     }
+    SkSafeMath safe;
+    size_t newSlotCount = safe.add(fSlotCount, nslots);
+    if (!safe || !SkTFitsIn<int>(newSlotCount)) {
+        fOverflowed = true;
+        return {0, SkToInt(std::min<size_t>(nslots, INT_MAX))};
+    }
     if (fSlotDebugInfo) {
         // Our debug slot-info table should have the same length as the actual slot table.
         SkASSERT(fSlotDebugInfo->size() == (size_t)fSlotCount);
 
         // Append slot names and types to our debug slot-info table.
-        fSlotDebugInfo->reserve(fSlotCount + nslots);
+        fSlotDebugInfo->reserve(newSlotCount);
         this->addSlotDebugInfo(name, type, pos, isFunctionReturnValue);
 
         // Confirm that we added the expected number of slots.
-        SkASSERT(fSlotDebugInfo->size() == (size_t)(fSlotCount + nslots));
+        SkASSERT(fSlotDebugInfo->size() == newSlotCount);
     }
 
     SlotRange result = {fSlotCount, (int)nslots};
-    fSlotCount += nslots;
+    fSlotCount = SkToInt(newSlotCount);
     return result;
 }
 
 std::optional<SlotRange> SlotManager::mapVariableToSlots(const Variable& v, SlotRange range) {
-    SkASSERT(v.type().slotCount() == SkToSizeT(range.count));
+    SkASSERT(fOverflowed || v.type().slotCount() == SkToSizeT(range.count));
     const SlotRange* existingEntry = fSlotMap.find(&v);
     std::optional<SlotRange> originalRange = existingEntry ? std::optional(*existingEntry)
                                                            : std::nullopt;
@@ -1487,6 +1506,9 @@ std::optional<SlotRange> Generator::writeFunction(
     // Set up a slot range dedicated to this function's return value.
     SlotRange lastFunctionResult = fCurrentFunctionResult;
     fCurrentFunctionResult = this->getFunctionSlots(callSite, function.declaration());
+    if (this->hasOverflowed()) {
+        return std::nullopt;
+    }
 
     // Save off the return mask.
     if (this->needsReturnMask(&function)) {
@@ -1657,10 +1679,17 @@ bool Generator::writeGlobals() {
         }
     }
 
+    if (this->hasOverflowed()) {
+        return unsupported();
+    }
+
     return true;
 }
 
 bool Generator::writeStatement(const Statement& s) {
+    if (this->hasOverflowed()) {
+        return unsupported();
+    }
     switch (s.kind()) {
         case Statement::Kind::kBlock:
             // The debugger will stop on statements inside Blocks; there's no need for an additional
@@ -3963,6 +3992,9 @@ bool Generator::pushVariableReferencePartial(const VariableReference& v, SlotRan
     if (IsUniform(var)) {
         // Push a uniform.
         r = this->getUniformSlots(var);
+        if (this->hasOverflowed()) {
+            return unsupported();
+        }
         SkASSERT(r.count == (int)var.type().slotCount());
         r.index += subset.index;
         r.count = subset.count;
@@ -3980,6 +4012,9 @@ bool Generator::pushVariableReferencePartial(const VariableReference& v, SlotRan
         }
         // Push the immutable slot range.
         r = this->getImmutableSlots(var);
+        if (this->hasOverflowed()) {
+            return unsupported();
+        }
         SkASSERT(r.count == (int)var.type().slotCount());
         r.index += subset.index;
         r.count = subset.count;
@@ -3987,6 +4022,9 @@ bool Generator::pushVariableReferencePartial(const VariableReference& v, SlotRan
     } else {
         // Push the variable.
         r = this->getVariableSlots(var);
+        if (this->hasOverflowed()) {
+            return unsupported();
+        }
         SkASSERT(r.count == (int)var.type().slotCount());
         r.index += subset.index;
         r.count = subset.count;
@@ -4078,10 +4116,17 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
         fTraceMask->exit();
     }
 
+    if (this->hasOverflowed()) {
+        return unsupported();
+    }
+
     return true;
 }
 
 std::unique_ptr<RP::Program> Generator::finish() {
+    if (this->hasOverflowed()) {
+        return nullptr;
+    }
     return fBuilder.finish(fProgramSlots.slotCount(),
                            fUniformSlots.slotCount(),
                            fImmutableSlots.slotCount(),

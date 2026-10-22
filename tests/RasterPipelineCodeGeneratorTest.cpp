@@ -380,3 +380,90 @@ DEF_TEST(SkSLRasterPipeline_ConvertProgram_b540157141, r) {
             SkSL::MakeRasterPipelineProgram(*program, *main->definition());
     REPORTER_ASSERT(r, rasterProg);
 }
+
+DEF_TEST(SkSLRasterPipelineSlotCountWraparound, r) {
+    auto names = [](const char* prefix, int n) {
+        std::stringstream s;
+        for (int i = 0; i < n; ++i) {
+            if (i > 0) {
+                s << ",";
+            }
+            s << prefix << i;
+        }
+        return s.str();
+    };
+
+    // Struct E has 98,364 slots and struct G has 99,996 slots (both under kVariableSlotLimit).
+    // Without overflow protection in SlotManager::createSlots, 43,663 call sites of f() allocate
+    // 43,663 * 98,364 + 99,996 + 6 = 4,294,967,334 = 2^32 + 38 value slots, wrapping fSlotCount
+    // around 32-bit int to 38. Dynamic indexing via uniform `k` in `gg[k].e` emits a single
+    // push_slots_indirect instruction per call.
+    constexpr int kCalls = 43663;
+    std::stringstream str;
+    str << "struct A{float4x4 " << names("a", 64) << ";};";
+    str << "struct E{A " << names("b", 96) << ";float " << names("c", 60) << ";};";
+    str << "struct G{E e;float4x4 " << names("y", 102) << ";};";
+    str << "uniform int k;";
+    str << "G gg[1];";
+    str << "noinline E f(){return gg[k].e;}";
+    str << "half4 main(float2 p){if(k>0){";
+    for (int i = 0; i < kCalls; ++i) {
+        str << "f();";
+    }
+    str << "}return half4(0);}";
+    std::string src = str.str();
+
+    SkSL::Compiler compiler;
+    SkSL::ProgramSettings settings;
+    settings.fMaxVersionAllowed = SkSL::Version::k300;
+    std::unique_ptr<SkSL::Program> program =
+            compiler.convertProgram(SkSL::ProgramKind::kRuntimeShader, src, settings);
+    if (!program) {
+        ERRORF(r, "Unexpected error compiling program:\n%s", compiler.errorText().c_str());
+        return;
+    }
+    const SkSL::FunctionDeclaration* main = program->getFunction("main");
+    if (!main) {
+        ERRORF(r, "Program must have a 'main' function");
+        return;
+    }
+    std::unique_ptr<SkSL::RP::Program> rasterProg =
+            SkSL::MakeRasterPipelineProgram(*program, *main->definition());
+    REPORTER_ASSERT(r, !rasterProg);
+}
+
+DEF_TEST(SkSLRasterPipelineTempStackOverflow, r) {
+    SkArenaAlloc alloc(1000);
+    SkRasterPipeline pipeline(&alloc);
+
+    // 1. Single temp-stack depth overflowing int in tempStackMaxDepths().
+    {
+        SkSL::RP::Builder builder;
+        builder.init_lane_masks();
+        builder.pad_stack(INT_MAX);
+        builder.pad_stack(10);
+        builder.label(builder.nextLabelID());
+        builder.discard_stack(10);
+        builder.discard_stack(INT_MAX);
+        std::unique_ptr<SkSL::RP::Program> prog = builder.finish(
+                /*numValueSlots=*/0, /*numUniformSlots=*/0, /*numImmutableSlots=*/0);
+        REPORTER_ASSERT(r, prog);
+        REPORTER_ASSERT(r, !prog->appendStages(&pipeline, &alloc, /*callbacks=*/nullptr, {}));
+    }
+
+    // 2. Sum of multiple temp-stack depths wrapping past 2^32 in Program::Program().
+    {
+        SkSL::RP::Builder builder;
+        builder.init_lane_masks();
+        for (int stackID = 0; stackID < 5; ++stackID) {
+            builder.set_current_stack(stackID);
+            builder.pad_stack(1000000000);
+            builder.label(builder.nextLabelID());
+            builder.discard_stack(1000000000);
+        }
+        std::unique_ptr<SkSL::RP::Program> prog = builder.finish(
+                /*numValueSlots=*/0, /*numUniformSlots=*/0, /*numImmutableSlots=*/0);
+        REPORTER_ASSERT(r, prog);
+        REPORTER_ASSERT(r, !prog->appendStages(&pipeline, &alloc, /*callbacks=*/nullptr, {}));
+    }
+}
