@@ -20,6 +20,7 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 
 #include <cstddef>
@@ -53,7 +54,7 @@ struct Program;
 class SkRuntimeEffectPriv {
 public:
     struct UniformsCallbackContext {
-        const SkColorSpace* fDstColorSpace;
+        raw_ptr<const SkColorSpace> fDstColorSpace;
     };
 
     // Private (experimental) API for creating runtime shaders with late-bound uniforms.

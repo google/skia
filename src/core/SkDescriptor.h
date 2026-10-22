@@ -13,6 +13,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkNoncopyable.h"
 #include "src/core/SkScalerContext.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -110,7 +111,7 @@ private:
               + sizeof(SkDescriptor::Entry) + sizeof(void*)              // for typeface
               + 32;   // slop for occasional small extras
 
-    SkDescriptor*   fDesc{nullptr};
+    raw_ptr<SkDescriptor, DanglingUntriaged> fDesc;
     alignas(uint32_t) char fStorage[kStorageSize];
 };
 

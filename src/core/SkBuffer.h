@@ -11,6 +11,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkNoncopyable.h"
 #include "src/core/SkSafeMath.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -126,9 +127,9 @@ public:
 private:
     void    writeNoSizeCheck(const void* buffer, size_t size);
 
-    char* fData;
-    char* fPos;
-    char* fStop;
+    raw_ptr<char, AllowPtrArithmetic> fData;
+    raw_ptr<char, AllowPtrArithmetic> fPos;
+    raw_ptr<char, AllowPtrArithmetic> fStop;
 };
 
 #endif

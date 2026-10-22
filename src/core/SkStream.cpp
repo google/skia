@@ -20,6 +20,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkStreamPriv.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -779,7 +780,7 @@ public:
         }
     }
 
-    SkDynamicMemoryWStream::Block* const fHead;
+    raw_ptr<SkDynamicMemoryWStream::Block, DanglingUntriaged> fHead;
 };
 
 class SkBlockMemoryStream : public SkStreamAsset {
@@ -896,7 +897,7 @@ public:
 
 private:
     sk_sp<SkBlockMemoryRefCnt> const fBlockMemory;
-    SkDynamicMemoryWStream::Block const * fCurrent;
+    raw_ptr<const SkDynamicMemoryWStream::Block> fCurrent;
     size_t const fSize;
     size_t fOffset;
     size_t fCurrentOffset;

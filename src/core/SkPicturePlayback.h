@@ -13,6 +13,7 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkPictureFlat.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -35,7 +36,7 @@ public:
     void resetOpID() { fCurOffset = 0; }
 
 private:
-    const SkPictureData* fPictureData;
+    raw_ptr<const SkPictureData> fPictureData;
 
     // The offset of the current operation when within the draw method
     size_t fCurOffset;

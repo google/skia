@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkDebug.h"
 #include "src/core/SkMessageBus.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstddef>
@@ -108,8 +109,8 @@ public:
         virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return nullptr; }
 
     private:
-        Rec*    fNext;
-        Rec*    fPrev;
+        raw_ptr<Rec, DanglingUntriaged> fNext;
+        raw_ptr<Rec, DanglingUntriaged> fPrev;
 
         friend class SkResourceCache;
     };
@@ -263,11 +264,11 @@ public:
     virtual void dump() const;
 
 private:
-    Rec*    fHead;
-    Rec*    fTail;
+    raw_ptr<Rec, DanglingUntriaged> fHead;
+    raw_ptr<Rec, DanglingUntriaged> fTail;
 
     class Hash;
-    Hash*   fHash;
+    raw_ptr<Hash, DanglingUntriaged> fHash;
 
     DiscardableFactory  fDiscardableFactory;
 

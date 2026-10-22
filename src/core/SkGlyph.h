@@ -23,6 +23,7 @@
 #include "src/core/SkChecksum.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkVx.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <algorithm>
 #include <cmath>
@@ -578,32 +579,32 @@ private:
     // beginning and end of the intersection of the bounds and the glyph's path.
     // If interval[0] >= interval[1], no intersection was found.
     struct Intercept {
-        Intercept* fNext;
-        SkScalar   fBounds[2];    // for horz underlines, the boundaries in Y
-        SkScalar   fInterval[2];  // the outside intersections of the axis and the glyph
+        raw_ptr<Intercept> fNext;
+        SkScalar           fBounds[2];    // for horz underlines, the boundaries in Y
+        SkScalar           fInterval[2];  // the outside intersections of the axis and the glyph
     };
 
     struct PathData {
-        Intercept* fIntercept{nullptr};
-        SkPath     fPath;
-        bool       fHasPath{false};
+        raw_ptr<Intercept> fIntercept{nullptr};
+        SkPath             fPath;
+        bool               fHasPath{false};
         // A normal user-path will have patheffects applied to it and eventually become a dev-path.
         // A dev-path is always a fill-path, except when it is hairline.
         // The fPath is a dev-path, so sidecar the paths hairline status.
         // This allows the user to avoid filling paths which should not be filled.
-        bool       fHairline{false};
+        bool               fHairline{false};
         // This is set if the path is significantly different from what a reasonable interpreter of
         // the underlying font data would produce. This is set if any non-identity matrix, stroke,
         // path effect, emboldening, etc is applied.
         // This allows Document implementations to know if a glyph should be drawn out of the font
         // data or needs to be embedded differently.
-        bool       fModified{false};
+        bool               fModified{false};
     };
 
     struct DrawableData {
-        Intercept* fIntercept{nullptr};
-        sk_sp<SkDrawable> fDrawable;
-        bool fHasDrawable{false};
+        raw_ptr<Intercept> fIntercept{nullptr};
+        sk_sp<SkDrawable>  fDrawable;
+        bool               fHasDrawable{false};
     };
 
     size_t allocImage(SkArenaAlloc* alloc);
@@ -628,13 +629,13 @@ private:
               fLeft = 0;
 
     // fImage must remain null if the glyph is empty or if width > kMaxGlyphWidth.
-    void*     fImage    = nullptr;
+    raw_ptr<void, DanglingUntriaged> fImage = nullptr;
 
     // Path data has tricky state. If the glyph isEmpty, then fPathData should always be nullptr,
     // else if fPathData is not null, then a path has been requested. The fPath field of fPathData
     // may still be null after the request meaning that there is no path for this glyph.
-    PathData* fPathData = nullptr;
-    DrawableData* fDrawableData = nullptr;
+    raw_ptr<PathData, DanglingUntriaged>     fPathData = nullptr;
+    raw_ptr<DrawableData, DanglingUntriaged> fDrawableData = nullptr;
 
     // The advance for this glyph.
     float     fAdvanceX = 0,
