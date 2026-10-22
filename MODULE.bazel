@@ -168,7 +168,7 @@ crate.spec(
     # and is not shipping in Chromium or other Skia clients.
     git = "https://github.com/etemesi254/zune-image.git",
     package = "zune-jpeg",
-    rev = "a1010cf1faa91980f011c32585b4f582caf10745",
+    rev = "7d3e74c34b2252b6a4477399c7c52ccc9cf0fcab",
 )
 crate.spec(
     features = ["std"],

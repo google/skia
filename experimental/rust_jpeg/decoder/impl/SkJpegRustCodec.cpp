@@ -182,7 +182,8 @@ bool GetYUVAInfo(const rust_jpeg::Reader& reader,
 }  // namespace
 
 std::unique_ptr<SkJpegRustCodec> SkJpegRustCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
-                                                                 Result* result) {
+                                                                 Result* result,
+                                                                 bool rawInputComplete) {
     Result resultStorage;
     if (!result) {
         result = &resultStorage;
@@ -195,7 +196,8 @@ std::unique_ptr<SkJpegRustCodec> SkJpegRustCodec::MakeFromStream(std::unique_ptr
 
     auto inputAdapter = std::make_unique<rust::stream::SkStreamAdapter>(stream.get());
     rust::Box<rust_jpeg::Reader> reader =
-            rust_jpeg::new_reader(std::move(inputAdapter), StreamLengthOrZero(*stream));
+            rust_jpeg::new_reader(
+                    std::move(inputAdapter), StreamLengthOrZero(*stream), rawInputComplete);
     if (reader->initialization_result() != rust_jpeg::DecodingResult::Success) {
         *result = MapDecodingResult(reader->initialization_result());
         return nullptr;
@@ -537,11 +539,12 @@ bool SkJpegRustCodec::onRewind() {
     }
 
     auto inputAdapter = std::make_unique<rust::stream::SkStreamAdapter>(fPrivStream.get());
-    fReader = rust_jpeg::new_reader(std::move(inputAdapter), StreamLengthOrZero(*fPrivStream));
+    const bool rawInputComplete = fReader->raw_input_complete();
+    fReader = rust_jpeg::new_reader(
+            std::move(inputAdapter), StreamLengthOrZero(*fPrivStream), rawInputComplete);
     if (fReader->initialization_result() != rust_jpeg::DecodingResult::Success) {
         return false;
     }
-
     if (!fReader->metadata_loaded()) {
         rust_jpeg::DecodingResult metadataResult = fReader->read_metadata();
         if (metadataResult != rust_jpeg::DecodingResult::Success) {

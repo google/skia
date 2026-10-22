@@ -30,7 +30,10 @@ struct SkEncodedInfo;
 //   transformations implemented in C++).
 class SkJpegRustCodec final : public SkCodec {
 public:
-    static std::unique_ptr<SkJpegRustCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
+    // Set rawInputComplete only when no more encoded bytes can arrive for raw YUV decoding.
+    static std::unique_ptr<SkJpegRustCodec> MakeFromStream(std::unique_ptr<SkStream>,
+                                                        Result*,
+                                                        bool rawInputComplete = false);
 
     ~SkJpegRustCodec() override;
 
@@ -126,7 +129,6 @@ private:
     int fSwizzleRowCount = 0;
     bool fDirectPackedOutput = false;
     bool fDisableDirectPackedOutputForTesting = false;
-
     // Stored separately; SkCodec base gets nullptr. Keep this before fReader so
     // the stream outlives the Rust reader's stream adapter.
     std::unique_ptr<SkStream> fPrivStream;

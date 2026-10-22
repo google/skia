@@ -86,7 +86,8 @@ static std::unique_ptr<SkCodec> decode_rust_jpeg_data(sk_sp<SkData> data,
 static rust::Box<rust_jpeg::Reader> make_rust_jpeg_reader_for_test(SkStream* stream,
                                                                    uint64_t streamLength) {
     auto reader = rust_jpeg::new_reader(std::make_unique<rust::stream::SkStreamAdapter>(stream),
-                                        streamLength);
+                                        streamLength,
+                                        /*raw_input_complete=*/false);
     SkASSERT_RELEASE(reader->initialization_result() == rust_jpeg::DecodingResult::Success);
     return reader;
 }
@@ -976,6 +977,90 @@ DEF_TEST(RustJpegCodec_ProgressiveRawYUVRetry, r) {
                 r, std::any_of(storage[plane].begin(), storage[plane].end(), [](uint8_t value) {
                     return value != 0xCD;
                 }));
+    }
+}
+
+DEF_TEST(RustJpegCodec_FinalRawInputWithoutEOI, r) {
+    sk_sp<SkData> data = GetResourceAsData("images/four-colors-limited-range-420-8bpc.jpg");
+    REPORTER_ASSERT(r, data && data->size() > 2);
+    if (!data || data->size() <= 2) {
+        return;
+    }
+    const auto* bytes = static_cast<const uint8_t*>(data->data());
+    REPORTER_ASSERT(r, bytes[data->size() - 2] == 0xFF &&
+                       bytes[data->size() - 1] == 0xD9);
+    sk_sp<SkData> truncated = SkData::MakeSubset(data.get(), 0, data->size() - 2);
+    auto codec = SkJpegRustDecoder::Decode(truncated, nullptr);
+    auto reference = SkJpegRustDecoder::Decode(data, nullptr);
+    // A known stream length is not an explicit final-input signal.
+    auto streamCodec = SkJpegRustDecoder::Decode(SkMemoryStream::Make(truncated), nullptr);
+    REPORTER_ASSERT(r, codec && reference && streamCodec);
+    if (!codec || !reference || !streamCodec) {
+        return;
+    }
+    SkYUVAPixmapInfo info;
+    REPORTER_ASSERT(
+            r, codec->queryYUVAInfo(SkYUVAPixmapInfo::SupportedDataTypes::All(), &info));
+    SkYUVAPixmaps actual = SkYUVAPixmaps::Allocate(info);
+    SkYUVAPixmaps expected = SkYUVAPixmaps::Allocate(info);
+    SkYUVAPixmaps suspended = SkYUVAPixmaps::Allocate(info);
+    REPORTER_ASSERT(r, actual.isValid() && expected.isValid() && suspended.isValid());
+    if (!actual.isValid() || !expected.isValid() || !suspended.isValid()) {
+        return;
+    }
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, reference->getYUVAPlanes(expected));
+    for (int attempt = 0; attempt < 2; ++attempt) {
+        REPORTER_ASSERT(r, streamCodec->getYUVAPlanes(suspended) == SkCodec::kIncompleteInput);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getYUVAPlanes(actual));
+        for (int plane = 0; plane < actual.numPlanes(); ++plane) {
+            for (int row = 0; row < actual.plane(plane).height(); ++row) {
+                REPORTER_ASSERT(
+                        r, !memcmp(actual.plane(plane).addr(0, row),
+                                   expected.plane(plane).addr(0, row),
+                                   static_cast<size_t>(actual.plane(plane).width())));
+            }
+        }
+    }
+}
+
+DEF_TEST(RustJpegCodec_FinalRawNeedsAllComponents, r) {
+    // A three-component progressive JPEG containing only a Y DC scan.
+    std::vector<uint8_t> encoded = {0xFF, 0xD8, 0xFF, 0xDB, 0, 67, 0};
+    encoded.insert(encoded.end(), 64, 1);
+    encoded.insert(encoded.end(), {
+        0xFF, 0xC2, 0, 17, 8, 0, 8, 0, 8, 3,
+        1, 0x11, 0, 2, 0x11, 0, 3, 0x11, 0,
+        0xFF, 0xC4, 0, 20, 0,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0xFF, 0xDA, 0, 8, 1, 1, 0, 0, 0, 0, 0x7F,
+    });
+    auto codec = SkJpegRustDecoder::Decode(
+            SkData::MakeWithCopy(encoded.data(), encoded.size()), nullptr);
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+    SkYUVAPixmapInfo info;
+    REPORTER_ASSERT(
+            r, codec->queryYUVAInfo(SkYUVAPixmapInfo::SupportedDataTypes::All(), &info));
+    REPORTER_ASSERT(r, info.isValid());
+    if (!info.isValid()) {
+        return;
+    }
+    std::array<std::vector<uint8_t>, SkYUVAPixmaps::kMaxPlanes> storage;
+    std::array<SkPixmap, SkYUVAPixmaps::kMaxPlanes> pixmaps;
+    for (int plane = 0; plane < info.numPlanes(); ++plane) {
+        const size_t rowBytes = info.rowBytes(plane);
+        storage[plane].assign(rowBytes * info.planeInfo(plane).height(), 0xCD);
+        pixmaps[plane] =
+                SkPixmap(info.planeInfo(plane), storage[plane].data(), rowBytes);
+    }
+    SkYUVAPixmaps planes = SkYUVAPixmaps::FromExternalPixmaps(info.yuvaInfo(), pixmaps.data());
+    REPORTER_ASSERT(r, codec->getYUVAPlanes(planes) == SkCodec::kIncompleteInput);
+    for (const auto& plane : storage) {
+        REPORTER_ASSERT(r, std::all_of(plane.begin(), plane.end(), [](uint8_t value) {
+            return value == 0xCD;
+        }));
     }
 }
 

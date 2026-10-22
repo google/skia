@@ -139,7 +139,11 @@ mod ffi {
     extern "Rust" {
         fn is_jpeg_data(data: &[u8]) -> bool;
 
-        fn new_reader(input: UniquePtr<SkStreamAdapter>, stream_length: u64) -> Box<Reader>;
+        fn new_reader(
+            input: UniquePtr<SkStreamAdapter>,
+            stream_length: u64,
+            raw_input_complete: bool,
+        ) -> Box<Reader>;
 
         type Reader;
         fn initialization_result(self: &Reader) -> DecodingResult;
@@ -167,6 +171,7 @@ mod ffi {
 
         fn raw_component_count(self: &Reader) -> u32;
         fn raw_plane_info(self: &Reader, index: u32) -> RawPlaneInfo;
+        fn raw_input_complete(self: &Reader) -> bool;
         fn read_raw_imcu_row(
             self: &mut Reader,
             y: &mut [u8],
@@ -520,6 +525,7 @@ pub struct Reader {
     incremental_decoder: Option<IncrementalJpegDecoder>,
     raw_component_count: u32,
     raw_plane_info: [RawPlaneInfo; 4],
+    raw_input_complete: bool,
     output_sequence: OutputSequence,
 
     scanner: SegmentScanner,
@@ -561,7 +567,11 @@ fn validate_stream_length(stream_length: u64) -> DecodingResult {
 impl Reader {
     /// Create a new reader without reading any data from the stream.
     /// The stream is stored for later incremental reads.
-    fn new(input: cxx::UniquePtr<ffi::SkStreamAdapter>, stream_length: u64) -> Self {
+    fn new(
+        input: cxx::UniquePtr<ffi::SkStreamAdapter>,
+        stream_length: u64,
+        raw_input_complete: bool,
+    ) -> Self {
         Reader {
             stream: Some(input),
             initialization_result: validate_stream_length(stream_length),
@@ -586,6 +596,7 @@ impl Reader {
             incremental_decoder: None,
             raw_component_count: 0,
             raw_plane_info: [RawPlaneInfo::default(); 4],
+            raw_input_complete,
             output_sequence: OutputSequence::Idle,
             // Stop at SOS — we only need header segments for metadata.
             scanner: SegmentScanner::new(jpeg_marker::SOS),
@@ -1087,6 +1098,10 @@ impl Reader {
             .unwrap_or_default()
     }
 
+    pub fn raw_input_complete(&self) -> bool {
+        self.raw_input_complete
+    }
+
     pub fn read_raw_imcu_row(
         &mut self,
         y: &mut [u8],
@@ -1147,6 +1162,9 @@ impl Reader {
         let mut planes = [y, u, v];
         let status = {
             let mut raw = decoder.raw_output();
+            if self.raw_input_complete {
+                raw.set_input_complete();
+            }
             raw.decode_next_imcu_row(&mut planes, &strides)
         };
         let rows_written = match status {
@@ -1171,6 +1189,9 @@ impl Reader {
                 };
             }
             Ok(_) => return error(DecodingResult::OtherError),
+            Err(ref decode_error) if decode_error.is_recoverable_eof() => {
+                return error(DecodingResult::IncompleteInput)
+            }
             Err(ref decode_error) => return error(map_zune_error(decode_error)),
         };
         RawOutputResult {
@@ -1458,8 +1479,12 @@ impl Reader {
     }
 }
 
-fn new_reader(input: cxx::UniquePtr<ffi::SkStreamAdapter>, stream_length: u64) -> Box<Reader> {
-    Box::new(Reader::new(input, stream_length))
+fn new_reader(
+    input: cxx::UniquePtr<ffi::SkStreamAdapter>,
+    stream_length: u64,
+    raw_input_complete: bool,
+) -> Box<Reader> {
+    Box::new(Reader::new(input, stream_length, raw_input_complete))
 }
 
 pub fn encode_jpeg(
@@ -1572,6 +1597,16 @@ pub fn encode_jpeg(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_raw_input_finality_is_preserved_on_decode_reset() {
+        for raw_input_complete in [false, true] {
+            let mut reader = new_reader(cxx::UniquePtr::null(), 0, raw_input_complete);
+            assert_eq!(reader.raw_input_complete(), raw_input_complete);
+            reader.reset_decode_state();
+            assert_eq!(reader.raw_input_complete(), raw_input_complete);
+        }
+    }
 
     #[test]
     fn test_validate_stream_length_rejects_oversized_length() {
