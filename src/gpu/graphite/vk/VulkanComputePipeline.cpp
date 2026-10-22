@@ -16,6 +16,7 @@
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 namespace skgpu::graphite {
@@ -133,6 +134,19 @@ sk_sp<VulkanComputePipeline> VulkanComputePipeline::Make(VulkanSharedContext* sh
     pipelineInfo.stage.module = shaderModule;
     pipelineInfo.stage.pName = "main";
     pipelineInfo.layout = pipelineLayout;
+    if (outInterface.fUseSubgroups) {
+        // This flag is required for correctness, not performance. Without it (and without a
+        // required subgroup size), a SPIR-V module older than 1.6 sees SubgroupSize equal to the
+        // device-wide VkPhysicalDeviceSubgroupProperties::subgroupSize, but drivers that compile
+        // at several widths don't actually run at that size. For example, Intel advertises 32 but
+        // may compile SIMD8 or SIMD16 and still report 32, so sk_SubgroupSize would overstate the
+        // number of invocations in a subgroup. With the flag, sk_SubgroupSize reports the size the
+        // driver really picked. SPIR-V 1.6 modules get this behavior implicitly, but SkSL emits
+        // SPIR-V 1.3. The flag requires subgroupSizeControl, which fSubgroupSupport requires, and
+        // SkSL only compiles subgroup use when fSubgroupSupport is set.
+        SkASSERT(sharedContext->caps()->shaderCaps()->fSubgroupSupport);
+        pipelineInfo.stage.flags |= VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT;
+    }
 
     VkPipeline pipeline = VK_NULL_HANDLE;
     VULKAN_CALL_RESULT(sharedContext,

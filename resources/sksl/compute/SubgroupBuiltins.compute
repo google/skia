@@ -1,0 +1,15 @@
+/*#pragma settings SubgroupSupport*/
+
+layout(local_size_x = 64) in;
+
+layout(metal, binding = 0) buffer outputs {
+    uint outputBuffer[];
+};
+
+noinline uint helper() {
+    return sk_SubgroupSize + sk_SubgroupID;
+}
+
+void main() {
+    outputBuffer[sk_GlobalInvocationID.x] = helper() + sk_SubgroupInvocationID;
+}

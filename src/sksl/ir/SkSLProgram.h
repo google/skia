@@ -53,11 +53,14 @@ struct ProgramInterface {
     uint8_t fRTFlipUniform = kRTFlip_None;
     bool fUseLastFragColor = false;
     bool fOutputSecondaryColor = false;
+    // True if the program references any subgroup builtin.
+    bool fUseSubgroups = false;
 
     bool operator==(const ProgramInterface& that) const {
         return fRTFlipUniform == that.fRTFlipUniform &&
                fUseLastFragColor == that.fUseLastFragColor &&
-               fOutputSecondaryColor == that.fOutputSecondaryColor;
+               fOutputSecondaryColor == that.fOutputSecondaryColor &&
+               fUseSubgroups == that.fUseSubgroups;
     }
     bool operator!=(const ProgramInterface& that) const { return !(*this == that); }
 };

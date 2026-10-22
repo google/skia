@@ -41,20 +41,33 @@ constexpr int SK_LOCALINVOCATIONID_BUILTIN =      27;
 constexpr int SK_GLOBALINVOCATIONID_BUILTIN =     28;
 constexpr int SK_LOCALINVOCATIONINDEX_BUILTIN =   29;
 
+// Subgroup builtins (compute only). These require ShaderCaps::fSubgroupSupport. As with the other
+// builtins, the values are the SPIR-V BuiltIn enums, which the SPIR-V backend emits directly.
+constexpr int SK_SUBGROUPSIZE_BUILTIN = 36;
+constexpr int SK_SUBGROUPID_BUILTIN = 40;
+constexpr int SK_SUBGROUPINVOCATIONID_BUILTIN = 41;
+
 namespace SkSL {
 
 class Inliner;
-struct Module;
 class ModuleLoader;
+struct Module;
 enum class ModuleType : int8_t;
 class Pool;
-struct ProgramConfig;
 class ProgramUsage;
+struct ProgramConfig;
 enum class ProgramKind : int8_t;
-struct Program;
 class ProgramElement;
-struct ProgramSettings;
 class SymbolTable;
+struct Program;
+struct ProgramSettings;
+
+// Returns true for the subgroup builtins, which require ShaderCaps::fSubgroupSupport. Code
+// generators report an error when a program references one of these without that support.
+constexpr bool IsSubgroupBuiltin(int builtin) {
+    return builtin == SK_SUBGROUPSIZE_BUILTIN || builtin == SK_SUBGROUPID_BUILTIN ||
+           builtin == SK_SUBGROUPINVOCATIONID_BUILTIN;
+}
 
 /**
  * Main compiler entry point. The compiler parses the SkSL text directly into a tree of IRNodes,

@@ -1,0 +1,10 @@
+// Subgroup builtins are only declared in compute programs.
+half4 main(float2 xy) {
+    return half4(half(sk_SubgroupSize), half(sk_SubgroupID), half(sk_SubgroupInvocationID), 1);
+}
+
+/*%%*
+unknown identifier 'sk_SubgroupSize'
+unknown identifier 'sk_SubgroupID'
+unknown identifier 'sk_SubgroupInvocationID'
+*%%*/

@@ -1841,6 +1841,9 @@ static bool is_compute_builtin(const Variable& var) {
         case SK_LOCALINVOCATIONID_BUILTIN:
         case SK_GLOBALINVOCATIONID_BUILTIN:
         case SK_LOCALINVOCATIONINDEX_BUILTIN:
+        case SK_SUBGROUPSIZE_BUILTIN:
+        case SK_SUBGROUPID_BUILTIN:
+        case SK_SUBGROUPINVOCATIONID_BUILTIN:
             return true;
         default:
             break;
@@ -1886,6 +1889,11 @@ static bool is_in_globals(const Variable& var) {
 }
 
 void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
+    if (IsSubgroupBuiltin(ref.variable()->layout().fBuiltin) && !fCaps.fSubgroupSupport) {
+        fContext.fErrors->error(ref.position(),
+                                "'" + std::string(ref.variable()->name()) + "' not supported");
+        return;
+    }
     switch (ref.variable()->layout().fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
             this->write("_out.sk_FragColor");
@@ -2665,6 +2673,16 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                             break;
                         case SK_LOCALINVOCATIONINDEX_BUILTIN:
                             attr = " [[thread_index_in_threadgroup]]";
+                            break;
+                        // Metal calls subgroups "SIMD-groups".
+                        case SK_SUBGROUPSIZE_BUILTIN:
+                            attr = " [[threads_per_simdgroup]]";
+                            break;
+                        case SK_SUBGROUPID_BUILTIN:
+                            attr = " [[simdgroup_index_in_threadgroup]]";
+                            break;
+                        case SK_SUBGROUPINVOCATIONID_BUILTIN:
+                            attr = " [[thread_index_in_simdgroup]]";
                             break;
                         default:
                             break;

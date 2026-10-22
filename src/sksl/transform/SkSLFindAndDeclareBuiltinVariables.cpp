@@ -168,6 +168,13 @@ void FindAndDeclareBuiltinVariables(Program& program) {
                 case SK_SECONDARYFRAGCOLOR_BUILTIN:
                     program.fInterface.fOutputSecondaryColor = true;
                     break;
+
+                // Record subgroup usage so backends can enable subgroup support.
+                case SK_SUBGROUPSIZE_BUILTIN:
+                case SK_SUBGROUPID_BUILTIN:
+                case SK_SUBGROUPINVOCATIONID_BUILTIN:
+                    program.fInterface.fUseSubgroups = true;
+                    break;
             }
         }
     }

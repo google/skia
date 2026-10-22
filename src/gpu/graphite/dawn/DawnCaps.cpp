@@ -493,9 +493,17 @@ void DawnCaps::initShaderCaps(const wgpu::Device& device) {
     // Dawn only exposes Subgroups when vote, ballot, shuffle, and arithmetic operations are all
     // available in compute, which matches what fSubgroupSupport promises. The client must request
     // the feature when creating the device.
-    if (device.HasFeature(wgpu::FeatureName::Subgroups)) {
+    //
+    // sk_SubgroupID lowers to @builtin(subgroup_id), which additionally needs the subgroup_id WGSL
+    // language feature. It has shipped but can be disabled by a killswitch, so check for it. The
+    // Emscripten bindings Skia builds against can't query it, so subgroups stay disabled there.
+#if !defined(__EMSCRIPTEN__)
+    if (device.HasFeature(wgpu::FeatureName::Subgroups) &&
+        device.GetAdapter().GetInstance().HasWGSLLanguageFeature(
+                wgpu::WGSLLanguageFeatureName::SubgroupId)) {
         shaderCaps->fSubgroupSupport = true;
     }
+#endif
 
     // WebGPU cannot query or request maximal reconvergence. Maximal reconvergence can be toggled
     // directly through dawn native, but currently dawn does not distinguish between maximal

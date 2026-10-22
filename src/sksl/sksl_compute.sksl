@@ -6,6 +6,14 @@ layout(builtin=27) in uint3 sk_LocalInvocationID;
 layout(builtin=28) in uint3 sk_GlobalInvocationID;
 layout(builtin=29) in uint sk_LocalInvocationIndex;
 
+// Subgroup builtins. Using these requires ShaderCaps::fSubgroupSupport. Don't assume
+// sk_SubgroupID * sk_SubgroupSize + sk_SubgroupInvocationID == sk_LocalInvocationIndex; the
+// layout of subgroups within a workgroup is implementation-defined and the last subgroup may be
+// partially filled.
+layout(builtin=36) in uint sk_SubgroupSize;
+layout(builtin=40) in uint sk_SubgroupID;
+layout(builtin=41) in uint sk_SubgroupInvocationID;
+
 struct IndirectDispatchArgs {
     int x, y, z;
 };

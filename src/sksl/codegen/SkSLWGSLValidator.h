@@ -14,9 +14,16 @@
 namespace SkSL {
 
 class ErrorReporter;
+struct ShaderCaps;
 
-bool ValidateWGSL(ErrorReporter& reporter, std::string_view wgsl, std::string* warnings);
-bool ValidateWGSLVerbose(ErrorReporter& reporter, std::string_view wgsl, std::string* warnings);
+bool ValidateWGSL(ErrorReporter& reporter,
+                  const ShaderCaps& caps,
+                  std::string_view wgsl,
+                  std::string* warnings);
+bool ValidateWGSLVerbose(ErrorReporter& reporter,
+                         const ShaderCaps& caps,
+                         std::string_view wgsl,
+                         std::string* warnings);
 
 }  // namespace SkSL
 

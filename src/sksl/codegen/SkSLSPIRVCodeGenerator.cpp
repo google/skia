@@ -3662,6 +3662,11 @@ std::unique_ptr<Expression> SPIRVCodeGenerator::identifier(std::string_view name
 
 SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, SPIRVBlob& out) {
     const Variable* variable = ref.variable();
+    if (IsSubgroupBuiltin(variable->layout().fBuiltin) && !fCaps.fSubgroupSupport) {
+        fContext.fErrors->error(ref.position(),
+                                "'" + std::string(variable->name()) + "' not supported");
+        return NA;
+    }
     switch (variable->layout().fBuiltin) {
         case DEVICE_FRAGCOORDS_BUILTIN: {
             // Down below, we rewrite raw references to sk_FragCoord with expressions that reference
@@ -4792,6 +4797,10 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, Positio
                                  layout.fBuiltin != SK_SECONDARYFRAGCOLOR_BUILTIN)) {
             this->writeInstruction(SpvOpDecorate, target, SpvDecorationBuiltIn, layout.fBuiltin,
                                    fDecorationBuffer);
+            if (IsSubgroupBuiltin(layout.fBuiltin)) {
+                // The subgroup builtins require GroupNonUniform (SPIR-V 1.3).
+                this->addCapability(SpvCapabilityGroupNonUniform);
+            }
     }
 }
 

@@ -9,6 +9,7 @@
 
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLUtil.h"
 
 #include "src/tint/lang/wgsl/enums.h"
 #include "src/tint/lang/wgsl/reader/options.h"
@@ -17,6 +18,7 @@
 namespace SkSL {
 
 static bool validate_wgsl(ErrorReporter& reporter,
+                          const ShaderCaps& caps,
                           std::string_view wgsl,
                           bool appendError,
                           std::string* warnings) {
@@ -25,11 +27,18 @@ static bool validate_wgsl(ErrorReporter& reporter,
     for (auto extension : {tint::wgsl::Extension::kChromiumExperimentalPixelLocal,
                            tint::wgsl::Extension::kChromiumExperimentalFramebufferFetch,
                            tint::wgsl::Extension::kDualSourceBlending,
-                           tint::wgsl::Extension::kF16}) {
+                           tint::wgsl::Extension::kF16,
+                           tint::wgsl::Extension::kSubgroups}) {
         options.allowed_features.extensions.insert(extension);
     }
-    options.allowed_features.features.insert(
-            tint::wgsl::LanguageFeature::kUnrestrictedPointerParameters);
+    for (auto feature : {tint::wgsl::LanguageFeature::kUnrestrictedPointerParameters,
+                         tint::wgsl::LanguageFeature::kSubgroupId}) {
+        options.allowed_features.features.insert(feature);
+    }
+    if (!caps.fSubgroupMaximalReconvergence) {
+        options.allowed_features.features.insert(
+                tint::wgsl::LanguageFeature::kSubgroupUniformity);
+    }
 
     // Verify that the WGSL we produced is valid.
     tint::Source::File srcFile("", wgsl);
@@ -61,12 +70,18 @@ static bool validate_wgsl(ErrorReporter& reporter,
     return true;
 }
 
-bool ValidateWGSL(ErrorReporter& reporter, std::string_view wgsl, std::string* warnings) {
-    return validate_wgsl(reporter, wgsl, false, warnings);
+bool ValidateWGSL(ErrorReporter& reporter,
+                  const ShaderCaps& caps,
+                  std::string_view wgsl,
+                  std::string* warnings) {
+    return validate_wgsl(reporter, caps, wgsl, false, warnings);
 }
 
-bool ValidateWGSLVerbose(ErrorReporter& reporter, std::string_view wgsl, std::string* warnings) {
-    return validate_wgsl(reporter, wgsl, true, warnings);
+bool ValidateWGSLVerbose(ErrorReporter& reporter,
+                         const ShaderCaps& caps,
+                         std::string_view wgsl,
+                         std::string* warnings) {
+    return validate_wgsl(reporter, caps, wgsl, true, warnings);
 }
 
 }  // namespace SkSL

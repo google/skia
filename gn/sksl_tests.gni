@@ -55,6 +55,8 @@ sksl_compute_tests = [
   "compute/ModuleStructInInterfaceBlock.compute",
   "compute/ModuleStructInVariable.compute",
   "compute/Raytrace.compute",
+  "compute/SubgroupBuiltins.compute",
+  "compute/SubgroupBuiltinsWithoutCaps.compute",
   "compute/Uniforms.compute",
   "compute/Workgroup.compute",
 ]
@@ -358,6 +360,7 @@ sksl_error_tests = [
   "errors/StructRedefinition.rts",
   "errors/StructTooDeeplyNested.rts",
   "errors/StructVariableReservedName.rts",
+  "errors/SubgroupBuiltinsOutsideCompute.rts",
   "errors/SwitchDuplicateCase.rts",
   "errors/SwitchDuplicateDefault.rts",
   "errors/SwitchDuplicateVariable.rts",

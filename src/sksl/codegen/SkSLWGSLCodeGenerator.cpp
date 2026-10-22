@@ -139,6 +139,11 @@ public:
         kGlobalInvocationId,    // input
         kWorkgroupId,           // input
         kNumWorkgroups,         // input
+
+        // Compute stage, requires `enable subgroups;`:
+        kSubgroupSize,          // input
+        kSubgroupId,            // input
+        kSubgroupInvocationId,  // input
     };
 
     // Variable declarations can be terminated by:
@@ -903,6 +908,12 @@ std::string_view wgsl_builtin_name(WGSLCodeGenerator::Builtin builtin) {
             return "@builtin(workgroup_id)";
         case Builtin::kNumWorkgroups:
             return "@builtin(num_workgroups)";
+        case Builtin::kSubgroupSize:
+            return "@builtin(subgroup_size)";
+        case Builtin::kSubgroupId:
+            return "@builtin(subgroup_id)";
+        case Builtin::kSubgroupInvocationId:
+            return "@builtin(subgroup_invocation_id)";
         default:
             break;
     }
@@ -944,6 +955,10 @@ std::string_view wgsl_builtin_type(WGSLCodeGenerator::Builtin builtin, const Con
             return "vec3<u32>";
         case Builtin::kNumWorkgroups:
             return "vec3<u32>";
+        case Builtin::kSubgroupSize:
+        case Builtin::kSubgroupId:
+        case Builtin::kSubgroupInvocationId:
+            return "u32";
         default:
             break;
     }
@@ -1004,6 +1019,12 @@ std::optional<WGSLCodeGenerator::Builtin> builtin_from_sksl_name(int builtin) {
             return Builtin::kGlobalInvocationId;
         case SK_LOCALINVOCATIONINDEX_BUILTIN:
             return Builtin::kLocalInvocationIndex;
+        case SK_SUBGROUPSIZE_BUILTIN:
+            return Builtin::kSubgroupSize;
+        case SK_SUBGROUPID_BUILTIN:
+            return Builtin::kSubgroupId;
+        case SK_SUBGROUPINVOCATIONID_BUILTIN:
+            return Builtin::kSubgroupInvocationId;
         default:
             break;
     }
@@ -4180,6 +4201,11 @@ std::string WGSLCodeGenerator::assembleVariableReference(const VariableReference
     // TODO(b/294274678): Correctly handle RTFlip for built-ins.
     const Variable& v = *r.variable();
 
+    if (IsSubgroupBuiltin(v.layout().fBuiltin) && !fCaps.fSubgroupSupport) {
+        fContext.fErrors->error(r.position(), "'" + std::string(v.name()) + "' not supported");
+        return {};
+    }
+
     // Insert a conversion expression if this is a built-in variable whose type differs from the
     // SkSL.
     std::string expr;
@@ -4682,6 +4708,11 @@ void WGSLCodeGenerator::writeEnables() {
     if (fProgram.fInterface.fOutputSecondaryColor) {
         this->writeLine("enable dual_source_blending;");
     }
+    if (fProgram.fInterface.fUseSubgroups) {
+        // `subgroup_id` additionally needs the `subgroup_id` language feature. Language features
+        // need no directive; DawnCaps only reports subgroup support when it is available.
+        this->writeLine("enable subgroups;");
+    }
 }
 
 bool WGSLCodeGenerator::needsStageInputStruct() const {
@@ -5010,7 +5041,7 @@ bool ToWGSL(Program& program,
         if (result) {
             std::string_view wgslBytes = wgsl.str();
             std::string warnings;
-            result = validateWGSL(*program.fContext->fErrors, wgslBytes, &warnings);
+            result = validateWGSL(*program.fContext->fErrors, *caps, wgslBytes, &warnings);
             if (!warnings.empty()) {
                 out.writeText("/* Tint reported warnings. */\n\n");
             }
