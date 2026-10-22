@@ -144,6 +144,11 @@ void TextWrapper::lookAhead(SkScalar maxWidth,
                 if (further->isHardBreak() || further->isWhitespaceBreak()) {
                     break;
                 }
+                if (further->isSoftBreak() && !further->isSoftHyphen()) {
+                    // Other soft breaks, such as the end of the text, end the word before this
+                    // cluster; only a soft hyphen's own (letter-spaced) width counts here
+                    break;
+                }
                 if (further->run().isPlaceholder()) {
                   // Placeholder ends the word
                   break;

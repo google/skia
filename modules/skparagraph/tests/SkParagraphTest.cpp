@@ -11155,6 +11155,35 @@ UNIX_ONLY_TEST(SkParagraph_SoftHyphenFallbackFontWidth, reporter) {
                     minWidth);
 }
 
+// Only a soft hyphen's own width changes how a too-long word is measured. Other soft breaks, such
+// as the end of the text, still end the word before their cluster, so a word too long for the
+// line at the end of the text moves to the next line before it's split, as it always has
+// (Flutter's DropdownMenu tests depend on this). With Ahem, every glyph is 10px wide, so each
+// 56px line holds 5 glyphs
+UNIX_ONLY_TEST(SkParagraph_TooLongWordAtEndOfTextBreaksAsBefore, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    for (bool renderSoftHyphens : {false, true}) {
+        ParagraphStyle paragraphStyle;
+        paragraphStyle.turnHintingOff();
+        paragraphStyle.setApplyRoundingHack(false);
+        paragraphStyle.setRenderSoftHyphens(renderSoftHyphens);
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        TextStyle textStyle;
+        textStyle.setFontFamilies({SkString("Ahem")});
+        textStyle.setFontSize(10);
+        textStyle.setColor(SK_ColorBLACK);
+        builder.pushStyle(textStyle);
+        const char* text = "n twelve";
+        builder.addText(text, strlen(text));
+        builder.pop();
+        auto paragraph = builder.Build();
+        paragraph->layout(56);
+        checkLines(reporter, paragraph.get(), "n|twelv|e");
+    }
+}
+
 #if defined(SK_UNICODE_ICU_IMPLEMENTATION)
 UNIX_ONLY_TEST(SkParagraph_ICU_EmojiRuns, reporter) {
     SkUnicode_Emoji(SkUnicodes::ICU::Make(), reporter);
