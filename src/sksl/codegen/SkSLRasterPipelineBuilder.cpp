@@ -345,6 +345,18 @@ bool Builder::simplifyImmediateUnmaskedOp() {
     return false;
 }
 
+// This function is used to guard peephole optimization sites. If it fails, fInstructions adds both
+// both instructions, but the count goes over INT_MAX and is caught downstream.
+static bool add_into(int* target, int delta) {
+    SkSafeMath safe;
+    int sum = safe.addInt(*target, delta);
+    if (!safe) {
+        return false;
+    }
+    *target = sum;
+    return true;
+}
+
 void Builder::discard_stack(int32_t count, int stackID) {
     // If we pushed something onto the stack and then immediately discarded part of it, we can
     // shrink or eliminate the push.
@@ -357,8 +369,10 @@ void Builder::discard_stack(int32_t count, int stackID) {
         switch (lastInstruction->fOp) {
             case BuilderOp::discard_stack:
                 // Our last op was actually a separate discard_stack; combine the discards.
-                lastInstruction->fImmA += count;
-                return;
+                if (add_into(&lastInstruction->fImmA, count)) {
+                    return;
+                }
+                break;
 
             case BuilderOp::push_clone:
             case BuilderOp::push_clone_from_stack:
@@ -648,8 +662,9 @@ void Builder::push_constant_i(int32_t val, int count) {
     if (count > 0) {
         if (Instruction* lastInstruction = this->lastInstruction()) {
             // If the previous op is pushing the same value, we can just push more of them.
-            if (lastInstruction->fOp == BuilderOp::push_constant && lastInstruction->fImmB == val) {
-                lastInstruction->fImmA += count;
+            if (lastInstruction->fOp == BuilderOp::push_constant &&
+                lastInstruction->fImmB == val &&
+                add_into(&lastInstruction->fImmA, count)) {
                 return;
             }
         }
@@ -660,8 +675,8 @@ void Builder::push_constant_i(int32_t val, int count) {
 void Builder::push_duplicates(int count) {
     if (Instruction* lastInstruction = this->lastInstruction()) {
         // If the previous op is pushing a constant, we can just push more of them.
-        if (lastInstruction->fOp == BuilderOp::push_constant) {
-            lastInstruction->fImmA += count;
+        if (lastInstruction->fOp == BuilderOp::push_constant &&
+            add_into(&lastInstruction->fImmA, count)) {
             return;
         }
     }
@@ -689,9 +704,9 @@ void Builder::push_clone(int numSlots, int offsetFromStackTop) {
     if (numSlots == 1 && offsetFromStackTop == 0) {
         // ... and the previous op is pushing a constant...
         if (Instruction* lastInstruction = this->lastInstruction()) {
-            if (lastInstruction->fOp == BuilderOp::push_constant) {
+            if (lastInstruction->fOp == BuilderOp::push_constant &&
+                add_into(&lastInstruction->fImmA, 1)) {
                 // ... we can just push more of them.
-                lastInstruction->fImmA += 1;
                 return;
             }
         }
@@ -1285,7 +1300,7 @@ std::unique_ptr<Program> Builder::finish(int numValueSlots,
                                      numImmutableSlots, fNumLabels, debugTrace);
 }
 
-static int stack_usage(const Instruction& inst) {
+static int stack_usage(const Instruction& inst, SkSafeMath* safe) {
     switch (inst.fOp) {
         case BuilderOp::push_condition_mask:
         case BuilderOp::push_loop_mask:
@@ -1324,20 +1339,20 @@ static int stack_usage(const Instruction& inst) {
         case ALL_MULTI_SLOT_BINARY_OP_CASES:
         case BuilderOp::discard_stack:
         case BuilderOp::select:
-            return -inst.fImmA;
+            return safe->subInt(0, inst.fImmA);
 
         case ALL_N_WAY_TERNARY_OP_CASES:
         case ALL_MULTI_SLOT_TERNARY_OP_CASES:
-            return 2 * -inst.fImmA;
+            return safe->mulInt(-2, inst.fImmA);
 
         case BuilderOp::swizzle_1:
-            return 1 - inst.fImmA;  // consumes immA slots and emits a scalar
+            return safe->subInt(1, inst.fImmA);  // consumes immA slots and emits a scalar
         case BuilderOp::swizzle_2:
-            return 2 - inst.fImmA;  // consumes immA slots and emits a 2-slot vector
+            return safe->subInt(2, inst.fImmA);  // consumes immA slots and emits a 2-slot vector
         case BuilderOp::swizzle_3:
-            return 3 - inst.fImmA;  // consumes immA slots and emits a 3-slot vector
+            return safe->subInt(3, inst.fImmA);  // consumes immA slots and emits a 3-slot vector
         case BuilderOp::swizzle_4:
-            return 4 - inst.fImmA;  // consumes immA slots and emits a 4-slot vector
+            return safe->subInt(4, inst.fImmA);  // consumes immA slots and emits a 4-slot vector
 
         case BuilderOp::dot_2_floats:
             return -3;  // consumes two 2-slot vectors and emits one scalar
@@ -1353,12 +1368,13 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::matrix_multiply_3:
         case BuilderOp::matrix_multiply_4:
             // consumes the left- and right-matrices; emits result over existing padding slots
-            return -(inst.fImmA * inst.fImmB + inst.fImmC * inst.fImmD);
+            return safe->subInt(0, safe->addInt(safe->mulInt(inst.fImmA, inst.fImmB),
+                                                safe->mulInt(inst.fImmC, inst.fImmD)));
 
         case BuilderOp::shuffle: {
             int consumed = inst.fImmA;
             int generated = inst.fImmB;
-            return generated - consumed;
+            return safe->subInt(generated, consumed);
         }
         case ALL_SINGLE_SLOT_UNARY_OP_CASES:
         case ALL_MULTI_SLOT_UNARY_OP_CASES:
@@ -1366,6 +1382,11 @@ static int stack_usage(const Instruction& inst) {
         default:
             return 0;
     }
+}
+
+static int stack_usage(const Instruction& inst) {
+    SkSafeMath safe;
+    return stack_usage(inst, &safe);
 }
 
 Program::StackDepths Program::tempStackMaxDepths() const {
@@ -1380,9 +1401,14 @@ Program::StackDepths Program::tempStackMaxDepths() const {
     largest.push_back_n(numStacks, 0);
     current.push_back_n(numStacks, 0);
 
+    SkSafeMath safe;
     for (const Instruction& inst : fInstructions) {
         int stackID = inst.fStackID;
-        current[stackID] += stack_usage(inst);
+        current[stackID] = safe.addInt(current[stackID], stack_usage(inst, &safe));
+        if (!safe) {
+            largest[stackID] = -1;
+            return largest;
+        }
         largest[stackID] = std::max(current[stackID], largest[stackID]);
         // If we assert here, the generated program has popped off the top of the stack.
         SkASSERTF_RELEASE(current[stackID] >= 0, "unbalanced temp stack push/pop on stack");
@@ -1411,9 +1437,18 @@ Program::Program(TArray<Instruction> instrs,
         , fDebugTrace(debugTrace) {
     fTempStackMaxDepths = this->tempStackMaxDepths();
 
+    SkSafeMath safe;
     fNumTempStackSlots = 0;
     for (const int depth : fTempStackMaxDepths) {
-        fNumTempStackSlots += depth;
+        if (depth < 0) {
+            fNumTempStackSlots = -1;
+            break;
+        }
+        fNumTempStackSlots = safe.addInt(fNumTempStackSlots, depth);
+        if (!safe) {
+            fNumTempStackSlots = -1;
+            break;
+        }
     }
 
     if (fDebugTrace) {
@@ -1674,6 +1709,13 @@ static void* context_bit_pun(intptr_t val) {
 }
 
 std::optional<Program::SlotData> Program::allocateSlotData(SkArenaAlloc* alloc) const {
+    if (fNumValueSlots < 0 ||
+        fNumUniformSlots < 0 ||
+        fNumTempStackSlots < 0 ||
+        fNumImmutableSlots < 0 ||
+        fNumLabels < 0) {
+        return std::nullopt;
+    }
     // Allocate a contiguous slab of slot data for immutables, values, and stack entries.
     const size_t N = SkOpts::raster_pipeline_highp_stride;
     const int scalarWidth = 1 * sizeof(float);
