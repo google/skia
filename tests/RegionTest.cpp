@@ -728,3 +728,27 @@ DEF_TEST(Region_setRects, reporter) {
     }
     test("100_rects_grid", grid);
 }
+
+DEF_TEST(Region_ConicMaxEdges, reporter) {
+    // Regression test ensuring SkRegion::setPath budgets enough storage when conics
+    // are subdivided into up to 2^kMaxConicToQuadPOW2 quads near a scanline center.
+    // Note: The specific floating-point constants below only trigger the 32-span
+    // subdivision when SK_SUPPORT_LEGACY_CONIC_CHOP is enabled (as in Chromium).
+    SkPathBuilder builder;
+    for (int j = 0; j < 4; ++j) {
+        const float x = 8.0f + 700.0f * j;
+        builder.moveTo(x, -7000.0f);
+        builder.arcTo({x, 0.0f}, {x + 695.1203002929688f, -8192.0f}, 296.45477294921875f);
+    }
+    builder.moveTo(0.0f, 6e10f);
+    builder.lineTo(9.0f, 6e10f);
+
+    SkMatrix m = SkMatrix::Scale(1.0f, 1.7029898324860682e-11f);
+    m.postTranslate(0.0f, 1.5f);
+    SkPath path = builder.detach().makeTransform(m);
+
+    SkRegion clip(SkIRect::MakeWH(2800, 4));
+    SkRegion rgn;
+    rgn.setPath(path, clip);
+}
+
