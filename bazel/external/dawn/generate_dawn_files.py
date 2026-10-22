@@ -140,13 +140,22 @@ class CMakeParser:
             for p in extra_params
         ]
 
+        # Extract sub-command actions ('gen' or 'check') from the parameters if present,
+        # ensuring they are strictly placed right after the script target to comply with
+        # argparse subcommand choosing syntax (otherwise options like --template-dir
+        # get mistaken as the subcommand action itself).
+        subcommands = {"gen", "check"}
+        subcommand_args = [p for p in expanded_params if p in subcommands]
+        other_params = [p for p in expanded_params if p not in subcommands]
+
         cmd = [
             sys.executable,
             os.path.abspath(os.path.join(self.dawn_root, script)),
+        ] + subcommand_args + [
             "--template-dir", "generator/templates",
             "--root-dir", ".",
             "--output-dir", ".",  # Required but ignored by --print-cmake-outputs
-        ] + expanded_params + ["--print-cmake-outputs"]
+        ] + other_params + ["--print-cmake-outputs"]
 
         try:
             res = subprocess.run(
