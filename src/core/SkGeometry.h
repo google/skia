@@ -372,6 +372,9 @@ struct SkConic {
     void computeAsQuadError(SkVector* err) const;
     bool asQuadTol(SkScalar tol) const;
 
+    // Limit the number of suggested quads to approximate a conic
+    static constexpr int kMaxConicToQuadPOW2 = 5;
+
     /**
      *  return the power-of-2 number of quads needed to approximate this conic
      *  with a sequence of quads. Will be >= 0.
