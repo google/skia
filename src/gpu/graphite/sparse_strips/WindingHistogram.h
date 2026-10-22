@@ -54,7 +54,7 @@ public:
     }
 
     SK_ALWAYS_INLINE void addWindingRange(int startRow, int endRow, int16_t delta) {
-        SkASSERT(startRow >= 0 && endRow <= fWindingData.size() && startRow <= endRow);
+        SkASSERT(startRow >= 0 && endRow <= fWindingData.size());
         for (int r = startRow; r < endRow; ++r) {
             fWindingData[r] += delta;
         }
