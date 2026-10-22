@@ -79,13 +79,11 @@ config_setting(
     ],
 )
 
-# We define this here because the emscripten toolchain calls the cpu wasm, whereas the
-# bazelbuild/platforms call it wasm32. https://github.com/emscripten-core/emsdk/issues/919
 config_setting(
     name = "cpu_wasm",
-    values = {
-        "cpu": "wasm",
-    },
+    constraint_values = [
+        "@platforms//cpu:wasm32",
+    ],
 )
 
 selects.config_setting_group(
