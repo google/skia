@@ -257,7 +257,17 @@ DEF_TEST(HdrMetadata_Agtm_Mix, r) {
          SkColor4f({0.75f, 0.5f,  0.25f, 1.f}),
          SkColor4f({0.75f, 0.75f, 0.75f, 1.f}));
 
-    test("Min only",
+    test("Min only (R is min)",
+         skhdr::AdaptiveGlobalToneMap::ComponentMixingFunction({.fMin=1.f}),
+         SkColor4f({0.25f, 0.75f, 0.5f,  1.f}),
+         SkColor4f({0.25f, 0.25f, 0.25f, 1.f}));
+
+    test("Min only (G is min)",
+         skhdr::AdaptiveGlobalToneMap::ComponentMixingFunction({.fMin=1.f}),
+         SkColor4f({0.75f, 0.25f, 0.5f,  1.f}),
+         SkColor4f({0.25f, 0.25f, 0.25f, 1.f}));
+
+    test("Min only (B is min)",
          skhdr::AdaptiveGlobalToneMap::ComponentMixingFunction({.fMin=1.f}),
          SkColor4f({0.75f, 0.5f,  0.25f, 1.f}),
          SkColor4f({0.25f, 0.25f, 0.25f, 1.f}));

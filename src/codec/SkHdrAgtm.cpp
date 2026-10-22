@@ -159,7 +159,7 @@ SkColor4f AgtmHelpers::EvaluateComponentMixingFunction(
     // This implements that math in Formula (9).
     float common = mix.fRed * c.fR + mix.fGreen * c.fG + mix.fBlue * c.fB  +
                    mix.fMax * std::max(std::max(c.fR, c.fG), c.fB) +
-                   mix.fMin * std::min(std::max(c.fR, c.fG), c.fB);
+                   mix.fMin * std::min(std::min(c.fR, c.fG), c.fB);
 
     // Optimization for when all components are the same.
     if (mix.fComponent == 0.f) {
