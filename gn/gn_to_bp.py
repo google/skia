@@ -125,6 +125,10 @@ cc_defaults {
         ],
       },
     },
+
+    extra_include_dir_deps: [
+        "src/sksl/generated/*.sksl",
+    ],
 }
 
 cc_defaults {
