@@ -6,6 +6,8 @@
  */
 
 #include <array>
+#include <cstdint>
+#include <limits>
 
 #include "src/sfnt/SkOTUtils.h"
 
@@ -29,6 +31,9 @@ uint32_t SkOTUtils::CalcTableChecksum(SK_OT_ULONG *data, size_t length) {
 }
 
 SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int fontNameLen) {
+    if (!fontData || !fontName || fontNameLen < 0) {
+        return nullptr;
+    }
 
     // Get the sfnt header.
     SkSFNTHeader sfntHeader;
@@ -73,17 +78,47 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
 
     // Copy the data, leaving out the old name table.
     // In theory, we could also remove the DSIG table if it exists.
+    // Each name record stores its UTF-16 byte length in a 16-bit field
+    if (static_cast<size_t>(fontNameLen) >
+        std::numeric_limits<uint16_t>::max() / sizeof(SK_OT_USHORT)) {
+        return nullptr;
+    }
     size_t nameTableLogicalSize = sizeof(SkOTTableName)
                                 + (encodings.size() * names.size() * sizeof(SkOTTableName::Record))
                                 + (fontNameLen * sizeof(SK_OT_USHORT));
     size_t nameTablePhysicalSize = (nameTableLogicalSize + 3) & ~3; // Rounded up to a multiple of 4.
 
-    size_t oldNameTablePhysicalSize = (SkEndian_SwapBE32(tableEntry.logicalLength) + 3) & ~3; // Rounded up to a multiple of 4.
+    uint32_t oldNameTableLogicalLength = SkEndian_SwapBE32(tableEntry.logicalLength);
+    // Prevent 32-bit wrap-around when rounding the table size up to a multiple of 4
+    if (oldNameTableLogicalLength > std::numeric_limits<uint32_t>::max() - 3) {
+        return nullptr;
+    }
+    size_t oldNameTablePhysicalSize = (oldNameTableLogicalLength + 3u) & ~3u;
     size_t oldNameTableOffset = SkEndian_SwapBE32(tableEntry.offset);
 
+    size_t fontDataLength = fontData->getLength();
+    size_t headerAndDirSize =
+            sizeof(SkSFNTHeader) +
+            static_cast<size_t>(numTables) * sizeof(SkSFNTHeader::TableDirectoryEntry);
+    // The old 'name' table must follow the full table directory and fit within the stream
+    if (oldNameTableOffset < headerAndDirSize ||
+        oldNameTableOffset > fontDataLength ||
+        oldNameTablePhysicalSize > fontDataLength - oldNameTableOffset) {
+        return nullptr;
+    }
+
     //originalDataSize is the size of the original data without the name table.
-    size_t originalDataSize = fontData->getLength() - oldNameTablePhysicalSize;
-    size_t newDataSize = originalDataSize + nameTablePhysicalSize;
+    size_t originalDataSize = fontDataLength - oldNameTablePhysicalSize;
+    // Pad the retained prefix to a 4-byte boundary so the appended 'name' table and full-font
+    // checksum calculation remain 4-byte aligned without reading past the allocation
+    if (originalDataSize > std::numeric_limits<uint32_t>::max() - 3) {
+        return nullptr;
+    }
+    size_t paddedOriginalDataSize = (originalDataSize + 3) & ~size_t(3);
+    if (paddedOriginalDataSize > std::numeric_limits<uint32_t>::max() - nameTablePhysicalSize) {
+        return nullptr;
+    }
+    size_t newDataSize = paddedOriginalDataSize + nameTablePhysicalSize;
 
     auto rewrittenFontData = SkData::MakeUninitialized(newDataSize);
     SK_OT_BYTE* data = static_cast<SK_OT_BYTE*>(rewrittenFontData->writable_data());
@@ -97,6 +132,9 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
     if (fontData->read(data + oldNameTableOffset, originalDataSize - oldNameTableOffset) < originalDataSize - oldNameTableOffset) {
         return nullptr;
     }
+    for (size_t i = originalDataSize; i < paddedOriginalDataSize; ++i) {
+        data[i] = 0;
+    }
 
     //Fix up the offsets of the directory entries after the old 'name' table entry.
     SkSFNTHeader::TableDirectoryEntry* currentEntry = reinterpret_cast<SkSFNTHeader::TableDirectoryEntry*>(data + sizeof(SkSFNTHeader));
@@ -105,6 +143,10 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
     for (; currentEntry < endEntry; ++currentEntry) {
         uint32_t oldOffset = SkEndian_SwapBE32(currentEntry->offset);
         if (oldOffset > oldNameTableOffset) {
+            // Subsequent tables must start at or after the end of the old 'name' table
+            if (oldOffset < oldNameTableOffset + oldNameTablePhysicalSize) {
+                return nullptr;
+            }
             currentEntry->offset = SkEndian_SwapBE32(SkToU32(oldOffset - oldNameTablePhysicalSize));
         }
 
@@ -116,16 +158,17 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
     // Make the table directory entry point to the new 'name' table.
     SkSFNTHeader::TableDirectoryEntry* nameTableEntry = reinterpret_cast<SkSFNTHeader::TableDirectoryEntry*>(data + sizeof(SkSFNTHeader)) + tableIndex;
     nameTableEntry->logicalLength = SkEndian_SwapBE32(SkToU32(nameTableLogicalSize));
-    nameTableEntry->offset = SkEndian_SwapBE32(SkToU32(originalDataSize));
+    nameTableEntry->offset = SkEndian_SwapBE32(SkToU32(paddedOriginalDataSize));
 
     // Write the new 'name' table after the original font data.
-    SkOTTableName* nameTable = reinterpret_cast<SkOTTableName*>(data + originalDataSize);
+    SkOTTableName* nameTable = reinterpret_cast<SkOTTableName*>(data + paddedOriginalDataSize);
     unsigned short stringOffset = sizeof(SkOTTableName) + (encodings.size() * names.size() * sizeof(SkOTTableName::Record));
     nameTable->format = SkOTTableName::format_0;
     nameTable->count = SkEndian_SwapBE16(encodings.size() * names.size());
     nameTable->stringOffset = SkEndian_SwapBE16(stringOffset);
 
-    SkOTTableName::Record* nameRecord = reinterpret_cast<SkOTTableName::Record*>(data + originalDataSize + sizeof(SkOTTableName));
+    SkOTTableName::Record* nameRecord = reinterpret_cast<SkOTTableName::Record*>(
+            data + paddedOriginalDataSize + sizeof(SkOTTableName));
     for (const auto& encoding : encodings) {
         for (const auto& name : names) {
             nameRecord->platformID.value = SkOTTableName::Record::PlatformID::Windows;
@@ -138,13 +181,14 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
         }
     }
 
-    SK_OT_USHORT* nameString = reinterpret_cast<SK_OT_USHORT*>(data + originalDataSize + stringOffset);
+    SK_OT_USHORT* nameString =
+            reinterpret_cast<SK_OT_USHORT*>(data + paddedOriginalDataSize + stringOffset);
     for (int i = 0; i < fontNameLen; ++i) {
         nameString[i] = SkEndian_SwapBE16(fontName[i]);
     }
 
-    unsigned char* logical = data + originalDataSize + nameTableLogicalSize;
-    unsigned char* physical = data + originalDataSize + nameTablePhysicalSize;
+    unsigned char* logical = data + paddedOriginalDataSize + nameTableLogicalSize;
+    unsigned char* physical = data + paddedOriginalDataSize + nameTablePhysicalSize;
     for (; logical < physical; ++logical) {
         *logical = 0;
     }
@@ -155,11 +199,16 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
     // Update the checksum adjustment in the head table.
     if (headTableEntry) {
         size_t headTableOffset = SkEndian_SwapBE32(headTableEntry->offset);
-        if (headTableOffset + sizeof(SkOTTableHead) < originalDataSize) {
+        // Guard against 32-bit addition overflow and offsets pointing into the SFNT directory
+        if (headTableOffset >= headerAndDirSize &&
+            originalDataSize >= sizeof(SkOTTableHead) &&
+            headTableOffset <= originalDataSize - sizeof(SkOTTableHead)) {
             SkOTTableHead* headTable = reinterpret_cast<SkOTTableHead*>(data + headTableOffset);
             headTable->checksumAdjustment = SkEndian_SwapBE32(0);
-            uint32_t unadjustedFontChecksum = SkOTUtils::CalcTableChecksum(reinterpret_cast<SK_OT_ULONG*>(data), originalDataSize + nameTablePhysicalSize);
-            headTable->checksumAdjustment = SkEndian_SwapBE32(SkOTTableHead::fontChecksum - unadjustedFontChecksum);
+            uint32_t unadjustedFontChecksum =
+                    SkOTUtils::CalcTableChecksum(reinterpret_cast<SK_OT_ULONG*>(data), newDataSize);
+            headTable->checksumAdjustment =
+                    SkEndian_SwapBE32(SkOTTableHead::fontChecksum - unadjustedFontChecksum);
         }
     }
 
