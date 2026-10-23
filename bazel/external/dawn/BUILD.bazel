@@ -109,6 +109,7 @@ py_binary(
     name = "dawn_json_generator",
     srcs = [
         "generator/dawn_json_generator.py",
+        "generator/dawn_json_parsing.py",
         "generator/webgpu_docs_utility.py",
     ],
     deps = [":generator_lib"],
