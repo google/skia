@@ -14,13 +14,13 @@
 #include "include/private/SkLog.h"
 #include "include/private/SkPixelStorage.h"
 #include "src/gpu/graphite/Device.h"
-#include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Image_YUVA_Graphite.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureUtils.h"
+#include "src/gpu/graphite/draw/DrawContext.h"
 #include "src/gpu/graphite/task/Task.h"
 
 namespace skgpu::graphite {

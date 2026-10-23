@@ -1,0 +1,41 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup", "split_srcs_and_hdrs")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+CORE_FILES = [
+    "DrawContext.cpp",
+    "DrawContext.h",
+    "DrawList.cpp",
+    "DrawList.h",
+    "DrawListBase.h",
+    "DrawListLayer.cpp",
+    "DrawListLayer.h",
+    "DrawListTypes.h",
+    "DrawOrder.h",
+    "DrawParams.h",
+    "DrawPass.cpp",
+    "DrawPass.h",
+    "DrawWriter.cpp",
+    "DrawWriter.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core",
+    files = CORE_FILES,
+)
+
+skia_filegroup(
+    name = "draw_hdrs",
+    srcs = [":core_hdrs"],
+    visibility = ["//src/gpu/graphite:__pkg__"],
+)
+
+skia_filegroup(
+    name = "draw_srcs",
+    srcs = [":core_srcs"],
+    visibility = ["//src/gpu/graphite:__pkg__"],
+)

@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/gpu/graphite/DrawContext.h"
+#include "src/gpu/graphite/draw/DrawContext.h"
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorType.h"
@@ -22,12 +22,6 @@
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ComputePathAtlas.h"
-#include "src/gpu/graphite/DrawList.h"
-#include "src/gpu/graphite/DrawListBase.h"
-#include "src/gpu/graphite/DrawListLayer.h"
-#include "src/gpu/graphite/DrawOrder.h"
-#include "src/gpu/graphite/DrawParams.h"
-#include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
@@ -37,6 +31,12 @@
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/TextureUtils.h"
+#include "src/gpu/graphite/draw/DrawList.h"
+#include "src/gpu/graphite/draw/DrawListBase.h"
+#include "src/gpu/graphite/draw/DrawListLayer.h"
+#include "src/gpu/graphite/draw/DrawOrder.h"
+#include "src/gpu/graphite/draw/DrawParams.h"
+#include "src/gpu/graphite/draw/DrawPass.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/task/ComputeTask.h"
 #include "src/gpu/graphite/task/DrawTask.h"

@@ -16,7 +16,7 @@
 #include "src/core/SkBlockAllocator.h"
 #include "src/core/SkTBlockList.h"
 #include "src/core/SkVx.h"
-#include "src/gpu/graphite/DrawOrder.h"
+#include "src/gpu/graphite/draw/DrawOrder.h"
 #include "src/gpu/graphite/geom/Rect.h"
 
 #include <cstdint>

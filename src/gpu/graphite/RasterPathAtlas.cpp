@@ -13,10 +13,10 @@
 #include "include/private/SkLog.h"
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/graphite/AtlasProvider.h"
-#include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/RasterPathUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/draw/DrawContext.h"
 
 namespace skgpu::graphite {
 

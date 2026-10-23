@@ -7,8 +7,8 @@
 
 #include "src/gpu/graphite/Renderer.h"
 
-#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/UniformManager.h"
+#include "src/gpu/graphite/draw/DrawParams.h"
 
 namespace skgpu::graphite {
 

@@ -16,8 +16,8 @@
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
-#include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/draw/DrawContext.h"
 
 class SkRuntimeEffect;
 

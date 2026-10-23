@@ -16,11 +16,11 @@
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/DrawCommands.h"
-#include "src/gpu/graphite/DrawOrder.h"
-#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/StorageContext.h"
+#include "src/gpu/graphite/draw/DrawOrder.h"
+#include "src/gpu/graphite/draw/DrawParams.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Transform.h"
 
@@ -273,8 +273,12 @@ protected:
 
             for (int i = 0; i < binding.numTextures(); ++i) {
                 auto [t, s] = binding.texture(i);
-                SK_UNSAFE_TODO(textures[i]) = t.get();
-                SK_UNSAFE_TODO(samplers[i]) = s;
+                // SAFETY: `textures` and `samplers` were allocated with `binding.numTextures()`
+                // elements by `bindDeferredTexturesAndSamplers()` above.
+                SK_UNSAFE_BUFFERS({
+                    textures[i] = t.get();
+                    samplers[i] = s;
+                })
             }
         }
 

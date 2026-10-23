@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/gpu/graphite/DrawPass.h"
+#include "src/gpu/graphite/draw/DrawPass.h"
 
 #include "include/private/SkLog.h"
 #include "src/core/SkTraceEvent.h"

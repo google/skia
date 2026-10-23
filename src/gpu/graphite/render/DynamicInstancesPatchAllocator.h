@@ -9,7 +9,7 @@
 #define skgpu_graphite_render_DynamicInstancesPatchAllocator_DEFINED
 
 #include "src/gpu/BufferWriter.h"
-#include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/draw/DrawWriter.h"
 #include "src/gpu/tessellate/LinearTolerances.h"
 
 namespace skgpu::graphite {

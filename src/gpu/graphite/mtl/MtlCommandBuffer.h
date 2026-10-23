@@ -10,7 +10,7 @@
 
 #include "include/private/SkLog.h"
 #include "src/gpu/graphite/CommandBuffer.h"
-#include "src/gpu/graphite/DrawPass.h"
+#include "src/gpu/graphite/draw/DrawPass.h"
 #include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 
 #include <memory>

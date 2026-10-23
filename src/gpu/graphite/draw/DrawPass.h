@@ -25,10 +25,10 @@ namespace skgpu::graphite {
 class CommandBuffer;
 class DrawList;
 class GraphicsPipeline;
-struct RenderPassDesc;
 class ResourceProvider;
 class RuntimeEffectDictionary;
 class TextureProxy;
+struct RenderPassDesc;
 
 enum class DstReadStrategy : uint8_t;
 enum class LoadOp : uint8_t;

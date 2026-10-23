@@ -11,8 +11,8 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTArray.h"
-#include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
+#include "src/gpu/graphite/draw/DrawPass.h"
 #include "src/gpu/graphite/task/Task.h"
 
 #include <functional>
@@ -20,13 +20,13 @@
 
 namespace skgpu::graphite {
 
-class TextureProxy;
 class CommandBuffer;
 class Context;
 class GraphicsPipeline;
 class ResourceProvider;
 class RuntimeEffectDictionary;
 class ScratchResourceManager;
+class TextureProxy;
 
 /**
  * RenderPassTask handles preparing and recording DrawLists into a single render pass within a

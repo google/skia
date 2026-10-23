@@ -29,11 +29,11 @@ namespace skgpu::graphite {
 class Attribute;
 class GraphicsPipelineDesc;
 class RuntimeEffectDictionary;
+class TextureInfo;
+class VulkanRenderPass;
 class VulkanResourceProvider;
 class VulkanSharedContext;
 struct RenderPassDesc;
-class TextureInfo;
-class VulkanRenderPass;
 
 // VulkanProgramInfo owns the underlying vulkan objects and are deleted automatically.
 class VulkanProgramInfo {

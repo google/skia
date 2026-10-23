@@ -4,16 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/gpu/graphite/DrawListLayer.h"
+#include "src/gpu/graphite/draw/DrawListLayer.h"
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/graphite/DrawPass.h"
-#include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/draw/DrawPass.h"
+#include "src/gpu/graphite/draw/DrawWriter.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 
 namespace skgpu::graphite {

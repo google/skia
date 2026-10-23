@@ -308,6 +308,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//src/gpu/graphite/compute:core_hdrs",
 				"//src/gpu/graphite/compute:core_srcs",
+				"//src/gpu/graphite/draw:core_hdrs",
+				"//src/gpu/graphite/draw:core_srcs",
 				"//src/gpu/graphite/geom:core_hdrs",
 				"//src/gpu/graphite/geom:core_srcs",
 				"//src/gpu/graphite/render:core_hdrs",

@@ -7,9 +7,9 @@
 #include "src/gpu/graphite/sparse_strips/AlphaAtlasManager.h"
 
 #include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
+#include "src/gpu/graphite/draw/DrawContext.h"
 #include "src/gpu/graphite/task/UploadTask.h"
 
 #include <algorithm>

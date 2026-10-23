@@ -10,11 +10,11 @@
 
 #include "include/private/SkLog.h"
 #include "src/gpu/graphite/CommandBuffer.h"
-#include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/GpuWorkSubmission.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
 #include "src/gpu/graphite/dawn/DawnResourceProvider.h"
+#include "src/gpu/graphite/draw/DrawPass.h"
 #include "src/partition_alloc/raw_ptr.h"
 
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
