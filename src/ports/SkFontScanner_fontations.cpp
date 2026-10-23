@@ -177,7 +177,10 @@ bool SkFontScanner_Fontations::scanInstance(SkStreamAsset* stream,
         axes->reset(size);
         auto variationAxes = std::make_unique<SkFontParameters::Variation::Axis[]>(size);
         sk_fontations::AxisWrapper axisWrapper(variationAxes.get(), size);
-        SkASSERT(size == fontations_ffi::populate_axes(*bridgeFontRef, axisWrapper));
+        // Outside SkASSERT: release builds drop the condition, and with it the call
+        [[maybe_unused]] const auto populated =
+                fontations_ffi::populate_axes(*bridgeFontRef, axisWrapper);
+        SkASSERT(SkToInt(populated) == size);
         for (auto i = 0; i < size; ++i) {
             const auto var = variationAxes[i];
             (*axes)[i].tag = var.tag;
