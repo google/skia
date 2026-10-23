@@ -144,6 +144,19 @@ bool SkWStream::writePackedUInt(size_t value) {
 }
 
 bool SkWStream::writeStream(SkStream* stream, size_t length) {
+    if (length == 0) {
+        return true;
+    }
+    if (const char* base = static_cast<const char*>(stream->getMemoryBase());
+        base && stream->hasPosition() && stream->hasLength()) {
+        const size_t position = stream->getPosition();
+        const size_t streamLength = stream->getLength();
+        SkASSERT(streamLength >= position);
+        if (position > streamLength || streamLength - position < length) {
+            return false;
+        }
+        return stream->skip(length) == length && this->write(base + position, length);
+    }
     char scratch[1024];
     const size_t MAX = sizeof(scratch);
 
@@ -152,8 +165,7 @@ bool SkWStream::writeStream(SkStream* stream, size_t length) {
         if (n > MAX) {
             n = MAX;
         }
-        stream->read(scratch, n);
-        if (!this->write(scratch, n)) {
+        if (stream->read(scratch, n) != n || !this->write(scratch, n)) {
             return false;
         }
         length -= n;

@@ -458,6 +458,39 @@ public:
     const uint8_t* fData;
     size_t fCount, fIdx;
 };
+
+class RecordingWStream : public SkDynamicMemoryWStream {
+public:
+    explicit RecordingWStream(bool rejectWrites = false) : fRejectWrites(rejectWrites) {}
+
+    bool write(const void* buffer, size_t size) override {
+        ++fWriteCount;
+        return !fRejectWrites && SkDynamicMemoryWStream::write(buffer, size);
+    }
+
+    size_t writeCount() const { return fWriteCount; }
+
+private:
+    bool fRejectWrites;
+    size_t fWriteCount = 0;
+};
+
+class ShortReadStream : public SkMemoryStream {
+public:
+    ShortReadStream(const void* data, size_t size, bool memoryBacked)
+            : SkMemoryStream(data, size), fMemoryBacked(memoryBacked) {}
+
+    const void* getMemoryBase() override {
+        return fMemoryBacked ? SkMemoryStream::getMemoryBase() : nullptr;
+    }
+
+    size_t read(void* buffer, size_t size) override {
+        return SkMemoryStream::read(buffer, std::min(size, size_t{17}));
+    }
+
+private:
+    bool fMemoryBacked;
+};
 }  // namespace
 
 static void stream_copy_test(skiatest::Reporter* reporter,
@@ -529,6 +562,72 @@ DEF_TEST(StreamCopy, reporter) {
     stream_copy_test(reporter, src, N, &dumbStream);
     SkMemoryStream smartStream(src.get(), (size_t)N);
     stream_copy_test(reporter, src, N, &smartStream);
+}
+
+DEF_TEST(StreamWriteStream, reporter) {
+    auto payload = SkData::MakeUninitialized(16 * 1024);
+    auto* bytes = static_cast<uint8_t*>(payload->writable_data());
+    for (size_t i = 0; i < payload->size(); ++i) {
+        bytes[i] = static_cast<uint8_t>(i);
+    }
+
+    for (bool memoryBacked : {true, false}) {
+        std::unique_ptr<SkStreamAsset> input;
+        if (memoryBacked) {
+            input = std::make_unique<SkMemoryStream>(payload);
+        } else {
+            SkDynamicMemoryWStream blocks;
+            for (size_t i = 0; i < payload->size(); i += 1024) {
+                blocks.write(bytes + i, 1024);
+            }
+            input = blocks.detachAsStream();
+        }
+        REPORTER_ASSERT(reporter, (input->getMemoryBase() != nullptr) == memoryBacked);
+
+        for (size_t position : {size_t{0}, size_t{13}}) {
+            for (size_t length :
+                 {size_t{0}, size_t{31}, size_t{4097}, payload->size() - position}) {
+                REPORTER_ASSERT(reporter, input->seek(position));
+                RecordingWStream output;
+                REPORTER_ASSERT(reporter, output.writeStream(input.get(), length));
+                REPORTER_ASSERT(reporter, input->getPosition() == position + length);
+                if (length == 0 || memoryBacked) {
+                    REPORTER_ASSERT(reporter, output.writeCount() == (length != 0 ? 1u : 0u));
+                }
+                auto actual = output.detachAsData();
+                REPORTER_ASSERT(reporter, actual->size() == length);
+                if (length != 0) {
+                    REPORTER_ASSERT(reporter,
+                                    memcmp(actual->data(), bytes + position, length) == 0);
+                }
+            }
+        }
+
+        REPORTER_ASSERT(reporter, input->rewind());
+        RecordingWStream rejected(/*rejectWrites=*/true);
+        REPORTER_ASSERT(reporter, rejected.writeStream(input.get(), 0));
+        REPORTER_ASSERT(reporter, rejected.writeCount() == 0);
+        REPORTER_ASSERT(reporter, !rejected.writeStream(input.get(), 4097));
+        REPORTER_ASSERT(reporter, rejected.writeCount() == 1);
+        REPORTER_ASSERT(reporter, rejected.bytesWritten() == 0);
+    }
+}
+
+DEF_TEST(StreamWriteStreamShortRead, reporter) {
+    std::array<uint8_t, 1025> bytes = {};
+    for (bool memoryBacked : {true, false}) {
+        SkMemoryStream memory(bytes.data(), bytes.size());
+        DumbStream fallback(bytes.data(), bytes.size());
+        SkStream* input = memoryBacked ? static_cast<SkStream*>(&memory) : &fallback;
+        RecordingWStream output;
+        REPORTER_ASSERT(reporter, !output.writeStream(input, bytes.size() + 1));
+        REPORTER_ASSERT(reporter, output.bytesWritten() <= bytes.size());
+
+        ShortReadStream shortRead(bytes.data(), bytes.size(), memoryBacked);
+        RecordingWStream shortOutput;
+        REPORTER_ASSERT(reporter, !shortOutput.writeStream(&shortRead, 1024));
+        REPORTER_ASSERT(reporter, shortOutput.bytesWritten() == 0);
+    }
 }
 
 DEF_TEST(StreamEmptyStreamMemoryBase, r) {
