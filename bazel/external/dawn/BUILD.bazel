@@ -123,7 +123,10 @@ py_binary(
 
 py_binary(
     name = "dawn_version_generator",
-    srcs = ["generator/dawn_version_generator.py"],
+    srcs = [
+        "generator/dawn_json_parsing.py",
+        "generator/dawn_version_generator.py",
+    ],
     deps = [":generator_lib"],
 )
 
@@ -240,10 +243,14 @@ genrule(
 
 genrule(
     name = "generate_version",
-    srcs = DAWN_GENERATOR_TEMPLATES + ["src/dawn/dawn.json"],
+    srcs = DAWN_GENERATOR_TEMPLATES + [
+        "src/dawn/dawn.json",
+        "src/dawn/dawn_version.json",
+    ],
     outs = VERSION_AUTOGEN_HEADERS,
-    cmd = "$(location :dawn_version_generator) " +
+    cmd = "$(location :dawn_version_generator) gen " +
           DAWN_TEMPLATE_DIR_FLAG +
+          " --version-json $(location src/dawn/dawn_version.json)" +
           " --dawn-dir $$(dirname $$(dirname $$(dirname $(execpath src/dawn/dawn.json))))" +
           " --output-dir $(RULEDIR) 2> /dev/null",
     tools = [":dawn_version_generator"],
