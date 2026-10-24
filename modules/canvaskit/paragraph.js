@@ -96,6 +96,16 @@
       s['textStyle'] = CanvasKit.TextStyle(s['textStyle']);
       s['applyRoundingHack'] = s['applyRoundingHack'] !== false;
       s['renderSoftHyphens'] = s['renderSoftHyphens'] || false;
+      // Unlike the ellipsis, an empty string is meaningful here (draw no hyphen), so only a
+      // missing value keeps skparagraph's default.
+      if (typeof s['softHyphenString'] === 'string') {
+        var hyphen = s['softHyphenString'];
+        s['_softHyphenStringPtr'] = cacheOrCopyString(hyphen);
+        s['_softHyphenStringLen'] = lengthBytesUTF8(hyphen);
+      } else {
+        s['_softHyphenStringPtr'] = nullptr;
+        s['_softHyphenStringLen'] = 0;
+      }
       return s;
     };
 

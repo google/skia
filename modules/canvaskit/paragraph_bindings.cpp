@@ -268,6 +268,9 @@ struct SimpleParagraphStyle {
     SimpleStrutStyle strutStyle;
     bool applyRoundingHack;
     bool renderSoftHyphens;
+    // Null unless softHyphenString was given; an empty string is not null.
+    WASMPointerU8 softHyphenStringPtr;
+    size_t softHyphenStringLen;
 };
 
 para::ParagraphStyle toParagraphStyle(const SimpleParagraphStyle& s) {
@@ -297,6 +300,10 @@ para::ParagraphStyle toParagraphStyle(const SimpleParagraphStyle& s) {
     ps.setTextHeightBehavior(s.textHeightBehavior);
     ps.setReplaceTabCharacters(s.replaceTabCharacters);
     ps.setRenderSoftHyphens(s.renderSoftHyphens);
+    if (s.softHyphenStringPtr) {
+        const char* softHyphenPtr = reinterpret_cast<const char*>(s.softHyphenStringPtr);
+        ps.setSoftHyphenString(SkString(softHyphenPtr, s.softHyphenStringLen));
+    }
     return ps;
 }
 
@@ -806,7 +813,9 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("textStyle",            &SimpleParagraphStyle::textStyle)
         .field("strutStyle",           &SimpleParagraphStyle::strutStyle)
         .field("applyRoundingHack",    &SimpleParagraphStyle::applyRoundingHack)
-        .field("renderSoftHyphens",    &SimpleParagraphStyle::renderSoftHyphens);
+        .field("renderSoftHyphens",    &SimpleParagraphStyle::renderSoftHyphens)
+        .field("_softHyphenStringPtr", &SimpleParagraphStyle::softHyphenStringPtr)
+        .field("_softHyphenStringLen", &SimpleParagraphStyle::softHyphenStringLen);
 
     value_object<SimpleStrutStyle>("StrutStyle")
         .field("_fontFamiliesPtr", &SimpleStrutStyle::fontFamiliesPtr)

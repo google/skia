@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    emulation layer, allowing Canvas2D to render on a GPU-backed surface.
  - `ParagraphStyle.renderSoftHyphens` draws a hyphen at line breaks that fall on a
    soft hyphen (U+00AD). Defaults to false.
+ - `ParagraphStyle.softHyphenString` sets the string drawn at those line breaks.
+   Defaults to "-". An empty string draws nothing.
 
 ## [0.42.0] - 2026-08-18
 
