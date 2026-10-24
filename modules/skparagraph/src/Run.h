@@ -6,6 +6,7 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
@@ -190,17 +191,23 @@ private:
 
     // These fields are not modified after shaping completes and can safely be
     // shared among copies of the run that are held by different paragraphs.
-    struct GlyphData {
-        skia_private::STArray<64, SkGlyphID, true> glyphs;
-        skia_private::STArray<64, SkPoint, true> positions;
-        skia_private::STArray<64, SkPoint, true> offsets;
-        skia_private::STArray<64, uint32_t, true> clusterIndexes;
+    // The arrays live in one exact-size block after the header; their sizes never change.
+    struct GlyphData : SkNVRefCnt<GlyphData> {
+        static sk_sp<GlyphData> Make(size_t glyphCount);
+        // Only Make() creates a GlyphData, in a block from sk_malloc
+        static void* operator new(size_t) = delete;
+        static void* operator new(size_t, void* p) { return p; }
+        static void operator delete(void* p) { sk_free(p); }
+        SkSpan<SkGlyphID> glyphs;
+        SkSpan<SkPoint> positions;
+        SkSpan<SkPoint> offsets;
+        SkSpan<uint32_t> clusterIndexes;
     };
-    std::shared_ptr<GlyphData> fGlyphData;
-    skia_private::STArray<64, SkGlyphID, true>& fGlyphs;
-    skia_private::STArray<64, SkPoint, true>& fPositions;
-    skia_private::STArray<64, SkPoint, true>& fOffsets;
-    skia_private::STArray<64, uint32_t, true>& fClusterIndexes;
+    sk_sp<GlyphData> fGlyphData;
+    SkSpan<SkGlyphID>& fGlyphs;
+    SkSpan<SkPoint>& fPositions;
+    SkSpan<SkPoint>& fOffsets;
+    SkSpan<uint32_t>& fClusterIndexes;
 
     // For justification (current and prev shifts). Empty unless the line is justified.
     skia_private::TArray<SkPoint, true> fJustificationShifts;

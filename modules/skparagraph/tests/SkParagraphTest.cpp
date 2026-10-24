@@ -12482,6 +12482,67 @@ DEF_TEST(SkParagraph_JustifyFillsLines, reporter) {
     }
 }
 
+// Paragraphs that get their shaped runs from ParagraphCache share the glyph data of the runs.
+// Justification of one of them must not change the others.
+DEF_TEST(SkParagraph_CacheSharedGlyphData, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    fontCollection->disableFontFallback();
+    // The reference does not use the cache
+    sk_sp<ResourceFontCollection> referenceFonts = sk_make_sp<ResourceFontCollection>();
+    referenceFonts->disableFontFallback();
+    referenceFonts->getParagraphCache()->turnOn(false);
+
+    int found = 0;
+    fontCollection->getParagraphCache()->setChecker(
+            [&found](ParagraphImpl*, const char* event, bool) {
+                found += strcmp(event, "foundParagraph") == 0;
+            });
+
+    auto build = [&](sk_sp<FontCollection> fonts, TextAlign align) {
+        TextStyle style;
+        style.setFontFamilies({SkString("Roboto")});
+        style.setFontSize(20);
+        style.setColor(SK_ColorBLACK);
+        ParagraphStyle paragraphStyle;
+        paragraphStyle.setTextStyle(style);
+        paragraphStyle.setTextAlign(align);
+        ParagraphBuilderImpl builder(paragraphStyle, fonts, get_unicode());
+        builder.pushStyle(style);
+        builder.addText("The quick brown fox jumps over the lazy dog and runs far away");
+        auto paragraph = builder.Build();
+        paragraph->layout(200);
+        return paragraph;
+    };
+    auto boxes = [](Paragraph* paragraph) {
+        std::vector<SkRect> rects;
+        for (auto& box :
+             paragraph->getRectsForRange(0, 62, RectHeightStyle::kTight, RectWidthStyle::kTight)) {
+            rects.push_back(box.rect);
+        }
+        return rects;
+    };
+
+    auto referenceLeft = boxes(build(referenceFonts, TextAlign::kLeft).get());
+    auto referenceJustified = boxes(build(referenceFonts, TextAlign::kJustify).get());
+    REPORTER_ASSERT(reporter, referenceLeft != referenceJustified);
+
+    auto justified = build(fontCollection, TextAlign::kJustify);
+    REPORTER_ASSERT(reporter, found == 0);
+    auto left = build(fontCollection, TextAlign::kLeft);
+    REPORTER_ASSERT(reporter, found == 1);
+    REPORTER_ASSERT(reporter, boxes(justified.get()) == referenceJustified);
+    REPORTER_ASSERT(reporter, boxes(left.get()) == referenceLeft);
+
+    // The runs of the paragraph that was shaped first are gone, the others still have the data
+    justified.reset();
+    auto again = build(fontCollection, TextAlign::kJustify);
+    REPORTER_ASSERT(reporter, found == 2);
+    REPORTER_ASSERT(reporter, boxes(again.get()) == referenceJustified);
+    REPORTER_ASSERT(reporter, boxes(left.get()) == referenceLeft);
+    fontCollection->getParagraphCache()->setChecker([](ParagraphImpl*, const char*, bool) {});
+}
+
 // ExtendedVisitorInfo::positions can be changed: the change stays in the glyph data. If the
 // paragraph was not painted or visited yet, the next paint() draws the glyphs at the changed
 // positions. paint() and visit() build the text blobs one time for each layout().

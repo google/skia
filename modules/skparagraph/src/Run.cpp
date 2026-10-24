@@ -11,8 +11,30 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkUTF.h"
 
+#include <new>
+
 namespace skia {
 namespace textlayout {
+
+sk_sp<Run::GlyphData> Run::GlyphData::Make(size_t n) {
+    // n glyphs; positions, offsets and cluster indexes have one extra entry for the run end.
+    // Widest alignment first, so no padding is needed. The arrays never grow after this.
+    static_assert(alignof(GlyphData) >= alignof(SkPoint));
+    static_assert(alignof(SkPoint) >= alignof(uint32_t) && alignof(uint32_t) >= alignof(SkGlyphID));
+    void* mem =
+            sk_malloc_throw(sizeof(GlyphData) + (n + 1) * (2 * sizeof(SkPoint) + sizeof(uint32_t)) +
+                            n * sizeof(SkGlyphID));
+    GlyphData* data = new (mem) GlyphData;
+    SkPoint* positions = reinterpret_cast<SkPoint*>(data + 1);
+    SkPoint* offsets = positions + n + 1;
+    uint32_t* clusterIndexes = reinterpret_cast<uint32_t*>(offsets + n + 1);
+    SkGlyphID* glyphs = reinterpret_cast<SkGlyphID*>(clusterIndexes + n + 1);
+    data->positions = {positions, n + 1};
+    data->offsets = {offsets, n + 1};
+    data->clusterIndexes = {clusterIndexes, n + 1};
+    data->glyphs = {glyphs, n};
+    return sk_sp<GlyphData>(data);
+}
 
 Run::Run(ParagraphImpl* owner,
          const SkShaper::RunHandler::RunInfo& info,
@@ -27,7 +49,7 @@ Run::Run(ParagraphImpl* owner,
     , fClusterRange(EMPTY_CLUSTERS)
     , fFont(info.fFont)
     , fClusterStart(firstChar)
-    , fGlyphData(std::make_shared<GlyphData>())
+    , fGlyphData(GlyphData::Make(info.glyphCount))
     , fGlyphs(fGlyphData->glyphs)
     , fPositions(fGlyphData->positions)
     , fOffsets(fGlyphData->offsets)
@@ -44,10 +66,6 @@ Run::Run(ParagraphImpl* owner,
     fUtf8Range = info.utf8Range;
     fOffset = SkVector::Make(offsetX, 0);
 
-    fGlyphs.push_back_n(info.glyphCount);
-    fPositions.push_back_n(info.glyphCount + 1);
-    fOffsets.push_back_n(info.glyphCount + 1);
-    fClusterIndexes.push_back_n(info.glyphCount + 1);
     info.fFont.getMetrics(&fFontMetrics);
 
     this->calculateMetrics();
