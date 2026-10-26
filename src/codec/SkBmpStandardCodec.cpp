@@ -314,12 +314,13 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
              kBGRA_8888_SkColorType == dstInfo.colorType() ||
              kRGBA_F16_SkColorType == dstInfo.colorType());
 
-    // If we are sampling, make sure that we only mask the sampled pixels.
+    // If we are sampling or subsetting, make sure that we only mask the pixels that
+    // the swizzler wrote, starting at the left edge of the subset.
     // We do not need to worry about sampling in the y-dimension because that
     // should be handled by SkSampledCodec.
     const int sampleX = fSwizzler->sampleX();
-    const int sampledWidth = SkCodecPriv::GetSampledDimension(this->dimensions().width(), sampleX);
-    const int srcStartX = SkCodecPriv::GetStartCoord(sampleX);
+    const int swizzleWidth = fSwizzler->swizzleWidth();
+    const int srcStartX = SkCodecPriv::GetStartCoord(sampleX) + fSwizzler->srcOffset();
 
     SkPMColor* dstPtr = (SkPMColor*) dst;
     for (int y = 0; y < dstInfo.height(); y++) {
@@ -344,7 +345,7 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
         void* dstRow = SkTAddOffset<SkPMColor>(dstPtr, row * dstRowBytes);
 
         int srcX = srcStartX;
-        for (int dstX = 0; dstX < sampledWidth; dstX++) {
+        for (int dstX = 0; dstX < swizzleWidth; dstX++) {
             int quotient;
             int modulus;
             SkTDivMod(srcX, 8, &quotient, &modulus);

@@ -617,6 +617,126 @@ DEF_TEST(Codec_ico, r) {
     // Decodes an embedded PNG image
     check(r, "images/google_chrome.ico", SkISize::Make(256, 256), false, false, false, true);
 }
+
+// Makes an ICO holding one 24-bit BMP, whose AND mask makes the columns with x % 10 < 4
+// transparent.
+static sk_sp<SkData> make_ico_with_24bit_bmp(int width, int height) {
+    SkASSERT(width > 0 && width < 256 && height > 0 && height < 256);
+    const size_t xorRowBytes = SkAlign4(width * 3);
+    const size_t andRowBytes = SkAlign4((width + 7) / 8);
+    const uint32_t bmpSize = static_cast<uint32_t>(40 + height * (xorRowBytes + andRowBytes));
+
+    SkDynamicMemoryWStream stream;
+    stream.write16(0);  // Reserved
+    stream.write16(1);  // Image type: 1 for ICO
+    stream.write16(1);  // Number of images
+    stream.write8(width);
+    stream.write8(height);
+    stream.write8(0);    // Color count
+    stream.write8(0);    // Reserved
+    stream.write16(1);   // Color planes
+    stream.write16(24);  // Bits per pixel
+    stream.write32(bmpSize);
+    stream.write32(22);  // Offset of the BMP
+
+    // BITMAPINFOHEADER. Its height covers both the XOR mask (the pixels) and the AND mask.
+    stream.write32(40);
+    stream.write32(width);
+    stream.write32(2 * height);
+    stream.write16(1);   // Color planes
+    stream.write16(24);  // Bits per pixel
+    for (int i = 0; i < 6; i++) {
+        stream.write32(0);  // Compression, image size, resolution and color counts
+    }
+
+    // Both masks are stored bottom-up.
+    std::vector<uint8_t> row;
+    for (int y = height - 1; y >= 0; y--) {
+        row.assign(xorRowBytes, 0);
+        for (int x = 0; x < width; x++) {
+            row[3 * x + 0] = static_cast<uint8_t>(10 * x);  // Blue
+            row[3 * x + 1] = static_cast<uint8_t>(50 * y);  // Green
+            row[3 * x + 2] = 0xFF;                          // Red
+        }
+        stream.write(row.data(), row.size());
+    }
+    for (int y = height - 1; y >= 0; y--) {
+        row.assign(andRowBytes, 0);
+        for (int x = 0; x < width; x++) {
+            if (x % 10 < 4) {
+                row[x / 8] |= 0x80 >> (x % 8);
+            }
+        }
+        stream.write(row.data(), row.size());
+    }
+    return stream.detachAsData();
+}
+
+static bool matches_columns(const SkBitmap& actual, const SkBitmap& expected, int expectedLeft) {
+    for (int y = 0; y < actual.height(); y++) {
+        for (int x = 0; x < actual.width(); x++) {
+            if (*actual.getAddr32(x, y) != *expected.getAddr32(expectedLeft + x, y)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// SkBmpStandardCodec::decodeIcoMask must apply the AND mask only to the pixels of an x-subset,
+// starting at the subset's left edge, so it neither writes past a subset-sized destination nor
+// masks the wrong columns.
+DEF_TEST(Codec_ico_decodeIcoMask_subset, r) {
+    constexpr int kWidth = 24;
+    constexpr int kHeight = 4;
+    SkCodec::Result result;
+    std::unique_ptr<SkCodec> codec = SkIcoDecoder::Decode(
+            SkMemoryStream::Make(make_ico_with_24bit_bmp(kWidth, kHeight)), &result);
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+
+    const SkImageInfo info = codec->getInfo();
+    SkBitmap full;
+    full.allocPixels(info);
+    REPORTER_ASSERT(r, codec->getPixels(full.pixmap()) == SkCodec::kSuccess);
+    REPORTER_ASSERT(r, SkColorGetA(full.getColor(0, 0)) == 0);
+    REPORTER_ASSERT(r, SkColorGetA(full.getColor(4, 0)) == 0xFF);
+
+    // Decode an x-subset by scanlines into a buffer exactly as wide as the subset.
+    const SkIRect subset = SkIRect::MakeXYWH(6, 0, 10, kHeight);
+    SkCodec::Options options;
+    options.fSubset = &subset;
+    REPORTER_ASSERT(r, codec->startScanlineDecode(info, &options) == SkCodec::kSuccess);
+    SkBitmap bm;
+    bm.allocPixels(info.makeWH(subset.width(), kHeight));
+    REPORTER_ASSERT(r, codec->getScanlines(bm.getPixels(), kHeight, bm.rowBytes()) == kHeight);
+    REPORTER_ASSERT(r, matches_columns(bm, full, subset.left()));
+
+    // The same subset sampled by 2 through SkAndroidCodec must match the same columns of a
+    // sampled full decode. The subset's left edge is even, so both sample the same columns.
+    std::unique_ptr<SkAndroidCodec> androidCodec = SkAndroidCodec::MakeFromCodec(std::move(codec));
+    SkAndroidCodec::AndroidOptions androidOptions;
+    androidOptions.fSampleSize = 2;
+    SkBitmap sampledFull;
+    sampledFull.allocPixels(info.makeDimensions(androidCodec->getSampledDimensions(2)));
+    REPORTER_ASSERT(r,
+                    androidCodec->getAndroidPixels(sampledFull.info(),
+                                                   sampledFull.getPixels(),
+                                                   sampledFull.rowBytes(),
+                                                   &androidOptions) == SkCodec::kSuccess);
+    androidOptions.fSubset = &subset;
+    SkBitmap sampledSubset;
+    sampledSubset.allocPixels(
+            info.makeDimensions(androidCodec->getSampledSubsetDimensions(2, subset)));
+    REPORTER_ASSERT(r,
+                    androidCodec->getAndroidPixels(sampledSubset.info(),
+                                                   sampledSubset.getPixels(),
+                                                   sampledSubset.rowBytes(),
+                                                   &androidOptions) == SkCodec::kSuccess);
+    REPORTER_ASSERT(r, matches_columns(sampledSubset, sampledFull, subset.left() / 2));
+}
 #endif
 
 DEF_TEST(Codec_gif, r) {
