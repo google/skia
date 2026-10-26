@@ -18,8 +18,8 @@
 class GrBackendRenderTarget;
 class GrBackendTexture;
 class GrRecordingContext;
-class SkColorSpace;
 class GrSurfaceCharacterization;
+class SkColorSpace;
 class SkSurfaceProps;
 enum SkColorType : int;
 namespace skgpu {

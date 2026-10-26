@@ -17,13 +17,13 @@
 
 #include "include/gpu/ganesh/GrTypes.h"
 
-struct ID3D12Resource;
 class GrD3DResourceState;
+struct ID3D12Resource;
 typedef int GrD3DResourceStateEnum;
+struct GrD3DFenceInfo;
 struct GrD3DSurfaceInfo;
 struct GrD3DTextureResourceInfo;
 struct GrD3DTextureResourceSpec;
-struct GrD3DFenceInfo;
 
 // This struct is to used to store the the actual information about the Direct3D backend image on
 // GrBackendTexture and GrBackendRenderTarget. When a client calls getD3DTextureInfo on a

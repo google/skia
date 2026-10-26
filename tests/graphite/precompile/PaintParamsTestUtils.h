@@ -22,12 +22,12 @@
 class SkCanvas;
 
 namespace skgpu::graphite {
-    class Recorder;
-    class PrecompileShader;
     class PrecompileBlender;
     class PrecompileColorFilter;
     class PrecompileImageFilter;
     class PrecompileMaskFilter;
+    class PrecompileShader;
+    class Recorder;
 }
 
 namespace skiatest::graphite {

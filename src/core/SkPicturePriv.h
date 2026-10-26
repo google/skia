@@ -18,12 +18,12 @@
 #include <atomic>
 #include <cstdint>
 
+class SkBBoxHierarchy;
 class SkReadBuffer;
+class SkRecord;
 class SkStream;
 class SkWriteBuffer;
 struct SkPictInfo;
-class SkRecord;
-class SkBBoxHierarchy;
 
 class SkPicturePriv {
 public:

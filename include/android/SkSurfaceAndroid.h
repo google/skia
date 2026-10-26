@@ -12,8 +12,8 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/ganesh/GrTypes.h"
 
-class SkColorSpace;
 class GrDirectContext;
+class SkColorSpace;
 class SkPixmap;
 struct AHardwareBuffer;
 

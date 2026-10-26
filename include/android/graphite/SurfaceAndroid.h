@@ -10,10 +10,10 @@
 
 #include "include/core/SkRefCnt.h"
 
-struct AHardwareBuffer;
 class SkColorSpace;
 class SkSurface;
 class SkSurfaceProps;
+struct AHardwareBuffer;
 
 namespace skgpu::graphite {
     class Recorder;

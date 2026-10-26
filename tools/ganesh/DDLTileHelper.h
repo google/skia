@@ -16,14 +16,14 @@
 #include "include/private/chromium/GrSurfaceCharacterization.h"
 
 class DDLPromiseImageHelper;
+class GrDeferredDisplayListRecorder;
+class GrSurfaceCharacterization;
 class PromiseImageCallbackContext;
 class SkCanvas;
 class SkData;
-class GrDeferredDisplayListRecorder;
 class SkImage;
 class SkPicture;
 class SkSurface;
-class GrSurfaceCharacterization;
 class SkTaskGroup;
 
 class DDLTileHelper {

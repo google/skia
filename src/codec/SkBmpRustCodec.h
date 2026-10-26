@@ -17,10 +17,10 @@
 #include "rust/bmp/FFI.rs.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 
-struct SkEncodedInfo;
 class SkData;
 class SkStream;
 class SkSwizzler;
+struct SkEncodedInfo;
 
 // This class provides the Skia image decoding API (`SkCodec`) on top of:
 // * The third-party `image` crate (containing BMP decompression and decoding

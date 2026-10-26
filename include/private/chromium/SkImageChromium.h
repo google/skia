@@ -13,8 +13,8 @@
 
 class GrBackendFormat;
 class GrContextThreadSafeProxy;
-class GrPromiseImageTexture;
 class GrDirectContext;
+class GrPromiseImageTexture;
 class GrYUVABackendTextureInfo;
 class SkColorSpace;
 class SkImage;

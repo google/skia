@@ -15,10 +15,10 @@
 #include "include/core/SkTypeface.h"
 
 class SkBitmap;
-class SkImage;
 class SkFont;
 class SkFontMgr;
 class SkFontScanner;
+class SkImage;
 
 namespace ToolUtils {
 /**

@@ -24,9 +24,9 @@
 #include <cstdint>
 #include <optional>
 
-struct SkArc;
 class SkIDChangeListener;
 class SkPaint;
+struct SkArc;
 struct SkPoint;
 
 /**

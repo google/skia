@@ -41,8 +41,8 @@ public:
     }
 
     // Structs used by GrAATriangulator internals.
-    struct SSEdge;
     struct EventList;
+    struct SSEdge;
     struct Event {
         Event(SSEdge* edge, const SkPoint& point, uint8_t alpha)
                 : fEdge(edge), fPoint(point), fAlpha(alpha) {}

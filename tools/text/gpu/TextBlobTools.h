@@ -10,8 +10,8 @@
 
 namespace sktext::gpu {
 class AtlasSubRun;
-class TextBlob;
 class SubRunContainer;
+class TextBlob;
 
 class TextBlobTools final {
 public:

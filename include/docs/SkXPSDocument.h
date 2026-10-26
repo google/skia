@@ -14,9 +14,9 @@
 
 #include "include/core/SkDocument.h"
 
-struct IXpsOMObjectFactory;
 class SKWStream;
 class SkPixmap;
+struct IXpsOMObjectFactory;
 
 namespace SkXPS {
 

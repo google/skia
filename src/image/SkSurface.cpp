@@ -30,8 +30,8 @@
 
 class GrBackendSemaphore;
 class GrRecordingContext;  // IWYU pragma: keep
-class SkPaint;
 class GrSurfaceCharacterization;
+class SkPaint;
 namespace skgpu { namespace graphite { class Recorder; } }
 
 SkSurfaceProps::SkSurfaceProps()

@@ -28,8 +28,8 @@ class GrProxyProvider;
 class GrResourceProvider;
 class GrTextureProxyPriv;
 enum class SkBackingFit;
-struct SkISize;
 class GrUniquelyKeyedProxyRegistry;
+struct SkISize;
 
 // This class delays the acquisition of textures until they are actually required
 class GrTextureProxy : virtual public GrSurfaceProxy {

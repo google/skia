@@ -45,8 +45,8 @@ struct SkISize;
 struct SkImageInfo;
 
 namespace skgpu {
-class Swizzle;
 class RefCntedCallback;
+class Swizzle;
 
 namespace ganesh {
 class SurfaceContext;

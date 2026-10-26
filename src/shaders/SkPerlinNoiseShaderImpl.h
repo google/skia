@@ -29,8 +29,8 @@
 
 class SkReadBuffer;
 enum class SkPerlinNoiseShaderType;
-struct SkStageRec;
 class SkWriteBuffer;
+struct SkStageRec;
 
 class SkPerlinNoiseShader : public SkShaderBase {
 private:

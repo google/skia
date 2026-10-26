@@ -27,8 +27,8 @@
 
 class SkPathData;
 class SkRRect;
-struct SkPathRaw;
 class SkString;
+struct SkPathRaw;
 
 // todo: add this flag to clients
 #ifndef SK_SUPPORT_LEGACY_PATHBUILDER_SETLASTPT

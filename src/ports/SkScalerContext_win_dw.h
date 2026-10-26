@@ -18,8 +18,8 @@
 #include <dwrite_2.h>
 #include <dwrite_3.h>
 
-class SkGlyph;
 class SkDescriptor;
+class SkGlyph;
 
 interface IDWritePaintReader;
 struct DWRITE_PAINT_ELEMENT;

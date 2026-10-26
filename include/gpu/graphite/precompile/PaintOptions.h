@@ -32,8 +32,8 @@ enum class TextureFormat : uint8_t;
 class KeyContext;
 class PaintOptionsPriv;
 class PaintParamsKeyBuilder;
-struct RenderPassDesc;
 class UniquePaintParamsID;
+struct RenderPassDesc;
 
 /** \class PaintOptions
     This is the Precompilation analog to SkPaint. It encapsulates a set of options for each

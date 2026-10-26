@@ -14,8 +14,8 @@
 
 namespace skgpu::graphite {
 
-class VulkanSharedContext;
 class VulkanResourceProvider;
+class VulkanSharedContext;
 
 /*
  * VulkanImageView is not derived from Resource as its lifetime is dependent on the lifetime of

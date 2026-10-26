@@ -14,8 +14,8 @@
 #include "src/gpu/ganesh/GrManagedResource.h"
 #include <atomic>
 
-class GrSamplerState;
 class GrMtlGpu;
+class GrSamplerState;
 
 // A wrapper for a MTLSamplerState object with caching support.
 class GrMtlSampler : public GrManagedResource {

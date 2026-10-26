@@ -14,8 +14,8 @@
 
 namespace skgpu {
 
-struct VulkanBackendContext;
 class VulkanMemoryAllocator;
+struct VulkanBackendContext;
 enum class ThreadSafe : bool;
 
 namespace VulkanMemoryAllocators {

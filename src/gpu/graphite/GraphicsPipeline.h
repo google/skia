@@ -18,8 +18,8 @@
 
 namespace skgpu::graphite {
 
-class ShaderInfo;
 class RenderStep;
+class ShaderInfo;
 
 enum class PipelineCreationFlags : uint8_t {
     kNone             = 0b000,

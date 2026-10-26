@@ -17,8 +17,8 @@ namespace skgpu::graphite {
 
 class DrawParams;
 class DrawWriter;
-struct RootNodesInfo;
 class PipelineDataGatherer;
+struct RootNodesInfo;
 
 class MeshRenderStep final : public RenderStep {
 public:

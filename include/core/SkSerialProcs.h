@@ -18,9 +18,9 @@
 class SkData;
 class SkImage;
 class SkPicture;
-class SkTypeface;
 class SkReadBuffer;
 class SkStream;
+class SkTypeface;
 enum SkAlphaType : int;
 namespace sktext::gpu {
     class Slug;

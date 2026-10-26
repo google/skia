@@ -32,9 +32,9 @@ class SkRRect;
 class SkWStream;
 enum class SkPathConvexity;
 enum class SkResolveConvexity;
-struct SkPathRaw;
 struct SkPathOvalInfo;
 struct SkPathRRectInfo;
+struct SkPathRaw;
 
 // Migrate clients so this is unneeded
 #define SK_LEGACY_PATH_ACCESSORS

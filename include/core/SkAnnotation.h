@@ -10,10 +10,10 @@
 
 #include "include/core/SkTypes.h"
 
+class SkCanvas;
 class SkData;
 struct SkPoint;
 struct SkRect;
-class SkCanvas;
 
 /**
  *  Annotate the canvas by associating the specified URL with the

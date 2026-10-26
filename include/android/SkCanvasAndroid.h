@@ -8,9 +8,9 @@
 #ifndef SkCanvasAndroid_DEFINED
 #define SkCanvasAndroid_DEFINED
 
+class GrBackendRenderTarget;
 class SkCanvas;
 struct SkIRect;
-class GrBackendRenderTarget;
 
 namespace skgpu::ganesh {
 SkIRect TopLayerBounds(const SkCanvas*);

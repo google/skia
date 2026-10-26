@@ -14,8 +14,8 @@
 #include <string_view>
 
 class GrBackendFormat;
-class GrBackendTexture;
 class GrBackendRenderTarget;
+class GrBackendTexture;
 enum class SkTextureCompressionType;
 enum class GrColorType;
 

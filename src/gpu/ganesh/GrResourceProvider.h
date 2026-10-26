@@ -40,8 +40,8 @@ class SkData;
 
 enum class SkBackingFit;
 struct GrVkDrawableInfo;
-struct SkImageInfo;
 struct SkISize;
+struct SkImageInfo;
 
 namespace skgpu {
 class ScratchKey;

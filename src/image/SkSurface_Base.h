@@ -26,11 +26,11 @@
 class GrBackendSemaphore;
 class GrBackendTexture;
 class GrRecordingContext;
+class GrSurfaceCharacterization;
 class SkCapabilities;
 class SkColorSpace;
 class SkPaint;
 class SkPixmap;
-class GrSurfaceCharacterization;
 class SkSurfaceProps;
 enum GrSurfaceOrigin : int;
 enum SkYUVColorSpace : int;

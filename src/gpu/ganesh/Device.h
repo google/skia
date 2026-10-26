@@ -83,8 +83,8 @@ namespace gpu {
 namespace skgpu::ganesh {
 
 class SurfaceContext;
-class SurfaceFillContext;
 class SurfaceDrawContext;
+class SurfaceFillContext;
 
 /**
  *  Subclass of SkDevice, which directs all drawing to the GrGpu owned by the canvas.

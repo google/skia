@@ -14,9 +14,9 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
 
+class GrCPixmap;
 class GrDirectContext;
 class GrProgramInfo;
-class GrCPixmap;
 
 namespace sk_gpu_test {
 

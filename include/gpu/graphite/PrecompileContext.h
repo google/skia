@@ -20,9 +20,9 @@ class SkData;
 
 namespace skgpu::graphite {
 
-class SharedContext;
 class PrecompileContextPriv;
 class ResourceProvider;
+class SharedContext;
 
 // The PrecompileContext is spawned from a generating Context via Context::makePrecompileContext.
 // It should only be used on a single thread but that can be different from the main thread (i.e.,

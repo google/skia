@@ -25,7 +25,6 @@ class SkMatrix;
 class SkPaint;
 class SkPath;
 class SkRegion;
-struct SkSamplingOptions;
 class SkStream;
 class SkTypeface;
 class UrlDataManager;
@@ -33,6 +32,7 @@ struct SkIRect;
 struct SkPoint3;
 struct SkPoint;
 struct SkRect;
+struct SkSamplingOptions;
 
 class JsonWriteBuffer final : public SkWriteBuffer {
 public:

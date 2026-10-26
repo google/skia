@@ -12,8 +12,8 @@
 #include "include/private/SkAPI.h"
 
 namespace skgpu {
-struct VulkanBackendContext;
 class VulkanMemoryAllocator;
+struct VulkanBackendContext;
 }
 
 namespace SkiaVMA {

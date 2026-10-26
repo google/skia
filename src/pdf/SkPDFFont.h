@@ -23,9 +23,9 @@
 class SkDescriptor;
 class SkFont;
 class SkGlyph;
-class SkPaint;
 class SkPDFDocument;
 class SkPDFFont;
+class SkPaint;
 class SkString;
 class SkTypeface;
 

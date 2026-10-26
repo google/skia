@@ -18,8 +18,8 @@
 #include "tools/gpu/vk/VulkanDefines.h"
 
 namespace skgpu {
-struct VulkanBackendContext;
 class VulkanExtensions;
+struct VulkanBackendContext;
 }
 
 namespace sk_gpu_test {

@@ -26,8 +26,8 @@ struct avifDecoder;
 
 class SkCodec;
 class SkStream;
-struct SkImageInfo;
 struct SkGainmapInfo;
+struct SkImageInfo;
 
 struct AvifDecoderDeleter {
     void operator()(crabbyavif::avifDecoder* decoder) const;

@@ -23,10 +23,10 @@
 #include <string_view>
 
 class GrAtlasManager;
-class GrBackendSemaphore;
 class GrBackendFormat;
-class GrBackendTexture;
 class GrBackendRenderTarget;
+class GrBackendSemaphore;
+class GrBackendTexture;
 class GrClientMappedBufferManager;
 class GrContextThreadSafeProxy;
 class GrDirectContextPriv;

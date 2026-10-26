@@ -22,8 +22,8 @@ class SkDevice;
 class SkRuntimeEffect;
 class SkRuntimeEffectBuilder;
 class SkSpecialImage;
-struct SkImageInfo;
 struct SkIRect;
+struct SkImageInfo;
 
 enum class SkFilterMode;
 enum class SkTileMode;

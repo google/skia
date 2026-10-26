@@ -17,8 +17,8 @@
 namespace skgpu::graphite {
 
 class ComputePipelineDesc;
-class ResourceProvider;
 class MtlSharedContext;
+class ResourceProvider;
 
 class MtlComputePipeline final : public ComputePipeline {
 public:

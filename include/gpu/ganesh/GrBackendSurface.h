@@ -18,8 +18,8 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 
 class GrBackendFormatData;
-class GrBackendTextureData;
 class GrBackendRenderTargetData;
+class GrBackendTextureData;
 
 namespace skgpu {
 class MutableTextureState;

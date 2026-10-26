@@ -13,9 +13,9 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 
-struct SkAdvancedTypefaceMetrics;
-class SkFontDescriptor;
 class SkFontData;
+class SkFontDescriptor;
+struct SkAdvancedTypefaceMetrics;
 
 class SkFontScanner_Fontations : public SkFontScanner {
 public:

@@ -22,8 +22,8 @@ struct GrContextOptions;
 
 namespace sk_gpu_test {
 
-class GpuTimer;
 class FlushFinishTracker;
+class GpuTimer;
 
 /**
  * An offscreen 3D context. This class is intended for Skia's internal testing needs and not

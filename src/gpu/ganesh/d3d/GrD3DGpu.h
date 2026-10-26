@@ -23,10 +23,10 @@
 #include <optional>
 #include <utility>
 
-struct GrD3DBackendContext;
 class GrD3DOpsRenderPass;
-struct GrD3DOptions;
 class GrPipeline;
+struct GrD3DBackendContext;
+struct GrD3DOptions;
 #if defined(GPU_TEST_UTILS)
 struct IDXGraphicsAnalysis;
 #endif

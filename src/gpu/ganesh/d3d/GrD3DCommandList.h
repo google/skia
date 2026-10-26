@@ -17,14 +17,14 @@
 
 #include <memory>
 
-class GrD3DGpu;
+class GrD3DAttachment;
 class GrD3DBuffer;
 class GrD3DCommandSignature;
 class GrD3DConstantRingBuffer;
+class GrD3DGpu;
 class GrD3DPipeline;
 class GrD3DRenderTarget;
 class GrD3DRootSignature;
-class GrD3DAttachment;
 class GrD3DTexture;
 class GrD3DTextureResource;
 

@@ -83,8 +83,8 @@ using namespace skia_private;
 
 #include <dlfcn.h>
 
-struct ASystemFontIterator;
 struct AFont;
+struct ASystemFontIterator;
 
 namespace {
 

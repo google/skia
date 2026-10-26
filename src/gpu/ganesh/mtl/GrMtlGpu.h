@@ -27,10 +27,10 @@
 
 #import <Metal/Metal.h>
 
+class GrMtlCommandBuffer;
 class GrMtlOpsRenderPass;
 class GrMtlTexture;
 class GrSemaphore;
-class GrMtlCommandBuffer;
 
 class GrMtlGpu : public GrGpu {
 public:

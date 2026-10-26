@@ -14,8 +14,8 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 
-struct SkDOMNode;
 struct SkDOMAttr;
+struct SkDOMNode;
 
 class SkDOMParser;
 class SkStream;

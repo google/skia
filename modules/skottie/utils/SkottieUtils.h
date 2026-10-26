@@ -91,8 +91,8 @@ public:
     sk_sp<skottie::MarkerObserver> getMarkerObserver() const;
 
 private:
-    class PropertyInterceptor;
     class MarkerInterceptor;
+    class PropertyInterceptor;
 
     std::string acceptKey(const char*, const char*) const;
 

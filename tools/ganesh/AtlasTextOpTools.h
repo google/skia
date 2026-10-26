@@ -10,9 +10,9 @@
 
 #include "src/gpu/ganesh/ops/GrOp.h"
 
-class SkPaint;
 class SkFont;
 class SkMatrix;
+class SkPaint;
 
 namespace skgpu::ganesh {
 class SurfaceDrawContext;

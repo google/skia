@@ -26,8 +26,8 @@
 
 class SkData;
 class SkDescriptor;
-class SkFontMgr;
 class SkFontDescriptor;
+class SkFontMgr;
 class SkScalerContext;
 class SkStream;
 class SkStreamAsset;

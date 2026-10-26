@@ -31,14 +31,14 @@ class SkMaskFilter;
 class SkMatrix;
 class SkMipmap;
 class SkPath;
-struct SkPathRaw;
 class SkRRect;
 class SkRasterClip;
 class SkShader;
 class SkVertices;
 struct SkIRect;
-struct SkPoint;
+struct SkPathRaw;
 struct SkPoint3;
+struct SkPoint;
 struct SkRSXform;
 struct SkRect;
 

@@ -25,9 +25,9 @@
 class GrDirectContext;
 class SkColorSpace;
 class SkData;
+class SkImageShader;
 class SkPixmap;
 class SkSurface;
-class SkImageShader;
 enum SkColorType : int;
 struct SkIRect;
 struct SkImageInfo;

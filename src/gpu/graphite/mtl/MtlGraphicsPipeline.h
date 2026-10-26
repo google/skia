@@ -27,8 +27,8 @@ class Context;
 class GraphicsPipelineDesc;
 class MtlResourceProvider;
 class MtlSharedContext;
-struct RenderPassDesc;
 class RuntimeEffectDictionary;
+struct RenderPassDesc;
 
 class MtlGraphicsPipeline final : public GraphicsPipeline {
 public:

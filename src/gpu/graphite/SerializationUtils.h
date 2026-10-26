@@ -16,8 +16,8 @@ namespace skgpu::graphite {
 
 class Caps;
 class GraphicsPipelineDesc;
-struct RenderPassDesc;
 class ShaderCodeDictionary;
+struct RenderPassDesc;
 
 // These are the top-level entry points to serialize Pipeline data for the Android-style
 // Precompilation API

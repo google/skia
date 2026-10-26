@@ -14,10 +14,10 @@
 #include "include/core/SkTileMode.h"
 
 class SkCanvas;
+class SkShader;
+class SkSurface;
 struct SkIRect;
 struct SkRect;
-class SkSurface;
-class SkShader;
 
 /**
  *  SkAndroidFrameworkUtils expose private APIs used only by Android framework.

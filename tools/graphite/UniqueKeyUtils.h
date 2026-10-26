@@ -21,9 +21,9 @@ namespace skgpu::graphite {
     class GlobalCache;
     class GraphicsPipelineDesc;
     class PrecompileContext;
-    struct RenderPassDesc;
     class RendererProvider;
     class ShaderCodeDictionary;
+    struct RenderPassDesc;
 }
 
 namespace UniqueKeyUtils {

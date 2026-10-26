@@ -17,9 +17,9 @@
 #include "tools/graphite/ContextFactory.h"
 #endif
 
+class NanoJSONResultsWriter;
 class SkBitmap;
 class SkCanvas;
-class NanoJSONResultsWriter;
 
 struct Config {
     SkString name;

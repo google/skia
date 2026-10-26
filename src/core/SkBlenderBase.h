@@ -14,10 +14,10 @@
 #include <memory>
 #include <optional>
 
-struct GrFPArgs;
 class GrFragmentProcessor;
 class SkColorInfo;
 class SkRuntimeEffect;
+struct GrFPArgs;
 struct SkStageRec;
 
 namespace skgpu::graphite {

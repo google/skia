@@ -21,8 +21,8 @@
 
 class GrMtlEvent;
 class GrMtlGpu;
-class GrMtlPipelineState;
 class GrMtlOpsRenderPass;
+class GrMtlPipelineState;
 class GrMtlRenderCommandEncoder;
 
 GR_NORETAIN_BEGIN

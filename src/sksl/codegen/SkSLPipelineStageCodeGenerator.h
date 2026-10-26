@@ -14,8 +14,8 @@
 
 namespace SkSL {
 
-struct Program;
 class VarDeclaration;
+struct Program;
 
 namespace PipelineStage {
     class Callbacks {

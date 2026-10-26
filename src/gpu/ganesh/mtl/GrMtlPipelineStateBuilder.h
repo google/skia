@@ -18,11 +18,11 @@
 
 #import <Metal/Metal.h>
 
-class GrProgramDesc;
-class GrProgramInfo;
 class GrMtlCaps;
 class GrMtlGpu;
 class GrMtlPipelineState;
+class GrProgramDesc;
+class GrProgramInfo;
 class SkReadBuffer;
 
 namespace SkSL { class Compiler; }

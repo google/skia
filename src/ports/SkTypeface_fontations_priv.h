@@ -24,8 +24,8 @@
 
 #include <memory>
 
-class SkStreamAsset;
 class SkFontationsScalerContext;
+class SkStreamAsset;
 
 namespace sk_fontations {
 

@@ -13,8 +13,8 @@
 
 #include <memory>
 
-class SkFontMgr;
 class SkFontConfigInterface;
+class SkFontMgr;
 class SkFontScanner;
 
 /** Creates a SkFontMgr which wraps a SkFontConfigInterface. */

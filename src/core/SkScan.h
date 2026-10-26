@@ -15,9 +15,9 @@
 
 class SkBlitter;
 class SkPath;
-struct SkPathRaw;
 class SkRasterClip;
 class SkRegion;
+struct SkPathRaw;
 
 /** Defines a fixed-point rectangle, identical to the integer SkIRect, but its
     coordinates are treated as SkFixed rather than int32_t.

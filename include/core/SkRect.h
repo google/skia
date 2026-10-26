@@ -24,8 +24,8 @@
 #include <cstring>
 #include <optional>
 
-struct SkRect;
 class SkString;
+struct SkRect;
 
 /** \struct SkIRect
     SkIRect holds four 32-bit integer coordinates describing the upper and

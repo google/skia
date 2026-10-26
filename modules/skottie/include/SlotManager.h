@@ -30,9 +30,9 @@ namespace skottie {
 struct TextPropertyValue;
 
 namespace internal {
+class AnimatablePropertyContainer;
 class AnimationBuilder;
 class SceneGraphRevalidator;
-class AnimatablePropertyContainer;
 } // namespace internal
 
 using namespace skia_private;

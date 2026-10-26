@@ -28,8 +28,8 @@
 namespace skgpu {
 
 namespace graphite {
-    class VelloRenderer;
     class TextureFormatXferFn;
+    class VelloRenderer;
 }
 
 struct BufferWriter {

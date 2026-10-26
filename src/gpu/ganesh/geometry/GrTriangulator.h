@@ -56,14 +56,14 @@ public:
     enum class EdgeType { kInner, kOuter, kConnector };
 
     // Structs used by GrTriangulator internals.
-    struct Vertex;
-    struct VertexList;
-    struct Line;
+    struct Comparator;
     struct Edge;
     struct EdgeList;
+    struct Line;
     struct MonotonePoly;
     struct Poly;
-    struct Comparator;
+    struct Vertex;
+    struct VertexList;
 
 protected:
     GrTriangulator(const SkPath& path, SkArenaAlloc* alloc) : fPath(path), fAlloc(alloc) {}

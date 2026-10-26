@@ -50,8 +50,8 @@ protected:
     bool onMouse(SkScalar x, SkScalar y, skui::InputState, skui::ModifierKey modifiers) override;
 
 private:
-    struct Rec;
     class FocusController;
+    struct Rec;
 
     static constexpr int kDefaultColumnCount = 4;
 

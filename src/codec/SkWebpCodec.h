@@ -22,8 +22,8 @@
 #include <memory>
 #include <vector>
 
-class SkStream;
 class SkCodec;
+class SkStream;
 struct SkIRect;
 struct SkImageInfo;
 

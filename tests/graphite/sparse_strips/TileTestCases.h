@@ -15,8 +15,8 @@
 
 namespace skgpu::graphite {
 
-struct Tile;
 struct Line;
+struct Tile;
 
 namespace TileTestCases {
 

@@ -14,8 +14,8 @@
 #include <memory>
 
 class SkCanvas;
-class SkWStream;
 class SkPixmap;
+class SkWStream;
 struct SkRect;
 
 class SK_API SkSVGCanvas {

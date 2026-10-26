@@ -14,8 +14,8 @@
 
 class GrContext_Base;
 class GrPaint;
-struct GrUserStencilSettings;
 class SkRandom;
+struct GrUserStencilSettings;
 
 namespace skgpu {
 namespace ganesh {

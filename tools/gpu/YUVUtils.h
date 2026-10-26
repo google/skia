@@ -20,8 +20,8 @@
 #include <array>
 #include <tuple>
 
-class SkData;
 class GrRecordingContext;
+class SkData;
 
 #if defined(SK_GRAPHITE)
 namespace skgpu::graphite { class Recorder; }

@@ -14,10 +14,10 @@
 #include "include/private/SkTArray.h"
 #include "include/private/chromium/GrSurfaceCharacterization.h"
 
+class GrDeferredDisplayListPriv;
 class GrDirectContext;
 class GrRenderTargetProxy;
 class GrRenderTask;
-class GrDeferredDisplayListPriv;
 class SkSurface;
 
 /*

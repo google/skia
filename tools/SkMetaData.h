@@ -62,8 +62,8 @@ public:
         kTypeCount
     };
 
-    struct Rec;
     class Iter;
+    struct Rec;
     friend class Iter;
 
     class Iter {

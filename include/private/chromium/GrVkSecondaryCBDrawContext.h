@@ -24,8 +24,8 @@ namespace skgpu::ganesh {
 class Device;
 }
 class SkCanvas;
-struct SkImageInfo;
 class SkSurfaceProps;
+struct SkImageInfo;
 
 /**
  * This class is a private header that is intended to only be used inside of Chromium. This requires

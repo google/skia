@@ -17,8 +17,8 @@ enum class ContextType;
 }
 namespace skgpu::graphite {
 class Context;
-struct ContextOptions;
 class Recording;
+struct ContextOptions;
 }
 
 namespace sk_gpu_test { class FlushFinishTracker; }

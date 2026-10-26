@@ -13,8 +13,8 @@
 #include <string_view>
 
 class GrBackendFormat;
-class GrBackendTexture;
 class GrBackendRenderTarget;
+class GrBackendTexture;
 
 namespace GrBackendFormats {
 SK_API GrBackendFormat MakeMtl(GrMTLPixelFormat format);

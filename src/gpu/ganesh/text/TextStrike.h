@@ -13,8 +13,8 @@
 #include "src/gpu/MaskFormat.h"
 #include "src/text/gpu/StrikeCache.h"
 
-struct SkPackedGlyphID;
 class SkStrikeSpec;
+struct SkPackedGlyphID;
 
 namespace sktext::gpu {
 struct PackedGPUGlyphID;

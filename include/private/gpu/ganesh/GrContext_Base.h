@@ -22,8 +22,8 @@ class GrImageContext;
 class GrRecordingContext;
 enum SkColorType : int;
 enum class SkTextureCompressionType;
-struct GrContextOptions;
 class GrBackendFormat;
+struct GrContextOptions;
 
 class GrContext_Base : public SkRefCnt {
 public:

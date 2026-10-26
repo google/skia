@@ -27,9 +27,9 @@
 #include <string_view>
 #include <tuple>
 
-class GrMippedBitmap;
 class GrColorInfo;
 class GrFragmentProcessor;
+class GrMippedBitmap;
 class GrPaint;
 class GrRecordingContext;
 class GrSurfaceProxy;

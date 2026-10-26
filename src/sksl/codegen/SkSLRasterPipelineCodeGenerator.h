@@ -13,9 +13,9 @@
 
 namespace SkSL {
 
+class DebugTracePriv;
 class FunctionDefinition;
 struct Program;
-class DebugTracePriv;
 namespace RP { class Program; }
 
 /**

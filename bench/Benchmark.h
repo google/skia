@@ -34,10 +34,10 @@
  *  DEF_BENCH(return new MyBenchmark(...))
  */
 
-struct GrContextOptions;
 class GrRecordingContext;
 class SkCanvas;
 class SkPaint;
+struct GrContextOptions;
 
 class Benchmark : public SkRefCnt {
 public:

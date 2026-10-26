@@ -13,10 +13,10 @@
 #include "src/encode/SkPngEncoderBase.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 
-class SkWStream;
-struct SkEncodedInfo;
 class SkPixmap;
 class SkPngEncoderMgr;
+class SkWStream;
+struct SkEncodedInfo;
 template <typename T> class SkSpan;
 
 namespace SkPngRustEncoder {

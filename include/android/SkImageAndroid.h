@@ -12,9 +12,9 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/ganesh/GrTypes.h"
 
-class SkColorSpace;
 class GrDirectContext;
 class GrRecordingContext;
+class SkColorSpace;
 class SkPixmap;
 struct AHardwareBuffer;
 

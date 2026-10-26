@@ -44,8 +44,8 @@ private:
     SkRect UIArea() const;
     void renderUI();
 
-    class TransformTracker;
     class SlotManagerInterface;
+    class TransformTracker;
 
     const SkString                     fPath;
 

@@ -13,8 +13,8 @@
 #include "src/core/SkColorData.h"
 
 class SkBlender;
-class SkRasterPipeline;
 class SkPaint;
+class SkRasterPipeline;
 
 /**
  *  Sentinel value for SkBlendMode enum.

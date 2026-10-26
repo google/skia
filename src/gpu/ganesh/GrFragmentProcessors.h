@@ -19,8 +19,8 @@ class SkBlenderBase;
 class SkColorFilter;
 class SkMaskFilter;
 class SkMatrix;
-class SkSurfaceProps;
 class SkShader;
+class SkSurfaceProps;
 struct GrFPArgs;
 namespace skgpu::ganesh { class SurfaceDrawContext; }
 

@@ -16,10 +16,10 @@
 class GrClip;
 class GrRecordingContext;
 class SkBitmap;
-struct SkIRect;
-struct SkISize;
 class SkMatrix;
 class SkPaint;
+struct SkIRect;
+struct SkISize;
 struct SkRect;
 struct SkSamplingOptions;
 

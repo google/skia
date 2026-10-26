@@ -10,8 +10,8 @@
 
 #include "include/core/SkRefCnt.h"
 
-class GrBackendTexture;
 class GrBackendRenderTarget;
+class GrBackendTexture;
 class GrD3DResourceState;
 
 namespace GrBackendTextures {

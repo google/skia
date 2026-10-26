@@ -17,8 +17,8 @@
 class GrCPixmap;
 class GrImageInfo;
 class GrPixmap;
-struct SkISize;
 class SkPixmap;
+struct SkISize;
 
 // Compute the size of the buffer required to hold all the mipLevels of the specified type
 // of data when rowBytes are aligned to the GPU alignment requirement.

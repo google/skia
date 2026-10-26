@@ -21,12 +21,12 @@ public:
     virtual size_t size() const = 0;
 };
 
-struct ColorStop;
 struct BridgeColorStops;
-struct Transform;
+struct ColorStop;
 struct FillLinearParams;
 struct FillRadialParams;
 struct FillSweepParams;
+struct Transform;
 
 /** C++ pure virtual interface, exposed to Rust side for receiving COLRv0/COLRv1 drawing callback
  * matching Skrifa's ColorPainter trait. */

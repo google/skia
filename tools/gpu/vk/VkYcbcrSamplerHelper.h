@@ -28,9 +28,9 @@ namespace skgpu::graphite {
     class VulkanSharedContext;
 }
 
+class GrBackendTexture;
 class GrDirectContext;
 class GrVkGpu;
-class GrBackendTexture;
 
 // This helper will create and hold data for a Vulkan YCbCr backend texture. This format is
 // particularly interesting because its sampler is immutable.

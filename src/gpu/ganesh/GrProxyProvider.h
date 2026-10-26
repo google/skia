@@ -25,9 +25,9 @@
 class GrBackendFormat;
 class GrBackendRenderTarget;
 class GrBackendTexture;
-class GrMippedBitmap;
 class GrContextThreadSafeProxy;
 class GrImageContext;
+class GrMippedBitmap;
 class GrRenderTargetProxy;
 class GrResourceProvider;
 class GrSurface;

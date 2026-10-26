@@ -22,8 +22,8 @@
 
 #import <Metal/Metal.h>
 
-class GrMtlGpu;
 class GrMtlCommandBuffer;
+class GrMtlGpu;
 
 class GrMtlResourceProvider {
 public:

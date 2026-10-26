@@ -17,8 +17,8 @@
 
 #include <memory>
 
-class SkData;
 class SkCodec;
+class SkData;
 
 using namespace emscripten;
 

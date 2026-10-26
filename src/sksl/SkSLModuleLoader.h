@@ -14,8 +14,8 @@
 namespace SkSL {
 
 class Compiler;
-struct Module;
 class Type;
+struct Module;
 
 using BuiltinTypePtr = const std::unique_ptr<Type> BuiltinTypes::*;
 

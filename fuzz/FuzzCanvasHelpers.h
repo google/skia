@@ -7,10 +7,10 @@
 
 #include "include/core/SkRefCnt.h"
 
-class SkCanvas;
-class SkPaint;
-class SkImageFilter;
 class Fuzz;
+class SkCanvas;
+class SkImageFilter;
+class SkPaint;
 
 void FuzzCanvas(Fuzz* fuzz, SkCanvas* paint, int depth = 9);
 void FuzzPaint(Fuzz* fuzz, SkPaint* paint, int depth);

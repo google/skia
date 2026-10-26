@@ -64,8 +64,8 @@ class SkPath;
 class SkPicture;
 class SkPixmap;
 class SkRRect;
-class SkRegion;
 class SkRecorder;
+class SkRegion;
 class SkShader;
 class SkSpecialImage;
 class SkSurface;
@@ -78,8 +78,8 @@ template<typename E>
 class SkEnumBitMask;
 
 namespace sktext {
-class GlyphRunBuilder;
 class GlyphRun;
+class GlyphRunBuilder;
 class GlyphRunList;
 }  // namespace sktext
 

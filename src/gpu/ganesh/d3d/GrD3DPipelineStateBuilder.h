@@ -27,8 +27,8 @@ struct ShaderCaps;
 
 }  // namespace SkSL
 
-class GrProgramDesc;
 class GrD3DGpu;
+class GrProgramDesc;
 class GrVkRenderPass;
 
 class GrD3DPipelineStateBuilder : public GrGLSLProgramBuilder {

@@ -12,8 +12,8 @@
 #include "include/private/SkAPI.h"
 
 class SkColorSpace;
-class SkShader;
 class SkImage;
+class SkShader;
 struct SkGainmapInfo;
 struct SkRect;
 struct SkSamplingOptions;
