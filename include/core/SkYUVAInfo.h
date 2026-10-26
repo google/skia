@@ -63,13 +63,11 @@ public:
 
 #if defined(SK_ENABLE_YUVA_PACKED_422)
         /**
-         * Plane 0: YUYV. Packed 4:2:2 where the plane has one 2-channel texel per
-         * pixel: channel 0 holds the pixel's own luma and channel 1 holds the
-         * chroma sample shared by the pixel's horizontal pair (U in even texels,
-         * V in odd texels): (Y0, U0) (Y1, V0) (Y2, U1) (Y3, V1). Only valid with
-         * Subsampling::k422. The plane has the same texel dimensions as the
-         * image; the texture must be viewed as a 2-channel 16-bit format. The
-         * image width must be even.
+         * Plane 0: YUYV. Packed 4:2:2 where the plane has one 4-channel texel per 2x1 block of
+         * pixels: channels 0..3 hold (Y0, U0, Y1, V0) for the pixel pair (Y0, Y1), (Y2, Y3), and so
+         * on. Only valid with Subsampling::k422. The plane has half the image's horizontal texel
+         * dimensions; the texture must be viewed as a 4-channel 16-bit format. The image's memory
+         * width (its height if the origin swaps width and height) must be even.
          */
         kYUYV,
 
@@ -325,9 +323,9 @@ constexpr int SkYUVAInfo::NumChannelsInPlane(PlaneConfig config, int i) {
             return i == 0 ? 4 : 0;
 #if defined(SK_ENABLE_YUVA_PACKED_422)
         case SkYUVAInfo::PlaneConfig::kYUYV:
-            // Two YUVA channels (Y and the shared U/V chroma) are read from
-            // each 2-channel texel (see kYUYV docs).
-            return i == 0 ? 2 : 0;
+            // All four YUVA channels of the pixel pair are read from each 4-channel texel (see
+            // kYUYV docs).
+            return i == 0 ? 4 : 0;
 #endif
     }
     return 0;

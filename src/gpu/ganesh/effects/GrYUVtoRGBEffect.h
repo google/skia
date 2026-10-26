@@ -9,6 +9,7 @@
 #define GrYUVtoRGBEffect_DEFINED
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkYUVAInfo.h"
 #include "src/core/SkYUVAInfoLocation.h" // IWYU pragma: keep
@@ -23,7 +24,6 @@ class GrYUVATextureProxies;
 enum SkYUVColorSpace : int;
 namespace skgpu { class KeyBuilder; }
 struct GrShaderCaps;
-struct SkRect;
 
 class GrYUVtoRGBEffect : public GrFragmentProcessor {
 public:
@@ -44,8 +44,8 @@ private:
                      const bool snap[2],
                      bool packedYUYV,
                      const SkMatrix& packedPlaneMatrix,
-                     float packedFirstTexelCenter,
-                     float packedLastTexelCenter,
+                     const SkRect& packedSubset,
+                     const GrSamplerState::WrapMode packedWrapModes[2],
                      SkYUVColorSpace yuvColorSpace);
 
     GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src);
@@ -67,7 +67,10 @@ private:
     bool                        fSnap[2];
     bool                        fPackedYUYV = false;
     SkMatrix                    fPackedPlaneMatrix = SkMatrix::I();
-    float                       fPackedFirstTexelCenter = 0.f;
-    float                       fPackedLastTexelCenter = 0.f;
+    // Image-space subset and tile modes the packed 4:2:2 path applies itself, before deriving the
+    // pixel parity.
+    SkRect                      fPackedSubset = SkRect::MakeEmpty();
+    GrSamplerState::WrapMode    fPackedWrapModes[2] = {GrSamplerState::WrapMode::kClamp,
+                                                       GrSamplerState::WrapMode::kClamp};
 };
 #endif

@@ -109,8 +109,8 @@ enum YUVFormat {
 
 #if defined(SK_ENABLE_YUVA_PACKED_422)
     // 4:2:2 formats, 32 bpp
-    kY210_YUVFormat, // packed 10-bit YUYV: two adjacent 16-bit 2-channel texels hold
-                     // (Y0, U) and (Y1, V) (1 texture)
+    kY210_YUVFormat, // packed 10-bit YUYV: one 16-bit 4-channel texel per 2x1
+                     // pixel block holds (Y0, U, Y1, V) (1 texture)
 #endif
 
 #if defined(SK_ENABLE_YUVA_PACKED_422)
@@ -713,19 +713,26 @@ static int create_YUV(const PlaneData& planes,
 #if defined(SK_ENABLE_YUVA_PACKED_422)
         case kY210_YUVFormat: {
             SkBitmap yuvaFull;
-            yuvaFull.allocPixels(SkImageInfo::Make(planes.fYFull.width(), planes.fYFull.height(),
-                                                   kR16G16_unorm_SkColorType,
+            yuvaFull.allocPixels(SkImageInfo::Make(planes.fYFull.width() / 2,
+                                                   planes.fYFull.height(),
+                                                   kR16G16B16A16_unorm_SkColorType,
                                                    kUnpremul_SkAlphaType));
             for (int y = 0; y < planes.fYFull.height(); ++y) {
-                for (int x = 0; x < planes.fYFull.width(); ++x) {
-                    uint16_t Y10 = flt_2_uint16(*planes.fYFull.getAddr8(x, y) / 255.0f) &
-                                   0xFFC0;
-                    const SkBitmap& chroma = (x % 2 == 0) ? planes.fUFull : planes.fVFull;
-                    int x0 = x & ~1;
-                    uint16_t C10 = flt_2_uint16(
-                            (*chroma.getAddr8(x0, y) + *chroma.getAddr8(x0 + 1, y)) /
+                for (int x = 0; x < planes.fYFull.width() / 2; ++x) {
+                    int x0 = 2 * x;
+                    int x1 = 2 * x + 1;
+                    uint16_t Y0 = flt_2_uint16(*planes.fYFull.getAddr8(x0, y) / 255.0f) & 0xFFC0;
+                    uint16_t Y1 = flt_2_uint16(*planes.fYFull.getAddr8(x1, y) / 255.0f) & 0xFFC0;
+                    uint16_t U10 = flt_2_uint16(
+                            (*planes.fUFull.getAddr8(x0, y) + *planes.fUFull.getAddr8(x1, y)) /
                             (2.0f * 255.0f)) & 0xFFC0;
-                    *yuvaFull.getAddr32(x, y) = (C10 << 16) | Y10;
+                    uint16_t V10 = flt_2_uint16(
+                            (*planes.fVFull.getAddr8(x0, y) + *planes.fVFull.getAddr8(x1, y)) /
+                            (2.0f * 255.0f)) & 0xFFC0;
+                    // Channels 0..3 hold (Y0, U, Y1, V) as 16-bit values.
+                    *reinterpret_cast<uint64_t*>(yuvaFull.getAddr(x, y)) =
+                            (uint64_t(Y0)) | (uint64_t(U10) << 16) |
+                            (uint64_t(Y1) << 32) | (uint64_t(V10) << 48);
                 }
             }
             resultBMs[nextLayer++] = yuvaFull;

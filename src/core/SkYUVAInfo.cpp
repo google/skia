@@ -7,7 +7,6 @@
 
 #include "include/core/SkYUVAInfo.h"
 
-#include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkColor.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkYUVAInfoLocation.h"
@@ -50,7 +49,7 @@ std::tuple<int, int> SkYUVAInfo::PlaneSubsamplingFactors(PlaneConfig planeConfig
                                                          int planeIdx) {
     if (!is_plane_config_compatible_with_subsampling(planeConfig, subsampling) ||
         planeIdx < 0                                                           ||
-        planeIdx > NumPlanes(planeConfig)) {
+        planeIdx >= NumPlanes(planeConfig)) {
         return {0, 0};
     }
     bool isSubsampledPlane = false;
@@ -75,10 +74,14 @@ std::tuple<int, int> SkYUVAInfo::PlaneSubsamplingFactors(PlaneConfig planeConfig
         case PlaneConfig::kUYV:
         case PlaneConfig::kYUVA:
         case PlaneConfig::kUYVA:
+            break;
 #if defined(SK_ENABLE_YUVA_PACKED_422)
         case PlaneConfig::kYUYV:
-#endif
+            // One texel holds the pixel pair, so the plane is horizontally subsampled even though
+            // it carries chroma in every texel.
+            isSubsampledPlane = true;
             break;
+#endif
     }
     return isSubsampledPlane ? SubsamplingFactors(subsampling) : std::make_tuple(1, 1);
 }
@@ -149,7 +152,7 @@ int SkYUVAInfo::PlaneDimensions(SkISize imageDimensions,
 
 #if defined(SK_ENABLE_YUVA_PACKED_422)
         case PlaneConfig::kYUYV:
-            planeDimensions[0] = {w, h};
+            planeDimensions[0] = {down2(w), h};
             SkASSERT(w % 2 == 0);
             return 1;
 #endif
@@ -277,7 +280,11 @@ SkYUVAInfo::YUVALocations SkYUVAInfo::GetYUVALocations(PlaneConfig config,
         }
 #if defined(SK_ENABLE_YUVA_PACKED_422)
         case PlaneConfig::kYUYV: {
-            static constexpr PlaneAndIndex kPlanesAndIndices[] = {{0, 0}, {0, 1}, {0, 1}, {-1, -1}};
+            // Even pixels take (Y0, U, V) from channels 0, 1 and 3 and odd pixels take (Y1, U, V)
+            // from channels 2, 1 and 3 of the pair's 4-channel texel; the locations record the
+            // even-pixel channels (see kYUYV docs) and the sampling code swaps in the odd-pixel
+            // luma channel.
+            static constexpr PlaneAndIndex kPlanesAndIndices[] = {{0, 0}, {0, 1}, {0, 3}, {-1, -1}};
             planesAndIndices = kPlanesAndIndices;
             break;
         }

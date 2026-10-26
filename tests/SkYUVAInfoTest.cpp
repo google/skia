@@ -33,42 +33,46 @@ DEF_TEST(SkYUVAInfoPackedYUYV, reporter) {
     REPORTER_ASSERT(reporter, info.isValid());
     REPORTER_ASSERT(reporter, info.numPlanes() == 1);
     REPORTER_ASSERT(reporter, !info.hasAlpha());
-    REPORTER_ASSERT(reporter, info.numChannelsInPlane(0) == 2);
+    REPORTER_ASSERT(reporter, info.numChannelsInPlane(0) == 4);
     REPORTER_ASSERT(reporter, info.numChannelsInPlane(1) == 0);
 
-    // The packed plane has one 2-channel texel per pixel, stored at full image
-    // texel dimensions even though its chroma is subsampled horizontally.
+    // The plane has one 4-channel texel per 2x1 pixel block, so its horizontal texel dimension is
+    // half the image's.
     SkISize planeDimensions[SkYUVAInfo::kMaxPlanes];
     REPORTER_ASSERT(reporter, info.planeDimensions(planeDimensions) == 1);
-    REPORTER_ASSERT(reporter, planeDimensions[0] == SkISize::Make(1920, 1080));
+    REPORTER_ASSERT(reporter, planeDimensions[0] == SkISize::Make(960, 1080));
 
-    // The plane is sampled at full rate; the packed extraction happens in the
-    // YUV effect.
     auto [ssx, ssy] = info.planeSubsamplingFactors(0);
-    REPORTER_ASSERT(reporter, ssx == 1 && ssy == 1);
+    REPORTER_ASSERT(reporter, ssx == 2 && ssy == 1);
 
-    // Odd plane memory widths are not representable (the last pixel would be
+    for (int planeIdx : {-1, info.numPlanes(), info.numPlanes() + 1}) {
+        auto [invalidX, invalidY] = info.planeSubsamplingFactors(planeIdx);
+        REPORTER_ASSERT(reporter, invalidX == 0 && invalidY == 0);
+    }
+
+    // Odd image widths are not representable (the last pixel would be
     // unpaired) and are rejected by the constructor.
     SkYUVAInfo odd({1919, 1080}, PlaneConfig::kYUYV, Subsampling::k422,
                    kRec601_SkYUVColorSpace);
     REPORTER_ASSERT(reporter, !odd.isValid());
 
-    // Origins that swap width and height store the plane rotated 90°, so the
-    // plane's memory width is the image height.
+    // Origins that swap width and height store the plane rotated 90 degrees, so the plane's memory
+    // width is half the image height.
     SkYUVAInfo swappedOk({1919, 1080}, PlaneConfig::kYUYV, Subsampling::k422,
                          kRec601_SkYUVColorSpace, kLeftBottom_SkEncodedOrigin);
     REPORTER_ASSERT(reporter, swappedOk.isValid());
     REPORTER_ASSERT(reporter, swappedOk.planeDimensions(planeDimensions) == 1);
-    REPORTER_ASSERT(reporter, planeDimensions[0] == SkISize::Make(1080, 1919));
+    REPORTER_ASSERT(reporter, planeDimensions[0] == SkISize::Make(540, 1919));
 
     SkYUVAInfo swappedOdd({1080, 1919}, PlaneConfig::kYUYV, Subsampling::k422,
                           kRec601_SkYUVColorSpace, kLeftBottom_SkEncodedOrigin);
     REPORTER_ASSERT(reporter, !swappedOdd.isValid());
 
-    // Channel locations: Y is channel 0 (R) of the pixel's own texel, U and V
-    // are both channel 1 (G) of the pair's two texels; there is no alpha.
-    const uint32_t rgFlags = kRG_SkColorChannelFlags;
-    auto locations = info.toYUVALocations(&rgFlags);
+    // Channel locations record the even pixel's channels: Y is channel 0 (R), U is channel 1 (G)
+    // and V is channel 3 (A) of the pair's texel; the odd pixel shares U and V and takes its Y from
+    // channel 2 (B) at sampling time. There is no alpha.
+    const uint32_t rgbaFlags = kRGBA_SkColorChannelFlags;
+    auto locations = info.toYUVALocations(&rgbaFlags);
     REPORTER_ASSERT(reporter, locations[SkYUVAInfo::YUVAChannels::kY].fPlane == 0);
     REPORTER_ASSERT(reporter, locations[SkYUVAInfo::YUVAChannels::kY].fChannel ==
                                  SkColorChannel::kR);
@@ -77,7 +81,7 @@ DEF_TEST(SkYUVAInfoPackedYUYV, reporter) {
                                  SkColorChannel::kG);
     REPORTER_ASSERT(reporter, locations[SkYUVAInfo::YUVAChannels::kV].fPlane == 0);
     REPORTER_ASSERT(reporter, locations[SkYUVAInfo::YUVAChannels::kV].fChannel ==
-                                 SkColorChannel::kG);
+                                 SkColorChannel::kA);
     REPORTER_ASSERT(reporter, locations[SkYUVAInfo::YUVAChannels::kA].fPlane < 0);
 }
 #endif  // SK_ENABLE_YUVA_PACKED_422
@@ -91,6 +95,11 @@ DEF_TEST(SkYUVAInfoSinglePlaneConfigs, reporter) {
     REPORTER_ASSERT(reporter, y410.numPlanes() == 1);
     REPORTER_ASSERT(reporter, y410.hasAlpha());
     REPORTER_ASSERT(reporter, y410.numChannelsInPlane(0) == 4);
+
+    for (int planeIdx : {-1, y410.numPlanes(), y410.numPlanes() + 1}) {
+        auto [invalidX, invalidY] = y410.planeSubsamplingFactors(planeIdx);
+        REPORTER_ASSERT(reporter, invalidX == 0 && invalidY == 0);
+    }
 
     const uint32_t rgbaFlags = kRGBA_SkColorChannelFlags;
     auto locations = y410.toYUVALocations(&rgbaFlags);

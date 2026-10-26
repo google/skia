@@ -253,7 +253,14 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GaneshYUVA::asFragmentProcessor(
     auto wmx = SkTileModeToWrapMode(tileModes[0]);
     auto wmy = SkTileModeToWrapMode(tileModes[1]);
     GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
-    if (sampler.mipmapped() == skgpu::Mipmapped::kYes && !this->setupMipmapsForPlanes(context)) {
+    // The packed 4:2:2 plane is always sampled without mip levels (they would blend its U and V
+    // lanes), so don't build any.
+    bool dropMips = false;
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+    dropMips = fYUVAProxies.yuvaInfo().planeConfig() == SkYUVAInfo::PlaneConfig::kYUYV;
+#endif
+    if (sampler.mipmapped() == skgpu::Mipmapped::kYes &&
+        (dropMips || !this->setupMipmapsForPlanes(context))) {
         sampler = GrSamplerState(sampler.wrapModeX(),
                                  sampler.wrapModeY(),
                                  sampler.filter(),
