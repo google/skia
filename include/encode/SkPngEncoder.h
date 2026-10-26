@@ -8,7 +8,6 @@
 #ifndef SkPngEncoder_DEFINED
 #define SkPngEncoder_DEFINED
 
-#include "include/core/SkData.h"  // TODO(fmalita): remove after G3 updates
 #include "include/core/SkDataTable.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAPI.h"
