@@ -98,7 +98,8 @@ std::tuple<bool, SkRect> VertexFiller::deviceRectAndCheckTransform(
 }
 
 std::tuple<SkRect, SkMatrix> VertexFiller::boundsAndDeviceMatrix(const SkMatrix& localToDevice,
-                                                                 SkPoint drawOrigin) const {
+                                                                 SkPoint drawOrigin,
+                                                                 bool supportBilerpAtlas) const {
     // The baked-in matrix differs from the current localToDevice by a translation if the
     // upper 2x2 remains the same, and there's no perspective. Since there's no projection,
     // Z is irrelevant, so it's okay that fCreationMatrix is an SkMatrix and has
@@ -119,6 +120,13 @@ std::tuple<SkRect, SkMatrix> VertexFiller::boundsAndDeviceMatrix(const SkMatrix&
             // accessed without changing how texels would be sampled.
             return {fCreationBounds, SkMatrix::Translate(offset)};
         }
+    }
+
+    if (fCanDrawDirect && !supportBilerpAtlas) {
+        // Direct-mask glyphs have no padding in the atlas when atlas bilerp is unsupported.
+        // Drawing with a fractional translation or non-identical matrix causes sampling
+        // outside the glyph's atlas bounds, leaking neighboring atlas texels.
+        return {SkRect::MakeEmpty(), SkMatrix::I()};
     }
 
     // Otherwise compute the relative transformation from fCreationMatrix to

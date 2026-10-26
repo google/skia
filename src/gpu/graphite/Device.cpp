@@ -1572,7 +1572,13 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
     auto& glyphData = subRun->glyphVector().accessBackendData<GlyphData>();
 
     auto [bounds, maskToDevice] =
-            subRun->vertexFiller().boundsAndDeviceMatrix(localToDevice, drawOrigin);
+            subRun->vertexFiller().boundsAndDeviceMatrix(
+                    localToDevice, drawOrigin,
+                    fRecorder->priv().caps()->supportBilerpFromGlyphAtlas());
+
+    if (bounds.isEmpty()) {
+        return;
+    }
 
     for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
         // For the remainder of the run, add any atlas uploads to the Recorder's TextAtlasManager
@@ -2556,6 +2562,10 @@ sk_sp<sktext::gpu::Slug> Device::convertGlyphRunListToSlug(const sktext::GlyphRu
 
 void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug, const SkPaint& paint) {
     auto slugImpl = static_cast<const sktext::gpu::SlugImpl*>(slug);
+    if (!slugImpl->canDraw(this->localToDevice(),
+                           fRecorder->priv().caps()->supportBilerpFromGlyphAtlas())) {
+        return;
+    }
     slugImpl->subRuns()->draw(canvas, slugImpl->origin(), paint, slugImpl, this->atlasDelegate());
 }
 

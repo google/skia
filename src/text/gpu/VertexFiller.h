@@ -29,8 +29,8 @@ enum class MaskFormat : int;
 }
 
 namespace sktext::gpu {
-class SubRunAllocator;
 class AtlasSubRun;
+class SubRunAllocator;
 
 enum FillerType {
     kIsDirect,
@@ -65,7 +65,8 @@ public:
     int unflattenSize() const { return fLeftTop.size_bytes(); }
 
     std::tuple<SkRect, SkMatrix> boundsAndDeviceMatrix(const SkMatrix& localToDevice,
-                                                       SkPoint drawOrigin) const;
+                                                       SkPoint drawOrigin,
+                                                       bool supportBilerpAtlas = true) const;
 
     // Return true if the positionMatrix represents an integer translation. Return the device
     // bounding box of all the glyphs. If the bounding box is empty, then something went singular

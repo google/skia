@@ -29,10 +29,18 @@
 #include "include/private/chromium/Slug.h"
 #include "include/utils/SkCustomTypeface.h"
 #include "src/gpu/MaskFormat.h"
+#include "src/text/gpu/VertexFiller.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Recording.h"
+#include "include/gpu/graphite/Surface.h"
+#endif
 
 #include <cstdint>
 #include <cstring>
@@ -393,5 +401,168 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(Slug_draw_then_serialize_DrawableSubRun,
     SkBitmap actualPixels = render_slug(surface.get(), *deserializedSlug, paint);
     REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(expectedPixels, actualPixels));
 }
+
+DEF_TEST(VertexFiller_boundsAndDeviceMatrix, reporter) {
+    const SkRect bounds = SkRect::MakeXYWH(10, 10, 20, 20);
+    const SkPoint positions[] = {{10, 10}};
+    sktext::gpu::VertexFiller directFiller(skgpu::MaskFormat::kA8,
+                                           SkMatrix::I(),
+                                           bounds,
+                                           SkSpan(positions, 1),
+                                           /*canDrawDirect=*/true);
+
+    // 1. Integer translation with supportBilerpAtlas = false: succeeds.
+    {
+        auto [b, m] = directFiller.boundsAndDeviceMatrix(SkMatrix::I(), {5.0f, 5.0f},
+                                                         /*supportBilerpAtlas=*/false);
+        REPORTER_ASSERT(reporter, !b.isEmpty());
+        REPORTER_ASSERT(reporter, m == SkMatrix::Translate(5.0f, 5.0f));
+    }
+
+    // 2. Fractional translation with supportBilerpAtlas = false: dropped.
+    {
+        auto [b, m] = directFiller.boundsAndDeviceMatrix(SkMatrix::I(), {0.5f, 0.0f},
+                                                         /*supportBilerpAtlas=*/false);
+        REPORTER_ASSERT(reporter, b.isEmpty());
+    }
+
+    // 3. Matrix scale with supportBilerpAtlas = false: dropped.
+    {
+        auto [b, m] = directFiller.boundsAndDeviceMatrix(SkMatrix::Scale(2.0f, 2.0f), {0.0f, 0.0f},
+                                                         /*supportBilerpAtlas=*/false);
+        REPORTER_ASSERT(reporter, b.isEmpty());
+    }
+
+    // 4. Fractional translation with supportBilerpAtlas = true: allowed.
+    {
+        auto [b, m] = directFiller.boundsAndDeviceMatrix(SkMatrix::I(), {0.5f, 0.0f},
+                                                         /*supportBilerpAtlas=*/true);
+        REPORTER_ASSERT(reporter, !b.isEmpty());
+        REPORTER_ASSERT(reporter, m == SkMatrix::Translate(0.5f, 0.0f));
+    }
+
+    // 5. Non-direct filler (e.g. transformed/SDFT) with supportBilerpAtlas = false: allowed.
+    sktext::gpu::VertexFiller transformedFiller(skgpu::MaskFormat::kA8,
+                                                SkMatrix::I(),
+                                                bounds,
+                                                SkSpan(positions, 1),
+                                                /*canDrawDirect=*/false);
+    {
+        auto [b, m] = transformedFiller.boundsAndDeviceMatrix(SkMatrix::I(), {0.5f, 0.0f},
+                                                              /*supportBilerpAtlas=*/false);
+        REPORTER_ASSERT(reporter, !b.isEmpty());
+        REPORTER_ASSERT(reporter, m == SkMatrix::Translate(0.5f, 0.0f));
+    }
+}
+
+namespace {
+sk_sp<SkTextBlob> make_test_blob() {
+    auto typeface = ToolUtils::CreatePortableTypeface("serif", SkFontStyle());
+    SkFont font(typeface);
+    font.setSize(16);
+
+    static const char* kText = "A";
+    SkTextBlobBuilder builder;
+    const SkTextBlobBuilder::RunBuffer& runBuf = builder.allocRun(font, 1, 0, 0);
+    font.textToGlyphs(kText, 1, SkTextEncoding::kUTF8, SkSpan(runBuf.glyphs, 1));
+    return builder.make();
+}
+
+bool surface_has_non_white_pixels(SkSurface* surface) {
+    SkBitmap bm;
+    bm.allocPixels(surface->imageInfo());
+    if (!surface->readPixels(bm, 0, 0)) {
+        return false;
+    }
+    for (int y = 0; y < bm.height(); ++y) {
+        for (int x = 0; x < bm.width(); ++x) {
+            if (bm.getColor(x, y) != SK_ColorWHITE) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+template <typename FlushFn>
+void run_slug_fractional_replay_test(SkSurface* surface,
+                                     const sktext::gpu::Slug* slug,
+                                     FlushFn flushFn,
+                                     skiatest::Reporter* reporter) {
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint paint;
+    paint.setColor(SK_ColorBLACK);
+
+    // 1. Integer translation: should draw.
+    canvas->clear(SK_ColorWHITE);
+    canvas->save();
+    canvas->translate(5.0f, 5.0f);
+    slug->draw(canvas, paint);
+    canvas->restore();
+    flushFn();
+    REPORTER_ASSERT(reporter, surface_has_non_white_pixels(surface));
+
+    // 2. Fractional translation: must be dropped.
+    canvas->clear(SK_ColorWHITE);
+    canvas->save();
+    canvas->translate(0.5f, 0.0f);
+    slug->draw(canvas, paint);
+    canvas->restore();
+    flushFn();
+    REPORTER_ASSERT(reporter, !surface_has_non_white_pixels(surface));
+
+    // 3. Matrix scale: must be dropped.
+    canvas->clear(SK_ColorWHITE);
+    canvas->save();
+    canvas->scale(1.5f, 1.5f);
+    slug->draw(canvas, paint);
+    canvas->restore();
+    flushFn();
+    REPORTER_ASSERT(reporter, !surface_has_non_white_pixels(surface));
+}
+}  // namespace
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(Slug_fractional_replay_ganesh,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNextRelease) {
+    auto dContext = ctxInfo.directContext();
+    SkImageInfo info = SkImageInfo::MakeN32Premul(64, 64);
+    auto surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info);
+    REPORTER_ASSERT(reporter, surface);
+
+    sk_sp<SkTextBlob> blob = make_test_blob();
+    sk_sp<sktext::gpu::Slug> slug =
+            sktext::gpu::Slug::ConvertBlob(surface->getCanvas(), *blob, {10, 30}, SkPaint());
+    REPORTER_ASSERT(reporter, slug != nullptr);
+
+    run_slug_fractional_replay_test(surface.get(), slug.get(), [&]() {
+        dContext->flushAndSubmit();
+    }, reporter);
+}
+
+#if defined(SK_GRAPHITE)
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Slug_fractional_replay_graphite,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kNever) {
+    using namespace skgpu::graphite;
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    SkImageInfo info = SkImageInfo::MakeN32Premul(64, 64);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), info);
+    REPORTER_ASSERT(reporter, surface);
+
+    sk_sp<SkTextBlob> blob = make_test_blob();
+    sk_sp<sktext::gpu::Slug> slug =
+            sktext::gpu::Slug::ConvertBlob(surface->getCanvas(), *blob, {10, 30}, SkPaint());
+    REPORTER_ASSERT(reporter, slug != nullptr);
+
+    run_slug_fractional_replay_test(surface.get(), slug.get(), [&]() {
+        std::unique_ptr<Recording> recording = recorder->snap();
+        context->insertRecording({recording.get()});
+        context->submit(SyncToCpu::kYes);
+    }, reporter);
+}
+#endif
 
 
