@@ -9,6 +9,7 @@
 #define SKSL_EXPRESSION
 
 #include "include/core/SkTypes.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -133,7 +134,8 @@ public:
 
 
 private:
-    const Type* fType;
+    // RAW_PTR_EXCLUSION: Performance: +7% on sksl_large.
+    RAW_PTR_EXCLUSION const Type* fType;
 
     using INHERITED = IRNode;
 };

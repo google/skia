@@ -9,6 +9,7 @@
 #define SKSL_CONTEXT
 
 #include "include/private/SkAssert.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 namespace SkSL {
 
@@ -33,7 +34,8 @@ public:
     ProgramConfig* fConfig = nullptr;
 
     // The Context holds a pointer to our error reporter.
-    ErrorReporter* fErrors;
+    // RAW_PTR_EXCLUSION: Performance: +2.5% on sksl_skrp_large.
+    RAW_PTR_EXCLUSION ErrorReporter* fErrors;
 
     void setErrorReporter(ErrorReporter* e) {
         SkASSERT(e);

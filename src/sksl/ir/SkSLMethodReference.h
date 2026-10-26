@@ -8,6 +8,7 @@
 #ifndef SKSL_METHODREFERENCE
 #define SKSL_METHODREFERENCE
 
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -64,7 +65,8 @@ private:
             , fOverloadChain(overloadChain) {}
 
     std::unique_ptr<Expression> fSelf;
-    const FunctionDeclaration* fOverloadChain;
+    // RAW_PTR_EXCLUSION: Performance: +2% on sksl_skrp_large.
+    RAW_PTR_EXCLUSION const FunctionDeclaration* fOverloadChain;
 
     using INHERITED = Expression;
 };

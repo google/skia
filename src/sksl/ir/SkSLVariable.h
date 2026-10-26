@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkOnlyStackAllocatable.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLLayout.h"
@@ -140,7 +141,8 @@ public:
     }
 
 private:
-    IRNode* fDeclaringElement = nullptr;
+    // RAW_PTR_EXCLUSION: Performance: +2% on sksl_small.
+    RAW_PTR_EXCLUSION IRNode* fDeclaringElement = nullptr;
     ModifierFlags fModifierFlags;
     Position fModifiersPosition;
     VariableStorage fStorage;

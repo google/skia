@@ -9,6 +9,7 @@
 #define SKSL_VARIABLEREFERENCE
 
 #include "include/core/SkTypes.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
@@ -76,7 +77,8 @@ public:
     std::string description(OperatorPrecedence) const override;
 
 private:
-    const Variable* fVariable;
+    // RAW_PTR_EXCLUSION: Performance: +3% on sksl_large.
+    RAW_PTR_EXCLUSION const Variable* fVariable;
     VariableRefKind fRefKind;
 
     using INHERITED = Expression;
