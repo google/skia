@@ -323,8 +323,12 @@ public:
      * then implicitly resolved when read.
      */
     bool usesImplicitMSAAResolve() const {
-        return kES_IMG_MsToTexture_MSFBOType == fMSFBOType ||
-               kES_EXT_MsToTexture_MSFBOType == fMSFBOType;
+        // The checks here of the fMSFBOType are technically redundant if
+        // fMSAAResolvesAutomatically is set correctly. However, they give us a little extra belt
+        // and suspenders if we mess up the setup logic to protect us from using unitialized memory.
+        return fMSAAResolvesAutomatically &&
+               (kES_IMG_MsToTexture_MSFBOType == fMSFBOType ||
+                kES_EXT_MsToTexture_MSFBOType == fMSFBOType);
     }
 
     InvalidateFBType invalidateFBType() const { return fInvalidateFBType; }

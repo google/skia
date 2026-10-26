@@ -908,6 +908,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // For now these two are equivalent but we could have dst read in shader via some other method.
     shaderCaps->fDstReadInShaderSupport = shaderCaps->fFBFetchSupport;
+
+    SkASSERT(fMSAAResolvesAutomatically ==
+             (fMSFBOType == kES_EXT_MsToTexture_MSFBOType ||
+              fMSFBOType == kES_IMG_MsToTexture_MSFBOType));
 }
 
 const char* get_glsl_version_decl_string(GrGLStandard standard, SkSL::GLSLGeneration generation,
@@ -4166,6 +4170,16 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // https://skbug.com/503013389
     if (ctxInfo.driver() == GrGLDriver::kNVIDIA) {
+        if (fMSFBOType == kES_EXT_MsToTexture_MSFBOType ||
+            fMSFBOType == kES_IMG_MsToTexture_MSFBOType) {
+            if (ctxInfo.version() >= GR_GL_VER(3, 0) ||
+                ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample") ||
+                ctxInfo.hasExtension("GL_ANGLE_framebuffer_multisample")) {
+                fMSFBOType = kStandard_MSFBOType;
+            } else {
+                fMSFBOType = kNone_MSFBOType;
+            }
+        }
         fMSAAResolvesAutomatically = false;
     }
 
@@ -4757,6 +4771,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
             }
         } else {
             fMSFBOType = kNone_MSFBOType;
+            fMSAAResolvesAutomatically = false;
         }
     }
 
