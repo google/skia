@@ -475,8 +475,10 @@ class SkFontMgr_fontconfig : public SkFontMgr {
 
     class StyleSet : public SkFontStyleSet {
     public:
-        StyleSet(sk_sp<SkFontMgr_fontconfig> parent, SkAutoFcFontSet fontSet)
-                : fFontMgr(std::move(parent)), fFontSet(std::move(fontSet)) {}
+        StyleSet(sk_sp<SkFontMgr_fontconfig> parent, SkAutoFcFontSet fontSet, SkString familyName)
+                : fFontMgr(std::move(parent))
+                , fFontSet(std::move(fontSet))
+                , fFamilyName(std::move(familyName)) {}
 
         ~StyleSet() override {
             // Hold the lock while unrefing the font set.
@@ -516,7 +518,10 @@ class SkFontMgr_fontconfig : public SkFontMgr {
             SkAutoFcPattern match([this, &style]() {
                 FCLocker lock;
 
+                // The set is in font cache order. The family makes FcFontSetMatch rank the
+                // fonts by the order of families in an alias, as matchFamilyStyle does
                 SkAutoFcPattern pattern;
+                FcPatternAddString(pattern, FC_FAMILY, (const FcChar8*)fFamilyName.c_str());
                 fcpattern_from_skfontstyle(style, pattern);
                 FcConfigSubstitute(fFontMgr->fFC, pattern, FcMatchPattern);
                 FcDefaultSubstitute(pattern);
@@ -534,6 +539,8 @@ class SkFontMgr_fontconfig : public SkFontMgr {
     private:
         sk_sp<SkFontMgr_fontconfig> fFontMgr;
         SkAutoFcFontSet fFontSet;
+        // The name given to matchFamily, which may be an alias for several families in fFontSet
+        const SkString fFamilyName;
     };
 
     static bool FindName(const SkTDArray<const char*>& list, const char* str) {
@@ -838,7 +845,8 @@ protected:
             }
         }
 
-        return sk_sp<SkFontStyleSet>(new StyleSet(sk_ref_sp(this), std::move(matches)));
+        return sk_sp<SkFontStyleSet>(
+                new StyleSet(sk_ref_sp(this), std::move(matches), SkString(familyName)));
     }
 
     sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[],

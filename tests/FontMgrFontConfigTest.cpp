@@ -381,6 +381,57 @@ DEF_TEST(FontMgrFontConfig_MatchFamilyStyleCharacter_Color, reporter) {
     REPORTER_ASSERT(reporter, color && color->unicharToGlyph(0x263F) != 0);
 }
 
+DEF_TEST(FontMgrFontConfig_MatchFamily_AliasOrder, reporter) {
+    // Both fonts are Regular, so only the order of families in the alias tells them apart
+    const char* content =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+            "<!DOCTYPE fontconfig SYSTEM \"fonts.dtd\">"
+            "<fontconfig>"
+            "<alias binding=\"same\"><family>ColorFirst</family><prefer>"
+            "<family>Emoji COLR</family><family>Emoji EBDT</family>"
+            "</prefer></alias>"
+            "<alias binding=\"same\"><family>MonoFirst</family><prefer>"
+            "<family>Emoji EBDT</family><family>Emoji COLR</family>"
+            "</prefer></alias>"
+            "</fontconfig>";
+    FcConfig* config = FcConfigCreate();
+    FcConfigParseAndLoadFromMemory(config, reinterpret_cast<const FcChar8*>(content), FcTrue);
+    for (const char* file : {"fonts/colr.ttf", "fonts/ebdt_glyf.ttf"}) {
+        FcConfigAppFontAddFile(config,
+                               reinterpret_cast<const FcChar8*>(GetResourcePath(file).c_str()));
+    }
+    FcConfigBuildFonts(config);
+    sk_sp<SkFontMgr> fontMgr(SkFontMgr_New_FontConfig(config, SkFontScanner_Make_FreeType()));
+
+    struct {
+        const char* alias;
+        const char* family;
+    } const kCases[] = {{"ColorFirst", "Emoji COLR"}, {"MonoFirst", "Emoji EBDT"}};
+    for (const auto& c : kCases) {
+        sk_sp<SkFontStyleSet> set(fontMgr->matchFamily(c.alias));
+        REPORTER_ASSERT(reporter, set && set->count() == 2, "%s", c.alias);
+        sk_sp<SkTypeface> fromSet = set ? set->matchStyle(SkFontStyle()) : nullptr;
+        sk_sp<SkTypeface> direct(fontMgr->matchFamilyStyle(c.alias, SkFontStyle()));
+        REPORTER_ASSERT(reporter, fromSet && direct, "%s", c.alias);
+        if (!fromSet || !direct) {
+            continue;
+        }
+        SkString fromSetFamily, directFamily;
+        fromSet->getFamilyName(&fromSetFamily);
+        direct->getFamilyName(&directFamily);
+        REPORTER_ASSERT(reporter,
+                        fromSetFamily.equals(c.family),
+                        "%s: matchStyle gives %s",
+                        c.alias,
+                        fromSetFamily.c_str());
+        REPORTER_ASSERT(reporter,
+                        directFamily.equals(c.family),
+                        "%s: matchFamilyStyle gives %s",
+                        c.alias,
+                        directFamily.c_str());
+    }
+}
+
 DEF_TEST(FontMgrFontConfig_remove_weak, reporter) {
     using UniqueFcPattern = std::unique_ptr<FcPattern, SkFunctionObject<FcPatternDestroy>>;
 
