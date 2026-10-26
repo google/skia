@@ -3861,7 +3861,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -3939,7 +3939,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -4017,7 +4017,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -4094,7 +4094,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -4172,7 +4172,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -4250,7 +4250,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -4328,7 +4328,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -4406,7 +4406,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -4483,7 +4483,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -4561,7 +4561,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -4638,7 +4638,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -4720,7 +4720,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -4801,7 +4801,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -6718,7 +6718,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -6992,7 +6992,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -7104,7 +7104,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -7216,7 +7216,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -8324,7 +8324,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -8436,7 +8436,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -8797,7 +8797,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -9739,7 +9739,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -9938,7 +9938,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -10050,7 +10050,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -10494,7 +10494,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11964,7 +11964,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12553,7 +12553,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12663,7 +12663,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -13259,7 +13259,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -13369,7 +13369,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -13479,7 +13479,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -14246,7 +14246,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -14356,7 +14356,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -14974,7 +14974,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -15367,7 +15367,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -15666,7 +15666,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -15879,7 +15879,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -16002,7 +16002,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -16125,7 +16125,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -16248,7 +16248,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -17289,7 +17289,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -17671,7 +17671,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -18068,7 +18068,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -18363,7 +18363,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -18662,7 +18662,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -19596,7 +19596,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -20627,7 +20627,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -21999,7 +21999,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -22111,7 +22111,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -22223,7 +22223,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -22833,7 +22833,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -22945,7 +22945,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -23057,7 +23057,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24042,7 +24042,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24149,7 +24149,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24256,7 +24256,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24597,7 +24597,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24938,7 +24938,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25045,7 +25045,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25152,7 +25152,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -26095,7 +26095,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -26199,7 +26199,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -26295,7 +26295,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -26558,7 +26558,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci/git-credential-luci/${platform}",
@@ -26620,7 +26620,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -26698,7 +26698,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -26798,7 +26798,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -27082,7 +27082,7 @@
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2324e42f77961aa31b1edf840216ed56f590c0a"
+          "version": "git_revision:8bb9eb866c4be66adc79abac43e8f8029e870de6"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
