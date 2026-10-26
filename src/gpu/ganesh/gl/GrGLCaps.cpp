@@ -2195,7 +2195,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
                     ioFormat.fColorType = GrColorType::kRGB_888x;
                     ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
-                    ioFormat.fExternalTexImageFormat = GR_GL_RGBA;
+                    ioFormat.fExternalTexImageFormat = 0;
                     ioFormat.fExternalReadFormat = GR_GL_RGBA;
                 }
             }
