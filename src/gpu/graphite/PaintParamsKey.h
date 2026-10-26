@@ -143,7 +143,7 @@ public:
 
     bool operator==(const PaintParamsKey& that) const {
         return fData.size() == that.fData.size() &&
-               SK_UNSAFE_TODO(!memcmp(fData.data(), that.fData.data(), fData.size()));
+               SK_UNSAFE_TODO(!memcmp(fData.data(), that.fData.data(), fData.size_bytes()));
     }
     bool operator!=(const PaintParamsKey& that) const { return !(*this == that); }
 
