@@ -10,7 +10,6 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -93,7 +92,7 @@ public:
     std::string description() const override;
 
 private:
-    raw_ptr<Variable> fVariable;
+    Variable* fVariable;
 
     using INHERITED = ProgramElement;
 };

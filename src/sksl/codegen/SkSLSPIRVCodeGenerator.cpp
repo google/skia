@@ -15,7 +15,6 @@
 #include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/GLSL.std.450.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -262,7 +261,7 @@ private:
 
     struct TempVar {
         SpvId spvId;
-        raw_ptr<const Type> type;
+        const Type* type;
         std::unique_ptr<SPIRVCodeGenerator::LValue> lvalue;
     };
 
@@ -703,14 +702,14 @@ private:
 
     Analysis::SpecializationInfo fSpecializationInfo;
     Analysis::SpecializationIndex fActiveSpecializationIndex = Analysis::kUnspecialized;
-    raw_ptr<const Analysis::SpecializedParameters> fActiveSpecialization = nullptr;
+    const Analysis::SpecializedParameters* fActiveSpecialization = nullptr;
 
     THashMap<const Variable*, SpvId> fVariableMap;
     THashMap<const Type*, SpvId> fStructMap;
 
     // SPIR-V is defined in 32-bit words, so this generator directly uses std::vector<uint32_t>
     // instead of an OutputStream.
-    raw_ptr<SPIRVBlob> fOutBuffer;
+    SPIRVBlob* fOutBuffer;
     SPIRVBlob fGlobalInitializersBuffer;
     SPIRVBlob fConstantBuffer;
     SPIRVBlob fVariableBuffer;
@@ -3515,8 +3514,8 @@ private:
     SPIRVCodeGenerator& fGen;
     const SpvId fVecPointer;
     ComponentArray fComponents;
-    raw_ptr<const Type> fBaseType;
-    raw_ptr<const Type> fSwizzleType;
+    const Type* fBaseType;
+    const Type* fSwizzleType;
     const StorageClass fStorageClass;
 };
 

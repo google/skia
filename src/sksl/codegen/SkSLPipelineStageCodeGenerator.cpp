@@ -13,7 +13,6 @@
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkTHash.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLDefines.h"
@@ -152,24 +151,24 @@ private:
         StringStream                fBuffer;
     };
 
-    const Program&     fProgram;
-    const char*        fSampleCoords;
-    const char*        fInputColor;
-    const char*        fDestColor;
-    raw_ptr<Callbacks> fCallbacks;
+    const Program& fProgram;
+    const char*    fSampleCoords;
+    const char*    fInputColor;
+    const char*    fDestColor;
+    Callbacks*     fCallbacks;
 
     Analysis::SpecializationInfo fSpecializationInfo;
     Analysis::SpecializationIndex fActiveSpecializationIndex = Analysis::kUnspecialized;
-    raw_ptr<const Analysis::SpecializedParameters> fActiveSpecialization = nullptr;
+    const Analysis::SpecializedParameters* fActiveSpecialization = nullptr;
 
     THashMap<const Variable*, std::string>                                      fVariableNames;
     THashMap<const Type*, std::string>                                          fStructNames;
     THashMap<Analysis::SpecializedFunctionKey, std::string, Analysis::SpecializedFunctionKey::Hash>
             fFunctionNames;
 
-    raw_ptr<StringStream>              fBuffer = nullptr;
-    bool                               fCastReturnsToHalf = false;
-    raw_ptr<const FunctionDeclaration> fCurrentFunction = nullptr;
+    StringStream*              fBuffer = nullptr;
+    bool                       fCastReturnsToHalf = false;
+    const FunctionDeclaration* fCurrentFunction = nullptr;
 };
 
 

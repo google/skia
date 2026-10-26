@@ -10,7 +10,6 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkOnlyStackAllocatable.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLLayout.h"
@@ -141,7 +140,7 @@ public:
     }
 
 private:
-    raw_ptr<IRNode> fDeclaringElement = nullptr;
+    IRNode* fDeclaringElement = nullptr;
     ModifierFlags fModifierFlags;
     Position fModifiersPosition;
     VariableStorage fStorage;
@@ -191,7 +190,7 @@ public:
     std::string_view mangledName() const override;
 
 private:
-    raw_ptr<InterfaceBlock> fInterfaceBlockElement = nullptr;
+    InterfaceBlock* fInterfaceBlockElement = nullptr;
     Layout fLayout;
     std::string fMangledName;
 

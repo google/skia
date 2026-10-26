@@ -14,7 +14,6 @@
 #include "include/private/SkEnumBitMask.h"
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -698,16 +697,11 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef, const Progra
 
 // A candidate function for inlining, containing everything that `inlineCall` needs.
 struct InlineCandidate {
-    // the SymbolTable of the candidate
-    raw_ptr<SymbolTable> fSymbols;
-    // the parent Statement of the enclosing stmt
-    raw_ptr<std::unique_ptr<Statement>, DanglingUntriaged> fParentStmt;
-    // the Statement containing the candidate
-    raw_ptr<std::unique_ptr<Statement>, DanglingUntriaged> fEnclosingStmt;
-    // the candidate FunctionCall to be inlined
-    raw_ptr<std::unique_ptr<Expression>, DanglingUntriaged> fCandidateExpr;
-    // the Function containing the candidate
-    raw_ptr<FunctionDefinition> fEnclosingFunction;
+    SymbolTable* fSymbols;                        // the SymbolTable of the candidate
+    std::unique_ptr<Statement>* fParentStmt;      // the parent Statement of the enclosing stmt
+    std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
+    std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
+    FunctionDefinition* fEnclosingFunction;       // the Function containing the candidate
 };
 
 struct InlineCandidateList {

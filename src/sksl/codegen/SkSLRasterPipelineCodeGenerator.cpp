@@ -18,7 +18,6 @@
 #include "src/core/SkStringView.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkUtils.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -150,7 +149,7 @@ private:
     THashMap<const IRNode*, SlotRange> fSlotMap;
     int fSlotCount = 0;
     bool fOverflowed = false;
-    raw_ptr<std::vector<SlotDebugInfo>> fSlotDebugInfo;
+    std::vector<SlotDebugInfo>* fSlotDebugInfo;
 };
 
 class AutoStack {
@@ -491,7 +490,7 @@ private:
     const SkSL::Program& fProgram;
     SkSL::Context fContext;
     Builder fBuilder;
-    raw_ptr<DebugTracePriv> fDebugTrace = nullptr;
+    DebugTracePriv* fDebugTrace = nullptr;
     bool fWriteTraceOps = false;
     THashMap<const Variable*, int> fChildEffectMap;
 
@@ -500,7 +499,7 @@ private:
     SlotManager fImmutableSlots;
 
     std::optional<AutoStack> fTraceMask;
-    raw_ptr<const FunctionDefinition> fCurrentFunction = nullptr;
+    const FunctionDefinition* fCurrentFunction = nullptr;
     SlotRange fCurrentFunctionResult;
     AutoContinueMask* fCurrentContinueMask = nullptr;
     int fCurrentBreakTarget = -1;
@@ -788,7 +787,7 @@ public:
 
 private:
     Generator* fGenerator = nullptr;
-    raw_ptr<const Expression> fExpression = nullptr;
+    const Expression* fExpression = nullptr;
     std::optional<AutoStack> fDedicatedStack;
     int fNumSlots = 0;
 };
@@ -873,7 +872,7 @@ public:
     }
 
 private:
-    raw_ptr<const Variable> fVariable;
+    const Variable* fVariable;
 };
 
 class ImmutableLValue final : public LValue {
@@ -917,7 +916,7 @@ public:
     }
 
 private:
-    raw_ptr<const Variable> fVariable;
+    const Variable* fVariable;
 };
 
 class SwizzleLValue final : public LValue {
@@ -1013,7 +1012,7 @@ public:
     }
 
 protected:
-    raw_ptr<LValue, DanglingUntriaged> fParent;
+    LValue* fParent;
 
 private:
     int fInitialSlot = 0;
@@ -1120,7 +1119,7 @@ private:
     Generator* fGenerator = nullptr;
     std::unique_ptr<LValue> fParent;
     std::optional<AutoStack> fDedicatedStack;
-    raw_ptr<const IndexExpression> fIndexExpr = nullptr;
+    const IndexExpression* fIndexExpr = nullptr;
 };
 
 void SlotManager::addSlotDebugInfoForGroup(const std::string& varName,
@@ -1414,7 +1413,7 @@ std::optional<SlotRange> Generator::writeFunction(
 
     // Handle parameter lvalues.
     struct RemappedSlotRange {
-        raw_ptr<const Variable> fVariable;
+        const Variable* fVariable;
         std::optional<SlotRange> fSlotRange;
     };
     SkSpan<Variable* const> parameters = function.declaration().parameters();

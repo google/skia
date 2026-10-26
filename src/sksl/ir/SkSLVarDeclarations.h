@@ -9,7 +9,6 @@
 #define SKSL_VARDECLARATIONS
 
 #include "include/core/SkTypes.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"
@@ -120,7 +119,7 @@ private:
                                     const Type* baseType,
                                     std::unique_ptr<Expression>& value);
 
-    raw_ptr<Variable> fVar;
+    Variable* fVar;
     const Type& fBaseType;
     int fArraySize;  // zero means "not an array"
     std::unique_ptr<Expression> fValue;

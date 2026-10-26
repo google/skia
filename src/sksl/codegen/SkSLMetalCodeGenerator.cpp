@@ -15,7 +15,6 @@
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -354,7 +353,7 @@ protected:
     skia_private::THashSet<std::string> fHelpers;
     int fUniformBuffer = -1;
     std::string fRTFlipName;
-    raw_ptr<const FunctionDeclaration> fCurrentFunction = nullptr;
+    const FunctionDeclaration* fCurrentFunction = nullptr;
     int fSwizzleHelperCount = 0;
     static constexpr char kTextureSuffix[] = "_Tex";
     static constexpr char kSamplerSuffix[] = "_Smplr";

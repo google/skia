@@ -15,7 +15,6 @@
 #include "src/core/SkStringView.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -224,7 +223,7 @@ protected:
     int fVarCount = 0;
     int fIndentation = 0;
     bool fAtLineStart = false;
-    raw_ptr<const FunctionDeclaration> fCurrentFunction = nullptr;
+    const FunctionDeclaration* fCurrentFunction = nullptr;
 
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;

@@ -134,7 +134,7 @@ public:
     AutoSymbolTable(Parser* p, std::unique_ptr<SymbolTable>* newSymbolTable, bool enable = true) {
         if (enable) {
             fParser = p;
-            raw_ptr<SymbolTable>& ctxSymbols = this->contextSymbolTable();
+            SymbolTable*& ctxSymbols = this->contextSymbolTable();
             *newSymbolTable = std::make_unique<SymbolTable>(ctxSymbols, ctxSymbols->isBuiltin());
             ctxSymbols = newSymbolTable->get();
         }
@@ -142,15 +142,13 @@ public:
 
     ~AutoSymbolTable() {
         if (fParser) {
-            raw_ptr<SymbolTable>& ctxSymbols = this->contextSymbolTable();
-            ctxSymbols = ctxSymbols->fParent.get();
+            SymbolTable*& ctxSymbols = this->contextSymbolTable();
+            ctxSymbols = ctxSymbols->fParent;
         }
     }
 
 private:
-    raw_ptr<SymbolTable>& contextSymbolTable() {
-        return fParser->fCompiler.context().fSymbolTable;
-    }
+    SymbolTable*& contextSymbolTable() { return fParser->fCompiler.context().fSymbolTable; }
 
     Parser* fParser = nullptr;
 };

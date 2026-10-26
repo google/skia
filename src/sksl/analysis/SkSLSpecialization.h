@@ -11,7 +11,6 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/utils/SkBitSet.h"
 
 #include <cstddef>
@@ -51,7 +50,7 @@ using SpecializationMap = skia_private::THashMap<const FunctionDeclaration*, Spe
 struct SpecializedFunctionKey {
     struct Hash {
         size_t operator()(const SpecializedFunctionKey& entry) {
-            return SkGoodHash()(entry.fDeclaration.get()) ^
+            return SkGoodHash()(entry.fDeclaration) ^
                    SkGoodHash()(entry.fSpecializationIndex);
         }
     };
@@ -61,7 +60,7 @@ struct SpecializedFunctionKey {
                fSpecializationIndex == other.fSpecializationIndex;
     }
 
-    raw_ptr<const FunctionDeclaration> fDeclaration = nullptr;
+    const FunctionDeclaration* fDeclaration = nullptr;
     SpecializationIndex fSpecializationIndex = Analysis::kUnspecialized;
 };
 

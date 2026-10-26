@@ -11,7 +11,6 @@
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
 
 #include "src/core/SkTHash.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -115,7 +114,7 @@ private:
 
     bool overInlineStatementLimit() const;
 
-    raw_ptr<const Context> fContext = nullptr;
+    const Context* fContext = nullptr;
     Mangler fMangler;
     int fInlinedStatementCounter = 0;
 };

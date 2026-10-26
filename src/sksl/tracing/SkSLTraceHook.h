@@ -8,8 +8,6 @@
 #ifndef SKSLTRACEHOOK
 #define SKSLTRACEHOOK
 
-#include "src/partition_alloc/raw_ptr.h"
-
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -39,7 +37,7 @@ public:
     void scope(int delta) override;
 
 private:
-    raw_ptr<std::vector<TraceInfo>, DanglingUntriaged> fTraceInfo;
+    std::vector<TraceInfo>* fTraceInfo;
 };
 
 }  // namespace SkSL

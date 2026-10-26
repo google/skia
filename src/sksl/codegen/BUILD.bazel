@@ -61,7 +61,6 @@ skia_cc_library(
         "//:core",
         "//src/core:core_priv",
         "//src/gpu",
-        "//src/partition_alloc:raw_ptr",
     ],
 )
 
@@ -83,7 +82,6 @@ skia_cc_library(
     deps = [
         "//:core",
         "//src/core:core_priv",
-        "//src/partition_alloc:raw_ptr",
     ],
 )
 
@@ -108,7 +106,6 @@ skia_cc_library(
         ":spirv",
         "//:core",
         "//src/core:core_priv",
-        "//src/partition_alloc:raw_ptr",
         "@spirv_cross",
     ],
 )
@@ -133,7 +130,6 @@ skia_cc_library(
     deps = [
         "//:core",
         "//src/core:core_priv",
-        "//src/partition_alloc:raw_ptr",
     ],
 )
 
@@ -157,7 +153,6 @@ skia_cc_library(
     deps = [
         "//:core",
         "//src/core:core_priv",
-        "//src/partition_alloc:raw_ptr",
         "//src/utils:shader_utils",
     ],
 )
@@ -201,7 +196,6 @@ skia_cc_library(
     deps = [
         "//:core",
         "//src/core:core_priv",
-        "//src/partition_alloc:raw_ptr",
     ],
 )
 

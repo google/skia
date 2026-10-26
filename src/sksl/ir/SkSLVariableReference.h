@@ -9,7 +9,6 @@
 #define SKSL_VARIABLEREFERENCE
 
 #include "include/core/SkTypes.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
@@ -77,7 +76,7 @@ public:
     std::string description(OperatorPrecedence) const override;
 
 private:
-    raw_ptr<const Variable, DanglingUntriaged> fVariable;
+    const Variable* fVariable;
     VariableRefKind fRefKind;
 
     using INHERITED = Expression;

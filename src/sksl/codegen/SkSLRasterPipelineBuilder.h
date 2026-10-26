@@ -7,7 +7,6 @@
 
 #ifndef SKSL_RASTERPIPELINEBUILDER
 #define SKSL_RASTERPIPELINEBUILDER
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include "include/core/SkTypes.h"
@@ -292,7 +291,7 @@ private:
     int fNumTempStackSlots = 0;
     int fNumLabels = 0;
     StackDepths fTempStackMaxDepths;
-    raw_ptr<DebugTracePriv, DanglingUntriaged> fDebugTrace = nullptr;
+    DebugTracePriv* fDebugTrace = nullptr;
     std::unique_ptr<SkSL::TraceHook> fTraceHook;
 };
 
