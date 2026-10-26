@@ -245,6 +245,7 @@ filegroup(
         "RandomTest.cpp",
         "RasterPipelineBuilderTest.cpp",
         "RasterPipelineCodeGeneratorTest.cpp",
+        "RasterizationTests.cpp",
         "RawPtrTest.cpp",
         "ReadPixelsTest.cpp",
         "RecordDrawTest.cpp",
