@@ -126,14 +126,14 @@ static inline void append_multitexture_lookup_lcd(GrGeometryProcessor::ProgramIm
         args.fFragBuilder->codeAppend(".r;");
 
         // red is distance to left offset
-        args.fFragBuilder->codeAppendf("half2 uv_adjusted = half2(%s) - %s;",
+        args.fFragBuilder->codeAppendf("float2 uv_adjusted = %s - %s;",
                                        coordName, offsetName);
         args.fFragBuilder->codeAppendf("%s.x = ", distanceName);
         args.fFragBuilder->appendTextureLookup(args.fTexSamplers[i], "uv_adjusted");
         args.fFragBuilder->codeAppend(".r;");
 
         // blue is distance to right offset
-        args.fFragBuilder->codeAppendf("uv_adjusted = half2(%s) + %s;", coordName, offsetName);
+        args.fFragBuilder->codeAppendf("uv_adjusted = %s + %s;", coordName, offsetName);
         args.fFragBuilder->codeAppendf("%s.z = ", distanceName);
         args.fFragBuilder->appendTextureLookup(args.fTexSamplers[i], "uv_adjusted");
         args.fFragBuilder->codeAppend(".r;");

@@ -676,15 +676,15 @@ private:
 
         if (isUniformScale) {
             if (args.fShaderCaps->fAvoidDfDxForGradientsWhenPossible) {
-                fragBuilder->codeAppendf("half st_grad_len = half(abs(dFdy(%s.y)));", st.fsIn());
+                fragBuilder->codeAppendf("float st_grad_len = abs(dFdy(%s.y));", st.fsIn());
             } else {
-                fragBuilder->codeAppendf("half st_grad_len = half(abs(dFdx(%s.x)));", st.fsIn());
+                fragBuilder->codeAppendf("float st_grad_len = abs(dFdx(%s.x));", st.fsIn());
             }
             if (dfTexEffect.fFlags & kPortrait_DistanceFieldEffectFlag) {
-                fragBuilder->codeAppendf("half2 offset = half2(0.0, half(st_grad_len*%s));",
+                fragBuilder->codeAppendf("float2 offset = float2(0.0, st_grad_len*%s);",
                                          delta.fsIn());
             } else {
-                fragBuilder->codeAppendf("half2 offset = half2(half(st_grad_len*%s), 0.0);",
+                fragBuilder->codeAppendf("float2 offset = float2(st_grad_len*%s, 0.0);",
                                          delta.fsIn());
             }
         } else if (isSimilarity) {
@@ -693,32 +693,32 @@ private:
             if (args.fShaderCaps->fAvoidDfDxForGradientsWhenPossible) {
                 // We use dFdy instead and rotate -90 degrees to get the gradient in the x
                 // direction.
-                fragBuilder->codeAppendf("half2 st_grad = half2(dFdy(%s));", st.fsIn());
+                fragBuilder->codeAppendf("float2 st_grad = dFdy(%s);", st.fsIn());
                 if (dfTexEffect.fFlags & kPortrait_DistanceFieldEffectFlag) {
-                    fragBuilder->codeAppendf("half2 offset = half2(%s)*st_grad;", delta.fsIn());
+                    fragBuilder->codeAppendf("float2 offset = %s*st_grad;", delta.fsIn());
                 } else {
-                    fragBuilder->codeAppendf(
-                            "half2 offset = half2(%s*float2(st_grad.y,-st_grad.x));", delta.fsIn());
+                    fragBuilder->codeAppendf("float2 offset = %s*float2(st_grad.y,-st_grad.x);",
+                                             delta.fsIn());
                 }
             } else {
-                fragBuilder->codeAppendf("half2 st_grad = half2(dFdx(%s));", st.fsIn());
+                fragBuilder->codeAppendf("float2 st_grad = dFdx(%s);", st.fsIn());
                 if (dfTexEffect.fFlags & kPortrait_DistanceFieldEffectFlag) {
-                    fragBuilder->codeAppendf(
-                            "half2 offset = half2(%s*float2(-st_grad.y,st_grad.x));", delta.fsIn());
+                    fragBuilder->codeAppendf("float2 offset = %s*float2(-st_grad.y,st_grad.x);",
+                                             delta.fsIn());
                 } else {
-                    fragBuilder->codeAppendf("half2 offset = half(%s)*st_grad;", delta.fsIn());
+                    fragBuilder->codeAppendf("float2 offset = %s*st_grad;", delta.fsIn());
                 }
             }
-            fragBuilder->codeAppend("half st_grad_len = length(st_grad);");
+            fragBuilder->codeAppend("float st_grad_len = length(st_grad);");
         } else {
-            fragBuilder->codeAppendf("half2 st = half2(%s);\n", st.fsIn());
+            fragBuilder->codeAppendf("float2 st = %s;\n", st.fsIn());
 
             fragBuilder->codeAppend("float2x2 jacobian = float2x2(dFdx(st), dFdy(st));");
             if (dfTexEffect.fFlags & kPortrait_DistanceFieldEffectFlag) {
-                fragBuilder->codeAppendf("half2 offset = half2(jacobian * half2(0, %s));",
+                fragBuilder->codeAppendf("float2 offset = jacobian * float2(0, %s);",
                                          delta.fsIn());
             } else {
-                fragBuilder->codeAppendf("half2 offset = half2(jacobian * half2(%s, 0));",
+                fragBuilder->codeAppendf("float2 offset = jacobian * float2(%s, 0);",
                                          delta.fsIn());
             }
         }
@@ -749,7 +749,7 @@ private:
             // space to pixel space.
 
             // this gives us a smooth step across approximately one fragment
-            fragBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*st_grad_len;");
+            fragBuilder->codeAppend("afwidth = half(" SK_DistanceFieldAAFactor "*st_grad_len);");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
