@@ -467,3 +467,34 @@ DEF_TEST(SkSLRasterPipelineTempStackOverflow, r) {
         REPORTER_ASSERT(r, !prog->appendStages(&pipeline, &alloc, /*callbacks=*/nullptr, {}));
     }
 }
+
+DEF_TEST(SkSLRasterPipelineNeutralizeBranchesOnFailure, r) {
+    SkArenaAlloc alloc(1000);
+    SkRasterPipeline pipeline(&alloc);
+    pipeline.appendConstantColor(&alloc, SkColors::kGreen);
+
+    // Build a program with an unconditional jump over a failing invoke_shader to a label at the
+    // end. When invoke_shader fails (because callbacks == nullptr), appendStages() returns false
+    // before reaching the label or the branch fix-up loop. The already-appended jump stage must
+    // have its offset neutralized to +1 so that if a caller runs the partial pipeline anyway,
+    // it falls through harmlessly instead of jumping past the end of the compiled stage array.
+    SkSL::RP::Builder builder;
+    int labelID = builder.nextLabelID();
+    builder.jump(labelID);
+    builder.invoke_shader(0);
+    builder.label(labelID);
+    std::unique_ptr<SkSL::RP::Program> prog = builder.finish(
+            /*numValueSlots=*/1, /*numUniformSlots=*/0, /*numImmutableSlots=*/0);
+    REPORTER_ASSERT(r, prog);
+    REPORTER_ASSERT(r, !prog->appendStages(&pipeline, &alloc, /*callbacks=*/nullptr, {}));
+
+    // Close the partial pipeline and run it; the neutralized jump (+1) should fall through to
+    // store_8888 without dispatching out of bounds.
+    uint32_t out[SkRasterPipelineContexts::kMaxStride_highp] = {};
+    SkRasterPipelineContexts::MemoryCtx outCtx{
+            /*pixels=*/out, /*stride=*/SkRasterPipelineContexts::kMaxStride_highp};
+    pipeline.append(SkRasterPipelineOp::store_8888, &outCtx);
+    pipeline.run(0, 0, 1, 1);
+    REPORTER_ASSERT(r, out[0] == SkColors::kGreen.toBytes_RGBA());
+}
+
