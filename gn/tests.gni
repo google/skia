@@ -33,6 +33,7 @@ tests_sources = [
   "$_tests/CanvasStateTest.cpp",
   "$_tests/CanvasTest.cpp",
   "$_tests/CappedHairlinesTest.cpp",
+  "$_tests/CaptureTest.cpp",
   "$_tests/CharToGlyphCache.cpp",
   "$_tests/ChecksumTest.cpp",
   "$_tests/ClipCubicTest.cpp",

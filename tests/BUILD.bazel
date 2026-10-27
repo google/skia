@@ -91,6 +91,7 @@ filegroup(
         "CanvasStateTest.cpp",
         "CanvasTest.cpp",
         "CappedHairlinesTest.cpp",
+        "CaptureTest.cpp",
         "CharToGlyphCache.cpp",
         "ChecksumTest.cpp",
         "ClipCubicTest.cpp",
