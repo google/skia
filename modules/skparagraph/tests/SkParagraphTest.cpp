@@ -50,6 +50,7 @@
 
 #include <string.h>
 #include <algorithm>
+#include <chrono>
 #include <limits>
 #include <memory>
 #include <string>
@@ -4751,6 +4752,165 @@ UNIX_ONLY_TEST(SkParagraph_LongWordParagraph, reporter) {
         REPORTER_ASSERT(reporter, impl->lines()[1].width() > TestCanvasWidth / 2 - 20);
         REPORTER_ASSERT(reporter, impl->lines()[2].width() > TestCanvasWidth / 2 - 20);
     }
+}
+
+// Text with no break opportunity is broken inside the word, once on every line. Each line is as
+// full as the width allows, and the word is measured the same at every width.
+UNIX_ONLY_TEST(SkParagraph_UnbreakableTextParagraph, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    auto layout = [&](const std::string& text, SkScalar width) {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+        builder.pushStyle(text_style);
+        builder.addText(text.data(), text.size());
+        auto paragraph = builder.Build();
+        paragraph->layout(width);
+        return paragraph;
+    };
+    auto repeat = [](const std::string& unit, size_t count) {
+        std::string text;
+        for (size_t i = 0; i < count; ++i) {
+            text += unit;
+        }
+        return text;
+    };
+    // Checks that the lines cover the text in order and fit the width. All lines but the last
+    // are full: the first cluster of the next line would not fit on them.
+    auto checkLines = [&](skiatest::Reporter* reporter,
+                          Paragraph* paragraph,
+                          size_t size,
+                          SkScalar width,
+                          bool full) {
+        auto impl = static_cast<ParagraphImpl*>(paragraph);
+        auto lines = impl->lines();
+        size_t start = 0;
+        for (size_t i = 0; i < lines.size(); ++i) {
+            auto& line = lines[i];
+            REPORTER_ASSERT(reporter, line.text().start == start);
+            start = line.text().end;
+            REPORTER_ASSERT(reporter, line.width() <= width + 0.25f);
+            if (full && i + 1 < lines.size()) {
+                auto next = line.clustersWithSpaces().end;
+                REPORTER_ASSERT(reporter, lines[i + 1].clustersWithSpaces().start == next);
+                SkScalar nextWidth = impl->cluster(next).width();
+                REPORTER_ASSERT(reporter, line.width() + nextWidth > width - 0.25f);
+            }
+        }
+        REPORTER_ASSERT(reporter, start == size);
+    };
+
+    // Minified JSON has a few break opportunities, so only the lines are checked
+    std::string json;
+    for (int i = 0; i < 50; ++i) {
+        json += "{\"id\":" + std::to_string(i) +
+                ",\"name\":\"abc\",\"tags\":[\"x\",\"y\"],"
+                "\"ok\":true},";
+    }
+    for (SkScalar width : {50.f, 300.f, 301.f}) {
+        auto paragraph = layout(json, width);
+        checkLines(reporter, paragraph.get(), json.size(), width, false);
+    }
+    const std::pair<const char*, std::string> kinds[] = {
+            {"latin", repeat("abcdef", 500)},
+            {"cjk full stops", repeat("\xE3\x80\x82", 3000)},
+            {"exclamation marks", repeat("!", 3000)},
+            {"digits", repeat("666", 1000)},
+    };
+    for (auto& [name, text] : kinds) {
+        SkScalar minWidth = -1;
+        for (SkScalar width : {50.f, 300.f, 301.f}) {
+            auto paragraph = layout(text, width);
+            auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+            // No break opportunity in the text, so the line breaks do not depend on the words
+            auto clusters = impl->clusters();
+            bool unbreakable = true;
+            // (The last cluster is the end of the text)
+            for (size_t i = 0; i + 2 < clusters.size(); ++i) {
+                unbreakable &= !clusters[i].isSoftBreak() && !clusters[i].isHardBreak();
+            }
+            REPORTER_ASSERT(reporter, unbreakable, "%s", name);
+            checkLines(reporter, paragraph.get(), text.size(), width, true);
+            REPORTER_ASSERT(reporter, impl->lines().size() > 1, "%s", name);
+            // The word is as wide as the text
+            if (minWidth < 0) {
+                minWidth = paragraph->getMinIntrinsicWidth();
+            }
+            REPORTER_ASSERT(reporter, paragraph->getMinIntrinsicWidth() == minWidth, "%s", name);
+            REPORTER_ASSERT(reporter,
+                            SkScalarNearlyEqual(
+                                    minWidth, paragraph->getMaxIntrinsicWidth(), minWidth / 1000),
+                            "%s",
+                            name);
+        }
+    }
+
+    // A soft hyphen ends each word in the text, and every word is too long for the line
+    std::string softHyphens = repeat(std::string(900, 'a') + "\xC2\xAD", 3) + std::string(20, 'b');
+    SkScalar minWidth = -1;
+    for (SkScalar width : {50.f, 300.f, 301.f}) {
+        auto paragraph = layout(softHyphens, width);
+        checkLines(reporter, paragraph.get(), softHyphens.size(), width, false);
+        if (minWidth < 0) {
+            minWidth = paragraph->getMinIntrinsicWidth();
+        }
+        REPORTER_ASSERT(reporter, paragraph->getMinIntrinsicWidth() == minWidth);
+    }
+    auto word = layout(std::string(900, 'a'), SK_ScalarInfinity);
+    REPORTER_ASSERT(reporter, minWidth >= word->getMaxIntrinsicWidth());
+
+    // A long word after a long word is not measured as the first one
+    std::string twoWords = std::string(600, 'a') + " " + std::string(2000, 'b');
+    for (SkScalar width : {50.f, 300.f}) {
+        auto two = layout(twoWords, width);
+        checkLines(reporter, two.get(), twoWords.size(), width, false);
+        SkScalar longer = layout(std::string(2000, 'b'), width)->getMinIntrinsicWidth();
+        REPORTER_ASSERT(reporter,
+                        SkScalarNearlyEqual(two->getMinIntrinsicWidth(), longer, 0.5f),
+                        "%f %f",
+                        two->getMinIntrinsicWidth(),
+                        longer);
+    }
+
+    // The no-break space comes just where a line (the 55th) is full: that line ends after it,
+    // and the rest of the word goes to the next line
+    std::string nbsp = std::string(1485, 'a') + "\xC2\xA0" + std::string(20, 'b');
+    auto paragraph = layout(nbsp, 300);
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->lines().size() >= 2);
+    if (impl->lines().size() >= 2) {
+        auto& last = impl->lines().back();
+        REPORTER_ASSERT(reporter, last.text().start == 1487, "%zu", last.text().start);
+        REPORTER_ASSERT(reporter, last.text().end == nbsp.size());
+    }
+}
+
+// The time to break a word into lines grows with the length of the word, not with its square
+UNIX_ONLY_TEST(SkParagraph_VeryLongWordParagraph, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    std::string text(300000, 'a');
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    builder.pushStyle(text_style);
+    builder.addText(text.data(), text.size());
+    auto paragraph = builder.Build();
+    auto start = std::chrono::steady_clock::now();
+    paragraph->layout(300);
+    auto ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start);
+    // The layout takes about 30 ms, and about 3 s when every line walks to the end of the word
+    REPORTER_ASSERT(reporter, ms.count() < 1000, "%f ms", ms.count());
+    REPORTER_ASSERT(reporter, static_cast<ParagraphImpl*>(paragraph.get())->lines().size() > 1000);
 }
 
 // Checked: DIFF?
