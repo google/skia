@@ -2,6 +2,20 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 158
+-------------
+  * Added `fHdrMetadata` (`const skhdr::Metadata*`) to `SkJpegEncoder::Options`, `SkPngRustEncoder::Options`, and `SkWebpEncoder::Options`, and changed `SkPngEncoder::Options::fHdrMetadata` to `const skhdr::Metadata*`. When provided, the HDR metadata is embedded into the encoded image's ICC profile.
+  * The SkExecutor class is now templated so it can support different work submission models.
+
+    The prior std::function-based model is preserved as SkFunctionalExecutor and SkExecutor.
+
+    A new callback-style model is now supported with SkCallbackExecutor.
+
+    The new SK_GRAPHITE_USE_CALLBACK_EXECUTOR #define can be used to make Graphite take an SkCallbackExecutor in its ContextOptions. Ganesh continues to take an SkFunctionalExecutor.
+  * SkWebpEncoder::Options has a new fMethod field that sets the libwebp compression method (0-6). It defaults to -1, which keeps the previous behavior.
+
+* * *
+
 Milestone 157
 -------------
   * Graphite now requires >= iOS 14.0. This was the first iOS version in which some required C++20 features were added.
