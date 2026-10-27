@@ -1367,9 +1367,22 @@ bool ClipStack::DrawShape::applyStyle(const SkStrokeRec& style, const Rect& devi
         fLocalToDevice = Transform::Identity();
         fShapeMatchesGeometry = false;
     } else {
-        // SkStrokeRec::GetInflationRadius() returns a device-space inflation for hairlines.
         float localOutset = 0.f;
-        if (!style.isFillStyle() && !style.isHairlineStyle()) {
+        if (style.isFillStyle()) {
+            // If the shape projects to a subpixel shape, expand the local bounds by the AA radius
+            // to create a conservative clip query that preserves the oriented bounding box.
+            if (!fShape.inverted() && any(origSize < localAAOutset)) {
+                localOutset = 0.5f * localAAOutset;
+            }
+        } else {
+            // getInflationRadius() does not handle device-space inflation for hairlines, but to
+            // preserve the bounding box in local space for as long as possible, use the
+            // `localAAOutset` as a conservative estimate for the local stroke radius that would
+            // cover the hairline.
+            //
+            // For local strokes that project to a subpixel shape, clamp to the localAAOutset as
+            // well to handle rendering that pads beyond the 1/2px outset in the subpixel case.
+            const float effectiveStrokeWidth = std::max(localAAOutset, style.getWidth());
             // Rectangles, rounded rectangles, and lines do not produce miters so don't count the
             // pessimistic limit against their draw bounds.
             const float effectiveMiterLimit = fShape.isPath() ? style.getMiter() : 1.f;
@@ -1381,17 +1394,7 @@ bool ClipStack::DrawShape::applyStyle(const SkStrokeRec& style, const Rect& devi
             localOutset = SkStrokeRec::GetInflationRadius(style.getJoin(),
                                                           effectiveMiterLimit,
                                                           effectiveCap,
-                                                          style.getWidth());
-        }
-
-        if (style.isHairlineStyle() ||
-            (!style.isFillStyle() && style.getWidth() < localAAOutset) ||
-            (style.isFillStyle() && !fShape.inverted() && any(origSize < localAAOutset))) {
-            // The geometry is a hairline or projects to a subpixel shape, so rendering will not
-            // follow the typical 1/2px outset anti-aliasing that is compatible with clipping.
-            // In this case, apply the local AA radius to the shape to have a conservative clip
-            // query while preserving the oriented bounding box.
-            localOutset += localAAOutset;
+                                                          effectiveStrokeWidth);
         }
 
         if (localOutset > 0.f) {
