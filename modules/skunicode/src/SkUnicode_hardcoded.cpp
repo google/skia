@@ -11,7 +11,9 @@
 #include <array>
 #include <utility>
 
-bool SkUnicodeHardCodedCharProperties::isControl(SkUnichar utf8) {
+bool SkUnicodeHardCodedCharProperties::isControl(SkUnichar utf8) { return IsControl(utf8); }
+
+bool SkUnicodeHardCodedCharProperties::IsControl(SkUnichar utf8) {
     // Match u_iscntrl across Cc (Control), Cf (Format), Zl (Line Separator),
     // and Zp (Paragraph Separator) categories
     static constexpr std::array<std::pair<SkUnichar, SkUnichar>, 23> ranges {{
@@ -52,6 +54,10 @@ bool SkUnicodeHardCodedCharProperties::isControl(SkUnichar utf8) {
 }
 
 bool SkUnicodeHardCodedCharProperties::isWhitespace(SkUnichar unichar) {
+    return IsWhitespace(unichar);
+}
+
+bool SkUnicodeHardCodedCharProperties::IsWhitespace(SkUnichar unichar) {
     // Include ASCII information separators U+001C..U+001F (FS..US) to match u_isWhitespace
     static constexpr std::array<SkUnichar, 25> whitespaces {
             0x0009, // character tabulation
@@ -86,7 +92,9 @@ bool SkUnicodeHardCodedCharProperties::isWhitespace(SkUnichar unichar) {
     return std::find(whitespaces.begin(), whitespaces.end(), unichar) != whitespaces.end();
 }
 
-bool SkUnicodeHardCodedCharProperties::isSpace(SkUnichar unichar) {
+bool SkUnicodeHardCodedCharProperties::isSpace(SkUnichar unichar) { return IsSpace(unichar); }
+
+bool SkUnicodeHardCodedCharProperties::IsSpace(SkUnichar unichar) {
     // Include ASCII information separators U+001C..U+001F (FS..US) to match u_isspace
     static constexpr std::array<SkUnichar, 29> spaces {
             0x0009, // character tabulation
@@ -202,6 +210,10 @@ bool SkUnicodeHardCodedCharProperties::isRegionalIndicator(SkUnichar unichar) {
 }
 
 bool SkUnicodeHardCodedCharProperties::isIdeographic(SkUnichar unichar) {
+    return IsIdeographic(unichar);
+}
+
+bool SkUnicodeHardCodedCharProperties::IsIdeographic(SkUnichar unichar) {
     static constexpr std::array<std::pair<SkUnichar, SkUnichar>, 8> ranges {{
           {4352,   4607}, // Hangul Jamo
           {11904, 42191}, // CJK_Radicals

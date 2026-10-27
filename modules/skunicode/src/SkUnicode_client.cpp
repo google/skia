@@ -36,6 +36,24 @@
 
 using namespace skia_private;
 
+// The flags that depend only on the code point.
+static SkUnicode::CodeUnitFlags CodePointFlags(SkUnichar unichar) {
+    SkUnicode::CodeUnitFlags flags = SkUnicode::kNoCodeUnitFlag;
+    if (SkUnicodeHardCodedCharProperties::IsSpace(unichar)) {
+        flags |= SkUnicode::kPartOfIntraWordBreak;
+    }
+    if (SkUnicodeHardCodedCharProperties::IsWhitespace(unichar)) {
+        flags |= SkUnicode::kPartOfWhiteSpaceBreak;
+    }
+    if (SkUnicodeHardCodedCharProperties::IsControl(unichar)) {
+        flags |= SkUnicode::kControl;
+    }
+    if (SkUnicodeHardCodedCharProperties::IsIdeographic(unichar)) {
+        flags |= SkUnicode::kIdeographic;
+    }
+    return flags;
+}
+
 class SkUnicode_client : public SkUnicodeHardCodedCharProperties {
 public:
     struct Data {
@@ -123,6 +141,15 @@ public:
         for (auto& grapheme : fData->fGraphemeBreaks) {
             (*results)[grapheme] |= CodeUnitFlags::kGraphemeStart;
         }
+        // The flags of ASCII code points, from the same predicates.
+        // A function-local static is initialized once, and thread-safe (C++11).
+        static const auto kAsciiFlags = [] {
+            std::array<CodeUnitFlags, 128> flags;
+            for (SkUnichar c = 0; c < 128; ++c) {
+                flags[c] = CodePointFlags(c);
+            }
+            return flags;
+        }();
         const char* current = utf8;
         const char* end = utf8 + utf8Units;
         while (current < end) {
@@ -130,26 +157,15 @@ public:
             SkUnichar unichar = SkUTF::NextUTF8(&current, end);
             if (unichar < 0) unichar = 0xFFFD;
             auto after = current - utf8;
-            if (replaceTabs && this->isTabulation(unichar)) {
+            if (replaceTabs && SkUnicodeHardCodedCharProperties::isTabulation(unichar)) {
                 results->at(before) |= SkUnicode::kTabulation;
-                if (replaceTabs) {
-                    unichar = ' ';
-                    utf8[before] = ' ';
-                }
+                unichar = ' ';
+                utf8[before] = ' ';
             }
+            // Get the flags once for all the code units of the code point.
+            CodeUnitFlags flags = unichar < 128 ? kAsciiFlags[unichar] : CodePointFlags(unichar);
             for (auto i = before; i < after; ++i) {
-                if (this->isSpace(unichar)) {
-                    results->at(i) |= SkUnicode::kPartOfIntraWordBreak;
-                }
-                if (this->isWhitespace(unichar)) {
-                    results->at(i) |= SkUnicode::kPartOfWhiteSpaceBreak;
-                }
-                if (this->isControl(unichar)) {
-                    results->at(i) |= SkUnicode::kControl;
-                }
-                if (this->isIdeographic(unichar)) {
-                    results->at(i) |= SkUnicode::kIdeographic;
-                }
+                results->at(i) |= flags;
             }
         }
         return true;

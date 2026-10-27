@@ -14,6 +14,10 @@
 class SKUNICODE_API SkUnicodeHardCodedCharProperties : public SkUnicode {
 public:
     static bool IsDefaultIgnorable(SkUnichar utf8);
+    static bool IsControl(SkUnichar utf8);
+    static bool IsWhitespace(SkUnichar utf8);
+    static bool IsSpace(SkUnichar utf8);
+    static bool IsIdeographic(SkUnichar utf8);
 
     bool isControl(SkUnichar utf8) override;
     bool isWhitespace(SkUnichar utf8) override;
