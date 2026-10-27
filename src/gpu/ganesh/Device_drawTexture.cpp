@@ -188,9 +188,10 @@ void draw_texture(skgpu::ganesh::SurfaceDrawContext* sdc,
     // rect would access pixels outside the proxy's content area without the constraint.
     if (constraint != SkCanvas::kStrict_SrcRectConstraint && !proxy->isFunctionallyExact()) {
         // Conservative estimate of how much a coord could be outset from src rect:
-        // 1/2 pixel for AA and 1/2 pixel for linear filtering
-        float buffer = 0.5f * (aaFlags != GrQuadAAFlags::kNone) +
-                       GrTextureEffect::kLinearInset * (filter == GrSamplerState::Filter::kLinear);
+        // 1/2 pixel for AA and 1/2 pixel for filtering. Linear filtering uses a 1/2 pixel kernel,
+        // and nearest filtering under high magnification can snap onto the texel just outside the
+        // subset due to limited sub-texel precision (e.g. Vulkan: subTexelPrecisionBits >= 4).
+        float buffer = 0.5f * (aaFlags != GrQuadAAFlags::kNone) + GrTextureEffect::kLinearInset;
         SkRect safeBounds = proxy->getBoundsRect();
         safeBounds.inset(buffer, buffer);
         if (!safeBounds.contains(srcRect)) {
