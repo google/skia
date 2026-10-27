@@ -146,18 +146,15 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
         bool domainIsSafe = false;
         if (filter == Filter::kNearest) {
             Span isubset{std::floor(subset.fA), std::ceil(subset.fB)};
-            if (domain.fA > isubset.fA && domain.fB < isubset.fB) {
-                domainIsSafe = true;
-            }
             // This inset prevents sampling neighboring texels that could occur when
             // texture coords fall exactly at texel boundaries (depending on precision
             // and GPU-specific snapping at the boundary).
             r.fShaderClamp = isubset.makeInset(0.5f + kInsetEpsilon);
         } else {
             r.fShaderClamp = subset.makeInset(linearFilterInset + kInsetEpsilon);
-            if (r.fShaderClamp.contains(domain)) {
-                domainIsSafe = true;
-            }
+        }
+        if (r.fShaderClamp.contains(domain)) {
+            domainIsSafe = true;
         }
         if (!alwaysUseShaderTileMode && domainIsSafe) {
             // The domain of coords that will be used won't access texels outside of the subset.
