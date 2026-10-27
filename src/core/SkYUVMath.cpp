@@ -747,36 +747,6 @@ constexpr float YCgCo_16bit_limited_yuv_to_rgb[] = {
 #endif
 };
 
-static_assert(kJPEG_Full_SkYUVColorSpace            == 0, "");
-static_assert(kRec601_Limited_SkYUVColorSpace       == 1, "");
-static_assert(kRec709_Full_SkYUVColorSpace          == 2, "");
-static_assert(kRec709_Limited_SkYUVColorSpace       == 3, "");
-static_assert(kBT2020_8bit_Full_SkYUVColorSpace     == 4, "");
-static_assert(kBT2020_8bit_Limited_SkYUVColorSpace  == 5, "");
-static_assert(kBT2020_10bit_Full_SkYUVColorSpace    == 6, "");
-static_assert(kBT2020_10bit_Limited_SkYUVColorSpace == 7, "");
-static_assert(kBT2020_12bit_Full_SkYUVColorSpace    == 8, "");
-static_assert(kBT2020_12bit_Limited_SkYUVColorSpace == 9, "");
-static_assert(kBT2020_16bit_Full_SkYUVColorSpace    == 10, "");
-static_assert(kBT2020_16bit_Limited_SkYUVColorSpace == 11, "");
-static_assert(kFCC_Full_SkYUVColorSpace             == 12, "");
-static_assert(kFCC_Limited_SkYUVColorSpace          == 13, "");
-static_assert(kSMPTE240_Full_SkYUVColorSpace        == 14, "");
-static_assert(kSMPTE240_Limited_SkYUVColorSpace     == 15, "");
-static_assert(kYDZDX_Full_SkYUVColorSpace           == 16, "");
-static_assert(kYDZDX_Limited_SkYUVColorSpace        == 17, "");
-static_assert(kGBR_Full_SkYUVColorSpace             == 18, "");
-static_assert(kGBR_Limited_SkYUVColorSpace          == 19, "");
-static_assert(kYCgCo_8bit_Full_SkYUVColorSpace      == 20, "");
-static_assert(kYCgCo_8bit_Limited_SkYUVColorSpace   == 21, "");
-static_assert(kYCgCo_10bit_Full_SkYUVColorSpace     == 22, "");
-static_assert(kYCgCo_10bit_Limited_SkYUVColorSpace  == 23, "");
-static_assert(kYCgCo_12bit_Full_SkYUVColorSpace     == 24, "");
-static_assert(kYCgCo_12bit_Limited_SkYUVColorSpace  == 25, "");
-static_assert(kYCgCo_16bit_Full_SkYUVColorSpace     == 26, "");
-static_assert(kYCgCo_16bit_Limited_SkYUVColorSpace  == 27, "");
-
-
 // Helpers for converting and generating color matrices
 
 // we just drop the alpha rol/col from the colormatrix
@@ -846,10 +816,24 @@ struct ColorSpaceInfo {
 };
 
 static constexpr auto kColorSpaceInfo = std::to_array<ColorSpaceInfo>({
-    {MatrixCoefficients::kRec601,   Range::kFull,     8},  // kJPEG_Full
-    {MatrixCoefficients::kRec601,   Range::kLimited,  8},  // kRec601_Limited
-    {MatrixCoefficients::kRec709,   Range::kFull,     8},  // kRec709_Full
-    {MatrixCoefficients::kRec709,   Range::kLimited,  8},  // kRec709_Limited
+    {MatrixCoefficients::kRec601,   Range::kFull,     8},  // kRec601_8bit_Full
+    {MatrixCoefficients::kRec601,   Range::kLimited,  8},  // kRec601_8bit_Limited
+    {MatrixCoefficients::kRec601,   Range::kFull,    10},  // kRec601_10bit_Full
+    {MatrixCoefficients::kRec601,   Range::kLimited, 10},  // kRec601_10bit_Limited
+    {MatrixCoefficients::kRec601,   Range::kFull,    12},  // kRec601_12bit_Full
+    {MatrixCoefficients::kRec601,   Range::kLimited, 12},  // kRec601_12bit_Limited
+    {MatrixCoefficients::kRec601,   Range::kFull,    16},  // kRec601_16bit_Full
+    {MatrixCoefficients::kRec601,   Range::kLimited, 16},  // kRec601_16bit_Limited
+
+    {MatrixCoefficients::kRec709,   Range::kFull,     8},  // kRec709_8bit_Full
+    {MatrixCoefficients::kRec709,   Range::kLimited,  8},  // kRec709_8bit_Limited
+    {MatrixCoefficients::kRec709,   Range::kFull,    10},  // kRec709_10bit_Full
+    {MatrixCoefficients::kRec709,   Range::kLimited, 10},  // kRec709_10bit_Limited
+    {MatrixCoefficients::kRec709,   Range::kFull,    12},  // kRec709_12bit_Full
+    {MatrixCoefficients::kRec709,   Range::kLimited, 12},  // kRec709_12bit_Limited
+    {MatrixCoefficients::kRec709,   Range::kFull,    16},  // kRec709_16bit_Full
+    {MatrixCoefficients::kRec709,   Range::kLimited, 16},  // kRec709_16bit_Limited
+
     {MatrixCoefficients::kBT2020,   Range::kFull,     8},  // kBT2020_8bit_Full
     {MatrixCoefficients::kBT2020,   Range::kLimited,  8},  // kBT2020_8bit_Limited
     {MatrixCoefficients::kBT2020,   Range::kFull,    10},  // kBT2020_10bit_Full
@@ -858,14 +842,43 @@ static constexpr auto kColorSpaceInfo = std::to_array<ColorSpaceInfo>({
     {MatrixCoefficients::kBT2020,   Range::kLimited, 12},  // kBT2020_12bit_Limited
     {MatrixCoefficients::kBT2020,   Range::kFull,    16},  // kBT2020_16bit_Full
     {MatrixCoefficients::kBT2020,   Range::kLimited, 16},  // kBT2020_16bit_Limited
-    {MatrixCoefficients::kFCC,      Range::kFull,     8},  // kFCC_Full
-    {MatrixCoefficients::kFCC,      Range::kLimited,  8},  // kFCC_Limited
-    {MatrixCoefficients::kSMPTE240, Range::kFull,     8},  // kSMPTE240_Full
-    {MatrixCoefficients::kSMPTE240, Range::kLimited,  8},  // kSMPTE240_Limited
-    {MatrixCoefficients::kYDZDX,    Range::kFull,     8},  // kYDZDX_Full
-    {MatrixCoefficients::kYDZDX,    Range::kLimited,  8},  // kYDZDX_Limited
-    {MatrixCoefficients::kGBR,      Range::kFull,     8},  // kGBR_Full
-    {MatrixCoefficients::kGBR,      Range::kLimited,  8},  // kGBR_Limited
+
+    {MatrixCoefficients::kFCC,      Range::kFull,     8},  // kFCC_8bit_Full
+    {MatrixCoefficients::kFCC,      Range::kLimited,  8},  // kFCC_8bit_Limited
+    {MatrixCoefficients::kFCC,      Range::kFull,    10},  // kFCC_10bit_Full
+    {MatrixCoefficients::kFCC,      Range::kLimited, 10},  // kFCC_10bit_Limited
+    {MatrixCoefficients::kFCC,      Range::kFull,    12},  // kFCC_12bit_Full
+    {MatrixCoefficients::kFCC,      Range::kLimited, 12},  // kFCC_12bit_Limited
+    {MatrixCoefficients::kFCC,      Range::kFull,    16},  // kFCC_16bit_Full
+    {MatrixCoefficients::kFCC,      Range::kLimited, 16},  // kFCC_16bit_Limited
+
+    {MatrixCoefficients::kSMPTE240, Range::kFull,     8},  // kSMPTE240_8bit_Full
+    {MatrixCoefficients::kSMPTE240, Range::kLimited,  8},  // kSMPTE240_8bit_Limited
+    {MatrixCoefficients::kSMPTE240, Range::kFull,    10},  // kSMPTE240_10bit_Full
+    {MatrixCoefficients::kSMPTE240, Range::kLimited, 10},  // kSMPTE240_10bit_Limited
+    {MatrixCoefficients::kSMPTE240, Range::kFull,    12},  // kSMPTE240_12bit_Full
+    {MatrixCoefficients::kSMPTE240, Range::kLimited, 12},  // kSMPTE240_12bit_Limited
+    {MatrixCoefficients::kSMPTE240, Range::kFull,    16},  // kSMPTE240_16bit_Full
+    {MatrixCoefficients::kSMPTE240, Range::kLimited, 16},  // kSMPTE240_16bit_Limited
+
+    {MatrixCoefficients::kYDZDX,    Range::kFull,     8},  // kYDZDX_8bit_Full
+    {MatrixCoefficients::kYDZDX,    Range::kLimited,  8},  // kYDZDX_8bit_Limited
+    {MatrixCoefficients::kYDZDX,    Range::kFull,    10},  // kYDZDX_10bit_Full
+    {MatrixCoefficients::kYDZDX,    Range::kLimited, 10},  // kYDZDX_10bit_Limited
+    {MatrixCoefficients::kYDZDX,    Range::kFull,    12},  // kYDZDX_12bit_Full
+    {MatrixCoefficients::kYDZDX,    Range::kLimited, 12},  // kYDZDX_12bit_Limited
+    {MatrixCoefficients::kYDZDX,    Range::kFull,    16},  // kYDZDX_16bit_Full
+    {MatrixCoefficients::kYDZDX,    Range::kLimited, 16},  // kYDZDX_16bit_Limited
+
+    {MatrixCoefficients::kGBR,      Range::kFull,     8},  // kGBR_8bit_Full
+    {MatrixCoefficients::kGBR,      Range::kLimited,  8},  // kGBR_8bit_Limited
+    {MatrixCoefficients::kGBR,      Range::kFull,    10},  // kGBR_10bit_Full
+    {MatrixCoefficients::kGBR,      Range::kLimited, 10},  // kGBR_10bit_Limited
+    {MatrixCoefficients::kGBR,      Range::kFull,    12},  // kGBR_12bit_Full
+    {MatrixCoefficients::kGBR,      Range::kLimited, 12},  // kGBR_12bit_Limited
+    {MatrixCoefficients::kGBR,      Range::kFull,    16},  // kGBR_16bit_Full
+    {MatrixCoefficients::kGBR,      Range::kLimited, 16},  // kGBR_16bit_Limited
+
     {MatrixCoefficients::kYCgCo,    Range::kFull,     8},  // kYCgCo_8bit_Full
     {MatrixCoefficients::kYCgCo,    Range::kLimited,  8},  // kYCgCo_8bit_Limited
     {MatrixCoefficients::kYCgCo,    Range::kFull,    10},  // kYCgCo_10bit_Full

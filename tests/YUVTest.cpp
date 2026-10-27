@@ -211,21 +211,14 @@ DEF_TEST(Jpeg_YUV_Encode, r) {
 // Be sure that the two matrices are inverses of each other
 // (i.e. rgb2yuv and yuv2rgb
 DEF_TEST(YUVMath, reporter) {
-    const SkYUVColorSpace spaces[] = {
-        kJPEG_SkYUVColorSpace,
-        kRec601_SkYUVColorSpace,
-        kRec709_SkYUVColorSpace,
-        kBT2020_SkYUVColorSpace,
-        kIdentity_SkYUVColorSpace,
-    };
-
     // Not sure what the theoretical precision we can hope for is, so pick a big value that
     // passes (when I think we're correct).
     const float tolerance = 1.0f/(1 << 18);
 
-    for (auto cs : spaces) {
-        SkColorMatrix r2ym = SkColorMatrix::RGBtoYUV(cs),
-                      y2rm = SkColorMatrix::YUVtoRGB(cs);
+    for (int cs = 0; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
+        auto yuvCS = static_cast<SkYUVColorSpace>(cs);
+        SkColorMatrix r2ym = SkColorMatrix::RGBtoYUV(yuvCS),
+                      y2rm = SkColorMatrix::YUVtoRGB(yuvCS);
         r2ym.postConcat(y2rm);
 
         std::array<float, 20> tmp;
@@ -237,5 +230,8 @@ DEF_TEST(YUVMath, reporter) {
             }
             REPORTER_ASSERT(reporter, SkScalarNearlyEqual(tmp[i], expected, tolerance));
         }
+
+        bool isLimited = (cs < kIdentity_SkYUVColorSpace && (cs % 2 == 1));
+        REPORTER_ASSERT(reporter, SkYUVColorSpaceIsLimitedRange(yuvCS) == isLimited);
     }
 }

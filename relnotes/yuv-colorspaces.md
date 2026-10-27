@@ -1,0 +1,1 @@
+Added 8, 10, 12, and 16-bit variants across Full and Limited ranges for all SkYUVColorSpace formats (Rec601, Rec709, BT2020, FCC, SMPTE240, YDZDX, GBR, and YCgCo). Non-bit-depth enum names are preserved as aliases to their 8-bit counterparts.

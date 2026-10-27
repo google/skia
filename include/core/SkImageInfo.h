@@ -66,11 +66,25 @@ SK_API bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alph
     It can be used to visualize the YUV planes or to explicitly post process the YUV channels.
 */
 enum SkYUVColorSpace : int {
-    kJPEG_Full_SkYUVColorSpace,                 //!< describes full range
-    kRec601_Limited_SkYUVColorSpace,            //!< describes SDTV range
-    kRec709_Full_SkYUVColorSpace,               //!< describes HDTV range
-    kRec709_Limited_SkYUVColorSpace,
-    kBT2020_8bit_Full_SkYUVColorSpace,          //!< describes UHDTV range, non-constant-luminance
+    kRec601_8bit_Full_SkYUVColorSpace,          //!< describes SDTV range (ITU-T H.273 MatrixCoefficients 6)
+    kRec601_8bit_Limited_SkYUVColorSpace,
+    kRec601_10bit_Full_SkYUVColorSpace,
+    kRec601_10bit_Limited_SkYUVColorSpace,
+    kRec601_12bit_Full_SkYUVColorSpace,
+    kRec601_12bit_Limited_SkYUVColorSpace,
+    kRec601_16bit_Full_SkYUVColorSpace,
+    kRec601_16bit_Limited_SkYUVColorSpace,
+
+    kRec709_8bit_Full_SkYUVColorSpace,          //!< describes HDTV range (ITU-T H.273 MatrixCoefficients 1)
+    kRec709_8bit_Limited_SkYUVColorSpace,
+    kRec709_10bit_Full_SkYUVColorSpace,
+    kRec709_10bit_Limited_SkYUVColorSpace,
+    kRec709_12bit_Full_SkYUVColorSpace,
+    kRec709_12bit_Limited_SkYUVColorSpace,
+    kRec709_16bit_Full_SkYUVColorSpace,
+    kRec709_16bit_Limited_SkYUVColorSpace,
+
+    kBT2020_8bit_Full_SkYUVColorSpace,          //!< describes UHDTV range, non-constant-luminance (ITU-T H.273 MatrixCoefficients 9)
     kBT2020_8bit_Limited_SkYUVColorSpace,
     kBT2020_10bit_Full_SkYUVColorSpace,
     kBT2020_10bit_Limited_SkYUVColorSpace,
@@ -78,15 +92,44 @@ enum SkYUVColorSpace : int {
     kBT2020_12bit_Limited_SkYUVColorSpace,
     kBT2020_16bit_Full_SkYUVColorSpace,
     kBT2020_16bit_Limited_SkYUVColorSpace,
-    kFCC_Full_SkYUVColorSpace,                  //!< describes FCC range
-    kFCC_Limited_SkYUVColorSpace,
-    kSMPTE240_Full_SkYUVColorSpace,             //!< describes SMPTE240M range
-    kSMPTE240_Limited_SkYUVColorSpace,
-    kYDZDX_Full_SkYUVColorSpace,                //!< describes YDZDX range
-    kYDZDX_Limited_SkYUVColorSpace,
-    kGBR_Full_SkYUVColorSpace,                  //!< describes GBR range
-    kGBR_Limited_SkYUVColorSpace,
-    kYCgCo_8bit_Full_SkYUVColorSpace,           //!< describes YCgCo matrix
+
+    kFCC_8bit_Full_SkYUVColorSpace,             //!< describes FCC range (ITU-T H.273 MatrixCoefficients 4)
+    kFCC_8bit_Limited_SkYUVColorSpace,
+    kFCC_10bit_Full_SkYUVColorSpace,
+    kFCC_10bit_Limited_SkYUVColorSpace,
+    kFCC_12bit_Full_SkYUVColorSpace,
+    kFCC_12bit_Limited_SkYUVColorSpace,
+    kFCC_16bit_Full_SkYUVColorSpace,
+    kFCC_16bit_Limited_SkYUVColorSpace,
+
+    kSMPTE240_8bit_Full_SkYUVColorSpace,        //!< describes SMPTE240M range (ITU-T H.273 MatrixCoefficients 7)
+    kSMPTE240_8bit_Limited_SkYUVColorSpace,
+    kSMPTE240_10bit_Full_SkYUVColorSpace,
+    kSMPTE240_10bit_Limited_SkYUVColorSpace,
+    kSMPTE240_12bit_Full_SkYUVColorSpace,
+    kSMPTE240_12bit_Limited_SkYUVColorSpace,
+    kSMPTE240_16bit_Full_SkYUVColorSpace,
+    kSMPTE240_16bit_Limited_SkYUVColorSpace,
+
+    kYDZDX_8bit_Full_SkYUVColorSpace,           //!< describes YDZDX range (ITU-T H.273 MatrixCoefficients 11)
+    kYDZDX_8bit_Limited_SkYUVColorSpace,
+    kYDZDX_10bit_Full_SkYUVColorSpace,
+    kYDZDX_10bit_Limited_SkYUVColorSpace,
+    kYDZDX_12bit_Full_SkYUVColorSpace,
+    kYDZDX_12bit_Limited_SkYUVColorSpace,
+    kYDZDX_16bit_Full_SkYUVColorSpace,
+    kYDZDX_16bit_Limited_SkYUVColorSpace,
+
+    kGBR_8bit_Full_SkYUVColorSpace,             //!< describes GBR range (ITU-T H.273 MatrixCoefficients 0)
+    kGBR_8bit_Limited_SkYUVColorSpace,
+    kGBR_10bit_Full_SkYUVColorSpace,
+    kGBR_10bit_Limited_SkYUVColorSpace,
+    kGBR_12bit_Full_SkYUVColorSpace,
+    kGBR_12bit_Limited_SkYUVColorSpace,
+    kGBR_16bit_Full_SkYUVColorSpace,
+    kGBR_16bit_Limited_SkYUVColorSpace,
+
+    kYCgCo_8bit_Full_SkYUVColorSpace,           //!< describes YCgCo matrix (ITU-T H.273 MatrixCoefficients 8)
     kYCgCo_8bit_Limited_SkYUVColorSpace,
     kYCgCo_10bit_Full_SkYUVColorSpace,
     kYCgCo_10bit_Limited_SkYUVColorSpace,
@@ -94,15 +137,28 @@ enum SkYUVColorSpace : int {
     kYCgCo_12bit_Limited_SkYUVColorSpace,
     kYCgCo_16bit_Full_SkYUVColorSpace,
     kYCgCo_16bit_Limited_SkYUVColorSpace,
+
     kIdentity_SkYUVColorSpace,                  //!< maps Y->R, U->G, V->B
 
     kLastEnum_SkYUVColorSpace = kIdentity_SkYUVColorSpace, //!< last valid value
 
     // Legacy (deprecated) names:
-    kJPEG_SkYUVColorSpace = kJPEG_Full_SkYUVColorSpace,
-    kRec601_SkYUVColorSpace = kRec601_Limited_SkYUVColorSpace,
-    kRec709_SkYUVColorSpace = kRec709_Limited_SkYUVColorSpace,
+    kJPEG_SkYUVColorSpace = kRec601_8bit_Full_SkYUVColorSpace,
+    kJPEG_Full_SkYUVColorSpace = kRec601_8bit_Full_SkYUVColorSpace,
+    kRec601_SkYUVColorSpace = kRec601_8bit_Limited_SkYUVColorSpace,
+    kRec601_Limited_SkYUVColorSpace = kRec601_8bit_Limited_SkYUVColorSpace,
+    kRec709_SkYUVColorSpace = kRec709_8bit_Limited_SkYUVColorSpace,
+    kRec709_Full_SkYUVColorSpace = kRec709_8bit_Full_SkYUVColorSpace,
+    kRec709_Limited_SkYUVColorSpace = kRec709_8bit_Limited_SkYUVColorSpace,
     kBT2020_SkYUVColorSpace = kBT2020_8bit_Limited_SkYUVColorSpace,
+    kFCC_Full_SkYUVColorSpace = kFCC_8bit_Full_SkYUVColorSpace,
+    kFCC_Limited_SkYUVColorSpace = kFCC_8bit_Limited_SkYUVColorSpace,
+    kSMPTE240_Full_SkYUVColorSpace = kSMPTE240_8bit_Full_SkYUVColorSpace,
+    kSMPTE240_Limited_SkYUVColorSpace = kSMPTE240_8bit_Limited_SkYUVColorSpace,
+    kYDZDX_Full_SkYUVColorSpace = kYDZDX_8bit_Full_SkYUVColorSpace,
+    kYDZDX_Limited_SkYUVColorSpace = kYDZDX_8bit_Limited_SkYUVColorSpace,
+    kGBR_Full_SkYUVColorSpace = kGBR_8bit_Full_SkYUVColorSpace,
+    kGBR_Limited_SkYUVColorSpace = kGBR_8bit_Limited_SkYUVColorSpace,
 };
 
 SK_API bool SkYUVColorSpaceIsLimitedRange(SkYUVColorSpace cs);
