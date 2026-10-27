@@ -160,7 +160,7 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     // These are guaranteed to be supported on Vulkan 1.0+.
     SkASSERT(deviceLimits.maxComputeWorkGroupInvocations > 0);
     SkASSERT(deviceLimits.maxPerStageDescriptorStorageBuffers > 0);
-    fComputeSupport = true;
+    fComputeSupport = false;
     fStorageBufferSupportForCompute = true;
 
     VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
