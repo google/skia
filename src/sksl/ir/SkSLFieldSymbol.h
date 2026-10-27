@@ -8,6 +8,7 @@
 #ifndef SKSL_FIELD
 #define SKSL_FIELD
 
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -45,7 +46,7 @@ public:
     }
 
 private:
-    const Variable* fOwner;
+    raw_ptr<const Variable, DanglingUntriaged> fOwner;
     int fFieldIndex;
 
     using INHERITED = Symbol;

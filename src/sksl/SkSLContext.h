@@ -9,6 +9,7 @@
 #define SKSL_CONTEXT
 
 #include "include/private/SkAssert.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/partition_alloc/raw_ptr_exclusion.h"
 
 namespace SkSL {
@@ -31,7 +32,7 @@ public:
     const BuiltinTypes& fTypes;
 
     // The Context holds a pointer to the configuration of the program being compiled.
-    ProgramConfig* fConfig = nullptr;
+    raw_ptr<ProgramConfig, DanglingUntriaged> fConfig = nullptr;
 
     // The Context holds a pointer to our error reporter.
     // RAW_PTR_EXCLUSION: Performance: +2.5% on sksl_skrp_large.
@@ -43,11 +44,11 @@ public:
     }
 
     // The Context holds a pointer to our module with built-in declarations.
-    const Module* fModule = nullptr;
+    raw_ptr<const Module> fModule = nullptr;
 
     // This is the current symbol table of the code we are processing, and therefore changes during
     // compilation.
-    SymbolTable* fSymbolTable = nullptr;
+    raw_ptr<SymbolTable> fSymbolTable = nullptr;
 };
 
 }  // namespace SkSL

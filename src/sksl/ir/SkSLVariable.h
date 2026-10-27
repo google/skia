@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkOnlyStackAllocatable.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
@@ -192,7 +193,7 @@ public:
     std::string_view mangledName() const override;
 
 private:
-    InterfaceBlock* fInterfaceBlockElement = nullptr;
+    raw_ptr<InterfaceBlock> fInterfaceBlockElement = nullptr;
     Layout fLayout;
     std::string fMangledName;
 

@@ -11,6 +11,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
@@ -91,7 +92,7 @@ struct Field {
     Layout fLayout;
     ModifierFlags fModifierFlags;
     std::string_view fName;
-    const Type* fType;
+    raw_ptr<const Type, DanglingUntriaged> fType;
 };
 
 /**
