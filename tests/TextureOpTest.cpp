@@ -191,7 +191,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureOpNearestSubsetOvershootTest,
 
     // Create a source surface where the left half [0, 0, 4, 4] is BLUE and the right
     // half [4, 0, 8, 4] is RED.
-    SkImageInfo srcInfo = SkImageInfo::MakeN32Premul(8, 4);
+    SkImageInfo srcInfo =
+            SkImageInfo::Make(8, 4, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     auto srcSurface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, srcInfo);
     if (!srcSurface) {
         return;
@@ -208,7 +209,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureOpNearestSubsetOvershootTest,
     // which exceeds 8-bit precision: 2048 / 4 = 512 > 256).
     const int dstW = 2048;
     const int dstH = 4;
-    SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(dstW, dstH);
+    SkImageInfo dstInfo =
+            SkImageInfo::Make(dstW, dstH, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     auto dstSurface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, dstInfo);
     if (!dstSurface) {
         return;
@@ -230,13 +232,15 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureOpNearestSubsetOvershootTest,
     // If the subset clamp was improperly ignored, the sampler snaps to texel 4 (RED).
     // With proper clamping, it samples texel 3 (BLUE).
     SkBitmap bm;
-    bm.allocN32Pixels(1, 1);
+    bm.allocPixels(SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
     REPORTER_ASSERT(reporter, dstSurface->readPixels(bm, dstW - 1, 0));
     REPORTER_ASSERT(reporter, bm.getColor(0, 0) == SK_ColorBLUE);
 
+    const SkImageInfo dst1to1Info =
+            SkImageInfo::Make(4, 4, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
     // Test 1:1 integer draw (should hit fast path and safely sample BLUE at x = 3).
-    auto dstSurface1to1 = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes,
-                                                   SkImageInfo::MakeN32Premul(4, 4));
+    auto dstSurface1to1 = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, dst1to1Info);
     if (dstSurface1to1) {
         dstSurface1to1->getCanvas()->clear(SK_ColorTRANSPARENT);
         dstSurface1to1->getCanvas()->drawImageRect(
@@ -252,8 +256,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureOpNearestSubsetOvershootTest,
 
     // Test 1:1 draw with non-integer relative translation placing pixel center close to
     // subset edge. The subset clamp must be retained to prevent sampling outside the subset.
-    auto dstSurfaceFrac = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes,
-                                                   SkImageInfo::MakeN32Premul(4, 4));
+    auto dstSurfaceFrac = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, dst1to1Info);
     if (dstSurfaceFrac) {
         dstSurfaceFrac->getCanvas()->clear(SK_ColorTRANSPARENT);
         dstSurfaceFrac->getCanvas()->drawImageRect(
@@ -271,8 +274,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureOpNearestSubsetOvershootTest,
 
     // Test 1:1 draw where both src and dst have matching fractional offsets (integer relative
     // translation, e.g. dst.left - src.left == 0). Fast path is safe and samples BLUE.
-    auto dstSurfaceMatchingFrac = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes,
-                                                           SkImageInfo::MakeN32Premul(4, 4));
+    auto dstSurfaceMatchingFrac =
+            SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, dst1to1Info);
     if (dstSurfaceMatchingFrac) {
         dstSurfaceMatchingFrac->getCanvas()->clear(SK_ColorTRANSPARENT);
         dstSurfaceMatchingFrac->getCanvas()->drawImageRect(
@@ -290,8 +293,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureOpNearestSubsetOvershootTest,
 
     // Test 1:1 draw with a horizontal flip (e.g. canvas scale(-1, 1)).
     // Fast path is safe and samples BLUE across all 4 pixels.
-    auto dstSurfaceFlipped = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes,
-                                                      SkImageInfo::MakeN32Premul(4, 4));
+    auto dstSurfaceFlipped =
+            SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, dst1to1Info);
     if (dstSurfaceFlipped) {
         dstSurfaceFlipped->getCanvas()->clear(SK_ColorTRANSPARENT);
         dstSurfaceFlipped->getCanvas()->save();
@@ -313,8 +316,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureOpNearestSubsetOvershootTest,
 
     // Test 1:1 draw with a 90-degree rotation.
     // Fast path is safe and samples BLUE across all 4 pixels.
-    auto dstSurfaceRot90 = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes,
-                                                    SkImageInfo::MakeN32Premul(4, 4));
+    auto dstSurfaceRot90 =
+            SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, dst1to1Info);
     if (dstSurfaceRot90) {
         dstSurfaceRot90->getCanvas()->clear(SK_ColorTRANSPARENT);
         dstSurfaceRot90->getCanvas()->save();
@@ -338,8 +341,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureOpNearestSubsetOvershootTest,
 
     // Test 1:1 draw with a 270-degree rotation.
     // Fast path is safe and samples BLUE across all 4 pixels.
-    auto dstSurfaceRot270 = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes,
-                                                     SkImageInfo::MakeN32Premul(4, 4));
+    auto dstSurfaceRot270 =
+            SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, dst1to1Info);
     if (dstSurfaceRot270) {
         dstSurfaceRot270->getCanvas()->clear(SK_ColorTRANSPARENT);
         dstSurfaceRot270->getCanvas()->save();
