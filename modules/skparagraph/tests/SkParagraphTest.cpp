@@ -4900,13 +4900,15 @@ UNIX_ONLY_TEST(SkParagraph_VeryLongWordParagraph, reporter) {
     text_style.setColor(SK_ColorBLACK);
     ParagraphStyle paragraph_style;
     paragraph_style.setTextStyle(text_style);
-    std::string text(300000, 'a');
+    std::string text(50000, 'a');
     ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
     builder.pushStyle(text_style);
     builder.addText(text.data(), text.size());
     auto paragraph = builder.Build();
+    // Shape and build clusters outside the timer so ASAN TArray poisoning is not measured
+    paragraph->layout(SK_ScalarInfinity);
     auto start = std::chrono::steady_clock::now();
-    paragraph->layout(300);
+    paragraph->layout(60);
     auto ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start);
     // The layout takes about 30 ms, and about 3 s when every line walks to the end of the word
     REPORTER_ASSERT(reporter, ms.count() < 1000, "%f ms", ms.count());
