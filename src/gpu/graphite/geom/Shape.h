@@ -118,7 +118,9 @@ public:
     SkPath asPath() const;
 
     // Calculate the conservative amount of outset that stroking adds to the Shape's bounds,
-    // taking advantage of the shape's type
+    // taking advantage of the shape's type. This should only be called for local stroking, since
+    // it returns a value based on the vector concept of a stroke, and does not handle hairlines or
+    // anti-aliasing inflation logic.
     float getInflationRadius(SkPaint::Join join,
                              float miterLimit,
                              SkPaint::Cap cap,

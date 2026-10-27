@@ -198,9 +198,11 @@ public:
         return *fStroke;
     }
 
+    // Returns local bounds adjusted for stroke style; does not take into account fill inversion or
+    // or device-space bounds adjustments like hairlines or anti-aliasing.
     Rect styledBounds() const {
         Rect localBounds = fGeometry.bounds();
-        if (this->isStroke() && fGeometry.isShape()) {
+        if (this->isStroke() && fStroke->halfWidth() > 0.f && fGeometry.isShape()) {
             float localOutset = fGeometry.shape().getInflationRadius(fStroke->join(),
                                                                      fStroke->miterLimit(),
                                                                      fStroke->cap(),
