@@ -547,6 +547,9 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Slug_fractional_replay_graphite,
                                          context,
                                          CtsEnforcement::kNever) {
     using namespace skgpu::graphite;
+    if (context->supportsProtectedContent()) {
+        return;
+    }
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     SkImageInfo info = SkImageInfo::MakeN32Premul(64, 64);
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), info);
