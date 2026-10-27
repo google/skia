@@ -160,61 +160,38 @@ FontCollection::~FontCollection() {}
 
 size_t FontCollection::getFontManagersCount() const { return this->getFontManagerOrder().size(); }
 
-// Cached typefaces, fallback results and shaped paragraphs were resolved against the previous
-// managers, default families and fallback setting; the variation cache is keyed by typeface
-// and stays valid
-void FontCollection::resetResolutionCaches() {
-    fParagraphCache.reset();
-    {
-        SkAutoMutexExclusive lock(fFaceCache->fMutex);
-        fFaceCache->fTypefaces.reset();
-    }
+void FontCollection::setAssetFontManager(sk_sp<SkFontMgr> font_manager) {
+    fAssetFontManager = std::move(font_manager);
     fFallbackCache->reset();
 }
 
-void FontCollection::setAssetFontManager(sk_sp<SkFontMgr> font_manager) {
-    if (fAssetFontManager != font_manager) {
-        fAssetFontManager = std::move(font_manager);
-        this->resetResolutionCaches();
-    }
-}
-
 void FontCollection::setDynamicFontManager(sk_sp<SkFontMgr> font_manager) {
-    if (fDynamicFontManager != font_manager) {
-        fDynamicFontManager = std::move(font_manager);
-        this->resetResolutionCaches();
-    }
+    fDynamicFontManager = std::move(font_manager);
+    fFallbackCache->reset();
 }
 
 void FontCollection::setTestFontManager(sk_sp<SkFontMgr> font_manager) {
-    if (fTestFontManager != font_manager) {
-        fTestFontManager = std::move(font_manager);
-        this->resetResolutionCaches();
-    }
+    fTestFontManager = std::move(font_manager);
+    fFallbackCache->reset();
 }
 
 void FontCollection::setDefaultFontManager(sk_sp<SkFontMgr> fontManager,
                                            const char defaultFamilyName[]) {
     fDefaultFontManager = std::move(fontManager);
+    fFallbackCache->reset();
     fDefaultFamilyNames.emplace_back(defaultFamilyName);
-    // Every call appends a default family, so the resolution order always changes
-    this->resetResolutionCaches();
 }
 
 void FontCollection::setDefaultFontManager(sk_sp<SkFontMgr> fontManager,
                                            const std::vector<SkString>& defaultFamilyNames) {
-    if (fDefaultFontManager != fontManager || fDefaultFamilyNames != defaultFamilyNames) {
-        fDefaultFontManager = std::move(fontManager);
-        fDefaultFamilyNames = defaultFamilyNames;
-        this->resetResolutionCaches();
-    }
+    fDefaultFontManager = std::move(fontManager);
+    fFallbackCache->reset();
+    fDefaultFamilyNames = defaultFamilyNames;
 }
 
 void FontCollection::setDefaultFontManager(sk_sp<SkFontMgr> fontManager) {
-    if (fDefaultFontManager != fontManager) {
-        fDefaultFontManager = std::move(fontManager);
-        this->resetResolutionCaches();
-    }
+    fDefaultFontManager = std::move(fontManager);
+    fFallbackCache->reset();
 }
 
 // Return the available font managers in the order they should be queried.
@@ -434,17 +411,13 @@ sk_sp<SkTypeface> FontCollection::cloneTypeface(const sk_sp<SkTypeface>& typefac
 }
 
 void FontCollection::disableFontFallback() {
-    if (fEnableFontFallback) {
-        fEnableFontFallback = false;
-        this->resetResolutionCaches();
-    }
+    fEnableFontFallback = false;
+    fFallbackCache->reset();
 }
 
 void FontCollection::enableFontFallback() {
-    if (!fEnableFontFallback) {
-        fEnableFontFallback = true;
-        this->resetResolutionCaches();
-    }
+    fEnableFontFallback = true;
+    fFallbackCache->reset();
 }
 
 void FontCollection::clearCaches() {
