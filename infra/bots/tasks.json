@@ -71982,7 +71982,7 @@
         "skia/MODULE.bazel",
         "skia/MODULE.bazel.lock",
         "skia/WORKSPACE.bazel",
-        "skia/agents/skills/skia-add-test/assets/test_template.cpp",
+        "skia/_agents/skills/skia-add-test/assets/test_template.cpp",
         "skia/bazel",
         "skia/bench",
         "skia/bin",

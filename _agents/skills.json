@@ -1,0 +1,16 @@
+{
+  "entries": [
+    {
+      "path": "_agents/chromium-shared/skills",
+      "include_only": [
+        "skill-creation",
+        "cl-description",
+        "git-cl-helper",
+        "gerrit-cli"
+      ]
+    },
+    {
+      "path": "_agents/chromium-internal/skills"
+    }
+  ]
+}

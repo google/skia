@@ -18,6 +18,8 @@
 .vs/
 .win_toolchain/
 TAGS
+_agents/chromium-internal/
+_agents/chromium-shared/
 agents/internal/
 agents/shared/
 bower_components

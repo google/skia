@@ -1,6 +1,9 @@
 ---
 name: skia-gn-workflow
-description: MANDATORY: Use this skill for ANY and ALL tasks involving building Skia with GN, Ninja, or compiling any Skia tool. It is the authoritative source for Skia's build workflows and MUST be used whenever compilation is required.
+description: >-
+  MANDATORY: Use this skill for ANY and ALL tasks involving building Skia with
+  GN, Ninja, or compiling any Skia tool. It is the authoritative source for
+  Skia's build workflows and MUST be used whenever compilation is required.
 ---
 
 # skia-gn-workflow
