@@ -9,6 +9,7 @@
 
 #include <memory>
 
+#include "include/core/SkSpan.h"
 #include "rust/png/FFI.rs.h"
 #include "src/encode/SkPngEncoderBase.h"
 #include "third_party/rust/cxx/v1/cxx.h"
@@ -17,7 +18,6 @@ class SkPixmap;
 class SkPngEncoderMgr;
 class SkWStream;
 struct SkEncodedInfo;
-template <typename T> class SkSpan;
 
 namespace SkPngRustEncoder {
 struct Options;

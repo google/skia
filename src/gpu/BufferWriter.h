@@ -93,8 +93,8 @@ public:
         memcpy(s.data(), src, s.size_bytes());
     }
 
-    template <typename T>
-    void write(SkSpan<const T> data) { this->write(data.data(), data.size_bytes()); }
+    template <typename T, size_t Extent>
+    void write(SkSpan<const T, Extent> data) { this->write(data.data(), data.size_bytes()); }
     template <typename T>
     void write(T data) { this->write(&data, sizeof(T)); }
 

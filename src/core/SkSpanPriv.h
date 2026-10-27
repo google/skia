@@ -15,7 +15,8 @@
 
 class SkSpanPriv {
 public:
-    template <typename T> static bool EQ(SkSpan<T> a, SkSpan<T> b) {
+    template <typename T, size_t ExtentA, size_t ExtentB>
+    static bool EQ(SkSpan<T, ExtentA> a, SkSpan<T, ExtentB> b) {
         if (a.size() != b.size()) {
             return false;
         }
@@ -25,8 +26,9 @@ public:
         return (a.data() == b.data()) || std::equal(a.begin(), a.end(), b.begin());
     }
 
-    template <typename T> static void Copy(SkSpan<T> dst, SkSpan<const T> src) {
-        SkASSERT(dst.size() == src.size());
+    template <typename T, size_t Extent>
+    static void Copy(SkSpan<T, Extent> dst, std::type_identity_t<SkSpan<const T>> src) {
+        SkASSERT_RELEASE(dst.size() == src.size());
         sk_careful_memcpy(dst.data(), src.data(), src.size_bytes());
     }
 };

@@ -139,7 +139,10 @@ class SkSpan_SynthProvider:
 
     def num_children(self):
         try:
-            count = self.fSize.GetValueAsSigned(0)
+            if self.fSize.IsValid():
+                count = self.fSize.GetValueAsSigned(0)
+            else:
+                count = self.extent
             count = max(count, 0)
             count = min(count, 10000)
             return count
@@ -169,6 +172,12 @@ class SkSpan_SynthProvider:
         try:
             self.fPtr = self.valobj.GetChildMemberWithName('fPtr')
             self.fSize = self.valobj.GetChildMemberWithName('fSize')
+            self.extent = 0
+            if not self.fSize.IsValid():
+                type_name = self.valobj.GetType().GetName()
+                if ',' in type_name and type_name.endswith('>'):
+                    extent_str = type_name.rsplit(',', 1)[1].rstrip('>').strip().rstrip('uUlL')
+                    self.extent = int(extent_str, 0)
             self.dataType = self.fPtr.GetType().GetPointeeType()
             self.dataSize = self.dataType.GetByteSize()
         except:

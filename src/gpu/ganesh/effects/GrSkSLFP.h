@@ -288,11 +288,11 @@ private:
 
         this->appendArgs(uniformDataPtr, specializedPtr, std::forward<Args>(remainder)...);
     }
-    template <typename T, typename... Args>
+    template <typename T, size_t Extent, typename... Args>
     void appendArgs(uint8_t* uniformDataPtr,
                     Specialized* specializedPtr,
                     const char* name,
-                    SkSpan<T> val,
+                    SkSpan<T, Extent> val,
                     Args&&... remainder) {
         // Uniform array case -- We copy the supplied values into our uniform data area,
         // then advance our uniform data and flags pointers.
@@ -406,13 +406,13 @@ private:
                   "Wrong type for uniform '%s'",
                   name);
     }
-    template <typename T, typename... Args>
+    template <typename T, size_t Extent, typename... Args>
     static void checkArgs(uniform_iterator uIter,
                           uniform_iterator uEnd,
                           child_iterator cIter,
                           child_iterator cEnd,
                           const char* name,
-                          SkSpan<T> val,
+                          SkSpan<T, Extent> val,
                           Args&&... remainder) {
         checkOneUniform(uIter, uEnd, name, val.data(), val.size_bytes());
         checkArgs(++uIter, uEnd, cIter, cEnd, std::forward<Args>(remainder)...);

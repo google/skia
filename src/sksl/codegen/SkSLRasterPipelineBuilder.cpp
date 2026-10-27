@@ -1100,8 +1100,8 @@ static int pack_nybbles(SkSpan<const int8_t> components) {
     return packed;
 }
 
-template <typename T>
-static void unpack_nybbles_to_offsets(uint32_t components, SkSpan<T> offsets) {
+template <typename T, size_t Extent>
+static void unpack_nybbles_to_offsets(uint32_t components, SkSpan<T, Extent> offsets) {
     // Unpack component nybbles into byte-offsets pointing at stack slots.
     for (size_t index = 0; index < offsets.size(); ++index) {
         offsets[index] = (components & 0xF) * SkOpts::raster_pipeline_highp_stride * sizeof(float);
