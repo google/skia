@@ -6,18 +6,26 @@
  */
 
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/SkBackingFit.h"
@@ -32,7 +40,9 @@
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/ops/OpsTask.h"
 #include "src/gpu/ganesh/ops/TextureOp.h"
@@ -168,3 +178,229 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureOpTest, reporter, ctxInfo, CtsEnfo
 
     chain1.deleteOps();
 }
+
+// Test that TextureOp does not overshoot a strict subset edge during nearest-neighbor
+// magnification sampling (crbug.com/576937680). Due to limited sub-texel precision
+// in hardware texture units (8-bit for D3D11, 4-bit for Vulkan), round-to-nearest snaps
+// coordinates close to the boundary to the adjacent texel unless clamped in the shader.
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureOpNearestSubsetOvershootTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
+    GrDirectContext* dContext = ctxInfo.directContext();
+
+    // Create a source surface where the left half [0, 0, 4, 4] is BLUE and the right
+    // half [4, 0, 8, 4] is RED.
+    SkImageInfo srcInfo = SkImageInfo::MakeN32Premul(8, 4);
+    auto srcSurface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, srcInfo);
+    if (!srcSurface) {
+        return;
+    }
+    srcSurface->getCanvas()->clear(SK_ColorRED);
+    SkPaint bluePaint;
+    bluePaint.setColor(SK_ColorBLUE);
+    bluePaint.setBlendMode(SkBlendMode::kSrc);
+    srcSurface->getCanvas()->drawRect(SkRect::MakeWH(4, 4), bluePaint);
+
+    sk_sp<SkImage> srcImage = srcSurface->makeImageSnapshot();
+
+    // Create a destination surface with width 2048 (512x magnification of width 4,
+    // which exceeds 8-bit precision: 2048 / 4 = 512 > 256).
+    const int dstW = 2048;
+    const int dstH = 4;
+    SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(dstW, dstH);
+    auto dstSurface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, dstInfo);
+    if (!dstSurface) {
+        return;
+    }
+    dstSurface->getCanvas()->clear(SK_ColorTRANSPARENT);
+
+    // Draw the subset [0, 0, 4, 4] with strict constraint, nearest filtering, and no AA.
+    SkPaint paint;
+    paint.setAntiAlias(false);
+    dstSurface->getCanvas()->drawImageRect(
+            srcImage,
+            SkRect::MakeWH(4, 4),
+            SkRect::MakeWH(dstW, dstH),
+            SkSamplingOptions(SkFilterMode::kNearest),
+            &paint,
+            SkCanvas::kStrict_SrcRectConstraint);
+
+    // Read back the rightmost column (x = dstW - 1).
+    // If the subset clamp was improperly ignored, the sampler snaps to texel 4 (RED).
+    // With proper clamping, it samples texel 3 (BLUE).
+    SkBitmap bm;
+    bm.allocN32Pixels(1, 1);
+    REPORTER_ASSERT(reporter, dstSurface->readPixels(bm, dstW - 1, 0));
+    REPORTER_ASSERT(reporter, bm.getColor(0, 0) == SK_ColorBLUE);
+
+    // Test 1:1 integer draw (should hit fast path and safely sample BLUE at x = 3).
+    auto dstSurface1to1 = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes,
+                                                   SkImageInfo::MakeN32Premul(4, 4));
+    if (dstSurface1to1) {
+        dstSurface1to1->getCanvas()->clear(SK_ColorTRANSPARENT);
+        dstSurface1to1->getCanvas()->drawImageRect(
+                srcImage,
+                SkRect::MakeWH(4, 4),
+                SkRect::MakeWH(4, 4),
+                SkSamplingOptions(SkFilterMode::kNearest),
+                &paint,
+                SkCanvas::kStrict_SrcRectConstraint);
+        REPORTER_ASSERT(reporter, dstSurface1to1->readPixels(bm, 3, 0));
+        REPORTER_ASSERT(reporter, bm.getColor(0, 0) == SK_ColorBLUE);
+    }
+
+    // Test 1:1 draw with non-integer relative translation placing pixel center close to
+    // subset edge. The subset clamp must be retained to prevent sampling outside the subset.
+    auto dstSurfaceFrac = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes,
+                                                   SkImageInfo::MakeN32Premul(4, 4));
+    if (dstSurfaceFrac) {
+        dstSurfaceFrac->getCanvas()->clear(SK_ColorTRANSPARENT);
+        dstSurfaceFrac->getCanvas()->drawImageRect(
+                srcImage,
+                SkRect::MakeXYWH(4, 0, 4, 4),
+                SkRect::MakeXYWH(0.5001f, 0.f, 4.f, 4.f),
+                SkSamplingOptions(SkFilterMode::kNearest),
+                &paint,
+                SkCanvas::kStrict_SrcRectConstraint);
+        for (int x = 0; x < 4; ++x) {
+            REPORTER_ASSERT(reporter, dstSurfaceFrac->readPixels(bm, x, 0));
+            REPORTER_ASSERT(reporter, bm.getColor(0, 0) == SK_ColorRED);
+        }
+    }
+
+    // Test 1:1 draw where both src and dst have matching fractional offsets (integer relative
+    // translation, e.g. dst.left - src.left == 0). Fast path is safe and samples BLUE.
+    auto dstSurfaceMatchingFrac = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes,
+                                                           SkImageInfo::MakeN32Premul(4, 4));
+    if (dstSurfaceMatchingFrac) {
+        dstSurfaceMatchingFrac->getCanvas()->clear(SK_ColorTRANSPARENT);
+        dstSurfaceMatchingFrac->getCanvas()->drawImageRect(
+                srcImage,
+                SkRect::MakeXYWH(0.25f, 0.f, 3.f, 4.f),
+                SkRect::MakeXYWH(0.25f, 0.f, 3.f, 4.f),
+                SkSamplingOptions(SkFilterMode::kNearest),
+                &paint,
+                SkCanvas::kStrict_SrcRectConstraint);
+        for (int x = 0; x < 3; ++x) {
+            REPORTER_ASSERT(reporter, dstSurfaceMatchingFrac->readPixels(bm, x, 0));
+            REPORTER_ASSERT(reporter, bm.getColor(0, 0) == SK_ColorBLUE);
+        }
+    }
+
+    // Test 1:1 draw with a horizontal flip (e.g. canvas scale(-1, 1)).
+    // Fast path is safe and samples BLUE across all 4 pixels.
+    auto dstSurfaceFlipped = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes,
+                                                      SkImageInfo::MakeN32Premul(4, 4));
+    if (dstSurfaceFlipped) {
+        dstSurfaceFlipped->getCanvas()->clear(SK_ColorTRANSPARENT);
+        dstSurfaceFlipped->getCanvas()->save();
+        dstSurfaceFlipped->getCanvas()->translate(4.f, 0.f);
+        dstSurfaceFlipped->getCanvas()->scale(-1.f, 1.f);
+        dstSurfaceFlipped->getCanvas()->drawImageRect(
+                srcImage,
+                SkRect::MakeWH(4, 4),
+                SkRect::MakeWH(4, 4),
+                SkSamplingOptions(SkFilterMode::kNearest),
+                &paint,
+                SkCanvas::kStrict_SrcRectConstraint);
+        dstSurfaceFlipped->getCanvas()->restore();
+        for (int x = 0; x < 4; ++x) {
+            REPORTER_ASSERT(reporter, dstSurfaceFlipped->readPixels(bm, x, 0));
+            REPORTER_ASSERT(reporter, bm.getColor(0, 0) == SK_ColorBLUE);
+        }
+    }
+
+    // Test 1:1 draw with a 90-degree rotation.
+    // Fast path is safe and samples BLUE across all 4 pixels.
+    auto dstSurfaceRot90 = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes,
+                                                    SkImageInfo::MakeN32Premul(4, 4));
+    if (dstSurfaceRot90) {
+        dstSurfaceRot90->getCanvas()->clear(SK_ColorTRANSPARENT);
+        dstSurfaceRot90->getCanvas()->save();
+        dstSurfaceRot90->getCanvas()->rotate(90.f);
+        dstSurfaceRot90->getCanvas()->translate(0.f, -4.f);
+        dstSurfaceRot90->getCanvas()->drawImageRect(
+                srcImage,
+                SkRect::MakeWH(4, 4),
+                SkRect::MakeWH(4, 4),
+                SkSamplingOptions(SkFilterMode::kNearest),
+                &paint,
+                SkCanvas::kStrict_SrcRectConstraint);
+        dstSurfaceRot90->getCanvas()->restore();
+        for (int y = 0; y < 4; ++y) {
+            for (int x = 0; x < 4; ++x) {
+                REPORTER_ASSERT(reporter, dstSurfaceRot90->readPixels(bm, x, y));
+                REPORTER_ASSERT(reporter, bm.getColor(0, 0) == SK_ColorBLUE);
+            }
+        }
+    }
+
+    // Test 1:1 draw with a 270-degree rotation.
+    // Fast path is safe and samples BLUE across all 4 pixels.
+    auto dstSurfaceRot270 = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes,
+                                                     SkImageInfo::MakeN32Premul(4, 4));
+    if (dstSurfaceRot270) {
+        dstSurfaceRot270->getCanvas()->clear(SK_ColorTRANSPARENT);
+        dstSurfaceRot270->getCanvas()->save();
+        dstSurfaceRot270->getCanvas()->rotate(270.f);
+        dstSurfaceRot270->getCanvas()->translate(-4.f, 0.f);
+        dstSurfaceRot270->getCanvas()->drawImageRect(
+                srcImage,
+                SkRect::MakeWH(4, 4),
+                SkRect::MakeWH(4, 4),
+                SkSamplingOptions(SkFilterMode::kNearest),
+                &paint,
+                SkCanvas::kStrict_SrcRectConstraint);
+        dstSurfaceRot270->getCanvas()->restore();
+        for (int y = 0; y < 4; ++y) {
+            for (int x = 0; x < 4; ++x) {
+                REPORTER_ASSERT(reporter, dstSurfaceRot270->readPixels(bm, x, y));
+                REPORTER_ASSERT(reporter, bm.getColor(0, 0) == SK_ColorBLUE);
+            }
+        }
+    }
+
+    // Test approx-fit proxy with kFast constraint is upgraded to kStrict and does not overshoot.
+    auto approxSDC = skgpu::ganesh::SurfaceDrawContext::Make(
+            dContext,
+            GrColorType::kRGBA_8888,
+            nullptr,
+            SkBackingFit::kApprox,
+            SkISize::Make(8, 4),
+            SkSurfaceProps(),
+            "ApproxSDC",
+            1,
+            skgpu::Mipmapped::kNo,
+            skgpu::Protected::kNo,
+            kTopLeft_GrSurfaceOrigin);
+    if (approxSDC) {
+        approxSDC->clear(SkPMColor4f{1.f, 0.f, 0.f, 1.f});
+        GrPaint blueGrPaint;
+        blueGrPaint.setColor4f(SkPMColor4f{0.f, 0.f, 1.f, 1.f});
+        approxSDC->drawRect(nullptr, std::move(blueGrPaint), GrAA::kNo, SkMatrix::I(),
+                            SkRect::MakeWH(4, 4));
+
+        sk_sp<SkImage> approxImage = sk_make_sp<SkImage_Ganesh>(
+                sk_ref_sp(dContext),
+                kNeedNewImageUniqueID,
+                approxSDC->readSurfaceView(),
+                srcInfo.colorInfo());
+
+        auto dstSurfaceApprox = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, dstInfo);
+        if (dstSurfaceApprox) {
+            dstSurfaceApprox->getCanvas()->clear(SK_ColorTRANSPARENT);
+            dstSurfaceApprox->getCanvas()->drawImageRect(
+                    approxImage,
+                    SkRect::MakeWH(4, 4),
+                    SkRect::MakeWH(dstW, dstH),
+                    SkSamplingOptions(SkFilterMode::kNearest),
+                    &paint,
+                    SkCanvas::kFast_SrcRectConstraint);
+            REPORTER_ASSERT(reporter, dstSurfaceApprox->readPixels(bm, dstW - 1, 0));
+            REPORTER_ASSERT(reporter, bm.getColor(0, 0) == SK_ColorBLUE);
+        }
+    }
+}
+
+
