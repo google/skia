@@ -61,6 +61,12 @@ const SAFE_HEADER_SIZE: usize = 132;
 // Maps to tag_Layout: SAFE_SIZEOF(tag_Layout) == 12
 const SAFE_TAG_ENTRY_SIZE: usize = 12;
 
+// Maximum number of entries in a curv table (mirroring kMaxTableEntries in skcms.cc).
+// Table lookups compute the index in float, which is only exact up to 2^24. Larger tables can
+// cause out-of-bounds reads.
+// https://crbug.com/492744328, https://crbug.com/578010680
+const MAX_TABLE_ENTRIES: usize = 1 << 24;
+
 // =============================================================================
 // Byte / Buffer Reader (View and Cursor Tracking)
 // =============================================================================
@@ -344,6 +350,10 @@ fn read_curve_curv(r: &mut IccReader) -> Option<Curve> {
             table_data: Vec::new(),
             table_format: TableFormat::U8,
         });
+    }
+
+    if value_count > MAX_TABLE_ENTRIES {
+        return None;
     }
 
     let table_data = r.read_vec(value_count, TableFormat::U16)?;

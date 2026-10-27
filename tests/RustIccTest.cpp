@@ -18,6 +18,7 @@
 #include <array>
 #include <cmath>
 #include <cstring>
+#include <vector>
 
 // Helper to compare skcms_Matrix3x3 against expected rust_icc::Matrix3x3
 static void assert_matrix_eq(skiatest::Reporter* r,
@@ -1449,5 +1450,56 @@ DEF_TEST(RustIcc_writer_hagc_matches_parsed, r) {
         REPORTER_ASSERT(r, memcmp(written_skcms_prof->HAGC.buffer,
                                   rust_prof->HAGC.buffer,
                                   rust_prof->HAGC.size) == 0);
+    }
+}
+
+// Writes an sRGB-gamut ICC profile whose TRC is a curv table with `table_entries` 16-bit
+// entries (an identity ramp).
+static sk_sp<SkData> make_curv_table_profile(uint32_t table_entries) {
+    // skcms stores 16-bit table entries as big-endian bytes.
+    std::vector<uint8_t> table(2 * (size_t)table_entries);
+    for (uint32_t i = 0; i < table_entries; ++i) {
+        uint16_t v = (uint16_t)(((uint64_t)i * 65535) / (table_entries - 1));
+        table[2 * i + 0] = (uint8_t)(v >> 8);
+        table[2 * i + 1] = (uint8_t)(v >> 0);
+    }
+
+    skcms_ICCProfile profile;
+    skcms_Init(&profile);
+    skcms_SetXYZD50(&profile, &SkNamedGamut::kSRGB);
+    profile.has_trc = true;
+    for (auto& trc : profile.trc) {
+        trc.table_entries = table_entries;
+        trc.table_8 = nullptr;
+        trc.table_16 = table.data();
+    }
+    return SkWriteICCProfile(&profile, "curv table");
+}
+
+// curv tables with more than 2^24 entries must be rejected, because table lookups compute the
+// index in float and can read out of bounds.
+// https://crbug.com/492744328, https://crbug.com/578010680
+DEF_TEST(RustIcc_reject_oversized_curv_table, r) {
+    constexpr uint32_t kMaxTableEntries = 1 << 24;
+
+    // Sanity check that the generated profile is valid with a reasonably-sized table.
+    {
+        auto data = make_curv_table_profile(4096);
+        REPORTER_ASSERT(r, SkCodecs::ColorProfile::MakeICCProfileWithSkCMS(data) != nullptr);
+        REPORTER_ASSERT(r, SkCodecs::MakeICCProfileWithRust(data) != nullptr);
+    }
+
+    // The maximum table size is accepted.
+    {
+        auto data = make_curv_table_profile(kMaxTableEntries);
+        REPORTER_ASSERT(r, SkCodecs::ColorProfile::MakeICCProfileWithSkCMS(data) != nullptr);
+        REPORTER_ASSERT(r, SkCodecs::MakeICCProfileWithRust(data) != nullptr);
+    }
+
+    // One more than the maximum table size is rejected by both parsers.
+    {
+        auto data = make_curv_table_profile(kMaxTableEntries + 1);
+        REPORTER_ASSERT(r, SkCodecs::ColorProfile::MakeICCProfileWithSkCMS(data) == nullptr);
+        REPORTER_ASSERT(r, SkCodecs::MakeICCProfileWithRust(data) == nullptr);
     }
 }
