@@ -249,6 +249,8 @@ void OneLineShaper::finish(const Block& block, SkScalar height, SkScalar& advanc
         SkDEBUGF("Last range mismatch: %zu - %zu\n", lastTextEnd, blockText.end);
         SkASSERT(false);
     }
+    // The blocks of this style block are now runs; the next style block starts empty
+    fResolvedBlocks.clear();
 }
 
 // Make it [left:right) regardless of a text direction

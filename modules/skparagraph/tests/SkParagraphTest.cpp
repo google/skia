@@ -12075,3 +12075,88 @@ DEF_TEST(SkParagraph_FontCollectionSameSettingsKeepCaches, reporter) {
     fontCollection->enableFontFallback();
     REPORTER_ASSERT(reporter, fontCollection->getParagraphCache()->count() == 1);
 }
+
+// Each style block resolves its text with several fonts. The runs of each block in a
+// many-block paragraph must be the same as the runs of that block shaped alone.
+DEF_TEST(SkParagraph_ManyStyleBlocksWithSeveralFonts, reporter) {
+    sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
+    auto abcTypeface = mgr->makeFromStream(GetResourceAsStream("fonts/abc/abc.ttf"), {});
+    auto robotoTypeface = mgr->makeFromStream(GetResourceAsStream("fonts/Roboto-Regular.ttf"), {});
+    if (!abcTypeface || !robotoTypeface) {
+        return;
+    }
+
+    auto fontCollection = sk_make_sp<FontCollection>();
+    auto fontProvider = sk_make_sp<TypefaceFontProvider>();
+    fontProvider->registerTypeface(abcTypeface, SkString("Abc"));
+    fontProvider->registerTypeface(robotoTypeface, SkString("Roboto"));
+    fontCollection->setAssetFontManager(fontProvider);
+    fontCollection->getParagraphCache()->turnOn(false);
+
+    // "ab" and "c" resolve with Abc, "xy " with Roboto, U+E123 with no font
+    const std::string blockText = "abxy c\xEE\x84\xA3";
+    auto styleOf = [](size_t i) {
+        TextStyle style;
+        style.setFontFamilies({SkString("Abc"), SkString("Roboto")});
+        // A different font size makes each block a separate shaping block
+        style.setFontSize(i % 2 ? 21.0f : 20.0f);
+        return style;
+    };
+    struct Piece {
+        TextRange text;
+        std::vector<SkGlyphID> glyphs;
+        SkTypefaceID typeface;
+    };
+    auto piecesOf = [](ParagraphImpl* impl) {
+        std::vector<Piece> pieces;
+        for (auto& run : impl->runs()) {
+            pieces.push_back({run.textRange(),
+                              std::vector<SkGlyphID>(run.glyphs().begin(), run.glyphs().end()),
+                              run.font().getTypeface()->uniqueID()});
+        }
+        return pieces;
+    };
+
+    const size_t kBlocks = 64;
+    ParagraphStyle paragraphStyle;
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+    for (size_t i = 0; i < kBlocks; ++i) {
+        builder.pushStyle(styleOf(i));
+        builder.addText(blockText.data(), blockText.size());
+        builder.pop();
+    }
+    auto paragraph = builder.Build();
+    paragraph->layout(10000.0f);
+    auto* impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == (int32_t)kBlocks);
+
+    std::vector<Piece> expected[2];
+    for (size_t i = 0; i < 2; ++i) {
+        ParagraphBuilderImpl single(paragraphStyle, fontCollection, get_unicode());
+        single.pushStyle(styleOf(i));
+        single.addText(blockText.data(), blockText.size());
+        single.pop();
+        auto singleParagraph = single.Build();
+        singleParagraph->layout(10000.0f);
+        expected[i] = piecesOf(static_cast<ParagraphImpl*>(singleParagraph.get()));
+        // Abc, Roboto, Abc and the unresolved piece
+        REPORTER_ASSERT(reporter, expected[i].size() >= 3);
+    }
+
+    std::vector<Piece> actual = piecesOf(impl);
+    REPORTER_ASSERT(reporter, actual.size() == kBlocks * expected[0].size());
+    if (actual.size() != kBlocks * expected[0].size()) {
+        return;
+    }
+    size_t index = 0;
+    for (size_t i = 0; i < kBlocks; ++i) {
+        size_t blockStart = i * blockText.size();
+        for (const Piece& piece : expected[i % 2]) {
+            const Piece& run = actual[index++];
+            REPORTER_ASSERT(reporter, run.text.start == piece.text.start + blockStart);
+            REPORTER_ASSERT(reporter, run.text.end == piece.text.end + blockStart);
+            REPORTER_ASSERT(reporter, run.glyphs == piece.glyphs);
+            REPORTER_ASSERT(reporter, run.typeface == piece.typeface);
+        }
+    }
+}
