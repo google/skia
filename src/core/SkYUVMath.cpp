@@ -12,12 +12,13 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
 
+#include <algorithm>
 #include <array>
 #include <cstring>
 
 // in SkColorMatrix order (row-major)
 // Created by running SkColorMatrix_DumpYUVMatrixTables()
-constexpr float JPEG_full_rgb_to_yuv[] = {
+constexpr float Rec601_8bit_full_rgb_to_yuv[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.322d0ep-2f,    0x1.2c8b42p-1f,    0x1.d2f1aap-4f,           0x0p+0f,           0x0p+0f,
     -0x1.599234p-3f,   -0x1.5336e4p-2f,           0x1p-1f,           0x0p+0f,    0x1.010102p-1f,
@@ -30,7 +31,7 @@ constexpr float JPEG_full_rgb_to_yuv[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float JPEG_full_yuv_to_rgb[] = {
+constexpr float Rec601_8bit_full_yuv_to_rgb[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
             0x1p+0f,  -0x1.d5babap-27f,    0x1.66e978p+0f,           0x0p+0f,   -0x1.6851ccp-1f,
      0x1.000002p+0f,   -0x1.606544p-2f,   -0x1.6da346p-1f,           0x0p+0f,     0x1.0ffafp-1f,
@@ -43,7 +44,7 @@ constexpr float JPEG_full_yuv_to_rgb[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float Rec601_limited_rgb_to_yuv[] = {
+constexpr float Rec601_8bit_limited_rgb_to_yuv[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.06f37ep-2f,    0x1.021d3ep-1f,    0x1.9105c2p-4f,           0x0p+0f,    0x1.010102p-4f,
     -0x1.2f8f7ep-3f,   -0x1.29fa02p-2f,    0x1.c1c1c2p-2f,           0x0p+0f,    0x1.010102p-1f,
@@ -56,7 +57,7 @@ constexpr float Rec601_limited_rgb_to_yuv[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float Rec601_limited_yuv_to_rgb[] = {
+constexpr float Rec601_8bit_limited_yuv_to_rgb[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.2a150cp+0f,  -0x1.eeec98p-31f,    0x1.989536p+0f,           0x0p+0f,    -0x1.bf977p-1f,
      0x1.2a150cp+0f,   -0x1.912a24p-2f,   -0x1.a03d4ep-1f,           0x0p+0f,    0x1.1036c6p-1f,
@@ -69,7 +70,7 @@ constexpr float Rec601_limited_yuv_to_rgb[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float Rec709_full_rgb_to_yuv[] = {
+constexpr float Rec709_8bit_full_rgb_to_yuv[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
       0x1.b367ap-3f,    0x1.6e2eb2p-1f,     0x1.27bb3p-4f,           0x0p+0f,           0x0p+0f,
     -0x1.d5498ep-4f,   -0x1.8aad9cp-2f,           0x1p-1f,           0x0p+0f,    0x1.010102p-1f,
@@ -82,7 +83,7 @@ constexpr float Rec709_full_rgb_to_yuv[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float Rec709_full_yuv_to_rgb[] = {
+constexpr float Rec709_8bit_full_yuv_to_rgb[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
             0x1p+0f,   -0x1.134d1p-29f,    0x1.93261ap+0f,           0x0p+0f,   -0x1.94bad6p-1f,
             0x1p+0f,   -0x1.7fa3dep-3f,   -0x1.df5bf8p-2f,           0x0p+0f,    0x1.50e7dep-2f,
@@ -95,7 +96,7 @@ constexpr float Rec709_full_yuv_to_rgb[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float Rec709_limited_rgb_to_yuv[] = {
+constexpr float Rec709_8bit_limited_rgb_to_yuv[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.75ef96p-3f,    0x1.3a7c6ep-1f,    0x1.fbf63ap-5f,           0x0p+0f,    0x1.010102p-4f,
     -0x1.9c3c9ap-4f,   -0x1.5ab29cp-2f,    0x1.c1c1c4p-2f,           0x0p+0f,    0x1.010102p-1f,
@@ -108,7 +109,7 @@ constexpr float Rec709_limited_rgb_to_yuv[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float Rec709_limited_yuv_to_rgb[] = {
+constexpr float Rec709_8bit_limited_yuv_to_rgb[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.2a150cp+0f,  -0x1.532b74p-28f,    0x1.caf116p+0f,           0x0p+0f,   -0x1.f225dep-1f,
      0x1.2a150ap+0f,   -0x1.b4bbaep-3f,   -0x1.10d97ep-1f,           0x0p+0f,     0x1.34b7ep-2f,
@@ -329,7 +330,7 @@ constexpr float BT2020_16bit_limited_yuv_to_rgb[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float FCC_full_rgb_to_yuv[] = {
+constexpr float FCC_8bit_full_rgb_to_yuv[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.333334p-2f,    0x1.2e147ap-1f,    0x1.c28f5cp-4f,           0x0p+0f,           0x0p+0f,
     -0x1.592b26p-3f,   -0x1.536a6cp-2f,    0x1.fffffep-2f,           0x0p+0f,    0x1.010102p-1f,
@@ -342,7 +343,7 @@ constexpr float FCC_full_rgb_to_yuv[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float FCC_full_yuv_to_rgb[] = {
+constexpr float FCC_8bit_full_yuv_to_rgb[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
             0x1p+0f,   0x1.12f3e2p-28f,    0x1.666666p+0f,           0x0p+0f,   -0x1.67ce36p-1f,
             0x1p+0f,   -0x1.53d446p-2f,    -0x1.6c798p-1f,           0x0p+0f,     0x1.0c3e1p-1f,
@@ -355,7 +356,7 @@ constexpr float FCC_full_yuv_to_rgb[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float FCC_limited_rgb_to_yuv[] = {
+constexpr float FCC_8bit_limited_rgb_to_yuv[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.07d4a2p-2f,    0x1.036ef4p-1f,    0x1.82f398p-4f,           0x0p+0f,    0x1.010102p-4f,
     -0x1.2f34f6p-3f,   -0x1.2a2746p-2f,    0x1.c1c1c2p-2f,           0x0p+0f,    0x1.010102p-1f,
@@ -368,7 +369,7 @@ constexpr float FCC_limited_rgb_to_yuv[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float FCC_limited_yuv_to_rgb[] = {
+constexpr float FCC_8bit_limited_yuv_to_rgb[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.2a150ap+0f,   -0x1.3a8c8p-29f,        0x1.98p+0f,           0x0p+0f,   -0x1.bf01a4p-1f,
      0x1.2a150ap+0f,   -0x1.82dbeep-2f,   -0x1.9eea4ep-1f,           0x0p+0f,    0x1.0bf578p-1f,
@@ -381,7 +382,7 @@ constexpr float FCC_limited_yuv_to_rgb[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float SMPTE240_full_rgb_to_yuv[] = {
+constexpr float SMPTE240_8bit_full_rgb_to_yuv[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.b22d0ep-3f,    0x1.66e978p-1f,    0x1.645a1cp-4f,           0x0p+0f,           0x0p+0f,
     -0x1.db8c7cp-4f,   -0x1.891ce2p-2f,           0x1p-1f,           0x0p+0f,    0x1.010102p-1f,
@@ -394,7 +395,7 @@ constexpr float SMPTE240_full_rgb_to_yuv[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float SMPTE240_full_yuv_to_rgb[] = {
+constexpr float SMPTE240_8bit_full_yuv_to_rgb[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
             0x1p+0f,   0x1.d39c56p-29f,    0x1.9374bcp+0f,           0x0p+0f,   -0x1.9509c8p-1f,
             0x1p+0f,   -0x1.d01f2ep-3f,   -0x1.e80f98p-2f,           0x0p+0f,    0x1.697912p-2f,
@@ -407,7 +408,7 @@ constexpr float SMPTE240_full_yuv_to_rgb[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float SMPTE240_limited_rgb_to_yuv[] = {
+constexpr float SMPTE240_8bit_limited_rgb_to_yuv[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.74e16cp-3f,    0x1.343df8p-1f,    0x1.320b22p-4f,           0x0p+0f,    0x1.010102p-4f,
     -0x1.a1bcaap-4f,   -0x1.595298p-2f,    0x1.c1c1c4p-2f,           0x0p+0f,    0x1.010102p-1f,
@@ -420,7 +421,7 @@ constexpr float SMPTE240_limited_rgb_to_yuv[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float SMPTE240_limited_yuv_to_rgb[] = {
+constexpr float SMPTE240_8bit_limited_yuv_to_rgb[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.2a150ap+0f,   -0x1.03331p-27f,    0x1.cb4a9cp+0f,           0x0p+0f,   -0x1.f27fbep-1f,
      0x1.2a150cp+0f,   -0x1.082d2cp-2f,   -0x1.15cd72p-1f,           0x0p+0f,    0x1.50af76p-2f,
@@ -433,7 +434,7 @@ constexpr float SMPTE240_limited_yuv_to_rgb[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float YDZDX_full_rgb_to_yuv[] = {
+constexpr float YDZDX_8bit_full_rgb_to_yuv[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
             0x0p+0f,           0x1p+0f,           0x0p+0f,           0x0p+0f,           0x0p+0f,
             0x0p+0f,          -0x1p-1f,    0x1.f91f2ep-2f,           0x0p+0f,    0x1.010102p-1f,
@@ -446,7 +447,7 @@ constexpr float YDZDX_full_rgb_to_yuv[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float YDZDX_full_yuv_to_rgb[] = {
+constexpr float YDZDX_8bit_full_yuv_to_rgb[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.fbda94p-1f,          -0x0p+0f,           0x1p+1f,           0x0p+0f,   -0x1.010102p+0f,
             0x1p+0f,           0x0p+0f,           0x0p+0f,           0x0p+0f,           0x0p+0f,
@@ -459,7 +460,7 @@ constexpr float YDZDX_full_yuv_to_rgb[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float YDZDX_limited_rgb_to_yuv[] = {
+constexpr float YDZDX_8bit_limited_rgb_to_yuv[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
             0x0p+0f,    0x1.b7b7b8p-1f,           0x0p+0f,           0x0p+0f,    0x1.010102p-4f,
             0x0p+0f,   -0x1.c1c1c2p-2f,      0x1.bbb7p-2f,           0x0p+0f,    0x1.010102p-1f,
@@ -472,7 +473,7 @@ constexpr float YDZDX_limited_rgb_to_yuv[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float YDZDX_limited_yuv_to_rgb[] = {
+constexpr float YDZDX_8bit_limited_yuv_to_rgb[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
      0x1.27ab18p+0f,          -0x0p+0f,    0x1.236db6p+1f,           0x0p+0f,   -0x1.371f88p+0f,
      0x1.2a150ap+0f,           0x0p+0f,           0x0p+0f,           0x0p+0f,   -0x1.2b404cp-4f,
@@ -485,7 +486,7 @@ constexpr float YDZDX_limited_yuv_to_rgb[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float GBR_full_rgb_to_yuv[] = {
+constexpr float GBR_8bit_full_rgb_to_yuv[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
             0x0p+0f,           0x1p+0f,           0x0p+0f,           0x0p+0f,           0x0p+0f,
             0x0p+0f,           0x0p+0f,           0x1p+0f,           0x0p+0f,           0x0p+0f,
@@ -498,7 +499,7 @@ constexpr float GBR_full_rgb_to_yuv[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float GBR_full_yuv_to_rgb[] = {
+constexpr float GBR_8bit_full_yuv_to_rgb[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
             0x0p+0f,           0x0p+0f,           0x1p+0f,           0x0p+0f,           0x0p+0f,
             0x1p+0f,           0x0p+0f,           0x0p+0f,           0x0p+0f,           0x0p+0f,
@@ -511,7 +512,7 @@ constexpr float GBR_full_yuv_to_rgb[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float GBR_limited_rgb_to_yuv[] = {
+constexpr float GBR_8bit_limited_rgb_to_yuv[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
             0x0p+0f,    0x1.b7b7b8p-1f,           0x0p+0f,           0x0p+0f,    0x1.010102p-4f,
             0x0p+0f,           0x0p+0f,    0x1.b7b7b8p-1f,           0x0p+0f,    0x1.010102p-4f,
@@ -524,7 +525,7 @@ constexpr float GBR_limited_rgb_to_yuv[] = {
           0.000000f,         0.000000f,         0.000000f,         1.000000f,         0.000000f,
 #endif
 };
-constexpr float GBR_limited_yuv_to_rgb[] = {
+constexpr float GBR_8bit_limited_yuv_to_rgb[] = {
 #if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)
             0x0p+0f,           0x0p+0f,    0x1.2a150ap+0f,           0x0p+0f,   -0x1.2b404cp-4f,
      0x1.2a150ap+0f,           0x0p+0f,           0x0p+0f,           0x0p+0f,   -0x1.2b404cp-4f,
@@ -775,89 +776,8 @@ static_assert(kYCgCo_12bit_Limited_SkYUVColorSpace  == 25, "");
 static_assert(kYCgCo_16bit_Full_SkYUVColorSpace     == 26, "");
 static_assert(kYCgCo_16bit_Limited_SkYUVColorSpace  == 27, "");
 
-static constexpr auto yuv_to_rgb_array = std::to_array<const float *>({
-    JPEG_full_yuv_to_rgb,
-    Rec601_limited_yuv_to_rgb,
-    Rec709_full_yuv_to_rgb,
-    Rec709_limited_yuv_to_rgb,
-    BT2020_8bit_full_yuv_to_rgb,
-    BT2020_8bit_limited_yuv_to_rgb,
-    BT2020_10bit_full_yuv_to_rgb,
-    BT2020_10bit_limited_yuv_to_rgb,
-    BT2020_12bit_full_yuv_to_rgb,
-    BT2020_12bit_limited_yuv_to_rgb,
-    BT2020_16bit_full_yuv_to_rgb,
-    BT2020_16bit_limited_yuv_to_rgb,
-    FCC_full_yuv_to_rgb,
-    FCC_limited_yuv_to_rgb,
-    SMPTE240_full_yuv_to_rgb,
-    SMPTE240_limited_yuv_to_rgb,
-    YDZDX_full_yuv_to_rgb,
-    YDZDX_limited_yuv_to_rgb,
-    GBR_full_yuv_to_rgb,
-    GBR_limited_yuv_to_rgb,
-    YCgCo_8bit_full_yuv_to_rgb,
-    YCgCo_8bit_limited_yuv_to_rgb,
-    YCgCo_10bit_full_yuv_to_rgb,
-    YCgCo_10bit_limited_yuv_to_rgb,
-    YCgCo_12bit_full_yuv_to_rgb,
-    YCgCo_12bit_limited_yuv_to_rgb,
-    YCgCo_16bit_full_yuv_to_rgb,
-    YCgCo_16bit_limited_yuv_to_rgb,
-});
 
-static constexpr auto rgb_to_yuv_array = std::to_array<const float *>({
-    JPEG_full_rgb_to_yuv,
-    Rec601_limited_rgb_to_yuv,
-    Rec709_full_rgb_to_yuv,
-    Rec709_limited_rgb_to_yuv,
-    BT2020_8bit_full_rgb_to_yuv,
-    BT2020_8bit_limited_rgb_to_yuv,
-    BT2020_10bit_full_rgb_to_yuv,
-    BT2020_10bit_limited_rgb_to_yuv,
-    BT2020_12bit_full_rgb_to_yuv,
-    BT2020_12bit_limited_rgb_to_yuv,
-    BT2020_16bit_full_rgb_to_yuv,
-    BT2020_16bit_limited_rgb_to_yuv,
-    FCC_full_rgb_to_yuv,
-    FCC_limited_rgb_to_yuv,
-    SMPTE240_full_rgb_to_yuv,
-    SMPTE240_limited_rgb_to_yuv,
-    YDZDX_full_rgb_to_yuv,
-    YDZDX_limited_rgb_to_yuv,
-    GBR_full_rgb_to_yuv,
-    GBR_limited_rgb_to_yuv,
-    YCgCo_8bit_full_rgb_to_yuv,
-    YCgCo_8bit_limited_rgb_to_yuv,
-    YCgCo_10bit_full_rgb_to_yuv,
-    YCgCo_10bit_limited_rgb_to_yuv,
-    YCgCo_12bit_full_rgb_to_yuv,
-    YCgCo_12bit_limited_rgb_to_yuv,
-    YCgCo_16bit_full_rgb_to_yuv,
-    YCgCo_16bit_limited_rgb_to_yuv,
-});
-
-constexpr size_t kSizeOfColorMatrix = 20 * sizeof(float);
-
-void SkColorMatrix_RGB2YUV(SkYUVColorSpace cs, float m[20]) {
-    if ((unsigned)cs < (unsigned)kIdentity_SkYUVColorSpace) {
-        memcpy(m, rgb_to_yuv_array[(unsigned)cs], kSizeOfColorMatrix);
-    } else {
-        memset(m, 0, kSizeOfColorMatrix);
-        m[0] = m[6] = m[12] = m[18] = 1;
-    }
-}
-
-void SkColorMatrix_YUV2RGB(SkYUVColorSpace cs, float m[20]) {
-    if ((unsigned)cs < (unsigned)kIdentity_SkYUVColorSpace) {
-        memcpy(m, yuv_to_rgb_array[(unsigned)cs], kSizeOfColorMatrix);
-    } else {
-        memset(m, 0, kSizeOfColorMatrix);
-        m[0] = m[6] = m[12] = m[18] = 1;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// Helpers for converting and generating color matrices
 
 // we just drop the alpha rol/col from the colormatrix
 // output is |        tr |
@@ -903,50 +823,105 @@ static void scale3(float m[], float s) {
 }
 
 namespace {
-enum Range { kFull, kLimited };
-struct YUVCoeff {
-    float   Kr, Kb;
-    int     bits;
-    Range   range;
+enum class Range : int {
+    kFull,
+    kLimited,
 };
 
-static constexpr auto gCoeff = std::to_array<YUVCoeff>({
-    YUVCoeff{ 0.2990f, 0.1140f,  8, kFull    }, // kJPEG_Full_SkYUVColorSpace
-    YUVCoeff{ 0.2990f, 0.1140f,  8, kLimited }, // kRec601_Limited_SkYUVColorSpace
-    YUVCoeff{ 0.2126f, 0.0722f,  8, kFull    }, // kRec709_Full_SkYUVColorSpace
-    YUVCoeff{ 0.2126f, 0.0722f,  8, kLimited }, // kRec709_Limited_SkYUVColorSpace
-    YUVCoeff{ 0.2627f, 0.0593f,  8, kFull    }, // kBT2020_8bit_Full_SkYUVColorSpace
-    YUVCoeff{ 0.2627f, 0.0593f,  8, kLimited }, // kBT2020_8bit_Limited_SkYUVColorSpace
-    YUVCoeff{ 0.2627f, 0.0593f, 10, kFull    }, // kBT2020_10bit_Full_SkYUVColorSpace
-    YUVCoeff{ 0.2627f, 0.0593f, 10, kLimited }, // kBT2020_10bit_Limited_SkYUVColorSpace
-    YUVCoeff{ 0.2627f, 0.0593f, 12, kFull    }, // kBT2020_12bit_Full_SkYUVColorSpace
-    YUVCoeff{ 0.2627f, 0.0593f, 12, kLimited }, // kBT2020_12bit_Limited_SkYUVColorSpace
-    YUVCoeff{ 0.2627f, 0.0593f, 16, kFull    }, // kBT2020_16bit_Full_SkYUVColorSpace
-    YUVCoeff{ 0.2627f, 0.0593f, 16, kLimited }, // kBT2020_16bit_Limited_SkYUVColorSpace
-    YUVCoeff{ 0.3000f, 0.1100f,  8, kFull    }, // kFCC_Full_SkYUVColorSpace
-    YUVCoeff{ 0.3000f, 0.1100f,  8, kLimited }, // kFCC_Limited_SkYUVColorSpace
-    YUVCoeff{ 0.2120f, 0.0870f,  8, kFull    }, // kSMPTE240_Full_SkYUVColorSpace
-    YUVCoeff{ 0.2120f, 0.0870f,  8, kLimited }, // kSMPTE240_Limited_SkYUVColorSpace
+enum class MatrixCoefficients : int {
+    kRec601,
+    kRec709,
+    kBT2020,
+    kFCC,
+    kSMPTE240,
+    kYDZDX,
+    kGBR,
+    kYCgCo,
+};
+
+struct ColorSpaceInfo {
+    MatrixCoefficients matrix_coefficients;
+    Range range;
+    int bit_depth;
+};
+
+static constexpr auto kColorSpaceInfo = std::to_array<ColorSpaceInfo>({
+    {MatrixCoefficients::kRec601,   Range::kFull,     8},  // kJPEG_Full
+    {MatrixCoefficients::kRec601,   Range::kLimited,  8},  // kRec601_Limited
+    {MatrixCoefficients::kRec709,   Range::kFull,     8},  // kRec709_Full
+    {MatrixCoefficients::kRec709,   Range::kLimited,  8},  // kRec709_Limited
+    {MatrixCoefficients::kBT2020,   Range::kFull,     8},  // kBT2020_8bit_Full
+    {MatrixCoefficients::kBT2020,   Range::kLimited,  8},  // kBT2020_8bit_Limited
+    {MatrixCoefficients::kBT2020,   Range::kFull,    10},  // kBT2020_10bit_Full
+    {MatrixCoefficients::kBT2020,   Range::kLimited, 10},  // kBT2020_10bit_Limited
+    {MatrixCoefficients::kBT2020,   Range::kFull,    12},  // kBT2020_12bit_Full
+    {MatrixCoefficients::kBT2020,   Range::kLimited, 12},  // kBT2020_12bit_Limited
+    {MatrixCoefficients::kBT2020,   Range::kFull,    16},  // kBT2020_16bit_Full
+    {MatrixCoefficients::kBT2020,   Range::kLimited, 16},  // kBT2020_16bit_Limited
+    {MatrixCoefficients::kFCC,      Range::kFull,     8},  // kFCC_Full
+    {MatrixCoefficients::kFCC,      Range::kLimited,  8},  // kFCC_Limited
+    {MatrixCoefficients::kSMPTE240, Range::kFull,     8},  // kSMPTE240_Full
+    {MatrixCoefficients::kSMPTE240, Range::kLimited,  8},  // kSMPTE240_Limited
+    {MatrixCoefficients::kYDZDX,    Range::kFull,     8},  // kYDZDX_Full
+    {MatrixCoefficients::kYDZDX,    Range::kLimited,  8},  // kYDZDX_Limited
+    {MatrixCoefficients::kGBR,      Range::kFull,     8},  // kGBR_Full
+    {MatrixCoefficients::kGBR,      Range::kLimited,  8},  // kGBR_Limited
+    {MatrixCoefficients::kYCgCo,    Range::kFull,     8},  // kYCgCo_8bit_Full
+    {MatrixCoefficients::kYCgCo,    Range::kLimited,  8},  // kYCgCo_8bit_Limited
+    {MatrixCoefficients::kYCgCo,    Range::kFull,    10},  // kYCgCo_10bit_Full
+    {MatrixCoefficients::kYCgCo,    Range::kLimited, 10},  // kYCgCo_10bit_Limited
+    {MatrixCoefficients::kYCgCo,    Range::kFull,    12},  // kYCgCo_12bit_Full
+    {MatrixCoefficients::kYCgCo,    Range::kLimited, 12},  // kYCgCo_12bit_Limited
+    {MatrixCoefficients::kYCgCo,    Range::kFull,    16},  // kYCgCo_16bit_Full
+    {MatrixCoefficients::kYCgCo,    Range::kLimited, 16},  // kYCgCo_16bit_Limited
 });
+static_assert(std::size(kColorSpaceInfo) == kIdentity_SkYUVColorSpace);
 }  // namespace
 
-static void make_rgb_to_yuv_matrix_ycbcr(float mx[20], const YUVCoeff& c) {
-    SkASSERT(c.bits >= 8);
-    const float Kr = c.Kr;
-    const float Kb = c.Kb;
+static void make_rgb_to_yuv_matrix_ycbcr(float mx[20],
+                                         MatrixCoefficients mc,
+                                         int bits,
+                                         Range range) {
+    SkASSERT(bits >= 8);
+    float Kr = 0.0f, Kb = 0.0f;
+    switch (mc) {
+        case MatrixCoefficients::kRec601:
+            Kr = 0.2990f;
+            Kb = 0.1140f;
+            break;
+        case MatrixCoefficients::kRec709:
+            Kr = 0.2126f;
+            Kb = 0.0722f;
+            break;
+        case MatrixCoefficients::kBT2020:
+            Kr = 0.2627f;
+            Kb = 0.0593f;
+            break;
+        case MatrixCoefficients::kFCC:
+            Kr = 0.3000f;
+            Kb = 0.1100f;
+            break;
+        case MatrixCoefficients::kSMPTE240:
+            Kr = 0.2120f;
+            Kb = 0.0870f;
+            break;
+        default:
+            SkUNREACHABLE;
+    }
+
     const float Kg = 1.0f - Kr - Kb;
     const float Cr = 0.5f / (1.0f - Kb);
     const float Cb = 0.5f / (1.0f - Kr);
 
-    const int shift = c.bits - 8;
+    const int shift = bits - 8;
 
-    const float denom = static_cast<float>((1 << c.bits) - 1);
+    const float denom = static_cast<float>((1 << bits) - 1);
     float scaleY  = 1.0f,
           addY    = 0.0f,
           scaleUV = 1.0f,
           addUV   = (128 << shift) / denom;
 
-    if (c.range == kLimited) {
+    if (range == Range::kLimited) {
         scaleY  = (219 << shift) / denom;
         addY    = ( 16 << shift) / denom;
         scaleUV = (224 << shift) / denom;
@@ -964,18 +939,19 @@ static void make_rgb_to_yuv_matrix_ycbcr(float mx[20], const YUVCoeff& c) {
     scale3(mx + 10, Cb * scaleUV);
 }
 
-static void make_rgb_to_yuv_matrix_ydzdx(float mx[20], Range range) {
-    const int bits = 8;
+static void make_rgb_to_yuv_matrix_ydzdx(float mx[20], int bits, Range range) {
+    SkASSERT(bits >= 8);
+    const int shift = bits - 8;
     const float denom = static_cast<float>((1 << bits) - 1);
     float scaleY  = 1.0f,
           addY    = 0.0f,
           scaleUV = 1.0f,
-          addUV   = 128 / denom;
+          addUV   = (128 << shift) / denom;
 
-    if (range == kLimited) {
-        scaleY  = 219 / denom;
-        addY    =  16 / denom;
-        scaleUV = 224 / denom;
+    if (range == Range::kLimited) {
+        scaleY  = (219 << shift) / denom;
+        addY    = ( 16 << shift) / denom;
+        scaleUV = (224 << shift) / denom;
     }
 
     // YDZDX applies range correction to YUV values similar to YCbCr.
@@ -991,15 +967,16 @@ static void make_rgb_to_yuv_matrix_ydzdx(float mx[20], Range range) {
     scale3(mx + 10, scaleUV);
 }
 
-static void make_rgb_to_yuv_matrix_gbr(float mx[20], Range range) {
-    const int bits = 8;
+static void make_rgb_to_yuv_matrix_gbr(float mx[20], int bits, Range range) {
+    SkASSERT(bits >= 8);
+    const int shift = bits - 8;
     const float denom = static_cast<float>((1 << bits) - 1);
     float scaleY   = 1.0f,
           addY     = 0.0f;
 
-    if (range == kLimited) {
-        scaleY  = 219 / denom;
-        addY    =  16 / denom;
+    if (range == Range::kLimited) {
+        scaleY  = (219 << shift) / denom;
+        addY    = ( 16 << shift) / denom;
     }
 
     // GBR applies range correction to RGB values similar to YCgCo.
@@ -1023,7 +1000,7 @@ static void make_rgb_to_yuv_matrix_ycgco(float mx[20], int bits, Range range) {
           addY     = 0.0f,
           chroma05 = static_cast<float>(1 << (bits - 1)) / denom;
 
-    if (range == kLimited) {
+    if (range == Range::kLimited) {
         scaleY  = (219 << shift) / denom;
         addY    = ( 16 << shift) / denom;
     }
@@ -1040,88 +1017,149 @@ static void make_rgb_to_yuv_matrix_ycgco(float mx[20], int bits, Range range) {
     scale3(mx + 10, scaleY);
 }
 
-static void make_rgb_to_yuv_matrix(float mx[20], SkYUVColorSpace cs) {
-    switch (cs) {
-        case kJPEG_Full_SkYUVColorSpace:
-        case kRec601_Limited_SkYUVColorSpace:
-        case kRec709_Full_SkYUVColorSpace:
-        case kRec709_Limited_SkYUVColorSpace:
-        case kBT2020_8bit_Full_SkYUVColorSpace:
-        case kBT2020_8bit_Limited_SkYUVColorSpace:
-        case kBT2020_10bit_Full_SkYUVColorSpace:
-        case kBT2020_10bit_Limited_SkYUVColorSpace:
-        case kBT2020_12bit_Full_SkYUVColorSpace:
-        case kBT2020_12bit_Limited_SkYUVColorSpace:
-        case kBT2020_16bit_Full_SkYUVColorSpace:
-        case kBT2020_16bit_Limited_SkYUVColorSpace:
-        case kFCC_Full_SkYUVColorSpace:
-        case kFCC_Limited_SkYUVColorSpace:
-        case kSMPTE240_Full_SkYUVColorSpace:
-        case kSMPTE240_Limited_SkYUVColorSpace:
-        case kIdentity_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_ycbcr(mx, gCoeff[(unsigned)cs]);
-        case kYDZDX_Full_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_ydzdx(mx, Range::kFull);
-        case kYDZDX_Limited_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_ydzdx(mx, Range::kLimited);
-        case kGBR_Full_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_gbr(mx, Range::kFull);
-        case kGBR_Limited_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_gbr(mx, Range::kLimited);
-        case kYCgCo_8bit_Full_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_ycgco(mx, /*bits=*/8, Range::kFull);
-        case kYCgCo_8bit_Limited_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_ycgco(mx, /*bits=*/8, Range::kLimited);
-        case kYCgCo_10bit_Full_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_ycgco(mx, /*bits=*/10, Range::kFull);
-        case kYCgCo_10bit_Limited_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_ycgco(mx, /*bits=*/10, Range::kLimited);
-        case kYCgCo_12bit_Full_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_ycgco(mx, /*bits=*/12, Range::kFull);
-        case kYCgCo_12bit_Limited_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_ycgco(mx, /*bits=*/12, Range::kLimited);
-        case kYCgCo_16bit_Full_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_ycgco(mx, /*bits=*/16, Range::kFull);
-        case kYCgCo_16bit_Limited_SkYUVColorSpace:
-            return make_rgb_to_yuv_matrix_ycgco(mx, /*bits=*/16, Range::kLimited);
+static void make_rgb_to_yuv_matrix(float mx[20], MatrixCoefficients mc, int bits, Range range) {
+    switch (mc) {
+        case MatrixCoefficients::kRec601:
+        case MatrixCoefficients::kRec709:
+        case MatrixCoefficients::kBT2020:
+        case MatrixCoefficients::kFCC:
+        case MatrixCoefficients::kSMPTE240:
+            return make_rgb_to_yuv_matrix_ycbcr(mx, mc, bits, range);
+        case MatrixCoefficients::kYDZDX:
+            return make_rgb_to_yuv_matrix_ydzdx(mx, bits, range);
+        case MatrixCoefficients::kGBR:
+            return make_rgb_to_yuv_matrix_gbr(mx, bits, range);
+        case MatrixCoefficients::kYCgCo:
+            return make_rgb_to_yuv_matrix_ycgco(mx, bits, range);
     }
 }
 
-static void dump(const float m[20], SkYUVColorSpace cs, bool rgb2yuv) {
-    static constexpr auto names = std::to_array<const char *>({
-        "JPEG_full",
-        "Rec601_limited",
-        "Rec709_full",
-        "Rec709_limited",
-        "BT2020_8bit_full",
-        "BT2020_8bit_limited",
-        "BT2020_10bit_full",
-        "BT2020_10bit_limited",
-        "BT2020_12bit_full",
-        "BT2020_12bit_limited",
-        "BT2020_16bit_full",
-        "BT2020_16bit_limited",
-        "FCC_full",
-        "FCC_limited",
-        "SMPTE240_full",
-        "SMPTE240_limited",
-        "YDZDX_full",
-        "YDZDX_limited",
-        "GBR_full",
-        "GBR_limited",
-        "YCgCo_8bit_full",
-        "YCgCo_8bit_limited",
-        "YCgCo_10bit_full",
-        "YCgCo_10bit_limited",
-        "YCgCo_12bit_full",
-        "YCgCo_12bit_limited",
-        "YCgCo_16bit_full",
-        "YCgCo_16bit_limited",
-    });
-    static constexpr auto dirnames = std::to_array<const char *>({
-        "yuv_to_rgb", "rgb_to_yuv",
-    });
-    SkDebugf("constexpr float %s_%s[] = {\n", names[cs], dirnames[rgb2yuv]);
+// Returns nullptr for kIdentity_SkYUVColorSpace and invalid values.
+static const ColorSpaceInfo* get_color_space_info(SkYUVColorSpace cs) {
+    if (cs < 0 || cs >= kIdentity_SkYUVColorSpace) {
+        return nullptr;
+    }
+    return &kColorSpaceInfo[cs];
+}
+
+static void make_rgb_to_yuv_matrix(float mx[20], const ColorSpaceInfo& info) {
+    make_rgb_to_yuv_matrix(mx, info.matrix_coefficients, info.bit_depth, info.range);
+}
+
+struct PrecomputedMatrices {
+    const float* rgb_to_yuv = nullptr;
+    const float* yuv_to_rgb = nullptr;
+};
+
+// Returns the precomputed tables for `cs`, or nullptrs if they must be computed at runtime.
+static PrecomputedMatrices get_precomputed_matrices(SkYUVColorSpace cs) {
+    switch (cs) {
+        case kJPEG_Full_SkYUVColorSpace:
+            return {Rec601_8bit_full_rgb_to_yuv, Rec601_8bit_full_yuv_to_rgb};
+        case kRec601_Limited_SkYUVColorSpace:
+            return {Rec601_8bit_limited_rgb_to_yuv, Rec601_8bit_limited_yuv_to_rgb};
+        case kRec709_Full_SkYUVColorSpace:
+            return {Rec709_8bit_full_rgb_to_yuv, Rec709_8bit_full_yuv_to_rgb};
+        case kRec709_Limited_SkYUVColorSpace:
+            return {Rec709_8bit_limited_rgb_to_yuv, Rec709_8bit_limited_yuv_to_rgb};
+        case kBT2020_8bit_Full_SkYUVColorSpace:
+            return {BT2020_8bit_full_rgb_to_yuv, BT2020_8bit_full_yuv_to_rgb};
+        case kBT2020_8bit_Limited_SkYUVColorSpace:
+            return {BT2020_8bit_limited_rgb_to_yuv, BT2020_8bit_limited_yuv_to_rgb};
+        case kBT2020_10bit_Full_SkYUVColorSpace:
+            return {BT2020_10bit_full_rgb_to_yuv, BT2020_10bit_full_yuv_to_rgb};
+        case kBT2020_10bit_Limited_SkYUVColorSpace:
+            return {BT2020_10bit_limited_rgb_to_yuv, BT2020_10bit_limited_yuv_to_rgb};
+        case kBT2020_12bit_Full_SkYUVColorSpace:
+            return {BT2020_12bit_full_rgb_to_yuv, BT2020_12bit_full_yuv_to_rgb};
+        case kBT2020_12bit_Limited_SkYUVColorSpace:
+            return {BT2020_12bit_limited_rgb_to_yuv, BT2020_12bit_limited_yuv_to_rgb};
+        case kBT2020_16bit_Full_SkYUVColorSpace:
+            return {BT2020_16bit_full_rgb_to_yuv, BT2020_16bit_full_yuv_to_rgb};
+        case kBT2020_16bit_Limited_SkYUVColorSpace:
+            return {BT2020_16bit_limited_rgb_to_yuv, BT2020_16bit_limited_yuv_to_rgb};
+        case kFCC_Full_SkYUVColorSpace:
+            return {FCC_8bit_full_rgb_to_yuv, FCC_8bit_full_yuv_to_rgb};
+        case kFCC_Limited_SkYUVColorSpace:
+            return {FCC_8bit_limited_rgb_to_yuv, FCC_8bit_limited_yuv_to_rgb};
+        case kSMPTE240_Full_SkYUVColorSpace:
+            return {SMPTE240_8bit_full_rgb_to_yuv, SMPTE240_8bit_full_yuv_to_rgb};
+        case kSMPTE240_Limited_SkYUVColorSpace:
+            return {SMPTE240_8bit_limited_rgb_to_yuv, SMPTE240_8bit_limited_yuv_to_rgb};
+        case kYDZDX_Full_SkYUVColorSpace:
+            return {YDZDX_8bit_full_rgb_to_yuv, YDZDX_8bit_full_yuv_to_rgb};
+        case kYDZDX_Limited_SkYUVColorSpace:
+            return {YDZDX_8bit_limited_rgb_to_yuv, YDZDX_8bit_limited_yuv_to_rgb};
+        case kGBR_Full_SkYUVColorSpace:
+            return {GBR_8bit_full_rgb_to_yuv, GBR_8bit_full_yuv_to_rgb};
+        case kGBR_Limited_SkYUVColorSpace:
+            return {GBR_8bit_limited_rgb_to_yuv, GBR_8bit_limited_yuv_to_rgb};
+        case kYCgCo_8bit_Full_SkYUVColorSpace:
+            return {YCgCo_8bit_full_rgb_to_yuv, YCgCo_8bit_full_yuv_to_rgb};
+        case kYCgCo_8bit_Limited_SkYUVColorSpace:
+            return {YCgCo_8bit_limited_rgb_to_yuv, YCgCo_8bit_limited_yuv_to_rgb};
+        case kYCgCo_10bit_Full_SkYUVColorSpace:
+            return {YCgCo_10bit_full_rgb_to_yuv, YCgCo_10bit_full_yuv_to_rgb};
+        case kYCgCo_10bit_Limited_SkYUVColorSpace:
+            return {YCgCo_10bit_limited_rgb_to_yuv, YCgCo_10bit_limited_yuv_to_rgb};
+        case kYCgCo_12bit_Full_SkYUVColorSpace:
+            return {YCgCo_12bit_full_rgb_to_yuv, YCgCo_12bit_full_yuv_to_rgb};
+        case kYCgCo_12bit_Limited_SkYUVColorSpace:
+            return {YCgCo_12bit_limited_rgb_to_yuv, YCgCo_12bit_limited_yuv_to_rgb};
+        case kYCgCo_16bit_Full_SkYUVColorSpace:
+            return {YCgCo_16bit_full_rgb_to_yuv, YCgCo_16bit_full_yuv_to_rgb};
+        case kYCgCo_16bit_Limited_SkYUVColorSpace:
+            return {YCgCo_16bit_limited_rgb_to_yuv, YCgCo_16bit_limited_yuv_to_rgb};
+        default:
+            return {};
+    }
+}
+
+static void set_identity(float m[20]) {
+    std::fill_n(m, 20, 0.0f);
+    m[0] = m[6] = m[12] = m[18] = 1;
+}
+
+void SkColorMatrix_RGB2YUV(SkYUVColorSpace cs, float m[20]) {
+    const ColorSpaceInfo* info = get_color_space_info(cs);
+    if (!info) {
+        set_identity(m);
+        return;
+    }
+    if (const float* table = get_precomputed_matrices(cs).rgb_to_yuv) {
+        std::copy_n(table, 20, m);
+        return;
+    }
+    make_rgb_to_yuv_matrix(m, *info);
+}
+
+void SkColorMatrix_YUV2RGB(SkYUVColorSpace cs, float m[20]) {
+    const ColorSpaceInfo* info = get_color_space_info(cs);
+    if (!info) {
+        set_identity(m);
+        return;
+    }
+    if (const float* table = get_precomputed_matrices(cs).yuv_to_rgb) {
+        std::copy_n(table, 20, m);
+        return;
+    }
+    float rgb2yuv[20];
+    make_rgb_to_yuv_matrix(rgb2yuv, *info);
+    SkM44 m44, im44;
+    colormatrix_to_matrix44(rgb2yuv, &m44);
+    SkAssertResult(m44.invert(&im44));
+    matrix44_to_colormatrix(im44, m);
+}
+
+bool SkYUVColorSpaceIsLimitedRange(SkYUVColorSpace cs) {
+    const ColorSpaceInfo* info = get_color_space_info(cs);
+    return info && info->range == Range::kLimited;
+}
+
+static void dump(
+        const float m[20], const char* name, int bits, const char* range_name, bool rgb2yuv) {
+    const char* dirname = rgb2yuv ? "rgb_to_yuv" : "yuv_to_rgb";
+    SkDebugf("constexpr float %s_%dbit_%s_%s[] = {\n", name, bits, range_name, dirname);
     SkDebugf("#if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)\n");
     for (int i = 0; i < 4; ++i) {
         SkDebugf(" ");
@@ -1146,21 +1184,49 @@ static void dump(const float m[20], SkYUVColorSpace cs, bool rgb2yuv) {
 // Used to create the prebuilt tables for each colorspace.
 // Don't remove this function, in case we want to recompute those tables in the future.
 void SkColorMatrix_DumpYUVMatrixTables() {
-    for (int i = 0; i < kLastEnum_SkYUVColorSpace; ++i) {
-        SkYUVColorSpace cs = static_cast<SkYUVColorSpace>(i);
-        float m[20];
-        make_rgb_to_yuv_matrix(m, cs);
-        dump(m, cs, true);
-        SkM44 m44, im44;
-        colormatrix_to_matrix44(m, &m44);
-        float im[20];
+    struct {
+        const char* name;
+        MatrixCoefficients matrix_coefficients;
+        int bits;
+    } combinations[] = {
+        {"Rec601",   MatrixCoefficients::kRec601,    8},
+        {"Rec709",   MatrixCoefficients::kRec709,    8},
+        {"BT2020",   MatrixCoefficients::kBT2020,    8},
+        {"BT2020",   MatrixCoefficients::kBT2020,   10},
+        {"BT2020",   MatrixCoefficients::kBT2020,   12},
+        {"BT2020",   MatrixCoefficients::kBT2020,   16},
+        {"FCC",      MatrixCoefficients::kFCC,       8},
+        {"SMPTE240", MatrixCoefficients::kSMPTE240,  8},
+        {"YDZDX",    MatrixCoefficients::kYDZDX,     8},
+        {"GBR",      MatrixCoefficients::kGBR,       8},
+        {"YCgCo",    MatrixCoefficients::kYCgCo,     8},
+        {"YCgCo",    MatrixCoefficients::kYCgCo,    10},
+        {"YCgCo",    MatrixCoefficients::kYCgCo,    12},
+        {"YCgCo",    MatrixCoefficients::kYCgCo,    16},
+    };
+    struct {
+        const char* name;
+        Range range;
+    } ranges[] = {
+        {"full",    Range::kFull},
+        {"limited", Range::kLimited},
+    };
+    for (const auto& combo : combinations) {
+        for (const auto& r : ranges) {
+            float m[20];
+            make_rgb_to_yuv_matrix(m, combo.matrix_coefficients, combo.bits, r.range);
+            dump(m, combo.name, combo.bits, r.name, /*rgb2yuv=*/true);
+            SkM44 m44, im44;
+            colormatrix_to_matrix44(m, &m44);
+            float im[20];
 #ifdef SK_DEBUG
-        // be sure our coversion between matrix44 and colormatrix is perfect
-        matrix44_to_colormatrix(m44, im);
-        SkASSERT(memcmp(m, im, sizeof(im)) == 0);
+            // be sure our conversion between matrix44 and colormatrix is perfect
+            matrix44_to_colormatrix(m44, im);
+            SkASSERT(memcmp(m, im, sizeof(im)) == 0);
 #endif
-        SkAssertResult(m44.invert(&im44));
-        matrix44_to_colormatrix(im44, im);
-        dump(im, cs, false);
+            SkAssertResult(m44.invert(&im44));
+            matrix44_to_colormatrix(im44, im);
+            dump(im, combo.name, combo.bits, r.name, /*rgb2yuv=*/false);
+        }
     }
 }
