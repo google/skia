@@ -1,0 +1,15 @@
+layout(local_size_x = 64) in;
+
+layout(metal, binding = 0) buffer outputs {
+    uint4 outputBuffer[];
+};
+
+void main() {
+    bool b = sk_GlobalInvocationID.x > 1;
+    uint4 result = subgroupBallot(b);
+    result.x += uint(subgroupAll(b));
+    result.y += uint(subgroupAny(b));
+    result.z += subgroupBroadcast(sk_GlobalInvocationID.x, 0);
+    result.w += subgroupBroadcastFirst(sk_GlobalInvocationID.x);
+    outputBuffer[sk_GlobalInvocationID.x] = result;
+}

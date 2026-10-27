@@ -57,6 +57,8 @@ sksl_compute_tests = [
   "compute/Raytrace.compute",
   "compute/SubgroupBuiltins.compute",
   "compute/SubgroupBuiltinsWithoutCaps.compute",
+  "compute/SubgroupVoteBallot.compute",
+  "compute/SubgroupVoteBallotWithoutCaps.compute",
   "compute/Uniforms.compute",
   "compute/Workgroup.compute",
 ]
@@ -360,6 +362,7 @@ sksl_error_tests = [
   "errors/StructRedefinition.rts",
   "errors/StructTooDeeplyNested.rts",
   "errors/StructVariableReservedName.rts",
+  "errors/SubgroupBroadcastInvalidId.compute",
   "errors/SubgroupBuiltinsOutsideCompute.rts",
   "errors/SwitchDuplicateCase.rts",
   "errors/SwitchDuplicateDefault.rts",

@@ -12,6 +12,7 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -176,6 +177,14 @@ void FindAndDeclareBuiltinVariables(Program& program) {
                     program.fInterface.fUseSubgroups = true;
                     break;
             }
+        }
+    }
+
+    // Subgroup intrinsics also need subgroup support enabled, even without any subgroup builtins.
+    for (const auto& [fn, count] : program.fUsage->fCallCounts) {
+        if (count > 0 && IsSubgroupIntrinsic(fn->as<FunctionDeclaration>().intrinsicKind())) {
+            program.fInterface.fUseSubgroups = true;
+            break;
         }
     }
 

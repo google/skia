@@ -252,6 +252,7 @@ private:
         kStorageBarrier_SpecialIntrinsic,
         kWorkgroupBarrier_SpecialIntrinsic,
         kWorkgroupUniformLoad_SpecialIntrinsic,
+        kSubgroup_SpecialIntrinsic,
     };
 
     enum class Precision {
@@ -381,6 +382,7 @@ private:
                                SpecialIntrinsic kind,
                                SpvId resultId,
                                SPIRVBlob& out);
+    SpvId writeSubgroupIntrinsic(const FunctionCall& c, SPIRVBlob& out);
 
     SpvId castScalarToFloat(SpvId inputId, const Type& inputType, const Type& outputType,
                             SPIRVBlob& out);
@@ -1007,6 +1009,13 @@ SPIRVCodeGenerator::Intrinsic SPIRVCodeGenerator::getIntrinsic(IntrinsicKind ik)
         case k_storageBarrier_IntrinsicKind:   return SPECIAL(StorageBarrier);
         case k_workgroupBarrier_IntrinsicKind: return SPECIAL(WorkgroupBarrier);
         case k_workgroupUniformLoad_IntrinsicKind: return SPECIAL(WorkgroupUniformLoad);
+
+        case k_subgroupAll_IntrinsicKind:
+        case k_subgroupAny_IntrinsicKind:
+        case k_subgroupBallot_IntrinsicKind:
+        case k_subgroupBroadcast_IntrinsicKind:
+        case k_subgroupBroadcastFirst_IntrinsicKind:
+            return SPECIAL(Subgroup);
 
         default:
             return Intrinsic{kInvalid_IntrinsicOpcodeKind, 0, 0, 0, 0};
@@ -2105,6 +2114,11 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, SPIRVBlob& out
 
 SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, SPIRVBlob& out) {
     const FunctionDeclaration& function = c.function();
+    if (IsSubgroupIntrinsic(function.intrinsicKind()) && !fCaps.fSubgroupSupport) {
+        fContext.fErrors->error(c.fPosition,
+                                "'" + std::string(function.name()) + "' not supported");
+        return NA;
+    }
     Intrinsic intrinsic = this->getIntrinsic(function.intrinsicKind());
     if (intrinsic.opKind == kInvalid_IntrinsicOpcodeKind) {
         fContext.fErrors->error(c.fPosition, "unsupported intrinsic '" + function.description() +
@@ -2632,10 +2646,80 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             this->writeInstruction(SpvOpControlBarrier, scopeId, scopeId, memorySemanticsId, out);
             break;
         }
+        case kSubgroup_SpecialIntrinsic:
+            result = this->writeSubgroupIntrinsic(c, out);
+            break;
         default:
             SkUNREACHABLE;
     }
     return result;
+}
+
+SpvId SPIRVCodeGenerator::writeSubgroupIntrinsic(const FunctionCall& c, SPIRVBlob& out) {
+    const ExpressionArray& arguments = c.arguments();
+    const Type& callType = c.type();
+    // Every GroupNonUniform* capability implicitly depends on GroupNonUniform.
+    this->addCapability(SpvCapabilityGroupNonUniform);
+    SpvId scopeId = this->writeOpConstant(*fContext.fTypes.fUInt, (int32_t)SpvScopeSubgroup);
+
+    switch (c.function().intrinsicKind()) {
+        case k_subgroupAll_IntrinsicKind:
+        case k_subgroupAny_IntrinsicKind: {
+            this->addCapability(SpvCapabilityGroupNonUniformVote);
+            SpvOp_ op = c.function().intrinsicKind() == k_subgroupAll_IntrinsicKind
+                                ? SpvOpGroupNonUniformAll
+                                : SpvOpGroupNonUniformAny;
+            SpvId value = this->writeExpression(*arguments[0], out);
+            SpvId result = this->nextId(&callType);
+            this->writeInstruction(op, this->getType(callType), result, scopeId, value, out);
+            return result;
+        }
+        case k_subgroupBallot_IntrinsicKind: {
+            this->addCapability(SpvCapabilityGroupNonUniformBallot);
+            SpvId value = this->writeExpression(*arguments[0], out);
+            SpvId result = this->nextId(&callType);
+            this->writeInstruction(SpvOpGroupNonUniformBallot,
+                                   this->getType(callType),
+                                   result,
+                                   scopeId,
+                                   value,
+                                   out);
+            return result;
+        }
+        case k_subgroupBroadcast_IntrinsicKind: {
+            // Broadcast and BroadcastFirst are part of the Ballot capability.
+            this->addCapability(SpvCapabilityGroupNonUniformBallot);
+            SpvId value = this->writeExpression(*arguments[0], out);
+            // The frontend guarantees a constant id. SPIR-V before 1.5 requires the id to come
+            // from a constant instruction, so emit it as an OpConstant.
+            SKSL_INT id;
+            SkAssertResult(ConstantFolder::GetConstantInt(*arguments[1], &id));
+            SpvId idId = this->writeOpConstant(*fContext.fTypes.fUInt, (int32_t)id);
+            SpvId result = this->nextId(&callType);
+            this->writeInstruction(SpvOpGroupNonUniformBroadcast,
+                                   this->getType(callType),
+                                   result,
+                                   scopeId,
+                                   value,
+                                   idId,
+                                   out);
+            return result;
+        }
+        case k_subgroupBroadcastFirst_IntrinsicKind: {
+            this->addCapability(SpvCapabilityGroupNonUniformBallot);
+            SpvId value = this->writeExpression(*arguments[0], out);
+            SpvId result = this->nextId(&callType);
+            this->writeInstruction(SpvOpGroupNonUniformBroadcastFirst,
+                                   this->getType(callType),
+                                   result,
+                                   scopeId,
+                                   value,
+                                   out);
+            return result;
+        }
+        default:
+            SkUNREACHABLE;
+    }
 }
 
 SpvId SPIRVCodeGenerator::writeAtomicIntrinsic(const FunctionCall& c,

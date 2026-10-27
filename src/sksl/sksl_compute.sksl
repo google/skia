@@ -39,3 +39,26 @@ $pure $genBType workgroupUniformLoad($genBType x);
 $pure $mat      workgroupUniformLoad($mat      x);
 $pure $hmat     workgroupUniformLoad($hmat     x);
 
+// Subgroup operations. Using these requires ShaderCaps::fSubgroupSupport. They operate on the
+// active invocations of the calling subgroup. Unless ShaderCaps::fSubgroupMaximalReconvergence is
+// set, calling these in non-uniform control flow is rejected in WGSL and has implementation-defined
+// active invocations on other backends.
+$pure bool  subgroupAll(bool value);
+$pure bool  subgroupAny(bool value);
+// Bit N of the result is set when `value` is true in the active invocation whose
+// sk_SubgroupInvocationID is N.
+$pure uint4 subgroupBallot(bool value);
+
+// `id` must be a constant expression less than 128 (the largest subgroup size WGSL allows).
+// SPIR-V before 1.5, GLSL and WGSL all require a constant id.
+$pure $genType  subgroupBroadcast($genType  value, uint id);
+$pure $genHType subgroupBroadcast($genHType value, uint id);
+$pure $genIType subgroupBroadcast($genIType value, uint id);
+$pure $genUType subgroupBroadcast($genUType value, uint id);
+
+// Returns `value` from the active invocation with the lowest sk_SubgroupInvocationID.
+$pure $genType  subgroupBroadcastFirst($genType  value);
+$pure $genHType subgroupBroadcastFirst($genHType value);
+$pure $genIType subgroupBroadcastFirst($genIType value);
+$pure $genUType subgroupBroadcastFirst($genUType value);
+

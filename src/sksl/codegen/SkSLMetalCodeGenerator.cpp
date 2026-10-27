@@ -18,6 +18,7 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -935,7 +936,43 @@ void MetalCodeGenerator::writeScalarizedIntrinsicCall(const FunctionCall& c){
 
 bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind kind) {
     const ExpressionArray& arguments = c.arguments();
+    if (IsSubgroupIntrinsic(kind) && !fCaps.fSubgroupSupport) {
+        fContext.fErrors->error(c.fPosition,
+                                "'" + std::string(c.function().name()) + "' not supported");
+        return true;
+    }
     switch (kind) {
+        // Metal calls subgroups "SIMD-groups".
+        case k_subgroupAll_IntrinsicKind:
+            // simd_all/simd_any are the direct equivalents: they are defined over the active
+            // threads, as in SPIR-V and WGSL.
+            this->write("simd_all");
+            this->writeArgumentList(arguments);
+            return true;
+        case k_subgroupAny_IntrinsicKind:
+            this->write("simd_any");
+            this->writeArgumentList(arguments);
+            return true;
+        case k_subgroupBallot_IntrinsicKind:
+            // simd_vote wraps a 64-bit mask (vote_t is ulong). Split it into the low two words of a
+            // uint4; SIMD-groups are at most 64 threads wide, so the high two words are zero.
+            this->write("uint4(as_type<uint2>(static_cast<simd_vote::vote_t>(simd_ballot(");
+            this->writeExpression(*arguments[0], Precedence::kSequence);
+            this->write("))), 0u, 0u)");
+            return true;
+        case k_subgroupBroadcast_IntrinsicKind: {
+            // The frontend guarantees a constant id.
+            SKSL_INT id;
+            SkAssertResult(ConstantFolder::GetConstantInt(*arguments[1], &id));
+            this->write("simd_broadcast(");
+            this->writeExpression(*arguments[0], Precedence::kSequence);
+            this->write(", ushort(" + std::to_string(id) + "))");
+            return true;
+        }
+        case k_subgroupBroadcastFirst_IntrinsicKind:
+            this->write("simd_broadcast_first");
+            this->writeArgumentList(arguments);
+            return true;
         case k_textureRead_IntrinsicKind: {
             this->writeTextureTarget(*arguments[0]);
             this->write(".read(");

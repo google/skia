@@ -1,0 +1,36 @@
+/*#pragma settings SubgroupSupport*/
+
+layout(local_size_x = 64) in;
+
+layout(metal, binding = 0) buffer inputs {
+    float inputBuffer[];
+};
+
+layout(metal, binding = 1) buffer outputs {
+    uint4 outputBuffer[];
+};
+
+const uint kLane = 3;
+
+void main() {
+    uint idx = sk_GlobalInvocationID.x;
+    float f = inputBuffer[idx];
+    bool positive = f > 0;
+
+    uint4 result = subgroupBallot(positive);
+    result.x += uint(subgroupAll(positive));
+    result.y += uint(subgroupAny(positive));
+
+    // The id may be any constant expression, including a const variable.
+    result.z += uint(subgroupBroadcast(f, 0));
+    result.w += uint(subgroupBroadcast(half(f), kLane));
+    result.xy += uint2(subgroupBroadcast(int2(idx), 1u + 1u));
+    result += subgroupBroadcast(uint4(idx), 127);
+
+    result.z += uint(subgroupBroadcastFirst(f));
+    result.w += uint(subgroupBroadcastFirst(half3(f)).x);
+    result.xy += uint2(subgroupBroadcastFirst(int2(idx)));
+    result += subgroupBroadcastFirst(uint4(idx));
+
+    outputBuffer[idx] = result;
+}

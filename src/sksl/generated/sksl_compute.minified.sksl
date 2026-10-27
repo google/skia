@@ -10,4 +10,10 @@ static constexpr char SKSL_MINIFIED_sksl_compute[] =
 "($genType);$pure $genHType workgroupUniformLoad($genHType);$pure $genIType workgroupUniformLoad"
 "($genIType);$pure $genUType workgroupUniformLoad($genUType);$pure $genBType"
 " workgroupUniformLoad($genBType);$pure $mat workgroupUniformLoad($mat);$pure"
-" $hmat workgroupUniformLoad($hmat);";
+" $hmat workgroupUniformLoad($hmat);$pure bool subgroupAll(bool);$pure bool subgroupAny"
+"(bool);$pure uint4 subgroupBallot(bool);$pure $genType subgroupBroadcast($genType"
+",uint);$pure $genHType subgroupBroadcast($genHType,uint);$pure $genIType subgroupBroadcast"
+"($genIType,uint);$pure $genUType subgroupBroadcast($genUType,uint);$pure $genType"
+" subgroupBroadcastFirst($genType);$pure $genHType subgroupBroadcastFirst($genHType"
+");$pure $genIType subgroupBroadcastFirst($genIType);$pure $genUType subgroupBroadcastFirst"
+"($genUType);";

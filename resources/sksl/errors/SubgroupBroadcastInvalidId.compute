@@ -1,0 +1,24 @@
+layout(local_size_x = 64) in;
+
+layout(metal, binding = 0) buffer outputs {
+    uint outputBuffer[];
+};
+
+void main() {
+    uint x = sk_GlobalInvocationID.x;
+    uint lane = outputBuffer[0];
+    const uint kTooBig = 128;
+    outputBuffer[x] = subgroupBroadcast(x, lane) +
+                      subgroupBroadcast(x, x) +
+                      subgroupBroadcast(x, subgroupBroadcastFirst(uint(3))) +
+                      subgroupBroadcast(x, kTooBig) +
+                      subgroupBroadcast(x, 200);
+}
+
+/*%%*
+subgroupBroadcast id must be a constant expression
+subgroupBroadcast id must be a constant expression
+subgroupBroadcast id must be a constant expression
+subgroupBroadcast id must be less than 128
+subgroupBroadcast id must be less than 128
+*%%*/
