@@ -490,3 +490,58 @@ DEF_TEST(SkSpanFixedExtent, reporter) {
         REPORTER_ASSERT(reporter, SkSpanPriv::EQ(spanDst, spanA));
     }
 }
+
+DEF_TEST(SkSpanFromRef, reporter) {
+    int val = 42;
+    SkSpan<int> s = SkSpanFromRef(val);
+    REPORTER_ASSERT(reporter, s.size() == 1);
+    REPORTER_ASSERT(reporter, s.data() == &val);
+    REPORTER_ASSERT(reporter, s[0] == 42);
+    s[0] = 99;
+    REPORTER_ASSERT(reporter, val == 99);
+
+    const int constVal = 123;
+    SkSpan<const int> cs = SkSpanFromRef(constVal);
+    REPORTER_ASSERT(reporter, cs.size() == 1);
+    REPORTER_ASSERT(reporter, cs.data() == &constVal);
+    REPORTER_ASSERT(reporter, cs[0] == 123);
+}
+
+DEF_TEST(SkAsByteSpan, reporter) {
+    std::array<uint32_t, 2> arr = {0x01020304u, 0x05060708u};
+    SkSpan<const uint8_t> bytes = SkAsByteSpan(arr);
+    REPORTER_ASSERT(reporter, bytes.size() == sizeof(arr));
+    REPORTER_ASSERT(reporter,
+                    bytes.data() == reinterpret_cast<const uint8_t*>(arr.data()));
+
+    SkSpan<uint8_t> writableBytes = SkAsWritableByteSpan(arr);
+    REPORTER_ASSERT(reporter, writableBytes.size() == sizeof(arr));
+    REPORTER_ASSERT(reporter,
+                    writableBytes.data() == reinterpret_cast<uint8_t*>(arr.data()));
+    writableBytes[0] = 0xFF;
+    REPORTER_ASSERT(reporter, bytes[0] == 0xFF);
+
+    uint32_t single = 0;
+    SkSpan<uint8_t> singleBytes = SkAsWritableByteSpan(SkSpanFromRef(single));
+    REPORTER_ASSERT(reporter, singleBytes.size() == sizeof(uint32_t));
+    for (size_t i = 0; i < singleBytes.size(); ++i) {
+        singleBytes[i] = 0x11;
+    }
+    REPORTER_ASSERT(reporter, single == 0x11111111u);
+}
+
+DEF_TEST(SkSpanificationHelpers, reporter) {
+    std::array<uint32_t, 4> arr = {10, 20, 30, 40};
+    SkSpan<uint32_t> s(arr);
+    SkSpan<uint32_t> post = SkPostIncrementSpan(s);
+    REPORTER_ASSERT(reporter, post.size() == 4);
+    REPORTER_ASSERT(reporter, post[0] == 10);
+    REPORTER_ASSERT(reporter, s.size() == 3);
+    REPORTER_ASSERT(reporter, s[0] == 20);
+
+    SkSpan<uint32_t> pre = SkPreIncrementSpan(s);
+    REPORTER_ASSERT(reporter, pre.size() == 2);
+    REPORTER_ASSERT(reporter, pre[0] == 30);
+    REPORTER_ASSERT(reporter, s.size() == 2);
+    REPORTER_ASSERT(reporter, s[0] == 30);
+}
