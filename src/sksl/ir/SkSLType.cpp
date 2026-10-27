@@ -14,6 +14,7 @@
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkTHash.h"
 #include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ref.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
@@ -48,113 +49,113 @@ public:
             , fTargetType(targetType) {}
 
     const Type& resolve() const override {
-        return fTargetType;
+        return *fTargetType;
     }
 
     const Type& componentType() const override {
-        return fTargetType.componentType();
+        return fTargetType->componentType();
     }
 
     NumberKind numberKind() const override {
-        return fTargetType.numberKind();
+        return fTargetType->numberKind();
     }
 
     int priority() const override {
-        return fTargetType.priority();
+        return fTargetType->priority();
     }
 
     int columns() const override {
-        return fTargetType.columns();
+        return fTargetType->columns();
     }
 
     int rows() const override {
-        return fTargetType.rows();
+        return fTargetType->rows();
     }
 
     int bitWidth() const override {
-        return fTargetType.bitWidth();
+        return fTargetType->bitWidth();
     }
 
     bool isAllowedInES2() const override {
-        return fTargetType.isAllowedInES2();
+        return fTargetType->isAllowedInES2();
     }
 
     bool isOrContainsBool() const override {
-        return fTargetType.isOrContainsBool();
+        return fTargetType->isOrContainsBool();
     }
 
     bool isOrContainsAtomic() const override {
-        return fTargetType.isOrContainsAtomic();
+        return fTargetType->isOrContainsAtomic();
     }
 
     size_t slotCount() const override {
-        return fTargetType.slotCount();
+        return fTargetType->slotCount();
     }
 
     const Type& slotType(size_t n) const override {
-        return fTargetType.slotType(n);
+        return fTargetType->slotType(n);
     }
 
     SpvDim_ dimensions() const override {
-        return fTargetType.dimensions();
+        return fTargetType->dimensions();
     }
 
     bool isDepth() const override {
-        return fTargetType.isDepth();
+        return fTargetType->isDepth();
     }
 
     bool isArrayedTexture() const override {
-        return fTargetType.isArrayedTexture();
+        return fTargetType->isArrayedTexture();
     }
 
     bool isScalar() const override {
-        return fTargetType.isScalar();
+        return fTargetType->isScalar();
     }
 
     bool isLiteral() const override {
-        return fTargetType.isLiteral();
+        return fTargetType->isLiteral();
     }
 
     bool isVector() const override {
-        return fTargetType.isVector();
+        return fTargetType->isVector();
     }
 
     bool isMatrix() const override {
-        return fTargetType.isMatrix();
+        return fTargetType->isMatrix();
     }
 
     bool isArray() const override {
-        return fTargetType.isArray();
+        return fTargetType->isArray();
     }
 
     bool isUnsizedArray() const override {
-        return fTargetType.isUnsizedArray();
+        return fTargetType->isUnsizedArray();
     }
 
     bool isStruct() const override {
-        return fTargetType.isStruct();
+        return fTargetType->isStruct();
     }
 
     bool isInterfaceBlock() const override {
-        return fTargetType.isInterfaceBlock();
+        return fTargetType->isInterfaceBlock();
     }
 
     bool isMultisampled() const override {
-        return fTargetType.isMultisampled();
+        return fTargetType->isMultisampled();
     }
 
     TextureAccess textureAccess() const override {
-        return fTargetType.textureAccess();
+        return fTargetType->textureAccess();
     }
 
     SkSpan<const Type* const> coercibleTypes() const override {
-        return fTargetType.coercibleTypes();
+        return fTargetType->coercibleTypes();
     }
 
 private:
     using INHERITED = Type;
 
-    const Type& fTargetType;
+    const raw_ref<const Type> fTargetType;
 };
 
 class ArrayType final : public Type {
@@ -191,11 +192,11 @@ public:
     }
 
     bool isOrContainsAtomic() const override {
-        return fComponentType.isOrContainsAtomic();
+        return fComponentType->isOrContainsAtomic();
     }
 
     bool isOrContainsBool() const override {
-        return fComponentType.isOrContainsBool();
+        return fComponentType->isOrContainsBool();
     }
 
     bool isUnsizedArray() const override {
@@ -203,11 +204,11 @@ public:
     }
 
     bool isOrContainsUnsizedArray() const override {
-        return this->isUnsizedArray() || fComponentType.isOrContainsUnsizedArray();
+        return this->isUnsizedArray() || fComponentType->isOrContainsUnsizedArray();
     }
 
     const Type& componentType() const override {
-        return fComponentType;
+        return *fComponentType;
     }
 
     int columns() const override {
@@ -215,32 +216,32 @@ public:
     }
 
     int bitWidth() const override {
-        return fComponentType.bitWidth();
+        return fComponentType->bitWidth();
     }
 
     bool isAllowedInES2() const override {
-        return fComponentType.isAllowedInES2();
+        return fComponentType->isAllowedInES2();
     }
 
     bool isAllowedInUniform(Position* errorPosition) const override {
-        return fComponentType.isAllowedInUniform(errorPosition);
+        return fComponentType->isAllowedInUniform(errorPosition);
     }
 
     size_t slotCount() const override {
         SkASSERT(fCount != kUnsizedArray);
         SkASSERT(fCount > 0);
-        return fCount * fComponentType.slotCount();
+        return fCount * fComponentType->slotCount();
     }
 
     const Type& slotType(size_t n) const override {
         SkASSERT(fCount == kUnsizedArray || n < this->slotCount());
-        return fComponentType.slotType(n % fComponentType.slotCount());
+        return fComponentType->slotType(n % fComponentType->slotCount());
     }
 
 private:
     using INHERITED = Type;
 
-    const Type& fComponentType;
+    const raw_ref<const Type, DanglingUntriaged> fComponentType;
     int fCount;
     bool fIsBuiltin;
 };
@@ -283,7 +284,7 @@ public:
             , fPriority(priority) {}
 
     const Type& scalarTypeForLiteral() const override {
-        return fScalarType;
+        return *fScalarType;
     }
 
     int priority() const override {
@@ -299,19 +300,19 @@ public:
     }
 
     NumberKind numberKind() const override {
-        return fScalarType.numberKind();
+        return fScalarType->numberKind();
     }
 
     int bitWidth() const override {
-        return fScalarType.bitWidth();
+        return fScalarType->bitWidth();
     }
 
     double minimumValue() const override {
-        return fScalarType.minimumValue();
+        return fScalarType->minimumValue();
     }
 
     double maximumValue() const override {
-        return fScalarType.maximumValue();
+        return fScalarType->maximumValue();
     }
 
     bool isScalar() const override {
@@ -323,7 +324,7 @@ public:
     }
 
     bool isOrContainsBool() const override {
-        return fScalarType.isBoolean();
+        return fScalarType->isBoolean();
     }
 
     size_t slotCount() const override {
@@ -332,13 +333,13 @@ public:
 
     const Type& slotType(size_t n) const override {
         SkASSERT(n == 0);
-        return fScalarType;
+        return *fScalarType;
     }
 
 private:
     using INHERITED = Type;
 
-    const Type& fScalarType;
+    const raw_ref<const Type> fScalarType;
     int8_t fPriority;
 };
 
@@ -484,7 +485,7 @@ public:
     }
 
     const ScalarType& componentType() const override {
-        return fComponentType;
+        return *fComponentType;
     }
 
     int columns() const override {
@@ -513,13 +514,13 @@ public:
 
     const Type& slotType(size_t n) const override {
         SkASSERT(n < this->slotCount());
-        return fComponentType;
+        return *fComponentType;
     }
 
 private:
     using INHERITED = Type;
 
-    const ScalarType& fComponentType;
+    const raw_ref<const ScalarType> fComponentType;
     int8_t fColumns;
     int8_t fRows;
 };
@@ -586,27 +587,27 @@ public:
     }
 
     const TextureType& textureType() const override {
-        return fTextureType;
+        return *fTextureType;
     }
 
     SpvDim_ dimensions() const override {
-        return fTextureType.dimensions();
+        return fTextureType->dimensions();
     }
 
     bool isDepth() const override {
-        return fTextureType.isDepth();
+        return fTextureType->isDepth();
     }
 
     bool isArrayedTexture() const override {
-        return fTextureType.isArrayedTexture();
+        return fTextureType->isArrayedTexture();
     }
 
     bool isMultisampled() const override {
-        return fTextureType.isMultisampled();
+        return fTextureType->isMultisampled();
     }
 
     TextureAccess textureAccess() const override {
-        return fTextureType.textureAccess();
+        return fTextureType->textureAccess();
     }
 
     const Type& slotType(size_t n) const override {
@@ -617,7 +618,7 @@ public:
 private:
     using INHERITED = Type;
 
-    const TextureType& fTextureType;
+    const raw_ref<const TextureType> fTextureType;
 };
 
 class StructType final : public Type {
@@ -746,7 +747,7 @@ public:
     }
 
     const ScalarType& componentType() const override {
-        return fComponentType;
+        return *fComponentType;
     }
 
     int columns() const override {
@@ -766,15 +767,15 @@ public:
     }
 
     bool isAllowedInES2() const override {
-        return fComponentType.isAllowedInES2();
+        return fComponentType->isAllowedInES2();
     }
 
     bool isAllowedInUniform(Position* errorPosition) const override {
-        return fComponentType.isAllowedInUniform(errorPosition);
+        return fComponentType->isAllowedInUniform(errorPosition);
     }
 
     bool isOrContainsBool() const override {
-        return fComponentType.isOrContainsBool();
+        return fComponentType->isOrContainsBool();
     }
 
     size_t slotCount() const override {
@@ -783,13 +784,13 @@ public:
 
     const Type& slotType(size_t n) const override {
         SkASSERT(n < SkToSizeT(fColumns));
-        return fComponentType;
+        return *fComponentType;
     }
 
 private:
     using INHERITED = Type;
 
-    const ScalarType& fComponentType;
+    const raw_ref<const ScalarType> fComponentType;
     int8_t fColumns;
 };
 

@@ -10,6 +10,7 @@
 
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ref.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -29,12 +30,12 @@ public:
                   const Program* program,
                   OutputStream* stream)
             : fProgram(*program)
-            , fContext(fProgram.fContext->fTypes, *fProgram.fContext->fErrors)
+            , fContext(fProgram->fContext->fTypes, *fProgram->fContext->fErrors)
             , fCaps(*caps)
             , fOut(stream) {
-        fContext.fConfig = fProgram.fConfig.get();
-        fContext.fModule = fProgram.fContext->fModule;
-        fContext.fSymbolTable = fProgram.fSymbols.get();
+        fContext.fConfig = fProgram->fConfig.get();
+        fContext.fModule = fProgram->fContext->fModule;
+        fContext.fSymbolTable = fProgram->fSymbols.get();
     }
 
     virtual ~CodeGenerator() = default;
@@ -57,9 +58,9 @@ protected:
     // this time the bias is not implemented in the MSL codegen and so iOS/Metal was not tested.
     static constexpr float kSharpenTexturesBias = -.475f;
 
-    const Program& fProgram;
+    const raw_ref<const Program> fProgram;
     Context fContext;
-    const ShaderCaps& fCaps;
+    const raw_ref<const ShaderCaps> fCaps;
     raw_ptr<OutputStream> fOut;
 };
 

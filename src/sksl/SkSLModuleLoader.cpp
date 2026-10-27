@@ -121,17 +121,17 @@ ModuleLoader ModuleLoader::Get() {
 ModuleLoader::ModuleLoader()
         : fLocalImpl(std::make_unique<Impl>())
         , fModuleLoader(*fLocalImpl) {
-    fModuleLoader.fMutex.acquire();
+    fModuleLoader->fMutex.acquire();
 }
 
 ModuleLoader::ModuleLoader(ModuleLoader::Impl& m)
         : fLocalImpl(nullptr)
         , fModuleLoader(m) {
-    fModuleLoader.fMutex.acquire();
+    fModuleLoader->fMutex.acquire();
 }
 
 ModuleLoader::~ModuleLoader() {
-    fModuleLoader.fMutex.release();
+    fModuleLoader->fMutex.release();
 }
 
 ModuleLoader::Impl::Impl() {
@@ -183,7 +183,7 @@ static std::unique_ptr<Module> compile_and_shrink(SkSL::Compiler* compiler,
 }
 
 const Module* ModuleLoader::rootModule() {
-    return fModuleLoader.fRootModule.get();
+    return fModuleLoader->fRootModule.get();
 }
 
 void ModuleLoader::addPublicTypeAliases(const SkSL::Module* module) {
@@ -229,103 +229,103 @@ void ModuleLoader::addPublicTypeAliases(const SkSL::Module* module) {
 }
 
 const Module* ModuleLoader::loadPublicModule(SkSL::Compiler* compiler) {
-    if (!fModuleLoader.fPublicModule) {
+    if (!fModuleLoader->fPublicModule) {
         const Module* sharedModule = this->loadSharedModule(compiler);
-        fModuleLoader.fPublicModule = compile_and_shrink(compiler,
+        fModuleLoader->fPublicModule = compile_and_shrink(compiler,
                                                          ProgramKind::kFragment,
                                                          MODULE_DATA(sksl_public),
                                                          sharedModule);
-        this->addPublicTypeAliases(fModuleLoader.fPublicModule.get());
+        this->addPublicTypeAliases(fModuleLoader->fPublicModule.get());
     }
-    return fModuleLoader.fPublicModule.get();
+    return fModuleLoader->fPublicModule.get();
 }
 
 const Module* ModuleLoader::loadPrivateRTShaderModule(SkSL::Compiler* compiler) {
-    if (!fModuleLoader.fRuntimeShaderModule) {
+    if (!fModuleLoader->fRuntimeShaderModule) {
         const Module* publicModule = this->loadPublicModule(compiler);
-        fModuleLoader.fRuntimeShaderModule = compile_and_shrink(compiler,
+        fModuleLoader->fRuntimeShaderModule = compile_and_shrink(compiler,
                                                                 ProgramKind::kFragment,
                                                                 MODULE_DATA(sksl_rt_shader),
                                                                 publicModule);
     }
-    return fModuleLoader.fRuntimeShaderModule.get();
+    return fModuleLoader->fRuntimeShaderModule.get();
 }
 
 const Module* ModuleLoader::loadSharedModule(SkSL::Compiler* compiler) {
-    if (!fModuleLoader.fSharedModule) {
+    if (!fModuleLoader->fSharedModule) {
         const Module* rootModule = this->rootModule();
-        fModuleLoader.fSharedModule = compile_and_shrink(compiler,
+        fModuleLoader->fSharedModule = compile_and_shrink(compiler,
                                                          ProgramKind::kFragment,
                                                          MODULE_DATA(sksl_shared),
                                                          rootModule);
     }
-    return fModuleLoader.fSharedModule.get();
+    return fModuleLoader->fSharedModule.get();
 }
 
 const Module* ModuleLoader::loadGPUModule(SkSL::Compiler* compiler) {
-    if (!fModuleLoader.fGPUModule) {
+    if (!fModuleLoader->fGPUModule) {
         const Module* sharedModule = this->loadSharedModule(compiler);
-        fModuleLoader.fGPUModule = compile_and_shrink(compiler,
+        fModuleLoader->fGPUModule = compile_and_shrink(compiler,
                                                       ProgramKind::kFragment,
                                                       MODULE_DATA(sksl_gpu),
                                                       sharedModule);
     }
-    return fModuleLoader.fGPUModule.get();
+    return fModuleLoader->fGPUModule.get();
 }
 
 const Module* ModuleLoader::loadFragmentModule(SkSL::Compiler* compiler) {
-    if (!fModuleLoader.fFragmentModule) {
+    if (!fModuleLoader->fFragmentModule) {
         const Module* gpuModule = this->loadGPUModule(compiler);
-        fModuleLoader.fFragmentModule = compile_and_shrink(compiler,
+        fModuleLoader->fFragmentModule = compile_and_shrink(compiler,
                                                            ProgramKind::kFragment,
                                                            MODULE_DATA(sksl_frag),
                                                            gpuModule);
     }
-    return fModuleLoader.fFragmentModule.get();
+    return fModuleLoader->fFragmentModule.get();
 }
 
 const Module* ModuleLoader::loadVertexModule(SkSL::Compiler* compiler) {
-    if (!fModuleLoader.fVertexModule) {
+    if (!fModuleLoader->fVertexModule) {
         const Module* gpuModule = this->loadGPUModule(compiler);
-        fModuleLoader.fVertexModule = compile_and_shrink(compiler,
+        fModuleLoader->fVertexModule = compile_and_shrink(compiler,
                                                          ProgramKind::kVertex,
                                                          MODULE_DATA(sksl_vert),
                                                          gpuModule);
     }
-    return fModuleLoader.fVertexModule.get();
+    return fModuleLoader->fVertexModule.get();
 }
 
 const Module* ModuleLoader::loadComputeModule(SkSL::Compiler* compiler) {
-    if (!fModuleLoader.fComputeModule) {
+    if (!fModuleLoader->fComputeModule) {
         const Module* gpuModule = this->loadGPUModule(compiler);
-        fModuleLoader.fComputeModule = compile_and_shrink(compiler,
+        fModuleLoader->fComputeModule = compile_and_shrink(compiler,
                                                           ProgramKind::kCompute,
                                                           MODULE_DATA(sksl_compute),
                                                           gpuModule);
     }
-    return fModuleLoader.fComputeModule.get();
+    return fModuleLoader->fComputeModule.get();
 }
 
 const Module* ModuleLoader::loadGraphiteFragmentModule(SkSL::Compiler* compiler) {
-    if (!fModuleLoader.fGraphiteFragmentModule) {
+    if (!fModuleLoader->fGraphiteFragmentModule) {
         const Module* fragmentModule = this->loadFragmentModule(compiler);
-        fModuleLoader.fGraphiteFragmentModule = compile_and_shrink(compiler,
+        fModuleLoader->fGraphiteFragmentModule = compile_and_shrink(compiler,
                                                                    ProgramKind::kGraphiteFragment,
                                                                    MODULE_DATA(sksl_graphite_frag),
                                                                    fragmentModule);
     }
-    return fModuleLoader.fGraphiteFragmentModule.get();
+    return fModuleLoader->fGraphiteFragmentModule.get();
 }
 
 const Module* ModuleLoader::loadGraphiteVertexModule(SkSL::Compiler* compiler) {
-    if (!fModuleLoader.fGraphiteVertexModule) {
+    if (!fModuleLoader->fGraphiteVertexModule) {
         const Module* vertexModule = this->loadVertexModule(compiler);
-        fModuleLoader.fGraphiteVertexModule = compile_and_shrink(compiler,
+        fModuleLoader->fGraphiteVertexModule = compile_and_shrink(compiler,
                                                                  ProgramKind::kGraphiteVertex,
                                                                  MODULE_DATA(sksl_graphite_vert),
                                                                  vertexModule);
     }
-    return fModuleLoader.fGraphiteVertexModule.get();
+    return fModuleLoader->fGraphiteVertexModule.get();
 }
 
 void ModuleLoader::Impl::makeRootSymbolTable() {

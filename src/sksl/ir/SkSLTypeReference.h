@@ -8,6 +8,7 @@
 #ifndef SKSL_TYPEREFERENCE
 #define SKSL_TYPEREFERENCE
 
+#include "src/partition_alloc/raw_ref.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLPosition.h"
@@ -49,7 +50,7 @@ public:
             const Type* type);
 
     const Type& value() const {
-        return fValue;
+        return *fValue;
     }
 
     std::string description(OperatorPrecedence) const override {
@@ -65,7 +66,7 @@ private:
         : INHERITED(pos, kIRNodeKind, type)
         , fValue(*value) {}
 
-    const Type& fValue;
+    const raw_ref<const Type> fValue;
 
     using INHERITED = Expression;
 };

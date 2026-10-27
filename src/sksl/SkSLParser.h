@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLOperator.h"
@@ -320,7 +321,8 @@ private:
 
     SymbolTable* symbolTable();
 
-    Compiler& fCompiler;
+    // RAW_PTR_EXCLUSION: Performance: +3.5% on sksl_*.
+    RAW_PTR_EXCLUSION Compiler& fCompiler;
     ProgramSettings fSettings;
     raw_ptr<ErrorReporter> fErrorReporter;
     bool fEncounteredFatalError;

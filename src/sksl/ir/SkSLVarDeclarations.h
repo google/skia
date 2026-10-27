@@ -122,7 +122,8 @@ private:
 
     // RAW_PTR_EXCLUSION: Performance: +2% on sksl_small.
     RAW_PTR_EXCLUSION Variable* fVar;
-    const Type& fBaseType;
+    // RAW_PTR_EXCLUSION: Performance: +3.5% on sksl_*.
+    RAW_PTR_EXCLUSION const Type& fBaseType;
     int fArraySize;  // zero means "not an array"
     std::unique_ptr<Expression> fValue;
 

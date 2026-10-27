@@ -8,6 +8,7 @@
 #ifndef SKSL_FUNCTIONCALL
 #define SKSL_FUNCTIONCALL
 
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -86,7 +87,8 @@ public:
     std::string description(OperatorPrecedence) const override;
 
 private:
-    const FunctionDeclaration& fFunction;
+    // RAW_PTR_EXCLUSION: Performance: +2% on sksl_*.
+    RAW_PTR_EXCLUSION const FunctionDeclaration& fFunction;
     ExpressionArray fArguments;
 
     // The stable pointer uniquely identifies this FunctionCall across an entire SkSL program.

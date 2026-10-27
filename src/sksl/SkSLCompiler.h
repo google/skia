@@ -10,6 +10,7 @@
 
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/sksl/SkSLContext.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLPosition.h"
@@ -187,7 +188,8 @@ private:
         }
 
     private:
-        Compiler& fCompiler;
+        // RAW_PTR_EXCLUSION: Performance: +2% on sksl_*.
+        RAW_PTR_EXCLUSION Compiler& fCompiler;
     };
 
     /** Updates ProgramSettings to eliminate contradictions and to honor the ProgramKind. */
