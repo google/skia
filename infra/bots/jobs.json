@@ -300,13 +300,7 @@
     "name": "Build-Ubuntu22.04-Clang-x86_64-Debug-Chromebook_GLES"
   },
   {
-    "name": "Build-Ubuntu22.04-Clang-x86_64-Debug-Vulkan"
-  },
-  {
     "name": "Build-Ubuntu22.04-Clang-x86_64-Release-Chromebook_GLES"
-  },
-  {
-    "name": "Build-Ubuntu22.04-Clang-x86_64-Release-Vulkan"
   },
   {
     "name": "Build-Ubuntu24.04-Clang-arm-Debug-Android",
@@ -1118,9 +1112,6 @@
     "name": "Perf-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Release-All-Graphite_Native_Metal"
   },
   {
-    "name": "Perf-Ubuntu22.04-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Release-All-Vulkan"
-  },
-  {
     "name": "Perf-Ubuntu24.04-Clang-Golo-CPU-AVX2-x86_64-Release-All"
   },
   {
@@ -1164,6 +1155,9 @@
   },
   {
     "name": "Perf-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Release-All-Vulkan"
   },
   {
     "name": "Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Dawn_Vulkan"
@@ -1808,12 +1802,6 @@
     "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Release-All-TSAN_Graphite_Native_Metal"
   },
   {
-    "name": "Test-Ubuntu22.04-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Debug-All-Vulkan"
-  },
-  {
-    "name": "Test-Ubuntu22.04-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Release-All-Vulkan"
-  },
-  {
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86-Debug-All"
   },
   {
@@ -2038,6 +2026,12 @@
   },
   {
     "name": "Test-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Debug-All-Vulkan"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Release-All-Vulkan"
   },
   {
     "name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit",

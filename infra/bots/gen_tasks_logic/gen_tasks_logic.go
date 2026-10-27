@@ -890,7 +890,6 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			"Mac15":       "Mac-15.7",
 			"Mokey":       "Android",
 			"MokeyGo32":   "Android",
-			"Ubuntu20.04": UBUNTU_20_04_OS,
 			"Ubuntu22.04": UBUNTU_22_04_OS,
 			"Ubuntu24.04": UBUNTU_24_04_OS,
 			"Ubuntu26.04": UBUNTU_26_04_OS,
