@@ -356,7 +356,8 @@ public:
      * in r,g MatrixRec::apply() must be called (unless the shader doesn't require it's input
      * coords). The default impl creates shadercontext and calls that (not very efficient).
      */
-    virtual bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const = 0;
+    [[nodiscard]] virtual bool appendStages(const SkStageRec&,
+                                            const SkShaders::MatrixRec&) const = 0;
 
     virtual SkImage* onIsAImage(SkMatrix*, SkTileMode[2]) const {
         return nullptr;
