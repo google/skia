@@ -12,6 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
 #include "src/core/SkExecutors.h"
+#include "src/partition_alloc/raw_ref.h"
 
 #include <atomic>
 #include <cstdint>
@@ -38,7 +39,7 @@ public:
 
 private:
     std::atomic<int32_t>   fPending;
-    SkFunctionalExecutor& fExecutor;
+    const raw_ref<SkFunctionalExecutor> fExecutor;
 };
 
 #endif//SkTaskGroup_DEFINED

@@ -27,6 +27,7 @@
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskGamma.h"
+#include "src/partition_alloc/raw_ref.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -291,7 +292,7 @@ public:
     SkScalerContext(SkTypeface&, const SkScalerContextEffects&, const SkDescriptor*);
     virtual ~SkScalerContext();
 
-    SkTypeface* getTypeface() const { return &fTypeface; }
+    SkTypeface* getTypeface() const { return &fTypeface.get(); }
 
     SkMask::Format getMaskFormat() const {
         return fRec.fMaskFormat;
@@ -458,10 +459,9 @@ private:
                                             const SkScalerContextEffects&,
                                             const SkDescriptor&);
 
-    // In order for a SkScalerContext to be in use this typeface must exist.
-    // The SkScalerContext does not keep a reference to this typeface, so this reference may be
-    // a dangling reference when the SkScalerContext is destroyed.
-    SkTypeface& fTypeface;
+    // The typeface must outlive this SkScalerContext. SkScalerContext does not own a reference;
+    // its owners do (e.g. SkStrike through its SkStrikeSpec).
+    const raw_ref<SkTypeface> fTypeface;
 
     // optional objects, which may be null
     sk_sp<SkPathEffect> fPathEffect;
