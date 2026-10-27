@@ -90,6 +90,9 @@ void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,
     } else {
         // If there's a stroke style, the bounding box needs to increase by the stroke radius.
         // This is not necessary for inverted fills since that maximally covers the clip.
+        // styledBounds() is sufficient because CoverBoundsRenderStep is used for inverse-strokes
+        // (not this branch) or stroke-and-fills (which don't have hairlines).
+        SkASSERT(!params.isStroke() || params.strokeStyle().halfWidth() > 0.f);
         bounds = params.styledBounds().ltrb();
     }
 

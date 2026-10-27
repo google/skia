@@ -144,7 +144,7 @@ float Shape::getInflationRadius(SkPaint::Join join,
                                 float miterLimit,
                                 SkPaint::Cap cap,
                                 float strokeWidth) const {
-    SkASSERT(miterLimit >= 0.f && strokeWidth >= 0.f);
+    SkASSERT(miterLimit >= 0.f && strokeWidth > 0.f);
     // Rectangles, rounded rectangles, and lines do not produce miters so don't count the
     // pessimistic limit against their draw bounds.
     const float effectiveMiterLimit = this->isPath() ? miterLimit : 1.f;
