@@ -864,29 +864,24 @@ void ParagraphImpl::resolveStrut() {
 }
 
 BlockRange ParagraphImpl::findAllBlocks(TextRange textRange) {
-    BlockIndex begin = EMPTY_BLOCK;
-    BlockIndex end = EMPTY_BLOCK;
-    for (int index = 0; index < fTextStyles.size(); ++index) {
-        auto& block = fTextStyles[index];
-        if (block.fRange.end <= textRange.start) {
-            continue;
-        }
-        if (block.fRange.start >= textRange.end) {
-            break;
-        }
-        if (begin == EMPTY_BLOCK) {
-            begin = index;
-        }
-        end = index;
+    // The blocks are in text order. A binary search finds the first block, so that
+    // a call for each line does not make line breaking quadratic in the number of blocks.
+    auto first =
+            std::partition_point(fTextStyles.begin(), fTextStyles.end(), [&](const Block& block) {
+                return block.fRange.end <= textRange.start;
+            });
+    auto last = first;
+    while (last != fTextStyles.end() && last->fRange.start < textRange.end) {
+        ++last;
     }
 
-    if (begin == EMPTY_INDEX || end == EMPTY_INDEX) {
+    if (first == last) {
         // It's possible if some text is not covered with any text style
         // Not in Flutter but in direct use of SkParagraph
         return EMPTY_RANGE;
     }
 
-    return { begin, end + 1 };
+    return {SkToSizeT(first - fTextStyles.begin()), SkToSizeT(last - fTextStyles.begin())};
 }
 
 TextLine& ParagraphImpl::addLine(SkVector offset,
