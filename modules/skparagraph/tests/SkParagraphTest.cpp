@@ -4832,7 +4832,7 @@ UNIX_ONLY_TEST(SkParagraph_UnbreakableTextParagraph, reporter) {
             bool unbreakable = true;
             // (The last cluster is the end of the text)
             for (size_t i = 0; i + 2 < clusters.size(); ++i) {
-                unbreakable &= !clusters[i].isSoftBreak() && !clusters[i].isHardBreak();
+                unbreakable &= !clusters[i].isSoftBreak(impl) && !clusters[i].isHardBreak();
             }
             REPORTER_ASSERT(reporter, unbreakable, "%s", name);
             checkLines(reporter, paragraph.get(), text.size(), width, true);

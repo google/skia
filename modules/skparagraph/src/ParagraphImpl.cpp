@@ -348,9 +348,8 @@ Cluster::Cluster(ParagraphImpl* owner,
                  size_t end,
                  SkSpan<const char> text,
                  SkScalar width)
-        : fOwner(owner)
-        , fRunIndex(runIndex)
-        , fTextRange(text.begin() - fOwner->text().begin(), text.end() - fOwner->text().begin())
+        : fRunIndex(runIndex)
+        , fTextRange(text.begin() - owner->text().begin(), text.end() - owner->text().begin())
         , fStart(start)
         , fEnd(end)
         , fWidth(width)
@@ -371,13 +370,13 @@ Cluster::Cluster(ParagraphImpl* owner,
         }
     } else {
         for (auto i = fTextRange.start; i < fTextRange.end; ++i) {
-            if (fOwner->codeUnitHasProperty(i, SkUnicode::CodeUnitFlags::kPartOfWhiteSpaceBreak)) {
+            if (owner->codeUnitHasProperty(i, SkUnicode::CodeUnitFlags::kPartOfWhiteSpaceBreak)) {
                 ++whiteSpacesBreakLen;
             }
-            if (fOwner->codeUnitHasProperty(i, SkUnicode::CodeUnitFlags::kPartOfIntraWordBreak)) {
+            if (owner->codeUnitHasProperty(i, SkUnicode::CodeUnitFlags::kPartOfIntraWordBreak)) {
                 ++intraWordBreakLen;
             }
-            if (fOwner->codeUnitHasProperty(i, SkUnicode::CodeUnitFlags::kIdeographic)) {
+            if (owner->codeUnitHasProperty(i, SkUnicode::CodeUnitFlags::kIdeographic)) {
                 fIsIdeographic = true;
             }
         }
@@ -385,8 +384,8 @@ Cluster::Cluster(ParagraphImpl* owner,
 
     fIsWhiteSpaceBreak = whiteSpacesBreakLen == fTextRange.width();
     fIsIntraWordBreak = intraWordBreakLen == fTextRange.width();
-    fIsHardBreak = fOwner->codeUnitHasProperty(fTextRange.end,
-                                               SkUnicode::CodeUnitFlags::kHardLineBreakBefore);
+    fIsHardBreak = owner->codeUnitHasProperty(fTextRange.end,
+                                              SkUnicode::CodeUnitFlags::kHardLineBreakBefore);
 }
 
 SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
@@ -481,7 +480,7 @@ void ParagraphImpl::applySpacingAndBuildClusterTable() {
 
             // Process word spacing
             if (currentStyle->fStyle.getWordSpacing() != 0) {
-                if (cluster->isWhitespaceBreak() && cluster->isSoftBreak()) {
+                if (cluster->isWhitespaceBreak() && cluster->isSoftBreak(this)) {
                     if (!soFarWhitespacesOnly) {
                         lastSpaceCluster = cluster;
                         wordSpacingPending = true;
@@ -491,8 +490,8 @@ void ParagraphImpl::applySpacingAndBuildClusterTable() {
                     if (cluster->fRunIndex != lastSpaceCluster->fRunIndex) {
                         // If the last space cluster belongs to the previous run
                         // we have to extend that cluster and that run
-                        lastSpaceCluster->run().addSpacesAtTheEnd(spacing, lastSpaceCluster);
-                        lastSpaceCluster->run().extend(lastSpaceCluster, spacing);
+                        lastSpaceCluster->run(this).addSpacesAtTheEnd(spacing, lastSpaceCluster);
+                        lastSpaceCluster->run(this).extend(lastSpaceCluster, spacing);
                     } else {
                         run.addSpacesAtTheEnd(spacing, lastSpaceCluster);
                     }
@@ -1474,7 +1473,7 @@ bool ParagraphImpl::getGlyphInfoAtUTF16Offset(size_t codeUnitIndex, GlyphInfo* g
             boxes[0].rect,
             { fUTF16IndexForUTF8Index[startIndex], fUTF16IndexForUTF8Index[endIndex] },
             boxes[0].direction,
-            glyphCluster.run().isEllipsis(),
+            glyphCluster.run(this).isEllipsis(),
         };
     }
     return true;

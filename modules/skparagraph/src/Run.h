@@ -324,17 +324,14 @@ public:
     Cluster(const Cluster&) = default;
     ~Cluster() = default;
 
-    SkScalar sizeToChar(TextIndex ch) const;
-    SkScalar sizeFromChar(TextIndex ch) const;
+    SkScalar sizeToChar(ParagraphImpl* owner, TextIndex ch) const;
+    SkScalar sizeFromChar(ParagraphImpl* owner, TextIndex ch) const;
 
     size_t roundPos(SkScalar s) const;
 
     void space(SkScalar shift) {
         fWidth += shift;
     }
-
-    ParagraphImpl* getOwner() const { return fOwner; }
-    void setOwner(ParagraphImpl* owner) { fOwner = owner; }
 
     bool isWhitespaceBreak() const { return fIsWhiteSpaceBreak; }
     bool isIntraWordBreak() const { return fIsIntraWordBreak; }
@@ -345,9 +342,7 @@ public:
     // noticeably slower in builds without LTO
     bool isSoftHyphen() const { return fIsSoftHyphen; }
 
-    bool isSoftBreak() const;
-    bool isGraphemeBreak() const;
-    bool canBreakLineAfter() const { return isHardBreak() || isSoftBreak(); }
+    bool isSoftBreak(const ParagraphImpl* owner) const;
     size_t startPos() const { return fStart; }
     size_t endPos() const { return fEnd; }
     SkScalar width() const { return fWidth; }
@@ -359,13 +354,13 @@ public:
     TextRange textRange() const { return fTextRange; }
 
     RunIndex runIndex() const { return fRunIndex; }
-    ParagraphImpl* owner() const { return fOwner; }
 
-    Run* runOrNull() const;
-    Run& run() const;
-    SkFont font() const;
+    // A cluster does not keep its paragraph (it is copied between paragraphs by ParagraphCache),
+    // so the caller gives the paragraph that keeps the cluster.
+    Run* runOrNull(ParagraphImpl* owner) const;
+    Run& run(ParagraphImpl* owner) const;
 
-    SkScalar trimmedWidth(size_t pos) const;
+    SkScalar trimmedWidth(ParagraphImpl* owner, size_t pos) const;
 
     bool contains(TextIndex ch) const { return ch >= fTextRange.start && ch < fTextRange.end; }
 
@@ -381,7 +376,6 @@ private:
 
     friend ParagraphImpl;
 
-    ParagraphImpl* fOwner;
     RunIndex fRunIndex;
     TextRange fTextRange;
 

@@ -2385,7 +2385,7 @@ public:
             for (auto& cluster: clusters) {
                 SkDebugf("%zu: [%zu:%zu) %s\n", c++,
                          cluster.textRange().start, cluster.textRange().end,
-                         cluster.isSoftBreak() ? "soft" :
+                         cluster.isSoftBreak(impl) ? "soft" :
                          cluster.isHardBreak() ? "hard" :
                          cluster.isWhitespaceBreak() ? "spaces" : "");
             }

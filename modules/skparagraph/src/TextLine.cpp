@@ -206,7 +206,7 @@ TextLine::TextLine(ParagraphImpl* owner,
 
     // TODO: This is the fix for flutter. Must be removed...
     for (auto cluster = &start; cluster <= &end; ++cluster) {
-        if (!cluster->run().isPlaceholder() && !cluster->run().isCursiveScript()) {
+        if (!cluster->run(fOwner).isPlaceholder() && !cluster->run(fOwner).isCursiveScript()) {
             fShift += cluster->getHalfLetterSpacing();
             break;
         }
@@ -561,7 +561,7 @@ void TextLine::justify(SkScalar maxWidth) {
     this->iterateThroughClustersInGlyphsOrder(false, true, [&](const Cluster* cluster, ClusterIndex index, bool ghost) {
 
         if (ghost) {
-            if (cluster->run().leftToRight()) {
+            if (cluster->run(fOwner).leftToRight()) {
                 this->shiftCluster(cluster, ghostShift, ghostShift);
             } else {
                 // The trailing space of an RTL run is drawn before its other clusters, and the
@@ -621,7 +621,7 @@ void TextLine::justify(SkScalar maxWidth) {
 
 void TextLine::shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift) {
 
-    auto& run = cluster->run();
+    auto& run = cluster->run(fOwner);
     auto start = cluster->startPos();
     auto end = cluster->endPos();
 
@@ -822,7 +822,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsisOnce(const SkString& ellipsis, const
 BlockIndex TextLine::AffixBlock(ParagraphImpl* owner,
                                 BlockRange blockRange,
                                 const Cluster* cluster) {
-    const bool ltr = cluster->run().leftToRight();
+    const bool ltr = cluster->run(owner).leftToRight();
     for (auto i = blockRange.start; i < blockRange.end; ++i) {
         auto end = owner->block(i).fRange.end;
         if (ltr ? cluster->textRange().end <= end : cluster->textRange().start <= end) {
@@ -881,7 +881,7 @@ std::unique_ptr<Run> TextLine::ShapeString(ParagraphImpl* owner,
         SkString fEllipsis;
     };
 
-    const Run& run = cluster->run();
+    const Run& run = cluster->run(owner);
     const BlockIndex blockIndex = AffixBlock(owner, blockRange, cluster);
     const TextStyle& textStyle = blockIndex == EMPTY_INDEX ? owner->paragraphStyle().getTextStyle()
                                                            : owner->block(blockIndex).fStyle;
@@ -1102,7 +1102,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
                         isolateClusterGlyphs(fOwner, run, start, originalTextRange, true);
                 isolated = true;
             } else {
-                leftCorrection = start->sizeToChar(originalTextRange.start);
+                leftCorrection = start->sizeToChar(fOwner, originalTextRange.start);
             }
         }
         if (endSplit) {
@@ -1114,7 +1114,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
                         isolateClusterGlyphs(fOwner, run, end, originalTextRange, false);
                 isolated = true;
             } else {
-                rightCorrection = end->sizeFromChar(originalTextRange.end - 1);
+                rightCorrection = end->sizeFromChar(fOwner, originalTextRange.end - 1);
             }
         }
 

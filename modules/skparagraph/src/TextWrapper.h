@@ -37,10 +37,14 @@ class TextWrapper {
     class TextStretch {
     public:
         TextStretch() : fStart(), fEnd(), fWidth(0), fWidthWithGhostSpaces(0) {}
-        TextStretch(Cluster* s, Cluster* e, bool forceStrut)
-                : fStart(s, 0), fEnd(e, e->endPos()), fMetrics(forceStrut), fWidth(0), fWidthWithGhostSpaces(0) {
+        TextStretch(ParagraphImpl* owner, Cluster* s, Cluster* e, bool forceStrut)
+                : fStart(s, 0)
+                , fEnd(e, e->endPos())
+                , fMetrics(forceStrut)
+                , fWidth(0)
+                , fWidthWithGhostSpaces(0) {
             for (auto c = s; c <= e; ++c) {
-                if (auto r = c->runOrNull()) {
+                if (auto r = c->runOrNull(owner)) {
                     fMetrics.add(r);
                 }
                 if (c < e) {
@@ -62,9 +66,9 @@ class TextWrapper {
             return this->empty() ? fStart.position() : fEnd.position();
         }
         bool endOfCluster() { return fEnd.position() == fEnd.cluster()->endPos(); }
-        bool endOfWord() {
+        bool endOfWord(const ParagraphImpl* owner) {
             return endOfCluster() &&
-                   (fEnd.cluster()->isHardBreak() || fEnd.cluster()->isSoftBreak());
+                   (fEnd.cluster()->isHardBreak() || fEnd.cluster()->isSoftBreak(owner));
         }
 
         void extend(TextStretch& stretch) {
@@ -80,13 +84,13 @@ class TextWrapper {
 
         void setMetrics(const InternalLineMetrics& metrics) { fMetrics = metrics; }
 
-        void extend(Cluster* cluster) {
+        void extend(ParagraphImpl* owner, Cluster* cluster) {
             if (fStart.cluster() == nullptr) {
                 fStart = ClusterPos(cluster, cluster->startPos());
             }
             fEnd = ClusterPos(cluster, cluster->endPos());
             // TODO: Make sure all the checks are correct and there are no unnecessary checks
-            auto& r = cluster->run();
+            auto& r = cluster->run(owner);
             if (!cluster->isHardBreak() && !r.isPlaceholder()) {
                 // We ignore metrics for \n as the Flutter does
                 fMetrics.add(&r);
@@ -94,18 +98,18 @@ class TextWrapper {
             fWidth += cluster->width();
         }
 
-        void extend(Cluster* cluster, size_t pos) {
+        void extend(ParagraphImpl* owner, Cluster* cluster, size_t pos) {
             fEnd = ClusterPos(cluster, pos);
-            if (auto r = cluster->runOrNull()) {
+            if (auto r = cluster->runOrNull(owner)) {
                 fMetrics.add(r);
             }
         }
 
-        void startFrom(Cluster* cluster, size_t pos) {
+        void startFrom(ParagraphImpl* owner, Cluster* cluster, size_t pos) {
             fStart = ClusterPos(cluster, pos);
             // Leave fEnd at EMPTY_INDEX until at least one cluster is extended into this stretch
             fEnd = ClusterPos(cluster, EMPTY_INDEX);
-            if (auto r = cluster->runOrNull()) {
+            if (auto r = cluster->runOrNull(owner)) {
                 // In case of placeholder we should ignore the default text style -
                 // we will pick up the correct one from the placeholder
                 if (!r->isPlaceholder()) {
@@ -129,14 +133,12 @@ class TextWrapper {
             fBreak.move(true);
         }
 
-        void trim() {
+        void trim(ParagraphImpl* owner) {
 
-            if (fEnd.cluster() != nullptr &&
-                fEnd.cluster()->owner() != nullptr &&
-                fEnd.cluster()->runOrNull() != nullptr &&
-                fEnd.cluster()->run().placeholderStyle() == nullptr &&
-                fWidth > 0) {
-                fWidth -= (fEnd.cluster()->width() - fEnd.cluster()->trimmedWidth(fEnd.position()));
+            if (fEnd.cluster() != nullptr && fEnd.cluster()->runOrNull(owner) != nullptr &&
+                fEnd.cluster()->run(owner).placeholderStyle() == nullptr && fWidth > 0) {
+                fWidth -= (fEnd.cluster()->width() -
+                           fEnd.cluster()->trimmedWidth(owner, fEnd.position()));
             }
         }
 
@@ -197,6 +199,7 @@ public:
     bool exceededMaxLines() const { return fExceededMaxLines; }
 
 private:
+    ParagraphImpl* fParent = nullptr;
     TextStretch fWords;
     TextStretch fClusters;
     TextStretch fClip;
