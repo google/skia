@@ -37,6 +37,9 @@ protected:
     void**              fEdgeList = nullptr;
     SkTDArray<void*>    fList;
     SkSTArenaAlloc<512> fAlloc;
+#if !defined(SK_LEGACY_ALPHA_RUNS)
+    bool                fCanCullToTheRight = true;
+#endif
 
     enum Combine {
         kNo_Combine,
