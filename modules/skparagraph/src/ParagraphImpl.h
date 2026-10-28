@@ -270,7 +270,7 @@ private:
 
     // Internal structures
     InternalState fState;
-    skia_private::TArray<Run, false> fRuns;         // kShaped
+    skia_private::TArray<Run> fRuns;                // kShaped
     skia_private::TArray<Cluster, true> fClusters;  // kClusterized (cached: text, word spacing, letter spacing, resolved fonts)
     skia_private::TArray<SkUnicode::CodeUnitFlags, true> fCodeUnitProperties;
     skia_private::TArray<size_t, true> fClustersIndexFromCodeUnit;

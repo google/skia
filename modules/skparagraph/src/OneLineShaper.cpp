@@ -165,6 +165,12 @@ void OneLineShaper::finish(const Block& block, SkScalar height, SkScalar& advanc
                 return a.fText.start < b.fText.start;
               });
 
+    if (fParagraph->fRuns.empty()) {
+        // Usually all runs come from this block. Then the run array gets its exact size here, and
+        // shrink_to_fit() after shaping has little or nothing to do.
+        fParagraph->fRuns.reserve_exact(SkToInt(fResolvedBlocks.size()));
+    }
+
     // Go through all of them
     size_t lastTextEnd = blockText.start;
     for (auto& resolvedBlock : fResolvedBlocks) {

@@ -690,6 +690,8 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     OneLineShaper oneLineShaper(this);
     auto result = oneLineShaper.shape();
     fUnresolvedGlyphs = oneLineShaper.unresolvedGlyphs();
+    // The runs do not change after shaping, so do not keep the growth capacity.
+    fRuns.shrink_to_fit();
 
     this->applySpacingAndBuildClusterTable();
 

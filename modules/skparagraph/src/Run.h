@@ -20,6 +20,7 @@
 #include <functional>
 #include <limits>
 #include <tuple>
+#include <type_traits>
 
 class SkTextBlobBuilder;
 
@@ -224,6 +225,18 @@ private:
     uint8_t fBidiLevel;
     SkFourByteTag fScript;
     SkString fLanguage;
+
+public:
+    // So the run array moves runs with memcpy when it grows or shrinks. No member points into the
+    // run itself; fJustificationShifts must stay a TArray without inline storage.
+    using sk_is_trivially_relocatable = std::true_type;
+
+private:
+    static_assert(::sk_is_trivially_relocatable<decltype(fFont)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fGlyphData)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fLanguage)>::value);
+    static_assert(
+            std::is_same_v<decltype(fJustificationShifts), skia_private::TArray<SkPoint, true>>);
 };
 
 template<typename Visitor>

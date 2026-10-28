@@ -126,7 +126,7 @@ public:
     ParagraphCacheKey fKey;
 
     // Shaped results
-    TArray<Run, false> fRuns;
+    TArray<Run> fRuns;
     size_t fUnresolvedGlyphs;
     std::unordered_set<SkUnichar> fUnresolvedCodepoints;
     TArray<Cluster, true> fClusters;
