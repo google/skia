@@ -11,6 +11,7 @@
 #include <array>
 #include <limits>
 
+#include "experimental/rust_jpeg/decoder/SkJpegRustDecoder.h"
 #include "include/codec/SkCodecAnimation.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
@@ -181,9 +182,11 @@ bool GetYUVAInfo(const rust_jpeg::Reader& reader,
 
 }  // namespace
 
-std::unique_ptr<SkJpegRustCodec> SkJpegRustCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
-                                                                 Result* result,
-                                                                 bool rawInputComplete) {
+std::unique_ptr<SkJpegRustCodec> SkJpegRustCodec::MakeFromStream(
+        std::unique_ptr<SkStream> stream,
+        Result* result,
+        bool inputComplete,
+        SkJpegRustDecoder::Metadata* metadata) {
     Result resultStorage;
     if (!result) {
         result = &resultStorage;
@@ -195,9 +198,8 @@ std::unique_ptr<SkJpegRustCodec> SkJpegRustCodec::MakeFromStream(std::unique_ptr
     }
 
     auto inputAdapter = std::make_unique<rust::stream::SkStreamAdapter>(stream.get());
-    rust::Box<rust_jpeg::Reader> reader =
-            rust_jpeg::new_reader(
-                    std::move(inputAdapter), StreamLengthOrZero(*stream), rawInputComplete);
+    rust::Box<rust_jpeg::Reader> reader = rust_jpeg::new_reader(
+            std::move(inputAdapter), StreamLengthOrZero(*stream), inputComplete);
     if (reader->initialization_result() != rust_jpeg::DecodingResult::Success) {
         *result = MapDecodingResult(reader->initialization_result());
         return nullptr;
@@ -296,6 +298,9 @@ std::unique_ptr<SkJpegRustCodec> SkJpegRustCodec::MakeFromStream(std::unique_ptr
         return nullptr;
     }
 
+    if (metadata) {
+        metadata->fMCUSize = SkISize::Make(reader->mcu_width(), reader->mcu_height());
+    }
     *result = kSuccess;
     return std::unique_ptr<SkJpegRustCodec>(new SkJpegRustCodec(
             std::move(encodedInfo), std::move(stream), std::move(reader), orientation));
@@ -315,6 +320,41 @@ SkJpegRustCodec::SkJpegRustCodec(SkEncodedInfo&& encodedInfo,
 }
 
 SkJpegRustCodec::~SkJpegRustCodec() = default;
+
+SkISize SkJpegRustCodec::onGetScaledDimensions(float desiredScale) const {
+    int numerator = 1;
+    for (int candidate = 8; candidate > 1; --candidate) {
+        if (desiredScale >= (candidate - 0.5f) / 8.0f) {
+            numerator = candidate;
+            break;
+        }
+    }
+    return SkISize::Make((this->dimensions().width() * numerator + 7) / 8,
+                         (this->dimensions().height() * numerator + 7) / 8);
+}
+
+int SkJpegRustCodec::scaleNumerator(const SkISize& size) const {
+    for (int numerator = 8; numerator >= 1; --numerator) {
+        const SkISize scaled = SkISize::Make((this->dimensions().width() * numerator + 7) / 8,
+                                             (this->dimensions().height() * numerator + 7) / 8);
+        if (size == scaled) {
+            return numerator;
+        }
+    }
+    return 0;
+}
+
+bool SkJpegRustCodec::onDimensionsSupported(const SkISize& size) {
+    return this->scaleNumerator(size) != 0;
+}
+
+SkCodec::Result SkJpegRustCodec::setOutputDimensions(const SkISize& size) {
+    const int numerator = this->scaleNumerator(size);
+    if (!numerator) {
+        return kInvalidScale;
+    }
+    return MapDecodingResult(fReader->set_output_scale_ratio(static_cast<uint8_t>(numerator), 8));
+}
 
 sk_sp<const SkData> SkJpegRustCodec::getEncodedData() const {
     SkASSERT_RELEASE(fPrivStream);
@@ -539,9 +579,9 @@ bool SkJpegRustCodec::onRewind() {
     }
 
     auto inputAdapter = std::make_unique<rust::stream::SkStreamAdapter>(fPrivStream.get());
-    const bool rawInputComplete = fReader->raw_input_complete();
+    const bool inputComplete = fReader->input_complete();
     fReader = rust_jpeg::new_reader(
-            std::move(inputAdapter), StreamLengthOrZero(*fPrivStream), rawInputComplete);
+            std::move(inputAdapter), StreamLengthOrZero(*fPrivStream), inputComplete);
     if (fReader->initialization_result() != rust_jpeg::DecodingResult::Success) {
         return false;
     }
@@ -688,9 +728,13 @@ SkCodec::Result SkJpegRustCodec::onGetPixels(const SkImageInfo& info,
                                              int* rowsDecoded) {
     fReader->reset_decode_state();
     fSwizzleRowCount = 0;
+    Result result = this->setOutputDimensions(info.dimensions());
+    if (result != kSuccess) {
+        return result;
+    }
     fDirectPackedOutput = this->shouldUseDirectPackedOutput(info, options);
 
-    Result result = fDirectPackedOutput ? kSuccess : this->initializeSwizzler(info, options);
+    result = fDirectPackedOutput ? kSuccess : this->initializeSwizzler(info, options);
     if (result != kSuccess) {
         return result;
     }
@@ -766,22 +810,27 @@ SkCodec::Result SkJpegRustCodec::performFullDecode(const SkImageInfo& dstInfo,
     rust::Slice<const uint8_t> imageData;
     rust_jpeg::DecodedRowsInfo rowsInfo = fReader->get_next_rows(imageData);
 
-    if (imageData.empty()) {
+    const uint32_t rowCount = rowsInfo.row_count;
+    if (srcRowBytes == 0 || imageData.empty() || rowsInfo.dst_row_start != 0 ||
+        rowCount > static_cast<uint32_t>(dstInfo.height())) {
         return kErrorInInput;
     }
 
     SkSpan<const uint8_t> srcImage(imageData.data(), imageData.size());
     SkSafeMath safe;
-    size_t totalDstSize = safe.mul(safe.castTo<size_t>(dstInfo.height()), dstRowStride);
-    if (!safe.ok()) {
+    const size_t requiredSrcBytes = safe.mul(rowCount, srcRowBytes);
+    const size_t totalDstSize = dstInfo.computeByteSize(dstRowStride);
+    if (!safe.ok() || SkImageInfo::ByteSizeOverflowed(totalDstSize)) {
         return kInternalError;
     }
+    if (imageData.size() < requiredSrcBytes) {
+        return kErrorInInput;
+    }
     SkSpan<uint8_t> dstImage(static_cast<uint8_t*>(dst), totalDstSize);
-    const uint32_t rowCount = rowsInfo.row_count;
 
     for (uint32_t y = 0; y < rowCount; ++y) {
         SkSpan<const uint8_t> srcRow = srcImage.subspan(y * srcRowBytes, srcRowBytes);
-        SkSpan<uint8_t> dstRow = dstImage.subspan(y * dstRowStride, dstRowStride);
+        SkSpan<uint8_t> dstRow = dstImage.subspan(y * dstRowStride, dstInfo.minRowBytes());
         this->swizzleRow(srcRow.data(), dstRow.data());
     }
 
@@ -789,8 +838,7 @@ SkCodec::Result SkJpegRustCodec::performFullDecode(const SkImageInfo& dstInfo,
         *rowsDecoded = static_cast<int>(rowCount);
     }
 
-    return (rowCount == static_cast<uint32_t>(this->dimensions().height())) ? kSuccess
-                                                                            : kIncompleteInput;
+    return (rowCount == static_cast<uint32_t>(dstInfo.height())) ? kSuccess : kIncompleteInput;
 }
 
 SkCodec::Result SkJpegRustCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
@@ -808,19 +856,20 @@ SkCodec::Result SkJpegRustCodec::onStartIncrementalDecode(const SkImageInfo& dst
         return kInvalidParameters;
     }
 
-    Result result = this->initializeSwizzler(dstInfo, options);
+    fReader->reset_decode_state();
+    Result result = this->setOutputDimensions(dstInfo.dimensions());
+    if (result != kSuccess) {
+        return result;
+    }
+    result = this->initializeSwizzler(dstInfo, options);
     if (result != kSuccess) {
         return result;
     }
 
-    fReader->reset_decode_state();
-
     DecodingState state;
 
-    const int32_t height = dstInfo.height();
-    SkSafeMath safe;
-    size_t totalDstSize = safe.mul(safe.castTo<size_t>(height), dstRowBytes);
-    if (!safe.ok()) {
+    const size_t totalDstSize = dstInfo.computeByteSize(dstRowBytes);
+    if (SkImageInfo::ByteSizeOverflowed(totalDstSize)) {
         return kInternalError;
     }
 
@@ -870,7 +919,7 @@ SkCodec::Result SkJpegRustCodec::incrementalDecode(DecodingState& state, int* ro
 
     uint32_t copiedRows = 0;
     if (rowCount > 0) {
-        const uint32_t height = static_cast<uint32_t>(this->dimensions().height());
+        const uint32_t height = fReader->output_height();
         if (srcRowBytes == 0 || imageData.empty() || dstRowStart >= height ||
             rowCount > height - dstRowStart) {
             return kErrorInInput;
@@ -892,7 +941,7 @@ SkCodec::Result SkJpegRustCodec::incrementalDecode(DecodingState& state, int* ro
                 return kInternalError;
             }
             SkSpan<const uint8_t> srcRow = srcImage.subspan(srcOffset, srcRowBytes);
-            SkSpan<uint8_t> dstRow = state.fDst.subspan(dstOffset, state.fDstRowStride);
+            SkSpan<uint8_t> dstRow = state.fDst.subspan(dstOffset);
             this->swizzleRow(srcRow.data(), dstRow.data());
             copiedRows++;
         }
@@ -905,27 +954,36 @@ SkCodec::Result SkJpegRustCodec::incrementalDecode(DecodingState& state, int* ro
     }
 
     return readResult == rust_jpeg::DecodingResult::Success &&
-                           state.fTotalRowsInitialized >= this->dimensions().height()
+                           state.fTotalRowsInitialized >= static_cast<int>(fReader->output_height())
                    ? kSuccess
                    : kIncompleteInput;
 }
 
 SkCodec::Result SkJpegRustCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
                                                        const Options& options) {
-    // zune-jpeg currently emits full-frame rows and has no scaled-IDCT or
-    // jpeg_crop_scanline equivalent. SkCodec rejects scaled dimensions before
-    // this hook; reject horizontal subsets explicitly instead of claiming them.
+    // Reduced output uses buffered rows; full-size output retains its bounded
+    // streaming session. Neither path claims horizontal crop support.
     if (options.fSubset) {
         return kUnimplemented;
     }
-
-    fSwizzleRowCount = 0;
-    fDirectPackedOutput = this->shouldUseDirectPackedOutput(dstInfo, options);
-    Result result = fDirectPackedOutput ? kSuccess : this->initializeSwizzler(dstInfo, options);
+    fReader->reset_decode_state();
+    Result result = this->setOutputDimensions(dstInfo.dimensions());
     if (result != kSuccess) {
         return result;
     }
-    fReader->reset_decode_state();
+    if (dstInfo.dimensions() != this->dimensions()) {
+        SkSafeMath safe;
+        const size_t frameBytes = safe.mul(fReader->row_bytes(), fReader->output_height());
+        if (!safe.ok() || !this->allocateFromBudget(frameBytes)) {
+            return kOutOfMemory;
+        }
+    }
+    fSwizzleRowCount = 0;
+    fDirectPackedOutput = this->shouldUseDirectPackedOutput(dstInfo, options);
+    result = fDirectPackedOutput ? kSuccess : this->initializeSwizzler(dstInfo, options);
+    if (result != kSuccess) {
+        return result;
+    }
     fScanlineBuffer.clear();
 
     return this->startScanlineSession();

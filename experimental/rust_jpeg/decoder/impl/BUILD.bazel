@@ -25,6 +25,7 @@ skia_cc_library(
     srcs = [":skjpegrustcodec_srcs"],
     hdrs = [
         ":skjpegrustcodec_hdrs",
+        "//experimental/rust_jpeg/decoder:hdrs",
         "//include/private:jpeg_decode_srcs",
     ],
     visibility = [

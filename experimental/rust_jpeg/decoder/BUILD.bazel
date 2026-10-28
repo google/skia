@@ -9,6 +9,7 @@ skia_filegroup(
     srcs = [
         "SkJpegRustDecoder.h",
     ],
+    visibility = ["//experimental/rust_jpeg/decoder/impl:__pkg__"],
 )
 
 skia_filegroup(

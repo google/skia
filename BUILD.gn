@@ -1935,6 +1935,9 @@ optional("jpeg_decode_rust") {
   public = skia_codec_rust_jpeg_public
   sources = skia_codec_rust_jpeg
   sources_for_tests = [ "tests/SkJpegRustCodecTest.cpp" ]
+  if (skia_use_libjpeg_turbo_decode) {
+    configs = [ "//third_party/libjpeg-turbo:libjpeg_public" ]
+  }
   deps = [
     ":jpeg_encode_rust",
     ":rust_ffi_libs",
