@@ -24,6 +24,8 @@
 #include "src/gpu/graphite/geom/Transform.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 
+#include <array>
+
 namespace skgpu::graphite {
 
 struct Vertex {
@@ -42,6 +44,10 @@ struct Vertex {
 
 static constexpr int kVertexCount = 104;
 static constexpr int kIndexCount = 162;
+
+// The fraction of (corner radius + blur padding) along which the corner cells are beveled.
+// KEEP IN SYNC with kBevelFrac in analytic_rrect_blur_vertex_fn.
+static constexpr float kBevelFrac = 0.58578644f;  // 2 - sqrt(2)
 
 // We construct a 25 cell grid (5x5) for our rrect, with 6 distinct boundaries for each axis:
 // - Outset blur padding: the provided rrect's bounding box outset by 3 sigma.
@@ -120,6 +126,23 @@ static constexpr int kIndexCount = 162;
 //   | \____  \ |
 //   |  f2  \__\|
 //   v3--------v2
+//
+// Circles geometries allow us to make more assumptions when generating the x and y bounds since
+// we won't have any inside saturation optimizations since every cell will be affected by the blur.
+// This allows us to make x1 and x4 inset more than usual to match the full extent of the bevel,
+// which would normally be cut off by the three sigma edge inset. Minimizing the number of pixels
+// we have to evaluate.
+//
+//        x0  x1        x2/x3        x4  x5
+//            /---------------------\
+//           /           |           \
+//          /            |            \
+//         |             |             |
+//   y2/y3 |-------------+-------------|--
+//         |             |             |
+//          \            |            /
+//           \           |           /
+//            \---------------------/
 //
 static void write_vertex_buffer(VertexWriter writer) {
     if (!writer) return;
@@ -236,7 +259,8 @@ AnalyticRRectBlurRenderStep::AnalyticRRectBlurRenderStep(Layout layout,
                       {"doFastPath", SkSLType::kFloat},
                       {"sqrtHalfOverSigma", SkSLType::kHalf2},
                       {"rrectRadii", SkSLType::kFloat4, 2},
-                      {"blurRadius", SkSLType::kFloat2}},
+                      {"blurRadius", SkSLType::kFloat2},
+                      {"circleParams", SkSLType::kFloat2}},
                      PrimitiveType::kTriangles,
                      /*stencilSettings=*/{},
                      /*staticAttrs=*/
@@ -267,7 +291,7 @@ std::string AnalyticRRectBlurRenderStep::vertexSkSL(const RootNodesInfo&) const 
     return "float4 devPosition = analytic_rrect_blur_vertex_fn("
                    "gridAndBevel, cellID, rect, "
                    "bounds0, bounds1, bounds2, "
-                   "cornerSafeBounds, canSaturateEdge, drawPad, rrectRadii, depth, "
+                   "cornerSafeBounds, canSaturateEdge, drawPad, rrectRadii, circleParams, depth, "
                    "localToDevice0, localToDevice1, localToDevice2, "
                    "scaledShapeCoords, vFlags, stepLocalCoords);\n";
 }
@@ -285,6 +309,7 @@ const char* AnalyticRRectBlurRenderStep::fragmentCoverageSkSL() const {
                                                             "rrectRadii, "
                                                             "blurRadius, "
                                                             "doFastPath, "
+                                                            "circleParams, "
                                                             "cdfLut);";
 }
 
@@ -299,62 +324,82 @@ void AnalyticRRectBlurRenderStep::writeVertices(DrawWriter* writer,
     float drawPadX = blur.drawPadX();
     float drawPadY = blur.drawPadY();
 
-    // Calculate distance from edge where the corner curvature has ended and is saturated.
-    float safeOffsetLeft = std::max(radii[0].fX, radii[3].fX) + drawPadX;
-    float safeOffsetRight = std::max(radii[1].fX, radii[2].fX) + drawPadX;
-    float safeOffsetTop = std::max(radii[0].fY, radii[1].fY) + drawPadY;
-    float safeOffsetBottom = std::max(radii[2].fY, radii[3].fY) + drawPadY;
-
-    // Innermost safe bounds that we define as our fully saturated bounds.
-    float cornerSafeXMin = rect.fLeft + safeOffsetLeft;
-    float cornerSafeXMax = rect.fRight - safeOffsetRight;
-    float cornerSafeYMin = rect.fTop + safeOffsetTop;
-    float cornerSafeYMax = rect.fBottom - safeOffsetBottom;
-
-    // Snap innermost inset bounds to the center if they are overlapping.
-    if (cornerSafeXMin >= cornerSafeXMax) {
-        cornerSafeXMin = cornerSafeXMax = rect.centerX();
-    }
-    if (cornerSafeYMin >= cornerSafeYMax) {
-        cornerSafeYMin = cornerSafeYMax = rect.centerY();
-    }
-
-    // Our outermost edge safe inset bounds. This allows us to assume full coverage when we are
-    // far enough from an edge on one axis and within the corner radius safe limits on the other
-    // axis.
-    float edgeInsXMin = std::min(cornerSafeXMin, rect.fLeft + drawPadX);
-    float edgeInsXMax = std::max(cornerSafeXMax, rect.fRight - drawPadX);
-    float edgeInsYMin = std::min(cornerSafeYMin, rect.fTop + drawPadY);
-    float edgeInsYMax = std::max(cornerSafeYMax, rect.fBottom - drawPadY);
-
     // Bounds mapping to each row and columns of our 5x5 vertex grid.
-    const float xBounds[6] = {rect.fLeft - drawPadX, edgeInsXMin, cornerSafeXMin,
-                              cornerSafeXMax, edgeInsXMax, rect.fRight + drawPadX};
-    const float yBounds[6] = {rect.fTop - drawPadY,  edgeInsYMin, cornerSafeYMin,
-                              cornerSafeYMax, edgeInsYMax, rect.fBottom + drawPadY};
-
-    const SkM44& mat = params.transform().matrix();
+    std::array<float, 6> xBounds;
+    std::array<float, 6> yBounds;
+    float cornerSafeXMin, cornerSafeXMax, cornerSafeYMin, cornerSafeYMax;
 
     // Bitmask determining which edges we can assume are fully saturated by the opposite edge.
     // Dependent on the current edge cell's blur not going past the opposite edge of the rect.
     // In order from least significant to most significant: left, right, top, and bottom.
     uint32_t canSaturateEdge = 0;
-    if (edgeInsXMin + drawPadX < rect.fRight) {
-        canSaturateEdge |= 1;
-    }
-    if (edgeInsXMax - drawPadX > rect.fLeft) {
-        canSaturateEdge |= 2;
-    }
-    if (edgeInsYMin + drawPadY < rect.fBottom) {
-        canSaturateEdge |= 4;
-    }
-    if (edgeInsYMax - drawPadY > rect.fTop) {
-        canSaturateEdge |= 8;
+
+    if (blur.isCircleBlur()) {
+        // Every cell of a circle is affected by the blur, this means we have no inside cell
+        // optimizations to worry about so we size the corner cells to exactly their bevel.
+        const float bevelX = (radii[0].fX + drawPadX) * kBevelFrac;
+        const float bevelY = (radii[0].fY + drawPadY) * kBevelFrac;
+        const float centerX = rect.centerX();
+        const float centerY = rect.centerY();
+        xBounds = {rect.fLeft - drawPadX, rect.fLeft - drawPadX + bevelX, centerX,
+                   centerX, rect.fRight + drawPadX - bevelX, rect.fRight + drawPadX};
+        yBounds = {rect.fTop - drawPadY, rect.fTop - drawPadY + bevelY, centerY,
+                   centerY, rect.fBottom + drawPadY - bevelY, rect.fBottom + drawPadY};
+        cornerSafeXMin = cornerSafeXMax = centerX;
+        cornerSafeYMin = cornerSafeYMax = centerY;
+    } else {
+        // Calculate distance from edge where the corner curvature has ended and is saturated.
+        float safeOffsetLeft = std::max(radii[0].fX, radii[3].fX) + drawPadX;
+        float safeOffsetRight = std::max(radii[1].fX, radii[2].fX) + drawPadX;
+        float safeOffsetTop = std::max(radii[0].fY, radii[1].fY) + drawPadY;
+        float safeOffsetBottom = std::max(radii[2].fY, radii[3].fY) + drawPadY;
+
+        // Innermost safe bounds that we define as our fully saturated bounds.
+        cornerSafeXMin = rect.fLeft + safeOffsetLeft;
+        cornerSafeXMax = rect.fRight - safeOffsetRight;
+        cornerSafeYMin = rect.fTop + safeOffsetTop;
+        cornerSafeYMax = rect.fBottom - safeOffsetBottom;
+
+        // Snap innermost inset bounds to the center if they are overlapping.
+        if (cornerSafeXMin >= cornerSafeXMax) {
+            cornerSafeXMin = cornerSafeXMax = rect.centerX();
+        }
+        if (cornerSafeYMin >= cornerSafeYMax) {
+            cornerSafeYMin = cornerSafeYMax = rect.centerY();
+        }
+
+        // Our outermost edge safe inset bounds. This allows us to assume full coverage when we are
+        // far enough from an edge on one axis and within the corner radius safe limits on the
+        // other axis.
+        float edgeInsXMin = std::min(cornerSafeXMin, rect.fLeft + drawPadX);
+        float edgeInsXMax = std::max(cornerSafeXMax, rect.fRight - drawPadX);
+        float edgeInsYMin = std::min(cornerSafeYMin, rect.fTop + drawPadY);
+        float edgeInsYMax = std::max(cornerSafeYMax, rect.fBottom - drawPadY);
+
+        xBounds = {rect.fLeft - drawPadX, edgeInsXMin, cornerSafeXMin,
+                   cornerSafeXMax, edgeInsXMax, rect.fRight + drawPadX};
+        yBounds = {rect.fTop - drawPadY,  edgeInsYMin, cornerSafeYMin,
+                   cornerSafeYMax, edgeInsYMax, rect.fBottom + drawPadY};
+
+        if (edgeInsXMin + drawPadX < rect.fRight) {
+            canSaturateEdge |= 1;
+        }
+        if (edgeInsXMax - drawPadX > rect.fLeft) {
+            canSaturateEdge |= 2;
+        }
+        if (edgeInsYMin + drawPadY < rect.fBottom) {
+            canSaturateEdge |= 4;
+        }
+        if (edgeInsYMax - drawPadY > rect.fTop) {
+            canSaturateEdge |= 8;
+        }
     }
 
+    const SkM44& mat = params.transform().matrix();
+
     DrawWriter::Instances instances{*writer, fVertexBuffer, fIndexBuffer, kIndexCount};
-    instances.append(1) << VertexWriter::Array(xBounds, 6)               // bounds0, bounds1
-                        << VertexWriter::Array(yBounds, 6)               // bounds2
+    instances.append(1) << VertexWriter::Array(xBounds.data(), 6)        // bounds0, bounds1
+                        << VertexWriter::Array(yBounds.data(), 6)        // bounds2
                         << cornerSafeXMin << cornerSafeYMin
                         << cornerSafeXMax << cornerSafeYMax              // cornerSafeBounds
                         << canSaturateEdge
@@ -395,6 +440,8 @@ void AnalyticRRectBlurRenderStep::writeUniformsAndTextures(const DrawParams& par
                               SkV4{radii[2].fX, radii[2].fY, radii[3].fX, radii[3].fY}};
     gatherer->writeArray(SkSpan(radiiArr, 2));
     gatherer->write(blurRadius);
+    // A negative LUT row signals to the shaders that this isn't a circle.
+    gatherer->write(blur.isCircleBlur() ? blur.circleParams() : SkV2{-1.f, 0.f});
 
     gatherer->add(blur.refCdfProxy(), {SkFilterMode::kLinear, SkTileMode::kClamp});
 }

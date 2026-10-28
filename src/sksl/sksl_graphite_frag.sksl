@@ -1970,16 +1970,20 @@ $pure half4 endcap_coverage_fn(float2 rectCoord,
     return texColor[channelIdx].rrrr;
 }
 
-half $cdf(half u, sampler2D cdfLut) {
-    // KEEP IN SYNC with kCdfLutRange = 4.0 in AnalyticRRectBlurMask.cpp:
+// Sampled the CDF LUT where u is the the x coordinate of the CDF, and v is the normalized y
+// coordinate which determines the corresponding radial CDF to use.
+half $cdf(half2 uv, sampler2D cdfLut) {
+    // KEEP IN SYNC with kCdfLutRange = 4.0 in AnalyticRRectBlurMask.h:
     // (u + 4.0) / 8.0 == u * 0.125 + 0.5
-    float coord = float(u * 0.125 + 0.5);
-    return sample(cdfLut, float2(coord, 0.5)).r;
+    float coord = float(uv.x * 0.125 + 0.5);
+
+    // Row 0 of the LUT holds the half-plane 1D Gaussian CDF.
+    return sample(cdfLut, float2(coord, uv.y)).r;
 }
 
 // CDF of the Gaussian at a spatial offset from the coordinate center.
 half $spatial_cdf(float offset, half one_over_sqrt2_sigma, sampler2D cdfLut) {
-    return $cdf(half(offset * one_over_sqrt2_sigma), cdfLut);
+    return $cdf(half2(offset * one_over_sqrt2_sigma, 0.0), cdfLut);
 }
 
 // Unnormalized Gaussian weight exp(-u^2) at spatial offset from coordinate center.
@@ -2138,6 +2142,7 @@ $pure half4 $analytic_rrect_blur_coverage_fn(float2 pos,
                                              half2 one_over_sqrt2_sigma,
                                              float2 blurRadius,
                                              float doFastPath,
+                                             float2 circleParams,
                                              sampler2D cdfLut) {
     // Corners encoded as 0.0 (inactive), 0.5 (inside), 1.0 (active).
     // When encoded as inside, all corner flags are inside.
@@ -2145,6 +2150,8 @@ $pure half4 $analytic_rrect_blur_coverage_fn(float2 pos,
     //
     // Edge fast-path encoded as -1.0, disjoint from corner flags.
     // x=left, y=right, z=top, w=bottom
+    //
+    // Circles encoded as -2.0 for every cell.
     half4 f = flags;
 
     // Fully inside: all CDFs saturated, no corners needed.
@@ -2152,11 +2159,25 @@ $pure half4 $analytic_rrect_blur_coverage_fn(float2 pos,
         return half4(1);
     }
 
-    // Set for edges not affected by corners or the area past the opposite edge, and fully saturated
-    // on the other axis: only 1 CDF lookup needed.
+    // Single CDF lookup paths.
     if (f.x < -0.5) {
+        if (f.x < -1.5) {
+            // Circle: We look up our CDF coverage in the LUT by using the the signed distance to
+            // the edge for our x-axis. We then use the sigma/radius ratio to sample our
+            // y-axis.
+            float distToCenter = length(pos - 0.5 * (rect.xy + rect.zw));
+
+            // All of a circle's corner radii are equal to its radius.
+            float u = (rrectRadii[0].x - distToCenter) * float(one_over_sqrt2_sigma.x);
+            // The circle rows are normalized by the coverage at the circle's center, so scale the
+            // sampled profile back by it.
+            return half4($cdf(half2(u, circleParams.x), cdfLut) * half(circleParams.y));
+        }
+
+        // Set for edges not affected by corners or the area past the opposite edge, and fully
+        // saturated on the other axis.
         float2 d = min(pos - rect.xy, rect.zw - pos) * float2(one_over_sqrt2_sigma);
-        return half4($cdf(half(min(d.x, d.y)), cdfLut));
+        return half4($cdf(half2(min(d.x, d.y), 0.0), cdfLut));
     }
 
     half cdf_l;
@@ -2219,7 +2240,8 @@ $pure half4 analytic_rrect_blur_coverage_fn(float2 coords,
                                             float4[2] radii,
                                             float2 blurRadius,
                                             float doFastPath,
+                                            float2 circleParams,
                                             sampler2D cdfLut) {
-    return $analytic_rrect_blur_coverage_fn(coords, rect, flags, radii,
-                                            sqrtHalfOverSigma, blurRadius, doFastPath, cdfLut);
+    return $analytic_rrect_blur_coverage_fn(coords, rect, flags, radii, sqrtHalfOverSigma,
+                                            blurRadius, doFastPath, circleParams, cdfLut);
 }

@@ -1230,6 +1230,8 @@ float4 analytic_rrect_blur_vertex_fn(int4 gridAndBevel,
                                      uint canSaturateEdge,
                                      float2 drawPad,
                                      float4[2] rrectRadii,
+                                     // x=0 when the shape is a circle, x=-1 otherwise.
+                                     float2 circleParams,
                                      float depth,
                                      float3 localToDevice0,
                                      float3 localToDevice1,
@@ -1240,6 +1242,7 @@ float4 analytic_rrect_blur_vertex_fn(int4 gridAndBevel,
     // The fraction of the radius along which we will bevel the corner, this is calculated by
     // determining the intercepts of the tangent line to the point 45 degrees along the
     // rounded corner.
+    // KEEP IN SYNC with kBevelFrac in AnalyticRRectBlurRenderStep.cpp.
     const float kBevelFrac = 0.58578644; // 2 - sqrt(2)
 
     uint cellIndex = cellID & 31;
@@ -1269,6 +1272,14 @@ float4 analytic_rrect_blur_vertex_fn(int4 gridAndBevel,
     devPosition.z = depth;
     stepLocalCoords = position;
     scaledShapeCoords = position;
+
+    // We treat the circle case as a subset of the edge case since it allows us to branch similarly
+    // in the fragment shader. This flag is constant for all vertices if it is the circle case.
+    const half kCircle = -2.0;
+    if (circleParams.x >= 0.0) {
+        vFlags = half4(kCircle);
+        return devPosition;
+    }
 
     uint col = cellIndex % 5;
     uint row = cellIndex / 5;
