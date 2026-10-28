@@ -346,7 +346,6 @@ Cluster::Cluster(ParagraphImpl* owner,
         : fOwner(owner)
         , fRunIndex(runIndex)
         , fTextRange(text.begin() - fOwner->text().begin(), text.end() - fOwner->text().begin())
-        , fGraphemeRange(EMPTY_RANGE)
         , fStart(start)
         , fEnd(end)
         , fWidth(width)

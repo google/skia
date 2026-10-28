@@ -325,7 +325,6 @@ public:
             : fOwner(nullptr)
             , fRunIndex(EMPTY_RUN)
             , fTextRange(EMPTY_TEXT)
-            , fGraphemeRange(EMPTY_RANGE)
             , fStart(0)
             , fEnd()
             , fWidth()
@@ -340,7 +339,7 @@ public:
             SkScalar width,
             SkScalar height);
 
-    explicit Cluster(TextRange textRange) : fTextRange(textRange), fGraphemeRange(EMPTY_RANGE) {}
+    explicit Cluster(TextRange textRange) : fTextRange(textRange) {}
 
     Cluster(const Cluster&) = default;
     ~Cluster() = default;
@@ -403,7 +402,6 @@ private:
     ParagraphImpl* fOwner;
     RunIndex fRunIndex;
     TextRange fTextRange;
-    GraphemeRange fGraphemeRange;
 
     size_t fStart;
     size_t fEnd;
