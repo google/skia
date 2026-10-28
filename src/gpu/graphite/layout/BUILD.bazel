@@ -1,0 +1,34 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup", "split_srcs_and_hdrs")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+CORE_FILES = [
+    "Attribute.h",
+    "PipelineData.h",
+    "StorageContext.cpp",
+    "StorageContext.h",
+    "Uniform.h",
+    "UniformManager.cpp",
+    "UniformManager.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core",
+    files = CORE_FILES,
+)
+
+skia_filegroup(
+    name = "layout_hdrs",
+    srcs = [":core_hdrs"],
+    visibility = ["//src/gpu/graphite:__pkg__"],
+)
+
+skia_filegroup(
+    name = "layout_srcs",
+    srcs = [":core_srcs"],
+    visibility = ["//src/gpu/graphite:__pkg__"],
+)

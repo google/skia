@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/UniformManager.h"
+#include "src/gpu/graphite/layout/UniformManager.h"
 
-#include "src/gpu/graphite/PipelineData.h"
+#include "src/gpu/graphite/layout/PipelineData.h"
 
 // ensure that these types are the sizes the uniform data is expecting
 static_assert(sizeof(int32_t) == 4);

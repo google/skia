@@ -19,12 +19,12 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkTHash.h"
-#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
-#include "src/gpu/graphite/StorageContext.h"
 #include "src/gpu/graphite/TextureProxy.h"
-#include "src/gpu/graphite/UniformManager.h"
+#include "src/gpu/graphite/buffer/BufferManager.h"
+#include "src/gpu/graphite/layout/StorageContext.h"
+#include "src/gpu/graphite/layout/UniformManager.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
 #include <optional>

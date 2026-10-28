@@ -9,7 +9,7 @@
 #define skgpu_graphite_ContextUtils_DEFINED
 
 #include "src/core/SkSLTypeShared.h"
-#include "src/gpu/graphite/Uniform.h"
+#include "src/gpu/graphite/layout/Uniform.h"
 
 #include <cstdint>
 #include <optional>

@@ -11,8 +11,8 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
-#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/layout/PipelineData.h"
 
 using namespace skgpu::graphite;
 

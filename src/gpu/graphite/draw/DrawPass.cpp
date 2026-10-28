@@ -12,7 +12,6 @@
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineCreationTask.h"
-#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/PipelineManager.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Resource.h"  // IWYU pragma: keep
@@ -22,6 +21,7 @@
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Texture.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/layout/PipelineData.h"
 
 using namespace skia_private;
 

@@ -15,7 +15,6 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
@@ -23,7 +22,8 @@
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/Texture.h"
-#include "src/gpu/graphite/UploadBufferManager.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
+#include "src/gpu/graphite/buffer/UploadBufferManager.h"
 #include "src/gpu/graphite/task/Task.h"
 #include "src/gpu/graphite/task/TaskList.h"
 

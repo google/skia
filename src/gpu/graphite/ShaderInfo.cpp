@@ -18,7 +18,7 @@
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/TextureFormat.h"
-#include "src/gpu/graphite/UniformManager.h"
+#include "src/gpu/graphite/layout/UniformManager.h"
 #include "src/gpu/graphite/render/MeshRenderStep.h"
 #include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLString.h"

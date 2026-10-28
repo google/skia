@@ -13,10 +13,10 @@
 #include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/Blend.h"
-#include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/layout/Attribute.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "src/gpu/graphite/vk/VulkanSampler.h"
 

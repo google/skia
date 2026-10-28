@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/UploadBufferManager.h"
+#include "src/gpu/graphite/buffer/UploadBufferManager.h"
 
 #include "include/gpu/graphite/Recording.h"
 #include "include/private/SkAlign.h"
 #include "include/private/SkTFitsIn.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
 
 namespace skgpu::graphite {
 

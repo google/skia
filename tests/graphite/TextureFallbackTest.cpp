@@ -18,8 +18,8 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ShaderInfo.h"
-#include "src/gpu/graphite/StorageContext.h"
-#include "src/gpu/graphite/Uniform.h"
+#include "src/gpu/graphite/layout/StorageContext.h"
+#include "src/gpu/graphite/layout/Uniform.h"
 
 namespace skgpu::graphite {
 

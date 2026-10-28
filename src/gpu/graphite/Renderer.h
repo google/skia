@@ -15,11 +15,11 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/private/SkEnumBitMask.h"
 #include "src/core/SkVx.h"
-#include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/ResourceTypes.h"
-#include "src/gpu/graphite/Uniform.h"
+#include "src/gpu/graphite/layout/Attribute.h"
+#include "src/gpu/graphite/layout/Uniform.h"
 
 #include <array>
 #include <initializer_list>

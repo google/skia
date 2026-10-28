@@ -20,10 +20,8 @@
 #include "src/core/SkSLTypeShared.h"
 #include "src/core/SkVx.h"
 #include "src/gpu/BufferWriter.h"
-#include "src/gpu/graphite/Attribute.h"
-#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawTypes.h"
-#include "src/gpu/graphite/PipelineData.h"
+#include "src/gpu/graphite/buffer/BufferManager.h"
 #include "src/gpu/graphite/draw/DrawOrder.h"
 #include "src/gpu/graphite/draw/DrawParams.h"
 #include "src/gpu/graphite/draw/DrawWriter.h"
@@ -32,6 +30,8 @@
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform.h"
+#include "src/gpu/graphite/layout/Attribute.h"
+#include "src/gpu/graphite/layout/PipelineData.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 
 #include <array>

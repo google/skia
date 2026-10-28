@@ -14,7 +14,7 @@
 #include "include/private/SingleOwner.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/RefCntedCallback.h"
-#include "src/gpu/graphite/Buffer.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 

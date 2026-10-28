@@ -16,7 +16,7 @@
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/GraphicsPipelineHandle.h"
 #include "src/gpu/graphite/ResourceTypes.h"
-#include "src/gpu/graphite/StorageContext.h"
+#include "src/gpu/graphite/layout/StorageContext.h"
 
 struct SkImageInfo;
 

@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_RecorderOptionsPriv_DEFINED
 #define skgpu_graphite_RecorderOptionsPriv_DEFINED
 
-#include "src/gpu/graphite/BufferManager.h"
+#include "src/gpu/graphite/buffer/BufferManager.h"
 
 #include <optional>
 

@@ -15,7 +15,6 @@
 #include "include/private/SkAlign.h"
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
-#include "src/gpu/graphite/StorageContext.h"
 #include "src/gpu/graphite/dawn/DawnBuffer.h"
 #include "src/gpu/graphite/dawn/DawnCommandBuffer.h"
 #include "src/gpu/graphite/dawn/DawnComputePipeline.h"
@@ -25,6 +24,7 @@
 #include "src/gpu/graphite/dawn/DawnSampler.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 #include "src/gpu/graphite/dawn/DawnTexture.h"
+#include "src/gpu/graphite/layout/StorageContext.h"
 #include "src/partition_alloc/raw_ptr.h"
 #include "src/sksl/SkSLCompiler.h"
 

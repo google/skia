@@ -20,7 +20,6 @@
 #include "src/gpu/graphite/GraphicsPipelineHandle.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PipelineCreationTask.h"
-#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/PrecompileContextPriv.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
@@ -30,6 +29,7 @@
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
+#include "src/gpu/graphite/layout/PipelineData.h"
 #include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
 #include "src/gpu/graphite/precompile/PrecompileColorFiltersPriv.h"
 

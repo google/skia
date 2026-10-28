@@ -11,7 +11,6 @@
 #include "include/private/SkAttributes.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
@@ -22,6 +21,7 @@
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/SerializationUtils.h"
 #include "src/gpu/graphite/SharedContext.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
 
 #if defined(SK_ENABLE_SPARSE_STRIPS)
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"

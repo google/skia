@@ -21,9 +21,9 @@
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
-#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/draw/DrawContext.h"
+#include "src/gpu/graphite/layout/PipelineData.h"
 
 namespace skgpu::graphite {
 

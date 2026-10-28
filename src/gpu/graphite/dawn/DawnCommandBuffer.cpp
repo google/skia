@@ -13,7 +13,6 @@
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/TextureProxy.h"
-#include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/dawn/DawnBuffer.h"
 #include "src/gpu/graphite/dawn/DawnCaps.h"
@@ -24,6 +23,7 @@
 #include "src/gpu/graphite/dawn/DawnSampler.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 #include "src/gpu/graphite/dawn/DawnTexture.h"
+#include "src/gpu/graphite/layout/UniformManager.h"
 
 #if defined(__EMSCRIPTEN__)
 #include <emscripten/version.h>

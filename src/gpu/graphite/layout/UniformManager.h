@@ -26,7 +26,7 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/graphite/ResourceTypes.h"
-#include "src/gpu/graphite/Uniform.h"
+#include "src/gpu/graphite/layout/Uniform.h"
 
 #include <algorithm>
 #include <memory>

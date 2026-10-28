@@ -12,11 +12,11 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/Swizzle.h"
-#include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
+#include "src/gpu/graphite/layout/Attribute.h"
 #include "src/partition_alloc/raw_ptr.h"
 
 namespace skgpu::graphite {

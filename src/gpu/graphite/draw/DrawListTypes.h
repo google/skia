@@ -15,11 +15,11 @@
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/PaintParams.h"
-#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/draw/DrawOrder.h"
 #include "src/gpu/graphite/draw/DrawParams.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Transform.h"
+#include "src/gpu/graphite/layout/PipelineData.h"
 
 #include <cstdint>
 #include <functional>

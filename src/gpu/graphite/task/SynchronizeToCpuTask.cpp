@@ -7,8 +7,8 @@
 
 #include "src/gpu/graphite/task/SynchronizeToCpuTask.h"
 
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/CommandBuffer.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
 
 namespace skgpu::graphite {
 

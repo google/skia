@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/StorageContext.h"
+#include "src/gpu/graphite/layout/StorageContext.h"
 
 #include "include/private/SkAlign.h"
 #include "include/private/SkAttributes.h"
-#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
+#include "src/gpu/graphite/buffer/BufferManager.h"
 #include "src/gpu/graphite/draw/DrawContext.h"
 #include "src/gpu/graphite/task/UploadTask.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"

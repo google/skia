@@ -16,9 +16,9 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/gpu/BufferWriter.h"
-#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/buffer/BufferManager.h"
 
 #include <algorithm>
 #include <cstddef>

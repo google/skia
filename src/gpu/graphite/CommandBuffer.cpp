@@ -15,13 +15,13 @@
 #include "include/private/SkLog.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/RefCntedCallback.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/Sampler.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/draw/DrawPass.h"
 

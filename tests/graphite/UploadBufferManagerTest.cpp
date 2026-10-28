@@ -10,9 +10,9 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/UploadBufferManager.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
+#include "src/gpu/graphite/buffer/UploadBufferManager.h"
 
 namespace skgpu::graphite {
 

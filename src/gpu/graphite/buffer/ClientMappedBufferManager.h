@@ -11,7 +11,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/AsyncReadTypes.h"
-#include "src/gpu/graphite/Buffer.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
 
 #include <forward_list>
 

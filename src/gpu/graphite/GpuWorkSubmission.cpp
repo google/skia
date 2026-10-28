@@ -8,9 +8,9 @@
 #include "src/gpu/graphite/GpuWorkSubmission.h"
 
 #include "src/gpu/RefCntedCallback.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/QueueManager.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
 
 namespace skgpu::graphite {
 

@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- #include "src/gpu/graphite/BufferManager.h"
+#include "src/gpu/graphite/buffer/BufferManager.h"
 
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recording.h"
@@ -21,7 +21,7 @@
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceProvider.h"
-#include "src/gpu/graphite/UploadBufferManager.h"
+#include "src/gpu/graphite/buffer/UploadBufferManager.h"
 #include "src/gpu/graphite/task/ClearBuffersTask.h"
 #include "src/gpu/graphite/task/CopyTask.h"
 #include "src/gpu/graphite/task/Task.h"

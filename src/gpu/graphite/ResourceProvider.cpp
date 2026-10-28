@@ -12,7 +12,6 @@
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/private/SkLog.h"
 #include "src/gpu/GlobalResourceStats.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"
@@ -26,6 +25,7 @@
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureUtils.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
 #include "src/sksl/SkSLCompiler.h"
 
 namespace skgpu::graphite {

@@ -12,7 +12,7 @@
 #include "include/private/SkAttributes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/InternalDrawTypeFlags.h"
-#include "src/gpu/graphite/UniformManager.h"
+#include "src/gpu/graphite/layout/UniformManager.h"
 #include "src/gpu/graphite/render/AnalyticBlurRenderStep.h"
 #include "src/gpu/graphite/render/AnalyticRRectBlurRenderStep.h"
 #include "src/gpu/graphite/render/AnalyticRRectRenderStep.h"

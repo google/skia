@@ -13,10 +13,10 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
 #include "src/gpu/graphite/PaintParams.h"
-#include "src/gpu/graphite/StorageContext.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/draw/DrawListBase.h"
+#include "src/gpu/graphite/layout/StorageContext.h"
 #include "src/gpu/graphite/task/UploadTask.h"
 
 #include <array>

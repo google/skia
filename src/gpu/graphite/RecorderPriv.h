@@ -14,9 +14,9 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/graphite/DebugUtils.h"
-#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
+#include "src/gpu/graphite/layout/PipelineData.h"
 
 #include <cstddef>
 #include <cstdint>

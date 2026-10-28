@@ -11,10 +11,10 @@
 #include "include/core/SkColorType.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkTHash.h"
-#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/TextureFormat.h"
+#include "src/gpu/graphite/buffer/BufferManager.h"
 
 #include <cstdint>
 #include <limits>

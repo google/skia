@@ -17,12 +17,12 @@
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/DrawCommands.h"
 #include "src/gpu/graphite/PaintParams.h"
-#include "src/gpu/graphite/PipelineData.h"
-#include "src/gpu/graphite/StorageContext.h"
 #include "src/gpu/graphite/draw/DrawOrder.h"
 #include "src/gpu/graphite/draw/DrawParams.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Transform.h"
+#include "src/gpu/graphite/layout/PipelineData.h"
+#include "src/gpu/graphite/layout/StorageContext.h"
 
 #include <array>
 #include <cstdint>

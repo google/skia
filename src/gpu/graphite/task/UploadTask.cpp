@@ -36,7 +36,7 @@
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
-#include "src/gpu/graphite/UploadBufferManager.h"
+#include "src/gpu/graphite/buffer/UploadBufferManager.h"
 
 #include <algorithm>
 #include <cstdint>

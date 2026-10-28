@@ -17,7 +17,6 @@
 #include "include/private/SkLog.h"
 #include "include/private/SkTo.h"
 #include "src/gpu/BufferWriter.h"
-#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"
@@ -28,7 +27,8 @@
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/Texture.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/TextureProxy.h"
-#include "src/gpu/graphite/UniformManager.h"
+#include "src/gpu/graphite/buffer/BufferManager.h"
+#include "src/gpu/graphite/layout/UniformManager.h"
 #include "src/gpu/graphite/task/ClearBuffersTask.h"
 
 #include <utility>

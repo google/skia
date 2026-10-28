@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/ClientMappedBufferManager.h"
+#include "src/gpu/graphite/buffer/ClientMappedBufferManager.h"
 
 #include "src/core/SkMessageBus.h"
 

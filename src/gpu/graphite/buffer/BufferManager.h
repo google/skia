@@ -15,9 +15,9 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/BufferWriter.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/ResourceTypes.h"
-#include "src/gpu/graphite/UploadBufferManager.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
+#include "src/gpu/graphite/buffer/UploadBufferManager.h"
 #include "src/partition_alloc/raw_ptr.h"
 
 #include <algorithm>

@@ -17,11 +17,11 @@
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
+#include "src/gpu/graphite/layout/PipelineData.h"
 #include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
 
 #include <array>

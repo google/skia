@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/ports/SkCFObject.h"
-#include "src/gpu/graphite/Buffer.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
 
 #import <Metal/Metal.h>
 

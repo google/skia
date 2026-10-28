@@ -6,8 +6,8 @@
  */
 
 #include "src/core/SkSLTypeShared.h"
-#include "src/gpu/graphite/Uniform.h"
-#include "src/gpu/graphite/UniformManager.h"
+#include "src/gpu/graphite/layout/Uniform.h"
+#include "src/gpu/graphite/layout/UniformManager.h"
 #include "tests/Test.h"
 
 using namespace skgpu::graphite;

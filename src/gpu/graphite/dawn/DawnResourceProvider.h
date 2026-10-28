@@ -12,8 +12,8 @@
 #include "include/gpu/graphite/dawn/DawnGraphiteTypes.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTHash.h"
-#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/layout/PipelineData.h"
 #include "src/partition_alloc/raw_ptr.h"
 
 namespace skgpu::graphite {

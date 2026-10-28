@@ -17,12 +17,12 @@
 #include "src/core/SkSLTypeShared.h"
 #include "src/core/SkSpinlock.h"
 #include "src/core/SkTHash.h"
-#include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/BuiltInCodeSnippetID.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/ResourceTypes.h"
-#include "src/gpu/graphite/Uniform.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
+#include "src/gpu/graphite/layout/Attribute.h"
+#include "src/gpu/graphite/layout/Uniform.h"
 #include "src/partition_alloc/raw_ptr.h"
 
 #include <array>

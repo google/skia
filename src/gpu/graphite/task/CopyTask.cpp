@@ -9,11 +9,11 @@
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkLog.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/Texture.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
 
 #include <utility>
 

@@ -11,7 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "include/private/SkTArray.h"
-#include "src/gpu/graphite/Buffer.h"
+#include "src/gpu/graphite/buffer/Buffer.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 
 #include <utility>
