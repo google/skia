@@ -622,6 +622,7 @@ void TextLine::shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar pre
 
     if (run.fJustificationShifts.empty()) {
         // Do not fill this array until needed
+        run.fJustificationShifts.reserve_exact(run.size() + 1);
         run.fJustificationShifts.push_back_n(run.size() + 1, { 0, 0 });
     }
 

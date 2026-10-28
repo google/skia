@@ -202,8 +202,8 @@ private:
     skia_private::STArray<64, SkPoint, true>& fOffsets;
     skia_private::STArray<64, uint32_t, true>& fClusterIndexes;
 
-    skia_private::STArray<64, SkPoint, true> fJustificationShifts; // For justification
-                                                                   // (current and prev shifts)
+    // For justification (current and prev shifts). Empty unless the line is justified.
+    skia_private::TArray<SkPoint, true> fJustificationShifts;
 
     SkFontMetrics fFontMetrics;
     const SkScalar fHeightMultiplier;

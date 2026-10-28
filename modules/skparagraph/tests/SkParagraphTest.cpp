@@ -12444,6 +12444,44 @@ DEF_TEST(SkParagraph_JustifyEllipsisRemovesRuns, reporter) {
     REPORTER_ASSERT(reporter, paragraph->didExceedMaxLines());
 }
 
+// Justification fills the lines to the full width, also when the paragraph is laid out again
+DEF_TEST(SkParagraph_JustifyFillsLines, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    fontCollection->disableFontFallback();
+
+    TextStyle style;
+    style.setFontFamilies({SkString("Roboto")});
+    style.setFontSize(20);
+    style.setColor(SK_ColorBLACK);
+    ParagraphStyle paragraphStyle;
+    paragraphStyle.setTextStyle(style);
+    paragraphStyle.setTextAlign(TextAlign::kJustify);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+    builder.pushStyle(style);
+    builder.addText("The quick brown fox jumps over the lazy dog and runs far away");
+    auto paragraph = builder.Build();
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+
+    for (SkScalar width : {200.0f, 260.0f}) {
+        paragraph->layout(width);
+        REPORTER_ASSERT(reporter, impl->lines().size() > 1);
+        // The last line is not justified
+        for (size_t i = 0; i + 1 < impl->lines().size(); ++i) {
+            auto range = impl->lines()[i].trimmedText();
+            auto boxes = paragraph->getRectsForRange(
+                    range.start, range.end, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            REPORTER_ASSERT(reporter, !boxes.empty());
+            REPORTER_ASSERT(reporter,
+                            SkScalarNearlyEqual(boxes.back().rect.fRight, width, 0.01f),
+                            "line %zu: %f != %f",
+                            i,
+                            boxes.back().rect.fRight,
+                            width);
+        }
+    }
+}
+
 // ExtendedVisitorInfo::positions can be changed: the change stays in the glyph data. If the
 // paragraph was not painted or visited yet, the next paint() draws the glyphs at the changed
 // positions. paint() and visit() build the text blobs one time for each layout().
