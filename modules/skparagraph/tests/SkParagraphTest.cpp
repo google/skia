@@ -12160,3 +12160,79 @@ DEF_TEST(SkParagraph_ManyStyleBlocksWithSeveralFonts, reporter) {
         }
     }
 }
+
+// Trailing spaces in two runs at a line end must not make an invalid cluster range in justify
+DEF_TEST(SkParagraph_JustifyTrailingSpacesInTwoRuns, reporter) {
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    ParagraphStyle paragraphStyle;
+    paragraphStyle.setTextAlign(TextAlign::kJustify);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+    TextStyle textStyle;
+    textStyle.setFontSize(20);
+    builder.pushStyle(textStyle);
+    builder.addText("aaa bbb ");
+    // A different font size puts the second space in its own run
+    textStyle.setFontSize(10);
+    builder.pushStyle(textStyle);
+    builder.addText(" ");
+    builder.pop();
+    builder.addText("ccc");
+    auto paragraph = builder.Build();
+    paragraph->layout(SK_ScalarInfinity);
+    auto boxes = paragraph->getRectsForRange(0, 7, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    if (boxes.empty()) {
+        return;
+    }
+    SkScalar width = SkScalarCeilToScalar(boxes.back().rect.fRight) + 1;
+
+    // The first line is "aaa bbb" and the two spaces are its trailing whitespaces
+    paragraph->layout(width);
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->lines().size() == 2);
+    if (impl->lines().size() != 2) {
+        return;
+    }
+    auto& line = impl->lines()[0];
+    REPORTER_ASSERT(reporter, line.clusters().end + 2 == line.clustersWithSpaces().end);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(line.width(), width));
+}
+
+// Justify must skip runs that the ellipsis removed from a line
+DEF_TEST(SkParagraph_JustifyEllipsisRemovesRuns, reporter) {
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    auto build = [&](bool ellipsis) {
+        ParagraphStyle paragraphStyle;
+        paragraphStyle.setTextAlign(TextAlign::kJustify);
+        if (ellipsis) {
+            paragraphStyle.setMaxLines(1);
+            paragraphStyle.setEllipsis(u"\u2026");
+        }
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        TextStyle textStyle;
+        // The ellipsis in this large font is wider than the line
+        textStyle.setFontSize(100);
+        builder.pushStyle(textStyle);
+        builder.addText("i");
+        textStyle.setFontSize(10);
+        builder.pushStyle(textStyle);
+        builder.addText("j kkkk");
+        return builder.Build();
+    };
+    auto paragraph = build(false);
+    paragraph->layout(SK_ScalarInfinity);
+    auto boxes = paragraph->getRectsForRange(0, 2, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, !boxes.empty());
+    if (boxes.empty()) {
+        return;
+    }
+
+    // "ij" fits on the line, but no ellipsis fits after any part of it
+    paragraph = build(true);
+    paragraph->layout(SkScalarCeilToScalar(boxes.back().rect.fRight) + 1);
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->lines().size() == 1);
+    REPORTER_ASSERT(reporter, paragraph->didExceedMaxLines());
+}

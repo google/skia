@@ -1073,6 +1073,12 @@ void TextLine::iterateThroughClustersInGlyphsOrder(bool reversed,
         auto run = this->fOwner->run(r);
         auto trimmedRange = fClusterRange.intersection(run.clusterRange());
         auto trailedRange = fGhostClusterRange.intersection(run.clusterRange());
+        if (trailedRange.start >= trailedRange.end) {
+            // The ellipsis removed all clusters of this run
+            return;
+        }
+        // A run of trailing whitespaces only has no trimmed clusters
+        trimmedRange.end = std::max(trimmedRange.end, trimmedRange.start);
         SkASSERT(trimmedRange.start == trailedRange.start);
 
         auto trailed = fOwner->clusters(trailedRange);
