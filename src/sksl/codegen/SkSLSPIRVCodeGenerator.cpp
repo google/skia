@@ -1011,11 +1011,16 @@ SPIRVCodeGenerator::Intrinsic SPIRVCodeGenerator::getIntrinsic(IntrinsicKind ik)
         case k_workgroupBarrier_IntrinsicKind: return SPECIAL(WorkgroupBarrier);
         case k_workgroupUniformLoad_IntrinsicKind: return SPECIAL(WorkgroupUniformLoad);
 
+        case k_subgroupAdd_IntrinsicKind:
         case k_subgroupAll_IntrinsicKind:
         case k_subgroupAny_IntrinsicKind:
         case k_subgroupBallot_IntrinsicKind:
         case k_subgroupBroadcast_IntrinsicKind:
         case k_subgroupBroadcastFirst_IntrinsicKind:
+        case k_subgroupExclusiveAdd_IntrinsicKind:
+        case k_subgroupInclusiveAdd_IntrinsicKind:
+        case k_subgroupMax_IntrinsicKind:
+        case k_subgroupMin_IntrinsicKind:
             return SPECIAL(Subgroup);
 
         default:
@@ -2716,6 +2721,47 @@ SpvId SPIRVCodeGenerator::writeSubgroupIntrinsic(const FunctionCall& c, SPIRVBlo
                                    scopeId,
                                    value,
                                    out);
+            return result;
+        }
+        case k_subgroupAdd_IntrinsicKind:
+        case k_subgroupMin_IntrinsicKind:
+        case k_subgroupMax_IntrinsicKind:
+        case k_subgroupInclusiveAdd_IntrinsicKind:
+        case k_subgroupExclusiveAdd_IntrinsicKind: {
+            this->addCapability(SpvCapabilityGroupNonUniformArithmetic);
+            const IntrinsicKind kind = c.function().intrinsicKind();
+            SpvOp_ op;
+            switch (kind) {
+                case k_subgroupMin_IntrinsicKind:
+                    op = pick_by_type(callType,
+                                      SpvOpGroupNonUniformFMin,
+                                      SpvOpGroupNonUniformSMin,
+                                      SpvOpGroupNonUniformUMin,
+                                      SpvOpNop);
+                    break;
+                case k_subgroupMax_IntrinsicKind:
+                    op = pick_by_type(callType,
+                                      SpvOpGroupNonUniformFMax,
+                                      SpvOpGroupNonUniformSMax,
+                                      SpvOpGroupNonUniformUMax,
+                                      SpvOpNop);
+                    break;
+                default:
+                    op = pick_by_type(callType,
+                                      SpvOpGroupNonUniformFAdd,
+                                      SpvOpGroupNonUniformIAdd,
+                                      SpvOpGroupNonUniformIAdd,
+                                      SpvOpNop);
+                    break;
+            }
+            SpvGroupOperation groupOp =
+                    kind == k_subgroupInclusiveAdd_IntrinsicKind   ? SpvGroupOperationInclusiveScan
+                    : kind == k_subgroupExclusiveAdd_IntrinsicKind ? SpvGroupOperationExclusiveScan
+                                                                   : SpvGroupOperationReduce;
+            SpvId value = this->writeExpression(*arguments[0], out);
+            SpvId result = this->nextId(&callType);
+            this->writeInstruction(
+                    op, this->getType(callType), result, scopeId, groupOp, value, out);
             return result;
         }
         default:

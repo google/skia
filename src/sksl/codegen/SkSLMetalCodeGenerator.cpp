@@ -974,6 +974,26 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->write("simd_broadcast_first");
             this->writeArgumentList(arguments);
             return true;
+        case k_subgroupAdd_IntrinsicKind:
+            this->write("simd_sum");
+            this->writeArgumentList(arguments);
+            return true;
+        case k_subgroupMin_IntrinsicKind:
+            this->write("simd_min");
+            this->writeArgumentList(arguments);
+            return true;
+        case k_subgroupMax_IntrinsicKind:
+            this->write("simd_max");
+            this->writeArgumentList(arguments);
+            return true;
+        case k_subgroupInclusiveAdd_IntrinsicKind:
+            this->write("simd_prefix_inclusive_sum");
+            this->writeArgumentList(arguments);
+            return true;
+        case k_subgroupExclusiveAdd_IntrinsicKind:
+            this->write("simd_prefix_exclusive_sum");
+            this->writeArgumentList(arguments);
+            return true;
         case k_textureRead_IntrinsicKind: {
             this->writeTextureTarget(*arguments[0]);
             this->write(".read(");

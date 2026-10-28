@@ -55,6 +55,8 @@ sksl_compute_tests = [
   "compute/ModuleStructInInterfaceBlock.compute",
   "compute/ModuleStructInVariable.compute",
   "compute/Raytrace.compute",
+  "compute/SubgroupArithmetic.compute",
+  "compute/SubgroupArithmeticWithoutCaps.compute",
   "compute/SubgroupBuiltins.compute",
   "compute/SubgroupBuiltinsWithoutCaps.compute",
   "compute/SubgroupVoteBallot.compute",

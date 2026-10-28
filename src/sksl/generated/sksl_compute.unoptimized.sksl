@@ -17,4 +17,16 @@ static constexpr char SKSL_MINIFIED_sksl_compute[] =
 ",uint id);$pure $genUType subgroupBroadcast($genUType value,uint id);$pure $genType"
 " subgroupBroadcastFirst($genType value);$pure $genHType subgroupBroadcastFirst"
 "($genHType value);$pure $genIType subgroupBroadcastFirst($genIType value);$pure"
-" $genUType subgroupBroadcastFirst($genUType value);";
+" $genUType subgroupBroadcastFirst($genUType value);$pure $genType subgroupAdd"
+"($genType value);$pure $genHType subgroupAdd($genHType value);$pure $genIType"
+" subgroupAdd($genIType value);$pure $genUType subgroupAdd($genUType value);"
+"$pure $genType subgroupMin($genType value);$pure $genHType subgroupMin($genHType"
+" value);$pure $genIType subgroupMin($genIType value);$pure $genUType subgroupMin"
+"($genUType value);$pure $genType subgroupMax($genType value);$pure $genHType"
+" subgroupMax($genHType value);$pure $genIType subgroupMax($genIType value);"
+"$pure $genUType subgroupMax($genUType value);$pure $genType subgroupInclusiveAdd"
+"($genType value);$pure $genHType subgroupInclusiveAdd($genHType value);$pure"
+" $genIType subgroupInclusiveAdd($genIType value);$pure $genUType subgroupInclusiveAdd"
+"($genUType value);$pure $genType subgroupExclusiveAdd($genType value);$pure"
+" $genHType subgroupExclusiveAdd($genHType value);$pure $genIType subgroupExclusiveAdd"
+"($genIType value);$pure $genUType subgroupExclusiveAdd($genUType value);";

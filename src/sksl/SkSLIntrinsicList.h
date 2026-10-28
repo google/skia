@@ -104,11 +104,16 @@
     SKSL_INTRINSIC(sqrt)                   \
     SKSL_INTRINSIC(step)                   \
     SKSL_INTRINSIC(storageBarrier)         \
+    SKSL_INTRINSIC(subgroupAdd)            \
     SKSL_INTRINSIC(subgroupAll)            \
     SKSL_INTRINSIC(subgroupAny)            \
     SKSL_INTRINSIC(subgroupBallot)         \
     SKSL_INTRINSIC(subgroupBroadcast)      \
     SKSL_INTRINSIC(subgroupBroadcastFirst) \
+    SKSL_INTRINSIC(subgroupExclusiveAdd)   \
+    SKSL_INTRINSIC(subgroupInclusiveAdd)   \
+    SKSL_INTRINSIC(subgroupMax)            \
+    SKSL_INTRINSIC(subgroupMin)            \
     SKSL_INTRINSIC(subpassLoad)            \
     SKSL_INTRINSIC(tanh)                   \
     SKSL_INTRINSIC(tan)                    \
@@ -143,11 +148,16 @@ enum IntrinsicKind : int8_t {
 // generators report an error when a program calls one of these without that support.
 constexpr bool IsSubgroupIntrinsic(IntrinsicKind kind) {
     switch (kind) {
+        case k_subgroupAdd_IntrinsicKind:
         case k_subgroupAll_IntrinsicKind:
         case k_subgroupAny_IntrinsicKind:
         case k_subgroupBallot_IntrinsicKind:
         case k_subgroupBroadcast_IntrinsicKind:
         case k_subgroupBroadcastFirst_IntrinsicKind:
+        case k_subgroupExclusiveAdd_IntrinsicKind:
+        case k_subgroupInclusiveAdd_IntrinsicKind:
+        case k_subgroupMax_IntrinsicKind:
+        case k_subgroupMin_IntrinsicKind:
             return true;
         default:
             return false;

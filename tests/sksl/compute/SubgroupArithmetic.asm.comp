@@ -1,0 +1,201 @@
+               OpCapability GroupNonUniformArithmetic
+               OpCapability GroupNonUniform
+               OpCapability Shader
+          %5 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %sk_GlobalInvocationID
+               OpExecutionMode %main LocalSize 64 1 1
+
+               ; Debug Information
+               OpName %inputs "inputs"              ; id %10
+               OpMemberName %inputs 0 "inputBuffer"
+               OpName %outputs "outputs"            ; id %15
+               OpMemberName %outputs 0 "floatOut"
+               OpName %intOutputs "intOutputs"      ; id %20
+               OpMemberName %intOutputs 0 "intOut"
+               OpName %uintOutputs "uintOutputs"    ; id %26
+               OpMemberName %uintOutputs 0 "uintOut"
+               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"    ; id %28
+               OpName %main "main"                                      ; id %6
+               OpName %idx "idx"                                        ; id %34
+               OpName %f "f"                                            ; id %38
+               OpName %i "i"                                            ; id %44
+               OpName %u "u"                                            ; id %47
+
+               ; Annotations
+               OpDecorate %_runtimearr_float ArrayStride 4
+               OpMemberDecorate %inputs 0 Offset 0
+               OpDecorate %inputs BufferBlock
+               OpDecorate %7 Binding 0
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %_runtimearr_v4float ArrayStride 16
+               OpMemberDecorate %outputs 0 Offset 0
+               OpDecorate %outputs BufferBlock
+               OpDecorate %12 Binding 1
+               OpDecorate %12 DescriptorSet 0
+               OpDecorate %_runtimearr_v4int ArrayStride 16
+               OpMemberDecorate %intOutputs 0 Offset 0
+               OpDecorate %intOutputs BufferBlock
+               OpDecorate %17 Binding 2
+               OpDecorate %17 DescriptorSet 0
+               OpDecorate %_runtimearr_v4uint ArrayStride 16
+               OpMemberDecorate %uintOutputs 0 Offset 0
+               OpDecorate %uintOutputs BufferBlock
+               OpDecorate %22 Binding 3
+               OpDecorate %22 DescriptorSet 0
+               OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %54 RelaxedPrecision
+               OpDecorate %55 RelaxedPrecision
+               OpDecorate %111 RelaxedPrecision
+               OpDecorate %112 RelaxedPrecision
+
+               ; Types, variables and constants
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+      %float = OpTypeFloat 32
+%_runtimearr_float = OpTypeRuntimeArray %float      ; ArrayStride 4
+     %inputs = OpTypeStruct %_runtimearr_float      ; BufferBlock
+%_ptr_Uniform_inputs = OpTypePointer Uniform %inputs
+          %7 = OpVariable %_ptr_Uniform_inputs Uniform  ; Binding 0, DescriptorSet 0
+    %v4float = OpTypeVector %float 4
+%_runtimearr_v4float = OpTypeRuntimeArray %v4float  ; ArrayStride 16
+    %outputs = OpTypeStruct %_runtimearr_v4float    ; BufferBlock
+%_ptr_Uniform_outputs = OpTypePointer Uniform %outputs
+         %12 = OpVariable %_ptr_Uniform_outputs Uniform     ; Binding 1, DescriptorSet 0
+      %v4int = OpTypeVector %int 4
+%_runtimearr_v4int = OpTypeRuntimeArray %v4int      ; ArrayStride 16
+ %intOutputs = OpTypeStruct %_runtimearr_v4int      ; BufferBlock
+%_ptr_Uniform_intOutputs = OpTypePointer Uniform %intOutputs
+         %17 = OpVariable %_ptr_Uniform_intOutputs Uniform  ; Binding 2, DescriptorSet 0
+       %uint = OpTypeInt 32 0
+     %v4uint = OpTypeVector %uint 4
+%_runtimearr_v4uint = OpTypeRuntimeArray %v4uint    ; ArrayStride 16
+%uintOutputs = OpTypeStruct %_runtimearr_v4uint     ; BufferBlock
+%_ptr_Uniform_uintOutputs = OpTypePointer Uniform %uintOutputs
+         %22 = OpVariable %_ptr_Uniform_uintOutputs Uniform     ; Binding 3, DescriptorSet 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input    ; BuiltIn GlobalInvocationId
+       %void = OpTypeVoid
+         %32 = OpTypeFunction %void
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Function_float = OpTypePointer Function %float
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+%_ptr_Function_int = OpTypePointer Function %int
+     %uint_3 = OpConstant %uint 3
+    %float_0 = OpConstant %float 0
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+%_ptr_Uniform_v4int = OpTypePointer Uniform %v4int
+     %uint_0 = OpConstant %uint 0
+%_ptr_Uniform_v4uint = OpTypePointer Uniform %v4uint
+    %v2float = OpTypeVector %float 2
+      %v2int = OpTypeVector %int 2
+
+
+               ; Function main
+       %main = OpFunction %void None %32
+
+         %33 = OpLabel
+        %idx =   OpVariable %_ptr_Function_uint Function
+          %f =   OpVariable %_ptr_Function_float Function
+          %i =   OpVariable %_ptr_Function_int Function
+          %u =   OpVariable %_ptr_Function_uint Function
+         %36 =   OpLoad %v3uint %sk_GlobalInvocationID
+         %37 =   OpCompositeExtract %uint %36 0
+                 OpStore %idx %37
+         %41 =   OpAccessChain %_ptr_Uniform_float %7 %int_0 %37
+         %43 =   OpLoad %float %41
+                 OpStore %f %43
+         %46 =   OpConvertFToS %int %43
+                 OpStore %i %46
+                 OpStore %u %37
+         %49 =   OpGroupNonUniformFAdd %float %uint_3 Reduce %43
+         %50 =   OpGroupNonUniformFMin %float %uint_3 Reduce %43
+         %51 =   OpGroupNonUniformFMax %float %uint_3 Reduce %43
+         %53 =   OpCompositeConstruct %v4float %49 %50 %51 %float_0
+         %54 =   OpCompositeConstruct %v4float %43 %43 %43 %43  ; RelaxedPrecision
+         %55 =   OpGroupNonUniformFAdd %v4float %uint_3 Reduce %54  ; RelaxedPrecision
+         %56 =   OpFAdd %v4float %53 %55
+         %57 =   OpAccessChain %_ptr_Uniform_v4float %12 %int_0 %37
+                 OpStore %57 %56
+         %59 =   OpLoad %int %i
+         %60 =   OpGroupNonUniformIAdd %int %uint_3 Reduce %59
+         %61 =   OpLoad %int %i
+         %62 =   OpGroupNonUniformSMin %int %uint_3 Reduce %61
+         %63 =   OpLoad %int %i
+         %64 =   OpGroupNonUniformSMax %int %uint_3 Reduce %63
+         %65 =   OpCompositeConstruct %v4int %60 %62 %64 %int_0
+         %66 =   OpLoad %int %i
+         %67 =   OpLoad %int %i
+         %68 =   OpSNegate %int %67
+         %69 =   OpLoad %int %i
+         %70 =   OpLoad %int %i
+         %71 =   OpSNegate %int %70
+         %72 =   OpCompositeConstruct %v4int %66 %68 %69 %71
+         %73 =   OpGroupNonUniformSMax %v4int %uint_3 Reduce %72
+         %74 =   OpIAdd %v4int %65 %73
+         %75 =   OpLoad %uint %idx
+         %76 =   OpAccessChain %_ptr_Uniform_v4int %17 %int_0 %75
+                 OpStore %76 %74
+         %78 =   OpLoad %uint %u
+         %79 =   OpGroupNonUniformIAdd %uint %uint_3 Reduce %78
+         %80 =   OpLoad %uint %u
+         %81 =   OpGroupNonUniformUMin %uint %uint_3 Reduce %80
+         %82 =   OpLoad %uint %u
+         %83 =   OpGroupNonUniformUMax %uint %uint_3 Reduce %82
+         %85 =   OpCompositeConstruct %v4uint %79 %81 %83 %uint_0
+         %86 =   OpLoad %uint %u
+         %87 =   OpCompositeConstruct %v4uint %86 %86 %86 %86
+         %88 =   OpGroupNonUniformUMin %v4uint %uint_3 Reduce %87
+         %89 =   OpIAdd %v4uint %85 %88
+         %90 =   OpLoad %uint %idx
+         %91 =   OpAccessChain %_ptr_Uniform_v4uint %22 %int_0 %90
+                 OpStore %91 %89
+         %93 =   OpLoad %uint %idx
+         %94 =   OpAccessChain %_ptr_Uniform_v4float %12 %int_0 %93
+         %95 =   OpLoad %v4float %94
+         %96 =   OpVectorShuffle %v2float %95 %95 0 1
+         %98 =   OpLoad %float %f
+         %99 =   OpGroupNonUniformFAdd %float %uint_3 InclusiveScan %98
+        %100 =   OpLoad %float %f
+        %101 =   OpGroupNonUniformFAdd %float %uint_3 ExclusiveScan %100
+        %102 =   OpCompositeConstruct %v2float %99 %101
+        %103 =   OpFAdd %v2float %96 %102
+        %104 =   OpLoad %v4float %94
+        %105 =   OpVectorShuffle %v4float %104 %103 4 5 2 3
+                 OpStore %94 %105
+        %106 =   OpLoad %uint %idx
+        %107 =   OpAccessChain %_ptr_Uniform_v4float %12 %int_0 %106
+        %108 =   OpLoad %v4float %107
+        %109 =   OpVectorShuffle %v2float %108 %108 2 3
+        %110 =   OpLoad %float %f
+        %111 =   OpCompositeConstruct %v2float %110 %110    ; RelaxedPrecision
+        %112 =   OpGroupNonUniformFAdd %v2float %uint_3 InclusiveScan %111  ; RelaxedPrecision
+        %113 =   OpFAdd %v2float %109 %112
+        %114 =   OpLoad %v4float %107
+        %115 =   OpVectorShuffle %v4float %114 %113 0 1 4 5
+                 OpStore %107 %115
+        %116 =   OpLoad %uint %idx
+        %117 =   OpAccessChain %_ptr_Uniform_v4int %17 %int_0 %116
+        %118 =   OpLoad %v4int %117
+        %119 =   OpVectorShuffle %v2int %118 %118 0 1
+        %121 =   OpLoad %int %i
+        %122 =   OpGroupNonUniformIAdd %int %uint_3 InclusiveScan %121
+        %123 =   OpLoad %int %i
+        %124 =   OpGroupNonUniformIAdd %int %uint_3 ExclusiveScan %123
+        %125 =   OpCompositeConstruct %v2int %122 %124
+        %126 =   OpIAdd %v2int %119 %125
+        %127 =   OpLoad %v4int %117
+        %128 =   OpVectorShuffle %v4int %127 %126 4 5 2 3
+                 OpStore %117 %128
+        %129 =   OpLoad %uint %idx
+        %130 =   OpAccessChain %_ptr_Uniform_v4uint %22 %int_0 %129
+        %131 =   OpLoad %v4uint %130
+        %132 =   OpLoad %uint %u
+        %133 =   OpCompositeConstruct %v4uint %132 %132 %132 %132
+        %134 =   OpGroupNonUniformIAdd %v4uint %uint_3 ExclusiveScan %133
+        %135 =   OpIAdd %v4uint %131 %134
+                 OpStore %130 %135
+                 OpReturn
+               OpFunctionEnd

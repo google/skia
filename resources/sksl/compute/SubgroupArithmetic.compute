@@ -1,0 +1,40 @@
+/*#pragma settings SubgroupSupport*/
+
+layout(local_size_x = 64) in;
+
+layout(metal, binding = 0) buffer inputs {
+    float inputBuffer[];
+};
+
+layout(metal, binding = 1) buffer outputs {
+    float4 floatOut[];
+};
+
+layout(metal, binding = 2) buffer intOutputs {
+    int4 intOut[];
+};
+
+layout(metal, binding = 3) buffer uintOutputs {
+    uint4 uintOut[];
+};
+
+void main() {
+    uint idx = sk_GlobalInvocationID.x;
+    float f = inputBuffer[idx];
+    int i = int(f);
+    uint u = idx;
+
+    // Reductions: float, half, int and uint, scalar and vector.
+    floatOut[idx] = float4(subgroupAdd(f), subgroupMin(f), subgroupMax(f), 0) +
+                    float4(subgroupAdd(half4(f)));
+    intOut[idx] = int4(subgroupAdd(i), subgroupMin(i), subgroupMax(i), 0) +
+                  subgroupMax(int4(i, -i, i, -i));
+    uintOut[idx] = uint4(subgroupAdd(u), subgroupMin(u), subgroupMax(u), 0) +
+                   subgroupMin(uint4(u));
+
+    // Scans.
+    floatOut[idx].xy += float2(subgroupInclusiveAdd(f), subgroupExclusiveAdd(f));
+    floatOut[idx].zw += float2(subgroupInclusiveAdd(half2(f)));
+    intOut[idx].xy += int2(subgroupInclusiveAdd(i), subgroupExclusiveAdd(i));
+    uintOut[idx] += subgroupExclusiveAdd(uint4(u));
+}

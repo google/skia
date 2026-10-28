@@ -62,3 +62,29 @@ $pure $genHType subgroupBroadcastFirst($genHType value);
 $pure $genIType subgroupBroadcastFirst($genIType value);
 $pure $genUType subgroupBroadcastFirst($genUType value);
 
+// Reductions over the active invocations. Integer arithmetic wraps; the order of floating-point
+// operations is implementation-defined.
+$pure $genType  subgroupAdd($genType  value);
+$pure $genHType subgroupAdd($genHType value);
+$pure $genIType subgroupAdd($genIType value);
+$pure $genUType subgroupAdd($genUType value);
+$pure $genType  subgroupMin($genType  value);
+$pure $genHType subgroupMin($genHType value);
+$pure $genIType subgroupMin($genIType value);
+$pure $genUType subgroupMin($genUType value);
+$pure $genType  subgroupMax($genType  value);
+$pure $genHType subgroupMax($genHType value);
+$pure $genIType subgroupMax($genIType value);
+$pure $genUType subgroupMax($genUType value);
+
+// Prefix sums over the active invocations, ordered by sk_SubgroupInvocationID. The inclusive sum
+// includes the calling invocation's value; the exclusive sum doesn't (and is 0 for the first).
+$pure $genType  subgroupInclusiveAdd($genType  value);
+$pure $genHType subgroupInclusiveAdd($genHType value);
+$pure $genIType subgroupInclusiveAdd($genIType value);
+$pure $genUType subgroupInclusiveAdd($genUType value);
+$pure $genType  subgroupExclusiveAdd($genType  value);
+$pure $genHType subgroupExclusiveAdd($genHType value);
+$pure $genIType subgroupExclusiveAdd($genIType value);
+$pure $genUType subgroupExclusiveAdd($genUType value);
+

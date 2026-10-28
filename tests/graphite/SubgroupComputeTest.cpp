@@ -26,6 +26,7 @@
 
 #include "tools/graphite/GraphiteTestContext.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <functional>
@@ -84,6 +85,18 @@ std::string sksl_bits(ValueType type, const std::string& expr) {
     return type == ValueType::kFloat ? "floatBitsToUint(" + expr + ")" : "uint(" + expr + ")";
 }
 
+float bits_to_float(uint32_t bits) {
+    float f;
+    memcpy(&f, &bits, sizeof(f));
+    return f;
+}
+
+uint32_t float_to_bits(float f) {
+    uint32_t bits;
+    memcpy(&bits, &f, sizeof(bits));
+    return bits;
+}
+
 // Returns the bit pattern of a pseudo-random test value in [-125, 125] (shifted to [0, 250] for
 // uint). The float values are multiples of 1/256, so they're exact.
 uint32_t test_value_bits(ValueType type, uint32_t index) {
@@ -93,12 +106,8 @@ uint32_t test_value_bits(ValueType type, uint32_t index) {
             return (uint32_t)v;
         case ValueType::kUInt:
             return (uint32_t)(v + 125);
-        case ValueType::kFloat: {
-            const float f = v / 256.0f;
-            uint32_t bits;
-            memcpy(&bits, &f, sizeof(bits));
-            return bits;
-        }
+        case ValueType::kFloat:
+            return float_to_bits(v / 256.0f);
     }
     SkUNREACHABLE;
 }
@@ -301,6 +310,52 @@ std::map<uint32_t, Subgroup> group_by_subgroup(skiatest::Reporter* reporter,
     return subgroups;
 }
 
+// Floats are compared by value, so +0 and -0 match; every other type is compared bit for bit.
+bool results_match(ValueType type, uint32_t a, uint32_t b) {
+    return type == ValueType::kFloat ? bits_to_float(a) == bits_to_float(b) : a == b;
+}
+
+enum class ArithOp { kAdd, kMin, kMax };
+
+// Applies `op` to two values of `type`, given and returned as bit patterns. Integer addition wraps.
+uint32_t apply(ValueType type, ArithOp op, uint32_t a, uint32_t b) {
+    switch (type) {
+        case ValueType::kInt:
+            switch (op) {
+                case ArithOp::kAdd:
+                    return a + b;
+                case ArithOp::kMin:
+                    return (uint32_t)std::min((int32_t)a, (int32_t)b);
+                case ArithOp::kMax:
+                    return (uint32_t)std::max((int32_t)a, (int32_t)b);
+            }
+            break;
+        case ValueType::kUInt:
+            switch (op) {
+                case ArithOp::kAdd:
+                    return a + b;
+                case ArithOp::kMin:
+                    return std::min(a, b);
+                case ArithOp::kMax:
+                    return std::max(a, b);
+            }
+            break;
+        case ValueType::kFloat: {
+            const float x = bits_to_float(a), y = bits_to_float(b);
+            switch (op) {
+                case ArithOp::kAdd:
+                    return float_to_bits(x + y);
+                case ArithOp::kMin:
+                    return float_to_bits(std::min(x, y));
+                case ArithOp::kMax:
+                    return float_to_bits(std::max(x, y));
+            }
+            break;
+        }
+    }
+    SkUNREACHABLE;
+}
+
 // Returns the expected result for one invocation, or nothing if its result is undefined.
 using ExpectedFn =
         std::function<std::optional<uint32_t>(const Subgroup&, uint32_t invocationID)>;
@@ -324,7 +379,7 @@ void run_subgroup_test(skiatest::Reporter* reporter,
         for (const auto& [invocationID, index] : subgroup.fInvocations) {
             std::optional<uint32_t> want = expected(subgroup, invocationID);
             const uint32_t got = results[index].fResult;
-            if (want && *want != got) {
+            if (want && !results_match(type, *want, got)) {
                 ERRORF(reporter,
                        "%s, %s: subgroup %u (size %u), invocation %u: expected 0x%08x, got 0x%08x",
                        body.c_str(), type_name(type), subgroupID, subgroup.fSize, invocationID,
@@ -340,6 +395,44 @@ bool is_compute_supported_context_type(skiatest::GpuContextType ctxType) {
 }
 
 constexpr ValueType kAllTypes[] = {ValueType::kInt, ValueType::kUInt, ValueType::kFloat};
+
+enum class ArithScope { kReduce, kInclusiveScan, kExclusiveScan };
+
+// Checks `function` on each type against `op` folded over the subgroup's invocations in id order.
+// For a reduction that's every invocation; for a scan, it's the invocations with a lower id (and,
+// if inclusive, the invocation itself). An empty exclusive scan is 0, the identity of addition.
+// The float inputs are small multiples of 1/256, so every partial sum is exact and the result
+// doesn't depend on the implementation-defined order of operations.
+void run_arithmetic_test(skiatest::Reporter* reporter,
+                         Context* context,
+                         GraphiteTestContext* testContext,
+                         const char* function,
+                         ArithOp op,
+                         ArithScope scope) {
+    for (ValueType type : kAllTypes) {
+        const std::vector<uint32_t> input = test_values(type);
+        const std::string call = std::string(function) + "(inData[i])";
+        run_subgroup_test(
+                reporter,
+                context,
+                testContext,
+                type,
+                input,
+                "result = " + sksl_bits(type, call) + ";",
+                [&](const Subgroup& subgroup, uint32_t invocationID) -> std::optional<uint32_t> {
+                    std::optional<uint32_t> acc;
+                    for (const auto& [id, index] : subgroup.fInvocations) {
+                        if ((scope == ArithScope::kInclusiveScan && id > invocationID) ||
+                            (scope == ArithScope::kExclusiveScan && id >= invocationID)) {
+                            break;
+                        }
+                        acc = acc ? apply(type, op, *acc, input[index]) : input[index];
+                    }
+                    SkASSERT(acc || scope == ArithScope::kExclusiveScan);
+                    return acc.value_or(0);
+                });
+    }
+}
 
 }  // anonymous namespace
 
@@ -444,4 +537,37 @@ DEF_SUBGROUP_TEST(SubgroupBroadcastFirstTest, reporter, context, testContext) {
                               return input[subgroup.fInvocations.begin()->second];
                           });
     }
+}
+
+DEF_SUBGROUP_TEST(SubgroupAddTest, reporter, context, testContext) {
+    run_arithmetic_test(
+            reporter, context, testContext, "subgroupAdd", ArithOp::kAdd, ArithScope::kReduce);
+}
+
+DEF_SUBGROUP_TEST(SubgroupMinTest, reporter, context, testContext) {
+    run_arithmetic_test(
+            reporter, context, testContext, "subgroupMin", ArithOp::kMin, ArithScope::kReduce);
+}
+
+DEF_SUBGROUP_TEST(SubgroupMaxTest, reporter, context, testContext) {
+    run_arithmetic_test(
+            reporter, context, testContext, "subgroupMax", ArithOp::kMax, ArithScope::kReduce);
+}
+
+DEF_SUBGROUP_TEST(SubgroupInclusiveAddTest, reporter, context, testContext) {
+    run_arithmetic_test(reporter,
+                        context,
+                        testContext,
+                        "subgroupInclusiveAdd",
+                        ArithOp::kAdd,
+                        ArithScope::kInclusiveScan);
+}
+
+DEF_SUBGROUP_TEST(SubgroupExclusiveAddTest, reporter, context, testContext) {
+    run_arithmetic_test(reporter,
+                        context,
+                        testContext,
+                        "subgroupExclusiveAdd",
+                        ArithOp::kAdd,
+                        ArithScope::kExclusiveScan);
 }
