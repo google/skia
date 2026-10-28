@@ -141,7 +141,7 @@ public:
 
     bool operator==(const PaintParamsKey& that) const {
         return fData.size() == that.fData.size() &&
-               !memcmp(fData.data(), that.fData.data(), fData.size());
+               !memcmp(fData.data(), that.fData.data(), fData.size_bytes());
     }
     bool operator!=(const PaintParamsKey& that) const { return !(*this == that); }
 
