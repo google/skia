@@ -79,7 +79,7 @@ private:
 
     void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination == 0); // The empty shader only ever has one combination
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kPriorOutput);
+        keyContext.paintParamsKeyBuilder()->addErrorBlock();
     }
 };
 

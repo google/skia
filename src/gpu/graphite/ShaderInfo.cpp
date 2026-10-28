@@ -513,17 +513,9 @@ std::string get_node_texture_samplers(const ResourceBindingRequirements& binding
         // 1) A backend passes in a non-nullptr outImmutableSamplers param (may be nullptr in
         //    backends or circumstances where we know immutable sampler data is never stored)
         // 2) Any data is stored on the ShaderNode
-        // 3) Whether the ShaderNode snippet's ID matches that of any snippet ID that could store
-        //    immutable sampler data.
-        int32_t snippetId = node->codeSnippetId();
+        // 3) Whether the ShaderNode snippet stores sampler description data
         if (outDescs) {
-            // TODO(b/369846881): Refactor checking snippet ID to instead having a named
-            // snippet requirement flag that we can check here to decrease fragility.
-            if (!node->data().empty() &&
-                (snippetId == static_cast<int32_t>(BuiltInCodeSnippetID::kImageShader) ||
-                 snippetId == static_cast<int32_t>(BuiltInCodeSnippetID::kImageShaderClamp) ||
-                 snippetId == static_cast<int32_t>(BuiltInCodeSnippetID::kCubicImageShader) ||
-                 snippetId == static_cast<int32_t>(BuiltInCodeSnippetID::kHWImageShader))) {
+            if (!node->data().empty() && node->entry()->storesSamplerDescData()) {
                 append_sampler_descs(node->data(), *outDescs);
             } else {
                 // Add default SamplerDescs for any dynamic samplers to outDescs.
@@ -1217,9 +1209,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     SkASSERT(sharedData.fRootsInfo.fSrcColor && sharedData.fRootsInfo.fFinalBlend);
     const ShaderSnippet* srcSnippet
             = dict->getEntry(sharedData.fRootsInfo.fSrcColor->codeSnippetId());
-    // TODO(b/349997190): Once SkEmptyShader doesn't use the passthrough snippet, we can assert
-    // that srcSnippet->needsPriorStageOutput() is false.
-    SkASSERT(!srcSnippet->needsBlenderDstColor());
+    SkASSERT(!srcSnippet->needsPriorStageOutput() && !srcSnippet->needsBlenderDstColor());
     // Final blender node must take both the src color and dst color, and not any local coordinate.
     const ShaderSnippet* blendSnippet
             = dict->getEntry(sharedData.fRootsInfo.fFinalBlend->codeSnippetId());
@@ -1395,11 +1385,6 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     args.fFragCoord = step->fragmentColorSkSLLocalCoordsVariable()
                             ? step->fragmentColorSkSLLocalCoordsVariable()
                             : "localCoordsVar";  // the varying added in emit_varyings()
-    // TODO(b/349997190): The paint root node should not depend on any prior stage's output, but
-    // it can happen with how SkEmptyShader is currently mapped to `sk_passthrough`. In this case
-    // it requires that prior stage color to be transparent black. When SkEmptyShader can instead
-    // cause the draw to be skipped, this can go away.
-    args.fPriorStageOutput = "half4(0)";
 
     // Calculate the src color and stash its output variable in `args`
     args.fPriorStageOutput = srcColorRoot->invokeAndAssign(*this, args, &mainBody);
