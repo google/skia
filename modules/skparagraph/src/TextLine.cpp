@@ -1595,8 +1595,10 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                 *runWidthInLine = run->advance().fX;
                 if (fOwner->paragraphStyle().getTextDirection() == TextDirection::kLtr ||
                     dx <= this->offset().fX + runOffsetInLine + run->advance().fX) {
+                    // Like any other end of line, the position belongs to this line, not to
+                    // the start of the next one
                     auto utf16Index = fOwner->getUTF16Index(this->fText.end);
-                    result = { SkToS32(utf16Index) , kDownstream };
+                    result = {SkToS32(utf16Index), utf16Index > 0 ? kUpstream : kDownstream};
                     return false;
                 }
                 return true;

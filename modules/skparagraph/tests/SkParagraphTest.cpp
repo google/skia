@@ -11466,6 +11466,64 @@ UNIX_ONLY_TEST(SkParagraph_SoftHyphenFallbackFontWidth, reporter) {
                     minWidth);
 }
 
+// A hit on the rendered hyphen is at the end of its line, upstream, as at the end of any other
+// line. Downstream would put it at the start of the next line, and getClosestUTF16GlyphInfoAt
+// would return the next line's first glyph instead of the soft hyphen.
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenHitIsUpstream, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const size_t softHyphen = 5;
+    auto paragraph = layoutWithSoftHyphens(fontCollection, "inter~national", 80);
+    checkLines(reporter, paragraph.get(), "inter-|national");
+    auto& line = static_cast<ParagraphImpl*>(paragraph.get())->lines()[0];
+    SkScalar x = line.offset().fX + (line.widthWithoutEllipsis() + line.width()) / 2;
+    SkScalar y = line.offset().fY + line.height() / 2;
+
+    auto position = paragraph->getGlyphPositionAtCoordinate(x, y);
+    REPORTER_ASSERT(reporter, position.position == softHyphen + 1, "%d", position.position);
+    REPORTER_ASSERT(reporter, position.affinity == Affinity::kUpstream);
+
+    Paragraph::GlyphInfo glyphInfo;
+    REPORTER_ASSERT(reporter, paragraph->getClosestUTF16GlyphInfoAt(x, y, &glyphInfo));
+    REPORTER_ASSERT(reporter,
+                    glyphInfo.fGraphemeClusterTextRange == TextRange(softHyphen, softHyphen + 1),
+                    "[%zu, %zu)",
+                    glyphInfo.fGraphemeClusterTextRange.start,
+                    glyphInfo.fGraphemeClusterTextRange.end);
+}
+
+// Likewise for a hit on the ellipsis, which is at the end of the truncated text. Downstream there
+// is past the line's text, so getClosestUTF16GlyphInfoAt found no glyph at all.
+UNIX_ONLY_TEST(SkParagraph_EllipsisHitIsUpstream, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    SkScalar width = singleLineWidth(fontCollection, "abc...") + 1;
+    auto paragraph =
+            layoutWithSoftHyphens(fontCollection, "abcdef", width, [](ParagraphStyle& style) {
+                style.setMaxLines(1);
+                style.setEllipsis(SkString("..."));
+            });
+    auto& line = static_cast<ParagraphImpl*>(paragraph.get())->lines()[0];
+    REPORTER_ASSERT(reporter, line.ellipsis() != nullptr);
+    REPORTER_ASSERT(reporter, line.trimmedText() == TextRange(0, 3));
+    SkScalar x = line.offset().fX + (line.widthWithoutEllipsis() + line.width()) / 2;
+    SkScalar y = line.offset().fY + line.height() / 2;
+
+    auto position = paragraph->getGlyphPositionAtCoordinate(x, y);
+    REPORTER_ASSERT(reporter, position.position == 3, "%d", position.position);
+    REPORTER_ASSERT(reporter, position.affinity == Affinity::kUpstream);
+
+    Paragraph::GlyphInfo glyphInfo;
+    REPORTER_ASSERT(reporter, paragraph->getClosestUTF16GlyphInfoAt(x, y, &glyphInfo));
+    REPORTER_ASSERT(reporter,
+                    glyphInfo.fGraphemeClusterTextRange == TextRange(2, 3),
+                    "[%zu, %zu)",
+                    glyphInfo.fGraphemeClusterTextRange.start,
+                    glyphInfo.fGraphemeClusterTextRange.end);
+}
+
 // Only a soft hyphen's own width changes how a too-long word is measured. Other soft breaks, such
 // as the end of the text, still end the word before their cluster, so a word too long for the
 // line at the end of the text moves to the next line before it's split, as it always has
