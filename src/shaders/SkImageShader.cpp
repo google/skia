@@ -18,6 +18,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/SkMath.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapProcState.h"
@@ -405,6 +406,8 @@ void SkShaderBase::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkImageShade
 namespace {
 
 struct MipLevelHelper {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkPixmap pm;
     SkMatrix inv;
     SkRasterPipelineContexts::GatherCtx* gather;

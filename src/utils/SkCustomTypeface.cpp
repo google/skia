@@ -33,6 +33,7 @@
 #include "include/private/SkAlign.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h" // IWYU pragma: keep
 #include "src/core/SkFontDescriptor.h"
@@ -422,6 +423,8 @@ std::unique_ptr<SkStreamAsset> SkUserTypeface::onOpenStream(int* ttcIndex) const
 }
 
 class AutoRestorePosition {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkStream* fStream;
     size_t fPosition;
 public:

@@ -13,6 +13,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
@@ -697,6 +698,8 @@ struct ActiveEdge {
 
 class ActiveEdgeList {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     ActiveEdgeList(int maxEdges) {
         fAllocation = (char*) sk_malloc_throw(sizeof(ActiveEdge)*maxEdges);
         fCurrFree = 0;

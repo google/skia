@@ -15,6 +15,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTextBlob.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkFontPriv.h"
 
@@ -43,6 +44,7 @@ void SkTextUtils::GetPath(const void* text, size_t length, SkTextEncoding encodi
     font.getPos(ag.glyphs(), pos, {x, y});
 
     struct Rec {
+        SK_ONLY_STACK_ALLOCATABLE;
         SkPathBuilder fDst;
         const SkPoint* fPos;
     } rec = { {}, pos.get() };

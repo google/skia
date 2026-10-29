@@ -25,6 +25,7 @@
 #include "include/core/SkVertices.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkIDChangeListener.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
@@ -310,6 +311,8 @@ private:
  */
 template <typename FACTORY>
 struct FindContext {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     FindContext(const SkMatrix* viewMatrix, const FACTORY* factory)
             : fViewMatrix(viewMatrix), fFactory(factory) {}
     const SkMatrix* const fViewMatrix;
@@ -347,6 +350,8 @@ bool FindVisitor(const SkResourceCache::Rec& baseRec, void* ctx) {
 
 class ShadowedPath {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     ShadowedPath(const SkPath* path, const SkMatrix* viewMatrix)
             : fPath(path)
             , fViewMatrix(viewMatrix)

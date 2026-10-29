@@ -18,6 +18,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkCanvasPriv.h"
@@ -78,6 +79,8 @@ void SkNWayCanvas::removeAll() {
 
 class SkNWayCanvas::Iter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     Iter(const SkTDArray<SkCanvas*>& list) : fList(list) {
         fIndex = 0;
     }

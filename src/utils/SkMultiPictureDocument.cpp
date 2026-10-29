@@ -17,6 +17,7 @@
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkNWayCanvas.h"
@@ -118,6 +119,8 @@ struct MultiPictureDocument final : public SkDocument {
 };
 
 struct PagerCanvas : public SkNWayCanvas {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkPictureRecorder fRecorder;
     SkDocumentPage* fDst;
     int fCount;
