@@ -1302,9 +1302,12 @@ public:
     void resetToFloodFill();
     bool intersectClipElement(const RawElement& clip);
 
-    // Sync any modifications back to `geometry` and return a Clip object encapsulating the
-    // tracked bounds of the now-clipped draw.
-    Clip toClip(Geometry* geometry, const NonMSAAClip& analyticClip, const SkShader* clipShader);
+    // Sync any modifications back to `geometry` and `style` and return a Clip object encapsulating
+    // the tracked bounds of the now-clipped draw.
+    Clip toClip(Geometry* geometry,
+                SkStrokeRec* style,
+                const NonMSAAClip& analyticClip,
+                const SkShader* clipShader);
 
 private:
     Transform fLocalToDevice;
@@ -1439,9 +1442,16 @@ void ClipStack::DrawShape::applyScissor(const Rect& scissor) {
     fScissor.intersect(scissor); // For first call, fScissor is infinite so this is assignment
     fOuterBounds.intersect(scissor);
     fInnerBounds.intersect(scissor);
+
+    // An inverse fill whose shape is entirely outside of the scissor covers every pixel that can
+    // be drawn, so it can be replaced with a flood fill.
+    if (fShape.inverted() && fOuterBounds.isEmptyNegativeOrNaN()) {
+        this->resetToFloodFill();
+    }
 }
 
 Clip ClipStack::DrawShape::toClip(Geometry* geometry,
+                                  SkStrokeRec* style,
                                   const NonMSAAClip& analyticClip,
                                   const SkShader* clipShader) {
     if (fShapeWasModified) {
@@ -1455,6 +1465,7 @@ Clip ClipStack::DrawShape::toClip(Geometry* geometry,
             SkASSERT(fEdgeFlags == EdgeAAQuad::Flags::kAll);
             geometry->setShape(fShape);
         }
+        style->setFillStyle();
         // Reconstruct new transformedShapeBounds and outer bounds
         fTransformedShapeBounds = fLocalToDevice.mapRect(fShape.bounds());
         fOuterBounds = fTransformedShapeBounds.makeIntersect(fScissor);
@@ -1472,11 +1483,16 @@ Clip ClipStack::DrawShape::toClip(Geometry* geometry,
 }
 
 void ClipStack::DrawShape::resetToFloodFill() {
-    if (this->shapeCanBeModified() && !fShape.isFloodFill()) {
+    // An inverse-filled shape that is replaced by the clip or scissor can always become a flood
+    // fill.
+    const bool canReset = this->shapeCanBeModified() || fShape.inverted();
+    if (canReset && !fShape.isFloodFill()) {
         fShape.reset();
         fShape.setInverted(true);
         fEdgeFlags = EdgeAAQuad::Flags::kAll;
         fOuterBounds = fInnerBounds = Rect::InfiniteInverted();
+        fShapeMatchesGeometry = true;
+        fShapeCompatibleWithIntersectShape = true;
         fShapeWasModified = true;
     }
 }
@@ -1825,7 +1841,7 @@ AnalyticClip can_apply_analytic_clip(const Shape& shape, const Transform& localT
 
 Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                                       Geometry* geometry,
-                                      const SkStrokeRec& style,
+                                      SkStrokeRec* style,
                                       ClipStack::ElementList* outEffectiveElements) const {
     static const Clip kClippedOut = {
             Rect::InfiniteInverted(), Rect::InfiniteInverted(), SkIRect::MakeEmpty(),
@@ -1841,7 +1857,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     const Rect deviceBounds = this->deviceBounds();
 
     DrawShape draw{localToDevice, *geometry};
-    if (!draw.applyStyle(style, deviceBounds)) {
+    if (!draw.applyStyle(*style, deviceBounds)) {
         return kClippedOut;
     }
 
@@ -1864,7 +1880,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         case DrawInfluence::kNone:
             // The draw is unaffected by the clip stack (except possibly `scissor`), and there's no
             // need to visit each clip element.
-            return draw.toClip(geometry, {}, cs.shader());
+            return draw.toClip(geometry, style, {}, cs.shader());
 
         case DrawInfluence::kReplacesDraw:
             // The draw covers the clip entirely. Replace the shape with a flood fill, which can
@@ -1971,7 +1987,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         }
     }
 
-    return draw.toClip(geometry, nonMSAAClip, cs.shader());
+    return draw.toClip(geometry, style, nonMSAAClip, cs.shader());
 }
 
 std::pair<CompressedPaintersOrder, Layer*> ClipStack::updateClipStateForDraw(
