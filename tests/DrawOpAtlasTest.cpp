@@ -106,14 +106,18 @@ public:
     }
 
     skgpu::Token addASAPUpload(GrDeferredTextureUploadFn&& upload) final {
+        fNumASAPUploads++;
         return fTokenTracker.nextFlushToken();
     }
 
     void issueDrawToken() { fTokenTracker.issueDrawToken(); }
     void issueFlushToken() { fTokenTracker.issueFlushToken(); }
 
+    int numASAPUploads() const { return fNumASAPUploads; }
+
 private:
     skgpu::TokenTracker fTokenTracker;
+    int fNumASAPUploads = 0;
 
     using INHERITED = GrDeferredUploadTarget;
 };
@@ -332,6 +336,75 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrOpFlushStateAbort,
                     uploadTarget.tokenTracker()->nextDrawToken() ==
                     uploadTarget.tokenTracker()->nextFlushToken());
     flushState.reset();
+}
+
+// Every flush advances the flush token, even one that executes no draws. Otherwise an atlas
+// addition in the next flush would assume the previous (already executed) upload of the plot is
+// still pending and not schedule its own.
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrDrawOpAtlasUploadAfterFlushWithoutDraws,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNextRelease) {
+    auto dContext = ctxInfo.directContext();
+    auto gpu = dContext->priv().getGpu();
+    auto proxyProvider = dContext->priv().proxyProvider();
+    auto resourceProvider = dContext->priv().resourceProvider();
+    auto drawingManager = dContext->priv().drawingManager();
+    const GrCaps* caps = dContext->priv().caps();
+
+    GrOnFlushResourceProvider onFlushResourceProvider(drawingManager);
+    TestingUploadTarget uploadTarget;
+    GrOpFlushState flushState(gpu, resourceProvider, uploadTarget.writeableTokenTracker());
+
+    GrColorType atlasColorType = GrColorType::kAlpha_8;
+    GrBackendFormat format = caps->getDefaultBackendFormat(atlasColorType, GrRenderable::kNo);
+
+    AssertOnEvict evictor;
+    GrAtlasGenerationCounter counter;
+    std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(
+            proxyProvider,
+            format,
+            GrColorTypeToSkColorType(atlasColorType),
+            GrColorTypeBytesPerPixel(atlasColorType),
+            kAtlasSize, kAtlasSize,
+            kAtlasSize/kNumPlots, kAtlasSize/kNumPlots,
+            &counter,
+            GrDrawOpAtlas::AllowMultitexturing::kYes,
+            &evictor,
+            /*label=*/"UploadAfterFlushWithoutDrawsTest");
+    REPORTER_ASSERT(reporter, atlas);
+    if (!atlas) {
+        return;
+    }
+
+    // Entries small enough that several fit in a single plot.
+    constexpr int kEntrySize = kPlotSize / 4;
+    SkBitmap data;
+    data.allocPixels(SkImageInfo::MakeA8(kEntrySize, kEntrySize));
+    data.eraseARGB(0xFF, 0, 0, 0);
+
+    GrAtlasLocator first;
+    REPORTER_ASSERT(reporter,
+                    atlas->addToAtlas(resourceProvider, &uploadTarget, kEntrySize, kEntrySize,
+                                      data.getAddr(0, 0), &first) ==
+                    GrDrawOpAtlas::ErrorCode::kSucceeded);
+    atlas->instantiate(&onFlushResourceProvider);
+    REPORTER_ASSERT(reporter, uploadTarget.numASAPUploads() == 1);
+
+    // End the flush without executing any draws.
+    flushState.abort();
+    flushState.reset();
+
+    GrAtlasLocator second;
+    REPORTER_ASSERT(reporter,
+                    atlas->addToAtlas(resourceProvider, &uploadTarget, kEntrySize, kEntrySize,
+                                      data.getAddr(0, 0), &second) ==
+                    GrDrawOpAtlas::ErrorCode::kSucceeded);
+    // The second entry lands in the same plot as the first and gets its own upload, since the
+    // plot's previous upload belonged to an earlier flush.
+    REPORTER_ASSERT(reporter, second.pageIndex() == first.pageIndex());
+    REPORTER_ASSERT(reporter, second.plotIndex() == first.plotIndex());
+    REPORTER_ASSERT(reporter, uploadTarget.numASAPUploads() == 2);
 }
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrAtlasManagerOnFlushFailed,
