@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkRefCnt.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkTypeTraits.h"
 #include "src/partition_alloc/raw_ptr.h"
@@ -321,6 +322,67 @@ DEF_TEST(RawPtr_Stl, reporter) {
 
     // std::to_address.
     REPORTER_ASSERT(reporter, std::to_address(pa) == &a);
+}
+
+DEF_TEST(RawPtr_RefCnt, reporter) {
+    struct RefBase : public SkRefCnt {};
+    struct RefDerived : public RefBase {};
+
+    sk_sp<RefDerived> owner = sk_make_sp<RefDerived>();
+    REPORTER_ASSERT(reporter, owner->unique());
+
+    raw_ptr<RefDerived> ptr = owner.get();
+    raw_ptr<const RefDerived> cptr = owner.get();
+    raw_ptr<RefDerived, DisableDanglingPtrDetection> dptr = owner.get();
+    raw_ptr<RefDerived> null_ptr = nullptr;
+
+    // sk_ref_sp
+    sk_sp<RefDerived> sp1 = sk_ref_sp(ptr);
+    static_assert(std::is_same_v<decltype(sk_ref_sp(cptr)), sk_sp<RefDerived>>);
+    sk_sp<RefDerived> sp2 = sk_ref_sp(cptr);
+    sk_sp<RefDerived> sp3 = sk_ref_sp(dptr);
+    sk_sp<RefBase> sp_base = sk_ref_sp<RefBase>(ptr);
+    sk_sp<const RefDerived> sp_const = sk_ref_sp<const RefDerived>(cptr);
+    sk_sp<RefDerived> sp_null = sk_ref_sp(null_ptr);
+
+    REPORTER_ASSERT(reporter, sp1.get() == owner.get());
+    REPORTER_ASSERT(reporter, sp2.get() == owner.get());
+    REPORTER_ASSERT(reporter, sp3.get() == owner.get());
+    REPORTER_ASSERT(reporter, sp_base.get() == owner.get());
+    REPORTER_ASSERT(reporter, sp_const.get() == owner.get());
+    REPORTER_ASSERT(reporter, sp_null == nullptr);
+
+    sp1.reset();
+    sp2.reset();
+    sp3.reset();
+    sp_base.reset();
+    sp_const.reset();
+    REPORTER_ASSERT(reporter, owner->unique());
+
+    // SkRef and SkSafeRef
+    RefDerived* r1 = SkRef(ptr);
+    REPORTER_ASSERT(reporter, r1 == owner.get());
+    REPORTER_ASSERT(reporter, !owner->unique());
+    r1->unref();
+
+    const RefDerived* r2 = SkRef(cptr);
+    REPORTER_ASSERT(reporter, r2 == owner.get());
+    REPORTER_ASSERT(reporter, !owner->unique());
+    r2->unref();
+
+    RefDerived* sr1 = SkSafeRef(ptr);
+    REPORTER_ASSERT(reporter, sr1 == owner.get());
+    sr1->unref();
+
+    const RefDerived* sr2 = SkSafeRef(cptr);
+    REPORTER_ASSERT(reporter, sr2 == owner.get());
+    sr2->unref();
+
+    REPORTER_ASSERT(reporter, SkSafeRef(null_ptr) == nullptr);
+    REPORTER_ASSERT(reporter, owner->unique());
+
+    ptr = nullptr;
+    cptr = nullptr;
 }
 
 static_assert(sizeof(raw_ptr<int>) == sizeof(int*));
