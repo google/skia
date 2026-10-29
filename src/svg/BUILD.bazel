@@ -23,6 +23,7 @@ skia_cc_library(
         "//:core",
         "//:png_encode_codec",
         "//src/core:core_priv",
+        "//src/partition_alloc:raw_ptr",
         "//src/xml",
     ],
 )

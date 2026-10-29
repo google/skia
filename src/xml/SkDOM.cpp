@@ -11,6 +11,7 @@
 
 #include "include/core/SkStream.h"
 #include "include/private/SkTo.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/xml/SkXMLParser.h"
 #include "src/xml/SkXMLWriter.h"
 
@@ -49,9 +50,9 @@ struct SkDOMAttr {
 
 struct SkDOMNode {
     const char* fName;
-    SkDOMNode*  fFirstChild;
-    SkDOMNode*  fNextSibling;
-    SkDOMAttr*  fAttrs;
+    raw_ptr<SkDOMNode> fFirstChild;
+    raw_ptr<SkDOMNode> fNextSibling;
+    raw_ptr<SkDOMAttr> fAttrs;
     uint16_t    fAttrCount;
     uint8_t     fType;
     uint8_t     fPad;
@@ -166,13 +167,13 @@ private:
     }
 
     SkTDArray<SkDOM::Node*> fParentStack;
-    SkArenaAllocWithReset*  fAlloc;
-    SkDOM::Node*            fRoot;
+    raw_ptr<SkArenaAllocWithReset> fAlloc;
+    raw_ptr<SkDOM::Node, DanglingUntriaged> fRoot;
     bool                    fNeedToFlush;
 
     // state needed for flushAttributes()
     SkTDArray<SkDOM::Attr>  fAttrs;
-    char*                   fElemName;
+    raw_ptr<char, DanglingUntriaged> fElemName;
     SkDOM::Type             fElemType;
     int                     fLevel;
 };

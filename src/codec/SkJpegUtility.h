@@ -9,6 +9,8 @@
 #ifndef SkJpegUtility_codec_DEFINED
 #define SkJpegUtility_codec_DEFINED
 
+#include "src/partition_alloc/raw_ptr.h"
+
 #include <cstdint>
 
 extern "C" {
@@ -31,7 +33,7 @@ void skjpeg_err_exit(j_common_ptr cinfo);
 struct skjpeg_source_mgr : jpeg_source_mgr {
     skjpeg_source_mgr(SkStream* stream);
 
-    SkStream* fStream; // unowned
+    raw_ptr<SkStream> fStream;  // unowned
     enum {
         // TODO (msarett): Experiment with different buffer sizes.
         // This size was chosen because it matches SkImageDecoder.

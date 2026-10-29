@@ -10,6 +10,7 @@
 
 #include "include/core/SkString.h"
 #include "include/private/SkTDArray.h"
+#include "src/partition_alloc/raw_ref.h"
 #include "src/xml/SkDOM.h"
 
 class SkWStream;
@@ -81,7 +82,7 @@ private:
     void newline();
     void tab(int lvl);
 
-    SkWStream&      fStream;
+    const raw_ref<SkWStream> fStream;
     const uint32_t  fFlags;
 };
 
@@ -95,7 +96,7 @@ protected:
     void onAddAttributeLen(const char name[], const char value[], size_t length) override;
     void onAddText(const char text[], size_t length) override;
 private:
-    SkXMLParser&        fParser;
+    const raw_ref<SkXMLParser> fParser;
 };
 
 

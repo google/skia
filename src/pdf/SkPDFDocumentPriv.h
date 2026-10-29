@@ -25,6 +25,7 @@
 #include "include/private/SkSemaphore.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkUTF.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/pdf/SkPDFBitmap.h"
 #include "src/pdf/SkPDFFont.h"
 #include "src/pdf/SkPDFGraphicState.h"
@@ -215,7 +216,7 @@ private:
     const SkPDF::Metadata fMetadata;
     const SkScalar fRasterScale;
     const SkScalar fInverseRasterScale;
-    SkFunctionalExecutor *const fExecutor;
+    const raw_ptr<SkFunctionalExecutor> fExecutor;
 
     // For tagged PDFs.
     SkPDFStructTree fStructTree;

@@ -37,6 +37,7 @@
 #include "src/core/SkMipmap.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkStreamPriv.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <climits>
 #include <cstdint>
@@ -231,7 +232,7 @@ public:
     const SkFrame* onGetFrame(int i) const override;
 
 private:
-    const SkWuffsCodec* fCodec;
+    raw_ptr<const SkWuffsCodec> fCodec;
 
     using INHERITED = SkFrameHolder;
 };
@@ -309,7 +310,7 @@ private:
     wuffs_base__io_buffer    fIOBuffer;
 
     // Incremental decoding state.
-    uint8_t*                fIncrDecDst;
+    raw_ptr<uint8_t, DanglingUntriaged> fIncrDecDst;
     size_t                  fIncrDecRowBytes;
     wuffs_base__pixel_blend fIncrDecPixelBlend;
     bool                    fIncrDecOnePass;

@@ -14,6 +14,7 @@
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 struct SkDOMAttr;
 struct SkDOMNode;
@@ -92,7 +93,7 @@ public:
 
 private:
     SkArenaAllocWithReset        fAlloc;
-    Node*                        fRoot;
+    raw_ptr<Node, DanglingUntriaged> fRoot;
     std::unique_ptr<SkDOMParser> fParser;
 
     using INHERITED = SkNoncopyable;

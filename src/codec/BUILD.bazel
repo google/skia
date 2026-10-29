@@ -104,6 +104,7 @@ skia_cc_library(
         "//modules/skcms",
         "//src/core",
         "//src/core:core_priv",
+        "//src/partition_alloc:raw_ptr",
     ],
 )
 
@@ -219,6 +220,7 @@ skia_cc_library(
         "//modules/skcms",
         "//src/core",
         "//src/core:core_priv",
+        "//src/partition_alloc:raw_ptr",
     ],
 )
 
@@ -289,6 +291,7 @@ skia_cc_library(
         "//modules/skcms",
         "//src/core",
         "//src/core:core_priv",
+        "//src/partition_alloc:raw_ptr",
         "@wuffs",
     ],
 )
@@ -365,6 +368,7 @@ skia_cc_library(
         "//modules/skcms",
         "//src/core",
         "//src/core:core_priv",
+        "//src/partition_alloc:raw_ptr",
         "@libjpeg_turbo",
     ],
 )
@@ -390,6 +394,7 @@ skia_cc_library(
         "//modules/skcms",
         "//src/core",
         "//src/core:core_priv",
+        "//src/partition_alloc:raw_ptr",
         "@libjxl",
     ],
 )

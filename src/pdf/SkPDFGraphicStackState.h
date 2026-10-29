@@ -9,6 +9,7 @@
 #include "include/core/SkScalar.h"
 #include "include/private/SkFloatingPoint.h"
 #include "src/core/SkClipStack.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstdint>
 
@@ -30,7 +31,7 @@ struct SkPDFGraphicStackState {
     inline static constexpr int kMaxStackDepth = 2;
     std::array<Entry, kMaxStackDepth + 1> fEntries;
     int fStackDepth = 0;
-    SkDynamicMemoryWStream* fContentStream;
+    raw_ptr<SkDynamicMemoryWStream> fContentStream;
 
     SkPDFGraphicStackState(SkDynamicMemoryWStream* s = nullptr) : fContentStream(s) {}
     void updateClip(const SkClipStack* clipStack, const SkIRect& bounds);

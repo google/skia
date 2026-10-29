@@ -52,6 +52,7 @@
 #include "src/core/SkTHash.h"
 #include "src/core/SkTLazy.h"
 #include "src/image/SkImage_Base.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/shaders/SkColorShader.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/text/GlyphRun.h"
@@ -363,9 +364,9 @@ private:
                             const SkShader* shader,
                             const SkMatrix& localMatrix);
 
-    SkXMLWriter*                   fWriter = nullptr;
+    raw_ptr<SkXMLWriter> fWriter;
     SkSVGCanvas::EncodePngCallback fPngEncoder = nullptr;
-    ResourceBucket*                fResourceBucket = nullptr;
+    raw_ptr<ResourceBucket> fResourceBucket;
 };
 
 void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& resources) {
