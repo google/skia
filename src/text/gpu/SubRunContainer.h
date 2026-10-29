@@ -16,6 +16,7 @@
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTLogic.h"
 #include "src/core/SkColorData.h"  // IWYU pragma: keep
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/VertexFiller.h"
@@ -178,7 +179,7 @@ public:
 
 private:
     SubRunOwner fHead{nullptr};
-    SubRunOwner* fTail{&fHead};
+    raw_ptr<SubRunOwner> fTail{&fHead};
 };
 
 // -- SubRunContainer ------------------------------------------------------------------------------

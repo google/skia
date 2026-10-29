@@ -25,6 +25,7 @@
 #include "src/core/SkTHash.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTypefaceCache.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/ports/SkFontMgr_android_parser.h"
 #include "src/ports/SkTypeface_proxy.h"
 
@@ -233,7 +234,7 @@ private:
  */
 struct NameToFamily {
     SkString name;
-    SkFontStyleSet_Android* styleSet;
+    raw_ptr<SkFontStyleSet_Android> styleSet;
 };
 
 class SkFontMgr_Android : public SkFontMgr {

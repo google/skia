@@ -35,6 +35,7 @@
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkSharedMutex.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/ports/SkScalerContext_win_dw.h"
 #include "src/ports/SkTypeface_win_dw.h"
 #include "src/sfnt/SkOTTable_EBLC.h"
@@ -1710,7 +1711,7 @@ bool SkScalerContext_DW::generateSVGMetrics(const SkGlyph& glyph, SkRect* bounds
 namespace {
 struct Context {
     SkTScopedComPtr<IDWriteFontFace4> fontFace4;
-    void* glyphDataContext;
+    raw_ptr<void> glyphDataContext;
     Context(IDWriteFontFace4* face4, void* context)
         : fontFace4(SkRefComPtr(face4))
         , glyphDataContext(context)
@@ -1719,7 +1720,7 @@ struct Context {
 
 static void ReleaseProc(const void* ptr, void* context) {
     Context* ctx = (Context*)context;
-    ctx->fontFace4->ReleaseGlyphImageData(ctx->glyphDataContext);
+    ctx->fontFace4->ReleaseGlyphImageData(ctx->glyphDataContext.ExtractAsDangling());
     delete ctx;
 }
 }

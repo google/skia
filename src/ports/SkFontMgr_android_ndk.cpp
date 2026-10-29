@@ -25,6 +25,7 @@
 #include "src/core/SkTHash.h"
 #include "src/core/SkTSort.h"
 #include "src/core/SkUTF.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/ports/SkFontMgr_android_parser.h"
 #include "src/ports/SkTypeface_proxy.h"
 
@@ -677,7 +678,7 @@ private:
         private:
             sk_sp<SkTypeface_AndroidNDK> fTypeface;
             sk_sp<SkTypeface::LocalizedStrings> fBase;
-            const SkString* fExtraFamilyName;
+            raw_ptr<const SkString, AllowPtrArithmetic> fExtraFamilyName;
 
             bool next(LocalizedString* localizedString) override {
                 if (!fExtraFamilyName) {
@@ -950,7 +951,7 @@ private:
 struct NameToFamily {
     SkString name;
     SkString normalizedName;
-    SkFontStyleSet_AndroidNDK* styleSet;
+    raw_ptr<SkFontStyleSet_AndroidNDK> styleSet;
 
     using sk_is_trivially_relocatable = std::true_type;
     static_assert(::sk_is_trivially_relocatable<decltype(name)>::value);

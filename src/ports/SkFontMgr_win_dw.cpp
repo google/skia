@@ -20,6 +20,7 @@
 #include "src/core/SkTypefaceCache.h"
 #include "src/core/SkUTF.h"
 #include "src/core/SkZip.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/ports/SkTypeface_win_dw.h"
 #include "src/utils/win/SkDWrite.h"
 #include "src/utils/win/SkDWriteFontFileStream.h"
@@ -615,7 +616,7 @@ private:
     const WCHAR* fString;
     UINT32 fLength;
     const WCHAR* fLocale;
-    IDWriteNumberSubstitution* fNumberSubstitution;
+    raw_ptr<IDWriteNumberSubstitution> fNumberSubstitution;
 };
 
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(

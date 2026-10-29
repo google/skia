@@ -15,6 +15,8 @@
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <algorithm>
 #include <array>
@@ -148,8 +150,9 @@ private:
     struct Block {
         Block(char* previous, char* startOfBlock);
         // The start of the originally allocated bytes. This is the thing that must be deleted.
-        char* const fBlockStart;
-        Block* const fPrevious;
+        // RAW_PTR_EXCLUSION: Placement-new'd in the memory it frees, never destroyed.
+        RAW_PTR_EXCLUSION char* const fBlockStart;
+        RAW_PTR_EXCLUSION Block* const fPrevious;
     };
 
     // Note: fCapacity is the number of bytes remaining, and is subtracted from fEndByte to
@@ -177,7 +180,7 @@ private:
     // of this pointer are the bytes to be allocated. The positive side points to the Block for
     // this memory. In other words, the pointer to the Block structure for these bytes is
     // reinterpret_cast<Block*>(fEndByte).
-    char* fEndByte{nullptr};
+    raw_ptr<char, AllowPtrArithmetic> fEndByte;
 
     // The number of bytes remaining in this block.
     int fCapacity{0};

@@ -18,6 +18,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkZip.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -128,10 +129,12 @@ public:
 private:
     // The text blob is needed to hook up the call back that the SkTextBlob destructor calls. It
     // should be used for nothing else.
-    const SkTextBlob* fOriginalTextBlob{nullptr};
+    // RAW_PTR_EXCLUSION: Performance: +3.9% on TextBlobFirstTimeBench.
+    RAW_PTR_EXCLUSION const SkTextBlob* fOriginalTextBlob{nullptr};
     const SkRect fSourceBounds{SkRect::MakeEmpty()};
     const SkPoint fOrigin = {0, 0};
-    GlyphRunBuilder* const fBuilder;
+    // RAW_PTR_EXCLUSION: Performance: +3.9% on TextBlobFirstTimeBench.
+    RAW_PTR_EXCLUSION GlyphRunBuilder* const fBuilder;
 };
 
 class GlyphRunBuilder {
