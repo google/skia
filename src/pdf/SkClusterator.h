@@ -8,6 +8,7 @@
 #define SkClusterator_DEFINED
 
 #include <cstdint>
+#include "include/private/SkOnlyStackAllocatable.h"
 
 namespace sktext {
 class GlyphRun;
@@ -16,6 +17,8 @@ class GlyphRun;
 /** Given the m-to-n glyph-to-character mapping data (as returned by
     harfbuzz), iterate over the clusters. */
 class SkClusterator {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 public:
     explicit SkClusterator(const sktext::GlyphRun& run);
     uint32_t glyphCount() const { return fGlyphCount; }

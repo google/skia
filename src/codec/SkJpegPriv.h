@@ -11,6 +11,7 @@
 
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkStream.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 
 #include <setjmp.h>
@@ -27,6 +28,8 @@ extern "C" {
  */
 struct skjpeg_error_mgr : public jpeg_error_mgr {
     class AutoPushJmpBuf {
+        SK_ONLY_STACK_ALLOCATABLE;
+
     public:
         explicit AutoPushJmpBuf(skjpeg_error_mgr* mgr) : fMgr(mgr) { fMgr->push(&fJmpBuf); }
         ~AutoPushJmpBuf()                                 { fMgr->pop(&fJmpBuf); }

@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/codec/SkCodecPriv.h"
 
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
@@ -28,6 +29,8 @@
  */
 
 class ScopedSkStreamRestorer {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 public:
     ScopedSkStreamRestorer(SkStream* stream) : fStream(stream), fPosition(stream->getPosition()) {
         if (!fStream->rewind()) {

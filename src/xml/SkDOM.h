@@ -11,6 +11,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 
@@ -79,6 +80,8 @@ public:
     bool hasBool(const Node*, const char name[], bool value) const;
 
     class AttrIter {
+        SK_ONLY_STACK_ALLOCATABLE;
+
     public:
         AttrIter(const SkDOM&, const Node*);
         const char* next(const char** value);

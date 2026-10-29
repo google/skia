@@ -39,6 +39,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
@@ -212,6 +213,7 @@ bool RequiresViewportReset(const SkPaint& paint) {
 
 void AddPath(const sktext::GlyphRun& glyphRun, const SkPoint& offset, SkPathBuilder* builder) {
     struct Rec {
+        SK_ONLY_STACK_ALLOCATABLE;
         SkPathBuilder* fBuilder;
         const SkPoint  fOffset;
         const SkPoint* fPos;
@@ -272,6 +274,8 @@ private:
 };
 
 struct SkSVGDevice::MxCp {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     const SkMatrix* fMatrix;
     const SkClipStack*  fClipStack;
 

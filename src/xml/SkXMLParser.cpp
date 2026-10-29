@@ -10,6 +10,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkRandom.h"
@@ -89,6 +90,8 @@ const XML_Memory_Handling_Suite sk_XML_alloc = {
 };
 
 struct ParsingContext {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     ParsingContext(SkXMLParser* parser)
         : fParser(parser)
         , fXMLParser(XML_ParserCreate_MM(nullptr, &sk_XML_alloc, nullptr)) { }

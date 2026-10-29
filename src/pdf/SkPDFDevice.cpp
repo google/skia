@@ -45,6 +45,7 @@
 #include "include/docs/SkPDFDocument.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
@@ -318,6 +319,8 @@ sk_sp<SkDevice> SkPDFDevice::createDevice(const CreateInfo& cinfo, const SkPaint
 // A helper class to automatically finish a ContentEntry at the end of a
 // drawing method and maintain the state needed between set up and finish.
 class ScopedContentEntry {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 public:
     ScopedContentEntry(SkPDFDevice* device,
                        const SkClipStack* clipStack,
@@ -774,6 +777,8 @@ void SkPDFDevice::drawSprite(const SkBitmap& bm, int x, int y, const SkPaint& pa
 
 namespace {
 class GlyphPositioner {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 public:
     GlyphPositioner(SkDynamicMemoryWStream* content,
                     SkScalar textSkewX,
@@ -878,6 +883,7 @@ void SkPDFDevice::drawGlyphRunAsPath(
     const SkFont& font = glyphRun.font();
 
     struct Rec {
+        SK_ONLY_STACK_ALLOCATABLE;
         SkPathBuilder fBuilder;
         SkPoint fOffset;
         const SkPoint* fPos;

@@ -18,6 +18,7 @@
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
@@ -141,6 +142,8 @@ namespace {
 // Solving the general problem leads to reinventing pathops' Simplify, which is unfortunately
 // too slow to use in this context (https://skia-review.googlesource.com/c/skia/+/767256).
 class ContourBuffer {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 public:
     ContourBuffer(SkWStream* contentStream, SkPDFUtils::EmptyArea emptyArea)
         : fContentStream(contentStream)
