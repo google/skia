@@ -15,6 +15,8 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkMath.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/pathops/SkOpAngle.h"
 #include "src/pathops/SkOpSpan.h"
 #include "src/pathops/SkPathOpsBounds.h"
@@ -439,10 +441,13 @@ public:
 private:
     SkOpSpan fHead;  // the head span always has its t set to zero
     SkOpSpanBase fTail;  // the tail span always has its t set to one
-    SkOpContour* fContour;
-    SkOpSegment* fNext;  // forward-only linked list used by contour to walk the segments
-    const SkOpSegment* fPrev;
-    SkPoint* fPts;  // pointer into array of points owned by edge builder that may be tweaked
+    raw_ptr<SkOpContour> fContour;
+    // forward-only linked list used by contour to walk the segments
+    raw_ptr<SkOpSegment> fNext;
+    raw_ptr<const SkOpSegment> fPrev;
+    // RAW_PTR_EXCLUSION: Performance: +2.2% on pathops_simplify_rects.
+    // pointer into array of points owned by edge builder that may be tweaked
+    RAW_PTR_EXCLUSION SkPoint* fPts;
     SkPathOpsBounds fBounds;  // tight bounds
     SkScalar fWeight;
     int fCount;  // number of spans (one for a non-intersecting segment)

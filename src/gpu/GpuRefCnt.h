@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -71,8 +72,7 @@ public:
      * Calls Unref() on the underlying object pointer.
      */
     ~gr_sp() {
-        SafeUnref(fPtr);
-        SkDEBUGCODE(fPtr = nullptr);
+        SafeUnref(this->release());
     }
 
     gr_sp& operator=(std::nullptr_t) {
@@ -153,7 +153,7 @@ private:
         return ptr;
     }
 
-    T* fPtr;
+    raw_ptr<T> fPtr;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

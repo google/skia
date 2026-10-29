@@ -32,6 +32,7 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkTSort.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"
 #include "src/pathops/SkOpSpan.h"
@@ -112,8 +113,8 @@ struct SkOpRayHit {
         return fabs(fSlope.fX) < fabs(fSlope.fY) ? SkOpRayDir::kLeft : SkOpRayDir::kTop;
     }
 
-    SkOpRayHit* fNext;
-    SkOpSpan* fSpan;
+    raw_ptr<SkOpRayHit> fNext;
+    raw_ptr<SkOpSpan> fSpan;
     SkPoint fPt;
     double fT;
     SkDVector fSlope;

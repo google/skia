@@ -12,6 +12,7 @@
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkTSort.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkPathOpsConic.h"
 #include "src/pathops/SkPathOpsCubic.h"
@@ -1727,8 +1728,8 @@ struct SkClosestRecord {
         fC2EndT = std::max(fC2EndT, mate.fC2EndT);
     }
 
-    const SkTSpan* fC1Span;
-    const SkTSpan* fC2Span;
+    raw_ptr<const SkTSpan> fC1Span;
+    raw_ptr<const SkTSpan> fC2Span;
     double fC1StartT;
     double fC1EndT;
     double fC2StartT;
