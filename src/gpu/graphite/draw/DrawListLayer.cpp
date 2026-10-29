@@ -8,6 +8,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "src/core/SkSafetyChecks.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -19,6 +20,7 @@
 namespace skgpu::graphite {
 
 void DrawListLayer::reset(LoadOp loadOp, SkColor4f color) {
+    SK_SCOPED_DISABLE_PARTITION_ALLOC_SAFETY_CHECKS;
     DrawListBase::reset(loadOp, color);
 
     fStorage.reset();
