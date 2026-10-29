@@ -8,6 +8,7 @@
 #define SkIntersectionHelper_DEFINED
 
 #include "include/core/SkPath.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"
 
@@ -17,6 +18,8 @@
 
 class SkIntersectionHelper {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     enum SegmentType {
         kHorizontalLine_Segment = -1,
         kVerticalLine_Segment = 0,

@@ -9,6 +9,7 @@
 
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMacros.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkTSort.h"
 #include "src/pathops/SkIntersections.h"
@@ -1738,6 +1739,7 @@ struct SkClosestRecord {
 };
 
 struct SkClosestSect {
+    SK_ONLY_STACK_ALLOCATABLE;
     SkClosestSect()
         : fUsed(0) {
         fClosest.push_back().reset();

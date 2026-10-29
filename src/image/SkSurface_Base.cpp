@@ -45,6 +45,7 @@ SkSurface_Base::~SkSurface_Base() {
         if (auto recorder = this->baseRecorder()) {
             recorder->deregisterCaptureCanvas(fCachedCanvas);
         }
+        fCachedCanvas = nullptr;
     }
 }
 

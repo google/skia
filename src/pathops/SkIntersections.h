@@ -12,6 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/pathops/SkPathOpsConic.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsDebug.h"
@@ -28,6 +29,8 @@ struct SkDRect;
 
 class SkIntersections {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkIntersections(SkDEBUGCODE(SkOpGlobalState* globalState = nullptr))
         : fSwap(0)
 #ifdef SK_DEBUG
@@ -48,6 +51,8 @@ public:
 
     class TArray {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         explicit TArray(const double ts[10]) : fTArray(ts) {}
         double operator[](int n) const {
             return fTArray[n];

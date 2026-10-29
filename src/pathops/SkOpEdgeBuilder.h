@@ -9,6 +9,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTDArray.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkPathOpsTypes.h"
@@ -21,6 +22,8 @@ class SkPath;
 
 class SkOpEdgeBuilder {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkOpEdgeBuilder(const SkPath& path, SkOpContourHead* contours2, SkOpGlobalState* globalState)
         : fGlobalState(globalState)
         , fPath(&path)

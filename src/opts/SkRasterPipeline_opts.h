@@ -11,6 +11,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkRasterPipeline.h"
@@ -63,6 +64,7 @@ SI Dst widen_cast(const Src& src) {
 }
 
 struct Ctx {
+    SK_ONLY_STACK_ALLOCATABLE;
     SkRasterPipelineStage* fStage;
 
     template <typename T>

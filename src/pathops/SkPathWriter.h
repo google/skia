@@ -11,6 +11,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 
 class SkOpPtT;
@@ -21,6 +22,8 @@ class SkOpPtT;
 
 class SkPathWriter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkPathWriter(SkPathFillType);
     void assemble();
     void conicTo(const SkPoint& pt1, const SkOpPtT* pt2, SkScalar weight);

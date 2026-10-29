@@ -12,6 +12,7 @@
 #include "include/core/SkRect.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkColorData.h"
@@ -202,6 +203,7 @@ struct VertexWriter : private BufferWriter {
 
     template<typename T>
     struct ArrayDesc {
+        SK_ONLY_STACK_ALLOCATABLE;
         const T* fArray;
         int fCount;
     };
@@ -213,6 +215,7 @@ struct VertexWriter : private BufferWriter {
 
     template<int kCount, typename T>
     struct RepeatDesc {
+        SK_ONLY_STACK_ALLOCATABLE;
         const T& fVal;
     };
 

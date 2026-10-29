@@ -140,6 +140,7 @@ skia_filegroup(
         "SkMacros.h",
         "SkMalloc.h",
         "SkMath.h",
+        "SkOnlyStackAllocatable.h",
         "SkSafe32.h",
         "SkTArray.h",
         "SkTFitsIn.h",

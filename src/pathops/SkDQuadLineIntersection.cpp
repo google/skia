@@ -7,6 +7,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkPathOpsCurve.h"
 #include "src/pathops/SkPathOpsDebug.h"
@@ -98,6 +99,8 @@ Thus, if the slope of the line tends towards vertical, we use:
 
 class LineQuadraticIntersections {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     enum PinTPoint {
         kPointUninitialized,
         kPointInitialized
