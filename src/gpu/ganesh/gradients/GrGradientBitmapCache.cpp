@@ -26,26 +26,22 @@
 using namespace skia_private;
 
 struct GrGradientBitmapCache::Entry {
-    Entry*      fPrev;
-    Entry*      fNext;
+    Entry*        fPrev = nullptr;
+    Entry*        fNext = nullptr;
 
-    void*       fBuffer;
-    size_t      fSize;
-    SkBitmap    fBitmap;
+    UniqueVoidPtr fBuffer;
+    size_t        fSize;
+    SkBitmap      fBitmap;
 
     Entry(const void* buffer, size_t size, const SkBitmap& bm)
-            : fPrev(nullptr),
-              fNext(nullptr),
+            : fBuffer(sk_malloc_throw(size)),
+              fSize(size),
               fBitmap(bm) {
-        fBuffer = sk_malloc_throw(size);
-        fSize = size;
-        memcpy(fBuffer, buffer, size);
+        memcpy(fBuffer.get(), buffer, size);
     }
 
-    ~Entry() { sk_free(fBuffer); }
-
     bool equals(const void* buffer, size_t size) const {
-        return (fSize == size) && !memcmp(fBuffer, buffer, size);
+        return (fSize == size) && !memcmp(fBuffer.get(), buffer, size);
     }
 };
 

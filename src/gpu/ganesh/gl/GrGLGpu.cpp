@@ -4357,7 +4357,7 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
             GrGLuint arrayID;
             GR_GL_CALL(gpu->glInterface(), GenVertexArrays(1, &arrayID));
             int attrCount = gpu->glCaps().maxVertexAttributes();
-            fCoreProfileVertexArray = new GrGLVertexArray(arrayID, attrCount);
+            fCoreProfileVertexArray = std::make_unique<GrGLVertexArray>(arrayID, attrCount);
         }
         if (ibuf) {
             attribState = fCoreProfileVertexArray->bindWithIndexBuffer(gpu, ibuf);

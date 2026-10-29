@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "include/gpu/ganesh/gl/GrGLTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
@@ -90,6 +91,8 @@ protected:
     GrGLContextInfo(const GrGLContextInfo&) = default;
 
     struct ConstructorArgs {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         sk_sp<const GrGLInterface>          fInterface;
         GrGLDriverInfo                      fDriverInfo;
         SkSL::GLSLGeneration                fGLSLGeneration;

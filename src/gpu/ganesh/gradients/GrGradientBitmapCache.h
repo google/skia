@@ -12,6 +12,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkColorData.h"
 
 #include <cstddef>
@@ -73,6 +74,8 @@ private:
 
     class AutoValidate : SkNoncopyable {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         AutoValidate(const GrGradientBitmapCache* bc) : fBC(bc) { bc->validate(); }
         ~AutoValidate() { fBC->validate(); }
     private:

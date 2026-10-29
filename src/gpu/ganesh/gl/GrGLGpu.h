@@ -712,9 +712,7 @@ private:
      */
     class HWVertexArrayState {
     public:
-        HWVertexArrayState() : fCoreProfileVertexArray(nullptr) { this->invalidate(); }
-
-        ~HWVertexArrayState() { delete fCoreProfileVertexArray; }
+        HWVertexArrayState() { this->invalidate(); }
 
         void invalidate() {
             fBoundVertexArrayIDIsValid = false;
@@ -765,7 +763,7 @@ private:
         GrGLAttribArrayState fDefaultVertexArrayAttribState;
 
         // This is used when we're using a core profile.
-        GrGLVertexArray*     fCoreProfileVertexArray;
+        std::unique_ptr<GrGLVertexArray> fCoreProfileVertexArray;
     } fHWVertexArrayState;
 
     struct {
