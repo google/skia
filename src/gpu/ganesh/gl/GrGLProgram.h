@@ -18,6 +18,7 @@
 #include "src/gpu/ganesh/gl/GrGLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <memory>
@@ -164,7 +165,7 @@ private:
     int fVertexStride;
     int fInstanceStride;
 
-    GrGLGpu* fGpu;
+    raw_ptr<GrGLGpu> fGpu;
     GrGLProgramDataManager fProgramDataManager;
 
     int fNumTextureSamplers;

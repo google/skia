@@ -10,6 +10,7 @@
 
 #include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "src/gpu/RefCntedCallback.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <list>
 
@@ -58,7 +59,7 @@ private:
         GrGLint             fTimerQuery;
     };
 
-    GrGLGpu*                  fGpu;
+    raw_ptr<GrGLGpu>          fGpu;
     std::list<FinishCallback> fCallbacks;
 };
 

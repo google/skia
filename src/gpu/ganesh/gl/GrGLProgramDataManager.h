@@ -15,6 +15,7 @@
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstdint>
 
@@ -87,7 +88,7 @@ private:
                                             const float matrices[]) const;
 
     skia_private::TArray<Uniform, true> fUniforms;
-    GrGLGpu* fGpu;
+    raw_ptr<GrGLGpu> fGpu;
 
     using INHERITED = GrGLSLProgramDataManager;
 };

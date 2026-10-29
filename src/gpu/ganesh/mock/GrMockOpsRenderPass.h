@@ -16,6 +16,7 @@
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/mock/GrMockGpu.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <array>
 #include <cstddef>
@@ -83,7 +84,7 @@ private:
         }
     }
 
-    GrMockGpu* fGpu;
+    raw_ptr<GrMockGpu> fGpu;
     GrLoadOp fColorLoadOp;
     int fNumDraws = 0;
 

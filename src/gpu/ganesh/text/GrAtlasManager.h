@@ -19,6 +19,7 @@
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <array>
 #include <cstddef>
@@ -182,7 +183,7 @@ private:
     std::array<std::unique_ptr<GrDrawOpAtlas>, skgpu::kMaskFormatCount> fAtlases;
     static_assert(skgpu::kMaskFormatCount == 3);
     bool fSupportBilerpAtlas;
-    GrProxyProvider* fProxyProvider;
+    raw_ptr<GrProxyProvider> fProxyProvider;
     sk_sp<const GrCaps> fCaps;
     GrDrawOpAtlasConfig fAtlasConfig;
 

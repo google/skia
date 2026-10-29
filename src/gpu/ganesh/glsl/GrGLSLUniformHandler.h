@@ -17,6 +17,7 @@
 #include "src/gpu/ganesh/GrResourceHandle.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <string.h>
 #include <cstdint>
@@ -44,10 +45,10 @@ public:
     SK_ONLY_STACK_ALLOCATABLE;
 
     struct UniformInfo {
-        GrShaderVar        fVariable;
-        uint32_t           fVisibility;
-        const GrProcessor* fOwner;
-        SkString           fRawName;
+        GrShaderVar                fVariable;
+        uint32_t                   fVisibility;
+        raw_ptr<const GrProcessor> fOwner;
+        SkString                   fRawName;
     };
 
     virtual ~GrGLSLUniformHandler() {}

@@ -24,6 +24,7 @@
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/gpu/ganesh/image/SkImage_GaneshYUVA.h"
 #include "src/image/SkImage_Base.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstddef>
 #include <tuple>
@@ -67,7 +68,8 @@ public:
     }
 
 private:
-    GrRecordingContext* fContext;
+    // RAW_PTR_EXCLUSION: Performance: +3% on displacement_full_small.
+    RAW_PTR_EXCLUSION GrRecordingContext* fContext;
     GrSurfaceProxyView fView;
 };
 

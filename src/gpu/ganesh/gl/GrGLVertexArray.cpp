@@ -99,14 +99,15 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
     SkASSERT(index >= 0 && index < fAttribArrayStates.size());
     SkASSERT(0 == divisor || gpu->caps()->drawInstancedSupport());
     AttribArrayState* array = &fAttribArrayStates[index];
-    const char* offsetAsPtr;
+    uintptr_t offset;
     bool bufferChanged = false;
     if (vertexBuffer->isCpuBuffer()) {
         if (!array->fUsingCpuBuffer) {
             bufferChanged = true;
             array->fUsingCpuBuffer = true;
         }
-        offsetAsPtr = static_cast<const GrCpuBuffer*>(vertexBuffer)->data() + offsetInBytes;
+        offset = reinterpret_cast<uintptr_t>(
+                static_cast<const GrCpuBuffer*>(vertexBuffer)->data() + offsetInBytes);
     } else {
         auto gpuBuffer = static_cast<const GrGpuBuffer*>(vertexBuffer);
         if (array->fUsingCpuBuffer || array->fVertexBufferUniqueID != gpuBuffer->uniqueID()) {
@@ -114,38 +115,40 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
             array->fUsingCpuBuffer = false;
             array->fVertexBufferUniqueID = gpuBuffer->uniqueID();
         }
-        offsetAsPtr = reinterpret_cast<const char*>(offsetInBytes);
+        offset = offsetInBytes;
     }
     if (bufferChanged ||
         array->fCPUType != cpuType ||
         array->fGPUType != gpuType ||
         array->fStride != stride ||
-        array->fOffset != offsetAsPtr) {
+        array->fOffset != offset) {
         // We always have to call this if we're going to change the array pointer. 'array' is
         // tracking the last buffer used to setup attrib pointers, not the last buffer bound.
         // GrGLGpu will avoid redundant binds.
         gpu->bindBuffer(GrGpuBufferType::kVertex, vertexBuffer);
         const AttribLayout& layout = attrib_layout(cpuType);
         if (SkSLTypeIsFloatType(gpuType)) {
-            GR_GL_CALL(gpu->glInterface(), VertexAttribPointer(index,
-                                                               layout.fCount,
-                                                               layout.fType,
-                                                               layout.fNormalized,
-                                                               stride,
-                                                               offsetAsPtr));
+            GR_GL_CALL(gpu->glInterface(),
+                       VertexAttribPointer(index,
+                                           layout.fCount,
+                                           layout.fType,
+                                           layout.fNormalized,
+                                           stride,
+                                           reinterpret_cast<const GrGLvoid*>(offset)));
         } else {
             SkASSERT(gpu->caps()->shaderCaps()->fIntegerSupport);
             SkASSERT(!layout.fNormalized);
-            GR_GL_CALL(gpu->glInterface(), VertexAttribIPointer(index,
-                                                                layout.fCount,
-                                                                layout.fType,
-                                                                stride,
-                                                                offsetAsPtr));
+            GR_GL_CALL(gpu->glInterface(),
+                       VertexAttribIPointer(index,
+                                            layout.fCount,
+                                            layout.fType,
+                                            stride,
+                                            reinterpret_cast<const GrGLvoid*>(offset)));
         }
         array->fCPUType = cpuType;
         array->fGPUType = gpuType;
         array->fStride = stride;
-        array->fOffset = offsetAsPtr;
+        array->fOffset = offset;
     }
     if (gpu->caps()->drawInstancedSupport() && array->fDivisor != divisor) {
         SkASSERT(0 == divisor || 1 == divisor); // not necessarily a requirement but what we expect.
