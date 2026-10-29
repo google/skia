@@ -258,12 +258,7 @@ void Run::iterateThroughClustersInTextOrder(Visitor visitor) {
     // cluster so every code unit in fTextRange maps to a valid cluster index
     if (this->size() == 0) {
         SkASSERT(!fTextRange.empty());
-        visitor(0,
-                0,
-                fTextRange.start,
-                fTextRange.end,
-                0.0f,
-                this->calculateHeight(LineMetricStyle::CSS, LineMetricStyle::CSS));
+        visitor(0, 0, fTextRange.start, fTextRange.end, 0.0f);
         return;
     }
     // Can't figure out how to do it with one code for both cases without 100 ifs
@@ -283,8 +278,7 @@ void Run::iterateThroughClustersInTextOrder(Visitor visitor) {
                     glyph,
                     fClusterStart + cluster,
                     fClusterStart + nextCluster,
-                    this->calculateWidth(start, glyph, glyph == size()),
-                    this->calculateHeight(LineMetricStyle::CSS, LineMetricStyle::CSS));
+                    this->calculateWidth(start, glyph, glyph == size()));
 
             start = glyph;
             cluster = nextCluster;
@@ -303,8 +297,7 @@ void Run::iterateThroughClustersInTextOrder(Visitor visitor) {
                     glyph,
                     fClusterStart + cluster,
                     fClusterStart + nextCluster,
-                    this->calculateWidth(start, glyph, glyph == 0),
-                    this->calculateHeight(LineMetricStyle::CSS, LineMetricStyle::CSS));
+                    this->calculateWidth(start, glyph, glyph == 0));
 
             glyph = start;
             cluster = nextCluster;
@@ -321,25 +314,12 @@ public:
         HardLineBreak,  // calculated for all clusters (UBRK_LINE)
     };
 
-    Cluster()
-            : fOwner(nullptr)
-            , fRunIndex(EMPTY_RUN)
-            , fTextRange(EMPTY_TEXT)
-            , fStart(0)
-            , fEnd()
-            , fWidth()
-            , fHeight()
-            , fHalfLetterSpacing(0.0) {}
-
     Cluster(ParagraphImpl* owner,
             RunIndex runIndex,
             size_t start,
             size_t end,
             SkSpan<const char> text,
-            SkScalar width,
-            SkScalar height);
-
-    explicit Cluster(TextRange textRange) : fTextRange(textRange) {}
+            SkScalar width);
 
     Cluster(const Cluster&) = default;
     ~Cluster() = default;
@@ -368,7 +348,6 @@ public:
     size_t startPos() const { return fStart; }
     size_t endPos() const { return fEnd; }
     SkScalar width() const { return fWidth; }
-    SkScalar height() const { return fHeight; }
     size_t size() const { return fEnd - fStart; }
 
     void setHalfLetterSpacing(SkScalar halfLetterSpacing) { fHalfLetterSpacing = halfLetterSpacing; }
@@ -406,7 +385,6 @@ private:
     size_t fStart;
     size_t fEnd;
     SkScalar fWidth;
-    SkScalar fHeight;
     SkScalar fHalfLetterSpacing;
 
     bool fIsWhiteSpaceBreak;

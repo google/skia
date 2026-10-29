@@ -341,15 +341,13 @@ Cluster::Cluster(ParagraphImpl* owner,
                  size_t start,
                  size_t end,
                  SkSpan<const char> text,
-                 SkScalar width,
-                 SkScalar height)
+                 SkScalar width)
         : fOwner(owner)
         , fRunIndex(runIndex)
         , fTextRange(text.begin() - fOwner->text().begin(), text.end() - fOwner->text().begin())
         , fStart(start)
         , fEnd(end)
         , fWidth(width)
-        , fHeight(height)
         , fHalfLetterSpacing(0.0)
         , fIsIdeographic(false) {
     size_t whiteSpacesBreakLen = 0;
@@ -541,7 +539,8 @@ void ParagraphImpl::buildClusterTable() {
               fClustersIndexFromCodeUnit[i] = fClusters.size();
             }
             // There are no glyphs but we want to have one cluster
-            fClusters.emplace_back(this, runIndex, 0ul, 1ul, this->text(run.textRange()), run.advance().fX, run.advance().fY);
+            fClusters.emplace_back(
+                    this, runIndex, 0ul, 1ul, this->text(run.textRange()), run.advance().fX);
             fCodeUnitProperties[run.textRange().start] |= SkUnicode::CodeUnitFlags::kSoftLineBreakBefore;
             fCodeUnitProperties[run.textRange().end] |= SkUnicode::CodeUnitFlags::kSoftLineBreakBefore;
         } else {
@@ -550,8 +549,7 @@ void ParagraphImpl::buildClusterTable() {
                                                                    size_t glyphEnd,
                                                                    size_t charStart,
                                                                    size_t charEnd,
-                                                                   SkScalar width,
-                                                                   SkScalar height) {
+                                                                   SkScalar width) {
                 SkASSERT(charEnd >= charStart);
                 if (charStart >= charEnd) {
                     // Empty cluster text ranges produce no code units or glyphs and are ignored
@@ -579,8 +577,7 @@ void ParagraphImpl::buildClusterTable() {
                         fClustersIndexFromCodeUnit[i] = fClusters.size();
                     }
                     SkSpan<const char> text(fText.c_str() + charStart, charEnd - charStart);
-                    fClusters.emplace_back(
-                            this, runIndex, glyphStart, glyphEnd, text, width, height);
+                    fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text, width);
                     fCodeUnitProperties[charStart] |= SkUnicode::CodeUnitFlags::kGlyphClusterStart;
                     return;
                 }
@@ -650,8 +647,7 @@ void ParagraphImpl::buildClusterTable() {
                         fClustersIndexFromCodeUnit[i] = fClusters.size();
                     }
                     SkSpan<const char> subText(fText.c_str() + sub.range.start, sub.range.width());
-                    fClusters.emplace_back(
-                            this, runIndex, gStart, gEnd, subText, subWidth, height);
+                    fClusters.emplace_back(this, runIndex, gStart, gEnd, subText, subWidth);
                     fCodeUnitProperties[sub.range.start] |=
                             SkUnicode::CodeUnitFlags::kGlyphClusterStart;
                 }
@@ -663,7 +659,7 @@ void ParagraphImpl::buildClusterTable() {
         fMaxIntrinsicWidth += run.advance().fX;
     }
     fClustersIndexFromCodeUnit[fText.size()] = fClusters.size();
-    fClusters.emplace_back(this, EMPTY_RUN, 0, 0, this->text({fText.size(), fText.size()}), 0, 0);
+    fClusters.emplace_back(this, EMPTY_RUN, 0, 0, this->text({fText.size(), fText.size()}), 0);
 
     // Invariant: guarantee no code unit remains EMPTY_INDEX in fClustersIndexFromCodeUnit.
     // Any unmapped code units (0-glyph runs or dropped controls) attach to the last valid cluster
