@@ -15,6 +15,7 @@
 
 #include <cinttypes>
 #include <cstdint>
+#include <utility>
 
 class GrVkGpu;
 class GrVkSamplerYcbcrConversion;
@@ -37,6 +38,8 @@ public:
                                            uint32_t miplevels,
                                            const skgpu::VulkanYcbcrConversionInfo& ycbcrInfo);
 
+    ~GrVkImageView() override;
+
     VkImageView imageView() const { return fImageView; }
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
@@ -48,13 +51,13 @@ public:
 
 private:
     GrVkImageView(const GrVkGpu* gpu, VkImageView imageView,
-                  GrVkSamplerYcbcrConversion* ycbcrConversion)
-            : INHERITED(gpu), fImageView(imageView), fYcbcrConversion(ycbcrConversion) {}
+                  sk_sp<GrVkSamplerYcbcrConversion> ycbcrConversion)
+            : INHERITED(gpu), fImageView(imageView), fYcbcrConversion(std::move(ycbcrConversion)) {}
 
     void freeGPUData() const override;
 
     VkImageView  fImageView;
-    GrVkSamplerYcbcrConversion* fYcbcrConversion;
+    mutable sk_sp<GrVkSamplerYcbcrConversion> fYcbcrConversion;
 
     using INHERITED = GrVkManagedResource;
 };

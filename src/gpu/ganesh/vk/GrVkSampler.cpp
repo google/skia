@@ -92,12 +92,12 @@ GrVkSampler* GrVkSampler::Create(GrVkGpu* gpu,
     createInfo.unnormalizedCoordinates = VK_FALSE;
 
     VkSamplerYcbcrConversionInfo conversionInfo;
-    GrVkSamplerYcbcrConversion* ycbcrConversion = nullptr;
+    sk_sp<GrVkSamplerYcbcrConversion> ycbcrConversion;
     if (ycbcrInfo.isValid()) {
         SkASSERT(gpu->vkCaps().supportsYcbcrConversion());
 
-        ycbcrConversion =
-                gpu->resourceProvider().findOrCreateCompatibleSamplerYcbcrConversion(ycbcrInfo);
+        ycbcrConversion.reset(
+                gpu->resourceProvider().findOrCreateCompatibleSamplerYcbcrConversion(ycbcrInfo));
         if (!ycbcrConversion) {
             return nullptr;
         }
@@ -125,19 +125,17 @@ GrVkSampler* GrVkSampler::Create(GrVkGpu* gpu,
     VkResult result;
     GR_VK_CALL_RESULT(gpu, result, CreateSampler(gpu->device(), &createInfo, nullptr, &sampler));
     if (result != VK_SUCCESS) {
-        ycbcrConversion->unref();
         return nullptr;
     }
 
-    return new GrVkSampler(gpu, sampler, ycbcrConversion, GenerateKey(samplerState, ycbcrInfo));
+    return new GrVkSampler(
+            gpu, sampler, std::move(ycbcrConversion), GenerateKey(samplerState, ycbcrInfo));
 }
 
 void GrVkSampler::freeGPUData() const {
     SkASSERT(fSampler);
     GR_VK_CALL(fGpu->vkInterface(), DestroySampler(fGpu->device(), fSampler, nullptr));
-    if (fYcbcrConversion) {
-        fYcbcrConversion->unref();
-    }
+    fYcbcrConversion.reset();
 }
 
 GrVkSampler::Key GrVkSampler::GenerateKey(GrSamplerState samplerState,

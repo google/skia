@@ -73,7 +73,7 @@ GrVkPipelineState::GrVkPipelineState(
         if (sampler.fImmutableSampler) {
             sampler.fImmutableSampler->ref();
         }
-        fImmutableSamplers.push_back(sampler.fImmutableSampler);
+        fImmutableSamplers.push_back(sampler.fImmutableSampler.get());
     }
 }
 

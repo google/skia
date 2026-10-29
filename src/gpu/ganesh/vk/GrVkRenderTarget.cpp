@@ -505,10 +505,7 @@ void GrVkRenderTarget::releaseInternalObjects() {
         }
     }
 
-    if (fCachedInputDescriptorSet) {
-        fCachedInputDescriptorSet->recycle();
-        fCachedInputDescriptorSet = nullptr;
-    }
+    fCachedInputDescriptorSet.reset();
 
     fExternalFramebuffer.reset();
 }

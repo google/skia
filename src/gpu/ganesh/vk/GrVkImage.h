@@ -125,7 +125,7 @@ public:
 
     const Resource* resource() const {
         SkASSERT(fResource);
-        return fResource;
+        return fResource.get();
     }
     bool isLinearTiled() const {
         // Should only be called when we have a real fResource object, i.e. never when being used as
@@ -265,7 +265,7 @@ private:
     void onAbandon() override;
 
     void releaseImage();
-    bool hasResource() const { return fResource; }
+    bool hasResource() const { return SkToBool(fResource); }
 
     GrVkGpu* getVkGpu() const;
 
@@ -333,7 +333,7 @@ private:
         void freeGPUData() const override;
     };
 
-    Resource* fResource;
+    sk_sp<Resource> fResource;
 
     friend class GrVkRenderTarget;
 };

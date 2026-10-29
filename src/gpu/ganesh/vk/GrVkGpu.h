@@ -114,7 +114,7 @@ public:
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
     uint32_t  queueIndex() const { return fQueueIndex; }
-    GrVkCommandPool* cmdPool() const { return fMainCmdPool; }
+    GrVkCommandPool* cmdPool() const { return fMainCmdPool.get(); }
     const VkPhysicalDeviceProperties& physicalDeviceProperties() const {
         return fPhysDevProps;
     }
@@ -463,7 +463,7 @@ private:
 
     GrVkMSAALoadManager                                   fMSAALoadManager;
 
-    GrVkCommandPool*                                      fMainCmdPool;
+    sk_sp<GrVkCommandPool>                                fMainCmdPool;
     // just a raw pointer; object's lifespan is managed by fCmdPool
     GrVkPrimaryCommandBuffer*                             fMainCmdBuffer;
 

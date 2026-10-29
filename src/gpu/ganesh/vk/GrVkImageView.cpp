@@ -22,13 +22,13 @@ sk_sp<const GrVkImageView> GrVkImageView::Make(GrVkGpu* gpu,
                                                const skgpu::VulkanYcbcrConversionInfo& ycbcrInfo) {
     void* pNext = nullptr;
     VkSamplerYcbcrConversionInfo conversionInfo;
-    GrVkSamplerYcbcrConversion* ycbcrConversion = nullptr;
+    sk_sp<GrVkSamplerYcbcrConversion> ycbcrConversion;
 
     if (ycbcrInfo.isValid()) {
         SkASSERT(gpu->vkCaps().supportsYcbcrConversion() && format == ycbcrInfo.format());
 
-        ycbcrConversion =
-                gpu->resourceProvider().findOrCreateCompatibleSamplerYcbcrConversion(ycbcrInfo);
+        ycbcrConversion.reset(
+                gpu->resourceProvider().findOrCreateCompatibleSamplerYcbcrConversion(ycbcrInfo));
         if (!ycbcrConversion) {
             return nullptr;
         }
@@ -64,14 +64,14 @@ sk_sp<const GrVkImageView> GrVkImageView::Make(GrVkGpu* gpu,
         return nullptr;
     }
 
-    return sk_sp<const GrVkImageView>(new GrVkImageView(gpu, imageView, ycbcrConversion));
+    return sk_sp<const GrVkImageView>(
+            new GrVkImageView(gpu, imageView, std::move(ycbcrConversion)));
 }
+
+GrVkImageView::~GrVkImageView() = default;
 
 void GrVkImageView::freeGPUData() const {
     GR_VK_CALL(fGpu->vkInterface(), DestroyImageView(fGpu->device(), fImageView, nullptr));
-
-    if (fYcbcrConversion) {
-        fYcbcrConversion->unref();
-    }
+    fYcbcrConversion.reset();
 }
 

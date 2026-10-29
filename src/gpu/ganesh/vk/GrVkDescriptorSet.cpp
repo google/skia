@@ -11,19 +11,21 @@
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkResourceProvider.h"
 
+#include <utility>
+
 GrVkDescriptorSet::GrVkDescriptorSet(GrVkGpu* gpu,
                                      VkDescriptorSet descSet,
-                                     GrVkDescriptorPool* pool,
+                                     sk_sp<GrVkDescriptorPool> pool,
                                      GrVkDescriptorSetManager::Handle handle)
     : INHERITED(gpu)
     , fDescSet(descSet)
-    , fPool(pool)
-    , fHandle(handle) {
-    fPool->ref();
-}
+    , fPool(std::move(pool))
+    , fHandle(handle) {}
+
+GrVkDescriptorSet::~GrVkDescriptorSet() = default;
 
 void GrVkDescriptorSet::freeGPUData() const {
-    fPool->unref();
+    fPool.reset();
 }
 
 void GrVkDescriptorSet::onRecycle() const {

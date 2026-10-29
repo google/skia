@@ -8,6 +8,7 @@
 #ifndef GrVkUniformHandler_DEFINED
 #define GrVkUniformHandler_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -16,13 +17,13 @@
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/ganesh/vk/GrVkSampler.h"
 
 #include <cstdint>
 
 class GrBackendFormat;
 class GrGLSLProgramBuilder;
 class GrProcessor;
-class GrVkSampler;
 class SkString;
 enum class SkSLType : char;
 struct GrShaderCaps;
@@ -61,11 +62,11 @@ public:
         // offsets are only valid if the SkSLType of the fVariable is not a sampler.
         uint32_t                fOffsets[kLayoutCount];
         // fImmutableSampler is used for sampling an image with a ycbcr conversion.
-        const GrVkSampler*      fImmutableSampler = nullptr;
+        sk_sp<const GrVkSampler> fImmutableSampler;
     };
     typedef SkTBlockList<VkUniformInfo> UniformInfoArray;
 
-    ~GrVkUniformHandler() override;
+    ~GrVkUniformHandler() override = default;
 
     const GrShaderVar& getUniformVariable(UniformHandle u) const override {
         return fUniforms.item(u.toIndex()).fVariable;
@@ -133,7 +134,7 @@ private:
     }
 
     const GrVkSampler* immutableSampler(UniformHandle u) const {
-        return fSamplers.item(u.toIndex()).fImmutableSampler;
+        return fSamplers.item(u.toIndex()).fImmutableSampler.get();
     }
 
     const char* inputSamplerVariable(SamplerHandle handle) const override {

@@ -308,12 +308,12 @@ void GrVkImage::init(GrVkGpu* gpu, bool forSecondaryCB) {
     }
 #endif
     if (forSecondaryCB) {
-        fResource = nullptr;
+        fResource.reset();
     } else if (fIsBorrowed) {
-        fResource = new BorrowedResource(gpu, fInfo.fImage, fInfo.fAlloc, fInfo.fImageTiling);
+        fResource.reset(new BorrowedResource(gpu, fInfo.fImage, fInfo.fAlloc, fInfo.fImageTiling));
     } else {
         SkASSERT(VK_NULL_HANDLE != fInfo.fAlloc.fMemory);
-        fResource = new Resource(gpu, fInfo.fImage, fInfo.fAlloc, fInfo.fImageTiling);
+        fResource.reset(new Resource(gpu, fInfo.fImage, fInfo.fAlloc, fInfo.fImageTiling));
     }
 }
 
@@ -613,10 +613,7 @@ void GrVkImage::prepareForExternal(GrVkGpu* gpu) {
 }
 
 void GrVkImage::releaseImage() {
-    if (fResource) {
-        fResource->unref();
-        fResource = nullptr;
-    }
+    fResource.reset();
     fFramebufferView.reset();
     fTextureView.reset();
     fCachedBlendingInputDescSet.reset();

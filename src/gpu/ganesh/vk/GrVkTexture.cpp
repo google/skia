@@ -177,15 +177,10 @@ void GrVkTexture::onRelease() {
 }
 
 struct GrVkTexture::DescriptorCacheEntry {
-    DescriptorCacheEntry(const GrVkDescriptorSet* fDescSet, GrVkGpu* gpu)
-            : fDescriptorSet(fDescSet), fGpu(gpu) {}
-    ~DescriptorCacheEntry() {
-        if (fDescriptorSet) {
-            fDescriptorSet->recycle();
-        }
-    }
+    DescriptorCacheEntry(gr_rp<const GrVkDescriptorSet> descSet, GrVkGpu* gpu)
+            : fDescriptorSet(std::move(descSet)), fGpu(gpu) {}
 
-    const GrVkDescriptorSet* fDescriptorSet;
+    gr_rp<const GrVkDescriptorSet> fDescriptorSet;
     GrVkGpu* fGpu;
 };
 
@@ -213,13 +208,13 @@ const GrVkImageView* GrVkTexture::textureView() { return fTexture->textureView()
 
 const GrVkDescriptorSet* GrVkTexture::cachedSingleDescSet(GrSamplerState state) {
     if (std::unique_ptr<DescriptorCacheEntry>* e = fDescSetCache.find(state)) {
-        return (*e)->fDescriptorSet;
+        return (*e)->fDescriptorSet.get();
     }
     return nullptr;
 }
 
 void GrVkTexture::addDescriptorSetToCache(const GrVkDescriptorSet* descSet, GrSamplerState state) {
     SkASSERT(!fDescSetCache.find(state));
-    descSet->ref();
-    fDescSetCache.insert(state, std::make_unique<DescriptorCacheEntry>(descSet, this->getVkGpu()));
+    fDescSetCache.insert(
+            state, std::make_unique<DescriptorCacheEntry>(gr_ref_rp(descSet), this->getVkGpu()));
 }

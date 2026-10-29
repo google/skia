@@ -8,6 +8,7 @@
 #ifndef GrVkSampler_DEFINED
 #define GrVkSampler_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMacros.h"
@@ -19,6 +20,7 @@
 
 #include <cinttypes>
 #include <cstdint>
+#include <utility>
 
 class GrSamplerState;
 class GrVkGpu;
@@ -70,10 +72,10 @@ public:
 
 private:
     GrVkSampler(const GrVkGpu* gpu, VkSampler sampler,
-                GrVkSamplerYcbcrConversion* ycbcrConversion, Key key)
+                sk_sp<GrVkSamplerYcbcrConversion> ycbcrConversion, Key key)
             : INHERITED(gpu)
             , fSampler(sampler)
-            , fYcbcrConversion(ycbcrConversion)
+            , fYcbcrConversion(std::move(ycbcrConversion))
             , fKey(key)
             , fUniqueID(GenID()) {}
 
@@ -81,10 +83,10 @@ private:
 
     static uint32_t GenID();
 
-    VkSampler                   fSampler;
-    GrVkSamplerYcbcrConversion* fYcbcrConversion;
-    Key                         fKey;
-    uint32_t                    fUniqueID;
+    VkSampler                                 fSampler;
+    mutable sk_sp<GrVkSamplerYcbcrConversion> fYcbcrConversion;
+    Key                                       fKey;
+    uint32_t                                  fUniqueID;
 
     using INHERITED = GrVkManagedResource;
 };

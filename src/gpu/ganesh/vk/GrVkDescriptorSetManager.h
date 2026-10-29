@@ -8,6 +8,7 @@
 #ifndef GrVkDescriptorSetManager_DEFINED
 #define GrVkDescriptorSetManager_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkTArray.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
@@ -37,7 +38,7 @@ public:
     static GrVkDescriptorSetManager* CreateZeroSamplerManager(GrVkGpu* gpu);
     static GrVkDescriptorSetManager* CreateInputManager(GrVkGpu* gpu);
 
-    ~GrVkDescriptorSetManager() {}
+    ~GrVkDescriptorSetManager();
 
     void release(GrVkGpu* gpu);
 
@@ -56,21 +57,18 @@ private:
         DescriptorPoolManager(VkDescriptorSetLayout, VkDescriptorType type,
                               uint32_t descCountPerSet);
 
-        ~DescriptorPoolManager() {
-            SkASSERT(!fDescLayout);
-            SkASSERT(!fPool);
-        }
+        ~DescriptorPoolManager();
 
         bool getNewDescriptorSet(GrVkGpu* gpu, VkDescriptorSet* ds);
 
         void freeGPUResources(GrVkGpu* gpu);
 
-        VkDescriptorSetLayout  fDescLayout;
-        VkDescriptorType       fDescType;
-        uint32_t               fDescCountPerSet;
-        uint32_t               fMaxDescriptors;
-        uint32_t               fCurrentDescriptorCount;
-        GrVkDescriptorPool*    fPool;
+        VkDescriptorSetLayout     fDescLayout;
+        VkDescriptorType          fDescType;
+        uint32_t                  fDescCountPerSet;
+        uint32_t                  fMaxDescriptors;
+        uint32_t                  fCurrentDescriptorCount;
+        sk_sp<GrVkDescriptorPool> fPool;
 
     private:
         static constexpr size_t kMaxDescriptors = 1024;

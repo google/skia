@@ -8,6 +8,7 @@
 #ifndef GrVkDescriptorSet_DEFINED
 #define GrVkDescriptorSet_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/private/SkDebug.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
@@ -24,10 +25,10 @@ class GrVkDescriptorSet : public GrVkRecycledResource {
 public:
     GrVkDescriptorSet(GrVkGpu* gpu,
                       VkDescriptorSet descSet,
-                      GrVkDescriptorPool* pool,
+                      sk_sp<GrVkDescriptorPool> pool,
                       GrVkDescriptorSetManager::Handle handle);
 
-    ~GrVkDescriptorSet() override {}
+    ~GrVkDescriptorSet() override;
 
     const VkDescriptorSet* descriptorSet() const { return &fDescSet; }
 
@@ -43,7 +44,7 @@ private:
     void onRecycle() const override;
 
     VkDescriptorSet                          fDescSet;
-    SkDEBUGCODE(mutable) GrVkDescriptorPool* fPool;
+    mutable sk_sp<GrVkDescriptorPool>        fPool;
     GrVkDescriptorSetManager::Handle         fHandle;
 
     using INHERITED = GrVkRecycledResource;

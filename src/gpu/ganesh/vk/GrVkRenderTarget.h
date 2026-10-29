@@ -199,7 +199,7 @@ private:
 
     sk_sp<const GrVkFramebuffer> fCachedFramebuffers[kNumCachedFramebuffers];
 
-    const GrVkDescriptorSet* fCachedInputDescriptorSet = nullptr;
+    gr_rp<const GrVkDescriptorSet> fCachedInputDescriptorSet;
 
     sk_sp<GrVkFramebuffer> fExternalFramebuffer;
 };

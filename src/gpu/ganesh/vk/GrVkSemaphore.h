@@ -8,6 +8,7 @@
 #ifndef GrVkSemaphore_DEFINED
 #define GrVkSemaphore_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/private/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
@@ -31,7 +32,7 @@ public:
                                                       GrSemaphoreWrapType,
                                                       GrWrapOwnership);
 
-    ~GrVkSemaphore() override;
+    ~GrVkSemaphore() override = default;
 
     GrBackendSemaphore backendSemaphore() const override;
 
@@ -84,7 +85,7 @@ public:
         using INHERITED = GrVkManagedResource;
     };
 
-    Resource* getResource() { return fResource; }
+    Resource* getResource() { return fResource.get(); }
 
 private:
     GrVkSemaphore(GrVkGpu* gpu, VkSemaphore semaphore, bool prohibitSignal, bool prohibitWait,
@@ -94,7 +95,7 @@ private:
         fResource->setIsOwned();
     }
 
-    Resource* fResource;
+    sk_sp<Resource> fResource;
 
     using INHERITED = GrSemaphore;
 };
