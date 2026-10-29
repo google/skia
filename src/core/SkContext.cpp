@@ -13,6 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/core/SkTypes.h"
+#include "include/cpu/Recorder.h"
 #include "include/private/SkGPUContext.h"
 #include "src/capture/SkCapture.h"
 #include "src/capture/SkCaptureManager.h"
@@ -53,6 +54,25 @@ sk_sp<SkCapture> SkContext::endCapture() {
 
     fCaptureManager->toggleCapture(false);
     return fCaptureManager->getLastCapture();
+}
+
+std::unique_ptr<SkRecorder> SkContext::makeRecorder(
+        BackendSelection backend, const skgpu::graphite::RecorderOptions* graphiteOptions) {
+    switch (backend) {
+        case BackendSelection::kAutomatic:
+            if (fGPUContext) {
+                return fGPUContext->makeRecorder(graphiteOptions);
+            }
+            return std::make_unique<skcpu::Recorder>();
+        case BackendSelection::kCPU:
+            return std::make_unique<skcpu::Recorder>();
+        case BackendSelection::kGPU:
+            if (fGPUContext) {
+                return fGPUContext->makeRecorder(graphiteOptions);
+            }
+            return nullptr;
+    }
+    SkUNREACHABLE;
 }
 
 size_t SkContext::fontCacheLimit() const { return fSharedContext->fontCacheLimit(); }

@@ -48,7 +48,7 @@ namespace skgpu {
 enum class BackendApi : unsigned int;
 enum class GpuStatsFlags : uint32_t;
 class MutableTextureState;
-}
+}  // namespace skgpu
 
 namespace skgpu::graphite {
 
@@ -381,6 +381,10 @@ private:
 
     std::unique_ptr<Recorder> makeInternalRecorder() const;
 
+    std::unique_ptr<SkRecorder> makeRecorder(const RecorderOptions* graphiteOptions) override {
+        return this->makeRecorder(graphiteOptions ? *graphiteOptions : RecorderOptions{});
+    }
+
     template <typename SrcPixels> struct AsyncParams;
 
     template <typename ReadFn, typename... ExtraArgs>
@@ -445,6 +449,6 @@ private:
     const ContextID fContextID;
 };
 
-} // namespace skgpu::graphite
+}  // namespace skgpu::graphite
 
-#endif // skgpu_graphite_Context_DEFINED
+#endif  // skgpu_graphite_Context_DEFINED

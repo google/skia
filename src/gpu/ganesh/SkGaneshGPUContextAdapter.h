@@ -12,6 +12,7 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkGPUContext.h"
+#include "src/gpu/ganesh/SkGaneshRecorder.h"
 
 #include <chrono>
 #include <cstddef>
@@ -19,6 +20,10 @@
 #include <utility>
 
 class SkTraceMemoryDump;
+
+namespace skgpu::graphite {
+struct RecorderOptions;
+}
 
 // We need this adapter because we want SkContext to uniquely hold the GPU context
 // but GrDirectContext is a legacy, yet already public API, that uses sk_sp and allows multiple refs
@@ -72,6 +77,10 @@ public:
 
     bool supportsProtectedContent() const override {
         return fDirectContext->supportsProtectedContent();
+    }
+
+    std::unique_ptr<SkRecorder> makeRecorder(const skgpu::graphite::RecorderOptions*) override {
+        return std::make_unique<SkGaneshRecorder>(fDirectContext.get());
     }
 
 private:

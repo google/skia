@@ -43,17 +43,29 @@ DEF_TEST(CpuRecorder_TODO, reporter) {
     REPORTER_ASSERT(reporter, todoRecorder->type() == SkRecorder::Type::kCPU);
 }
 
-// TODO(alexisdavidc) Re-enable once the new SkContext / CPU Context & Recorder API is implemented.
-#if 0
-DEF_TEST(CPURecorder_Type_IsCPU, reporter) {
+DEF_TEST(SkContext_MakeRecorder_RasterBackendSelection, reporter) {
     SkContextOptions opts;
     std::unique_ptr<SkContext> ctx = SkContexts::MakeRaster(opts);
-    std::unique_ptr<SkRecorder> recorder = ctx->makeRecorder();
+    REPORTER_ASSERT(reporter, ctx != nullptr);
 
-    REPORTER_ASSERT(reporter, recorder != nullptr);
-    REPORTER_ASSERT(reporter, recorder->type() == SkRecorder::Type::kCPU);
+    // Explicit kAutomatic
+    std::unique_ptr<SkRecorder> autoRecorder =
+            ctx->makeRecorder(SkContext::BackendSelection::kAutomatic);
+    REPORTER_ASSERT(reporter, autoRecorder != nullptr);
+    REPORTER_ASSERT(reporter, autoRecorder->type() == SkRecorder::Type::kCPU);
+
+    // Explicit kCPU
+    std::unique_ptr<SkRecorder> cpuRecorder = ctx->makeRecorder(SkContext::BackendSelection::kCPU);
+    REPORTER_ASSERT(reporter, cpuRecorder != nullptr);
+    REPORTER_ASSERT(reporter, cpuRecorder->type() == SkRecorder::Type::kCPU);
+
+    // kGPU must return nullptr when no GPU backend is attached.
+    std::unique_ptr<SkRecorder> gpuRecorder = ctx->makeRecorder(SkContext::BackendSelection::kGPU);
+    REPORTER_ASSERT(reporter, gpuRecorder == nullptr);
 }
 
+// TODO(alexisdavidc) Re-enable once the new SkContext / CPU Context & Recorder API is implemented.
+#if 0
 DEF_TEST(CPURecorder_RasterImageOperations_UseCpuRecorder, reporter) {
     SkContextOptions opts;
     std::unique_ptr<SkContext> ctx = SkContexts::MakeRaster(opts);

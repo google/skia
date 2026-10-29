@@ -12,9 +12,15 @@
 
 #include <chrono>
 #include <cstddef>
+#include <memory>
 #include <optional>
 
+class SkRecorder;
 class SkTraceMemoryDump;
+
+namespace skgpu::graphite {
+struct RecorderOptions;
+}
 
 /**
  * Internal virtual base class representing a GPU context (Graphite or Ganesh) owned by SkContext.
@@ -100,6 +106,12 @@ public:
      * Returns true if this GPU context supports protected content.
      */
     virtual bool supportsProtectedContent() const = 0;
+
+    /**
+     * Creates and returns a recorder for this GPU context.
+     */
+    virtual std::unique_ptr<SkRecorder> makeRecorder(
+            const skgpu::graphite::RecorderOptions* graphiteOptions) = 0;
 
 protected:
     SkGPUContext() = default;
