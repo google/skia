@@ -10,7 +10,7 @@
 
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/SkTemplates.h"
 
 #include <cstddef>
 
@@ -70,26 +70,21 @@ public:
     // We wrap these so we can clear our internal storage
 
     void reset() {
-        this->freeStorage();
+        fStorage.reset();
         this->INHERITED::reset();
     }
     void reset(const SkImageInfo& info, const void* addr, size_t rb) {
-        this->freeStorage();
+        fStorage.reset();
         this->INHERITED::reset(info, addr, rb);
     }
 
     [[nodiscard]] bool reset(const SkMask& mask) {
-        this->freeStorage();
+        fStorage.reset();
         return this->INHERITED::reset(mask);
     }
 
 private:
-    void*   fStorage;
-
-    void freeStorage() {
-        sk_free(fStorage);
-        fStorage = nullptr;
-    }
+    skia_private::UniqueVoidPtr fStorage;
 
     using INHERITED = SkPixmap;
 };

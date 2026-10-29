@@ -21,12 +21,15 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkRandom.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <initializer_list>
+#include <utility>
 
 static void test_peekpixels(skiatest::Reporter* reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
@@ -500,4 +503,40 @@ DEF_TEST(bitmap_zerowidth_crbug_1103827, reporter) {
         bm.allocPixels();
         sk_bzero(bm.getPixels(), size);
     }
+}
+
+DEF_TEST(AutoPixmapStorage_MoveAndTryAlloc, reporter) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(4, 4);
+
+    // Move-assign over an existing allocation (frees dst's old buffer).
+    SkAutoPixmapStorage dst;
+    SkAutoPixmapStorage src;
+    REPORTER_ASSERT(reporter, dst.tryAlloc(info));
+    REPORTER_ASSERT(reporter, src.tryAlloc(info));
+    const void* srcAddr = src.addr();
+    dst = std::move(src);
+    REPORTER_ASSERT(reporter, dst.addr() == srcAddr);
+    REPORTER_ASSERT(reporter, src.addr() == nullptr);  // NOLINT(bugprone-use-after-move)
+    REPORTER_ASSERT(reporter, src.isEmpty());          // NOLINT(bugprone-use-after-move)
+
+    // Self-move preserves pixels and metadata.
+    SkAutoPixmapStorage& alias = dst;
+    dst = std::move(alias);
+    REPORTER_ASSERT(reporter, dst.addr() == srcAddr);
+    REPORTER_ASSERT(reporter, dst.dimensions() == info.dimensions());
+
+    // Move-assigning a non-owning pixmap preserves the external address.
+    uint32_t external[16] = {};
+    SkAutoPixmapStorage nonOwning;
+    nonOwning.reset(info, external, info.minRowBytes());
+    dst = std::move(nonOwning);
+    REPORTER_ASSERT(reporter, dst.addr() == external);
+    REPORTER_ASSERT(reporter, nonOwning.addr() == nullptr);  // NOLINT(bugprone-use-after-move)
+
+    // Failed tryAlloc() resets the pixmap rather than leaving a stale pointer.
+    REPORTER_ASSERT(reporter, dst.tryAlloc(info));
+    const SkImageInfo huge = SkImageInfo::MakeN32Premul(1 << 30, 1 << 30);
+    REPORTER_ASSERT(reporter, !dst.tryAlloc(huge));
+    REPORTER_ASSERT(reporter, dst.addr() == nullptr);
+    REPORTER_ASSERT(reporter, dst.isEmpty());
 }

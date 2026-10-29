@@ -12,9 +12,10 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkTemplates.h"
 
+#include <array>
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 
 /**
@@ -93,37 +94,20 @@ public:
      *  Creates initially empty storage. get() returns a ptr, but it is to a zero-byte allocation.
      *  Must call reset(size) to return an allocated block.
      */
-    SkAutoSMalloc() {
-        fPtr = fStorage;
-        fSize = kSize;
-    }
+    SkAutoSMalloc() = default;
 
     /**
      *  Allocate a block of the specified size. If size <= kSizeRequested (or slightly more), then
      *  the allocation will come from the stack, otherwise it will be dynamically allocated.
      */
-    explicit SkAutoSMalloc(size_t size) {
-        fPtr = fStorage;
-        fSize = kSize;
-        this->reset(size);
-    }
-
-    /**
-     *  Free the allocated block (if any). If the block was small enough to have been allocated on
-     *  the stack, then this does nothing.
-     */
-    ~SkAutoSMalloc() {
-        if (fPtr != (void*)fStorage) {
-            sk_free(fPtr);
-        }
-    }
+    explicit SkAutoSMalloc(size_t size) { this->reset(size); }
 
     /**
      *  Return the allocated block. May return non-null even if the block is of zero size. Since
      *  this may be on the stack or dynamically allocated, the caller must not call sk_free() on it,
      *  but must rely on SkAutoSMalloc to manage it.
      */
-    void* get() const { return fPtr; }
+    void* get() const { return fHeap ? fHeap.get() : const_cast<std::byte*>(fStorage.data()); }
 
     /**
      *  Return a new block of the requested size, freeing (as necessary) any previously allocated
@@ -139,22 +123,16 @@ public:
             *didChangeAlloc = alloc;
         }
         if (alloc) {
-            if (fPtr != (void*)fStorage) {
-                sk_free(fPtr);
+            SkASSERT(fHeap || size != kSize);  // otherwise we lied when setting didChangeAlloc.
+            fHeap.reset();
+            if (size != kSize) {
+                fHeap.reset(sk_malloc_throw(size));
             }
-
-            if (size == kSize) {
-                SkASSERT(fPtr != fStorage); // otherwise we lied when setting didChangeAlloc.
-                fPtr = fStorage;
-            } else {
-                fPtr = sk_malloc_throw(size);
-            }
-
             fSize = size;
         }
         SkASSERT(fSize >= size && fSize >= kSize);
-        SkASSERT((fPtr == fStorage) || fSize > kSize);
-        return fPtr;
+        SkASSERT(!fHeap || fSize > kSize);
+        return this->get();
     }
 
 private:
@@ -169,9 +147,9 @@ private:
     static const size_t kSize = kSizeAlign4;
 #endif
 
-    void*       fPtr;
-    size_t      fSize;  // can be larger than the requested size (see kReuse)
-    uint32_t    fStorage[kSize >> 2];
+    skia_private::UniqueVoidPtr fHeap;  // null when the block is fStorage
+    size_t fSize = kSize;               // can be larger than the requested size (see kReuse)
+    alignas(std::max_align_t) std::array<std::byte, kSize> fStorage;
 };
 // Can't guard the constructor because it's a template class.
 

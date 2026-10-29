@@ -24,6 +24,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkEnumBitMask.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
@@ -1009,6 +1010,8 @@ SK_MAKE_BITMASK_OPS(FilterResult::BoundsAnalysis)
 // layer bounds.
 class FilterResult::Builder {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     Builder(const Context& context);
     ~Builder();
 
@@ -1138,6 +1141,8 @@ sk_sp<Backend> MakeRasterBackend(const SkSurfaceProps& surfaceProps, SkColorType
 
 // Stats for a single image filter evaluation
 struct Stats {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     int fNumVisitedImageFilters = 0; // size of the filter dag
     int fNumCacheHits = 0; // amount of reuse within the dag
     int fNumOffscreenSurfaces = 0; // difference to the # of visited filters shows deferred steps
@@ -1155,6 +1160,8 @@ struct Stats {
 // that's similar/compatible to the final consumer of the DAG's output.
 class Context {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     Context(sk_sp<Backend> backend,
             const Mapping& mapping,
             const LayerSpace<SkIRect>& desiredOutput,
