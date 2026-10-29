@@ -185,9 +185,11 @@ void RemoteStrike::writePendingGlyphs(SkWriteBuffer& buffer) {
         fHaveSentFontMetrics = true;
     }
 
-    // Make sure to install all the mask data into the glyphs before sending.
+    // Oversized glyphs are rejected by the atlas and sent as metrics-only
     for (SkGlyph& glyph: fMasksToSend) {
-        this->prepareForImage(&glyph);
+        if (SkGlyphDigest::FitsInAtlas(glyph)) {
+            this->prepareForImage(&glyph);
+        }
     }
 
     // Make sure to install all the path data into the glyphs before sending.
