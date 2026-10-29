@@ -72377,14 +72377,14 @@
         "modules/canvaskit/.*"
       ]
     },
-    "Test-Win11-Clang-GCE-CPU-AVX2-x86_64-Release-All": {},
-    "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_D3D11": {
+    "Test-Win11-Clang-Dell3930-GPU-GTX1660-x86_64-Debug-All-Graphite_Dawn_D3D11": {
       "location_regexes": [
         "(tests|src/gpu)/graphite/.*",
         "src/sksl/generated/.*",
         "bazel/external/dawn/*",
         "DEPS"
       ]
-    }
+    },
+    "Test-Win11-Clang-GCE-CPU-AVX2-x86_64-Release-All": {}
   }
 }
