@@ -22,6 +22,7 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkArenaAlloc.h"
@@ -1270,6 +1271,8 @@ GrOp::Owner TextureOp::Make(GrRecordingContext* context,
 // A helper class that assists in breaking up bulk API quad draws into manageable chunks.
 class TextureOp::BatchSizeLimiter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     BatchSizeLimiter(ganesh::SurfaceDrawContext* sdc,
                      const GrClip* clip,
                      GrRecordingContext* rContext,

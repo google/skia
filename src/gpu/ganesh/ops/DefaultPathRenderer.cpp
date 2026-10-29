@@ -18,6 +18,7 @@
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTo.h"
@@ -98,6 +99,8 @@ inline bool single_pass_shape(const GrStyledShape& shape) {
 
 class PathGeoBuilder {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     PathGeoBuilder(GrPrimitiveType primitiveType,
                    GrMeshDrawTarget* target,
                    SkTDArray<GrSimpleMesh*>* meshes)

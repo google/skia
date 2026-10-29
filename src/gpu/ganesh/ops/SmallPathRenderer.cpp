@@ -24,6 +24,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkMath.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoMalloc.h"
@@ -163,6 +164,7 @@ public:
 
 private:
     struct FlushInfo {
+        SK_ONLY_STACK_ALLOCATABLE;
         sk_sp<const GrBuffer> fVertexBuffer;
         sk_sp<const GrBuffer> fIndexBuffer;
         GrGeometryProcessor*  fGeometryProcessor;

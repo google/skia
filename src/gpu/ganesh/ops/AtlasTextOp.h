@@ -15,6 +15,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkColorData.h"
 #include "src/gpu/MaskFormat.h"
@@ -150,6 +151,7 @@ private:
     friend class GrOp; // for ctor
 
     struct FlushInfo {
+        SK_ONLY_STACK_ALLOCATABLE;
         sk_sp<const GrBuffer> fVertexBuffer;
         sk_sp<const GrBuffer> fIndexBuffer;
         GrGeometryProcessor*  fGeometryProcessor;

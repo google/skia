@@ -9,6 +9,7 @@
 #define GrMeshDrawOp_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
@@ -62,6 +63,8 @@ protected:
         space for the vertices and flushes the draws to the GrMeshDrawTarget. */
     class PatternHelper {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         PatternHelper(GrMeshDrawTarget*, GrPrimitiveType, size_t vertexStride,
                       sk_sp<const GrBuffer> indexBuffer, int verticesPerRepetition,
                       int indicesPerRepetition, int repeatCount, int maxRepetitions);
@@ -91,6 +94,8 @@ protected:
      */
     class QuadHelper : private PatternHelper {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         QuadHelper() = delete;
         QuadHelper(GrMeshDrawTarget*, size_t vertexStride, int quadsToDraw);
 

@@ -17,6 +17,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "include/private/SkTypeTraits.h"
@@ -199,6 +200,8 @@ private:
     private:
         class MeshCallbacks : public SkSL::PipelineStage::Callbacks {
         public:
+            SK_ONLY_STACK_ALLOCATABLE;
+
             MeshCallbacks(Impl* self,
                           const MeshGP& gp,
                           GrGLSLShaderBuilder* builder,
