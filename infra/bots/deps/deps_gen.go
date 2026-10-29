@@ -82,11 +82,6 @@ var deps = deps_parser.DepsEntries{
 		Version: "646b7f569718921d7d4b5b8e22572ff6c76f2596",
 		Path:    "third_party/externals/zlib",
 	},
-	"chromium.googlesource.com/codecs/libgav1": {
-		Id:      "chromium.googlesource.com/codecs/libgav1",
-		Version: "5cf722e659014ebaf2f573a6dd935116d36eadf1",
-		Path:    "third_party/externals/libgav1",
-	},
 	"chromium.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator": {
 		Id:      "chromium.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator",
 		Version: "eb744ea7a2b17040121b4bbb4d6f9e8a77e3cae7",
@@ -157,11 +152,6 @@ var deps = deps_parser.DepsEntries{
 		Version: "332feb17d17311c748445f7ee75c4fb55cc38530",
 		Path:    "third_party/externals/libjxl",
 	},
-	"chromium.googlesource.com/libyuv/libyuv": {
-		Id:      "chromium.googlesource.com/libyuv/libyuv",
-		Version: "d248929c059ff7629a85333699717d7a677d8d96",
-		Path:    "third_party/externals/libyuv",
-	},
 	"chromium.googlesource.com/vulkan-deps": {
 		Id:      "chromium.googlesource.com/vulkan-deps",
 		Version: "1852d46e41544a53c2b65ab12b6d6a120b853e22",
@@ -186,11 +176,6 @@ var deps = deps_parser.DepsEntries{
 		Id:      "skia.googlesource.com/buildbot",
 		Version: "62e7b9bfa8d5efd193776a0472119d5eab424c9a",
 		Path:    "infra/skia-infra",
-	},
-	"skia.googlesource.com/external/github.com/AOMediaCodec/libavif": {
-		Id:      "skia.googlesource.com/external/github.com/AOMediaCodec/libavif",
-		Version: "55aab4ac0607ab651055d354d64c4615cf3d8000",
-		Path:    "third_party/externals/libavif",
 	},
 	"skia.googlesource.com/external/github.com/FRIGN/libgrapheme": {
 		Id:      "skia.googlesource.com/external/github.com/FRIGN/libgrapheme",

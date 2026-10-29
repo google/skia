@@ -85,8 +85,6 @@ var depsOverrides = map[string]depConfig{
 			"mv jinja2/BUILD.bazel .",
 		},
 	},
-	"libavif":       {needsBazelFile: true},
-	"libgav1":       {needsBazelFile: true},
 	"libjpeg-turbo": {bazelNameOverride: "libjpeg_turbo", needsBazelFile: true},
 	"libjxl": {
 		needsBazelFile: true,
@@ -99,7 +97,6 @@ var depsOverrides = map[string]depConfig{
 	},
 	"libpng":  {needsBazelFile: true},
 	"libwebp": {needsBazelFile: true},
-	"libyuv":  {needsBazelFile: true},
 	"markupsafe": {
 		needsBazelFile: true,
 		patchCmds: []string{

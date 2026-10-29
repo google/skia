@@ -602,7 +602,6 @@ generate_cpp_files_for_headers(
               COMMON_PNG_HDRS +
               WBMP_DECODE_HDRS +
               WEBP_DECODE_HDRS + [
-        "SkAvifCodec.h",
         "SkCrabbyAvifCodec.h",
         "SkJpegMultiPicture.h",
         "SkJpegSegmentScan.h",

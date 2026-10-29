@@ -123,11 +123,7 @@ static std::vector<Decoder>* get_decoders_for_editing() {
             decoders->push_back(SkWbmpDecoder::Decoder());
 #endif
 #if defined(SK_CODEC_DECODES_AVIF)
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
             decoders->push_back(SkAvifDecoder::CrabbyAvif::Decoder());
-#else
-            decoders->push_back(SkAvifDecoder::LibAvif::Decoder());
-#endif
 #endif
 #if defined(SK_CODEC_DECODES_JPEGXL)
             decoders->push_back(SkJpegxlDecoder::Decoder());

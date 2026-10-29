@@ -438,9 +438,6 @@
     "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-ASAN_Vulkan"
   },
   {
-    "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-AVIF"
-  },
-  {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-Fontations"
   },
   {
@@ -526,9 +523,6 @@
   },
   {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-ASAN_Vulkan"
-  },
-  {
-    "name": "Build-Ubuntu24.04-Clang-x86_64-Release-AVIF"
   },
   {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-CMake"
@@ -1812,9 +1806,6 @@
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN"
   },
   {
-    "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-AVIF"
-  },
-  {
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs",
     "cq_config": {}
   },
@@ -1865,9 +1856,6 @@
   },
   {
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Release-All"
-  },
-  {
-    "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Release-All-AVIF"
   },
   {
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Release-All-BonusConfigs"

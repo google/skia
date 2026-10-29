@@ -328,9 +328,6 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
   if 'Wuffs' in extra_tokens:
     args['skia_use_wuffs'] = 'true'
 
-  if 'AVIF' in extra_tokens:
-    args['skia_use_libavif'] = 'true'
-
   for (k,v) in {
     'cc':  cc,
     'cxx': cxx,

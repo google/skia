@@ -63,7 +63,7 @@ namespace CodecUtils {
 // then Skia itself would need to depend on codecs, which we want to avoid.
 inline void RegisterAllAvailable() {
 #if defined(SK_CODEC_DECODES_AVIF)
-    SkCodecs::Register(SkAvifDecoder::Decoder());
+    SkCodecs::Register(SkAvifDecoder::CrabbyAvif::Decoder());
 #endif
 #if defined(SK_CODEC_DECODES_BMP_WITH_RUST)
     SkCodecs::Register(SkBmpRustDecoder::Decoder());

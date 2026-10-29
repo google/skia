@@ -114,18 +114,6 @@
       "remote": "https://skia.googlesource.com/external/github.com/ocornut/imgui.git"
     },
     {
-      "build_file": "//bazel/external/libavif:BUILD.bazel",
-      "commit": "55aab4ac0607ab651055d354d64c4615cf3d8000",
-      "name": "libavif",
-      "remote": "https://skia.googlesource.com/external/github.com/AOMediaCodec/libavif.git"
-    },
-    {
-      "build_file": "//bazel/external/libgav1:BUILD.bazel",
-      "commit": "5cf722e659014ebaf2f573a6dd935116d36eadf1",
-      "name": "libgav1",
-      "remote": "https://chromium.googlesource.com/codecs/libgav1.git"
-    },
-    {
       "build_file": "//bazel/external/libjpeg_turbo:BUILD.bazel",
       "commit": "e14cbfaa85529d47f9f55b0f104a579c1061f9ad",
       "name": "libjpeg_turbo",
@@ -154,12 +142,6 @@
       "commit": "845d5476a866141ba35ac133f856fa62f0b7445f",
       "name": "libwebp",
       "remote": "https://chromium.googlesource.com/webm/libwebp.git"
-    },
-    {
-      "build_file": "//bazel/external/libyuv:BUILD.bazel",
-      "commit": "d248929c059ff7629a85333699717d7a677d8d96",
-      "name": "libyuv",
-      "remote": "https://chromium.googlesource.com/libyuv/libyuv.git"
     },
     {
       "build_file": "//bazel/external/opengl_registry:BUILD.bazel",
