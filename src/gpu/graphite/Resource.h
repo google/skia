@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/GraphiteResourceKey.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <atomic>
 #include <functional>
@@ -709,7 +710,11 @@ private:
     //
     // A null value means the Resource is not in the return queue. A non-null value means it is in
     // the queue, although the ResourceCache assigns a special sentinel value for the tail address.
-    raw_ptr<Resource> fNextInReturnQueue = nullptr;
+    //
+    // RAW_PTR_EXCLUSION: raw_ptr double checks it isn't assigned a dangling pointer, but
+    // ResourceCache::returnResource() stores the observed queue head here before its
+    // compare-exchange confirms it. It may be stale: another thread may have freed it in between.
+    RAW_PTR_EXCLUSION Resource* fNextInReturnQueue = nullptr;
 
     // The remaining fields are mutable state that is only modified by the ResourceCache on the
     // cache's thread, guarded by `fReturnCache::fSingleOwner`.
