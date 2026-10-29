@@ -1368,3 +1368,22 @@ DEF_TEST(surface_image_unity, reporter) {
         }
     }
 }
+
+DEF_TEST(SurfaceLegacyBitmapCopy, reporter) {
+    auto surface = SkSurfaces::Raster(SkImageInfo::Make({1, 1},
+                                                        kRGBA_8888_SkColorType,
+                                                        kPremul_SkAlphaType));
+    surface->getCanvas()->clear(SK_ColorGREEN);
+    // This snapshot shares ownership of the surface's PixelRef.
+    sk_sp<SkImage> snapshot = surface->makeImageSnapshot();
+    // Historically, this SkBitmap would also have shared the same PixelRef
+    SkBitmap snapshotBM;
+    REPORTER_ASSERT(reporter, snapshot->asLegacyBitmap(&snapshotBM));
+    // Releasing the `snapshot` causes SkSurface to think that it no longer needs to perform
+    // copy-on-writes (the bug was that `snapshotBM` would then see changes it shouldn't have).
+    snapshot = nullptr;
+
+    surface->getCanvas()->clear(SK_ColorRED);
+    // Confirm that snapshotBM is still be green.
+    REPORTER_ASSERT(reporter, snapshotBM.getColor(0, 0) == SK_ColorGREEN);
+}

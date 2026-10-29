@@ -179,8 +179,8 @@ sk_sp<SkImage> SkImage_Raster::onMakeSubset(SkRecorder*,
 }
 
 sk_sp<SkImage_Raster> SkImage_Raster::MakeFromBitmap(const SkBitmap& bm,
-                                              SkCopyPixelsMode cpm,
-                                              sk_sp<SkMipmap> mips) {
+                                                     SkCopyPixelsMode cpm,
+                                                     sk_sp<SkMipmap> mips) {
     if (!SkImageInfoIsValid(bm.info()) || bm.rowBytes() < bm.info().minRowBytes()) {
         return nullptr;
     }
@@ -210,7 +210,15 @@ bool SkImage_Raster::onAsLegacyBitmap(GrDirectContext*, SkBitmap* bitmap) const 
     // even though logically always we are, but in that case we can't physically share our
     // pixelref since the caller might call setImmutable() themselves
     // (thus changing our state).
-    if (fBitmap.isImmutable()) {
+    //
+    // When a bitmap is temporarily immutable, it cannot be exposed as a legacy bitmap without
+    // a copy. Otherwise it can hold a ref on the SkSurface's pixel ref as well, and if it lives
+    // longer than this SkImage, it'll bypass the copy-on-write tracking that would normally
+    // update the surface to a new bitmap.
+    // NOTE: If isImmutable() returns true, the SkBitmap has a non-null SkPixelRef.
+    const bool canSharePixelRef =
+            fBitmap.isImmutable() && !fBitmap.pixelRef()->isTemporarilyImmutable();
+    if (canSharePixelRef) {
         SkIPoint origin = fBitmap.pixelRefOrigin();
         bitmap->setInfo(fBitmap.info(), fBitmap.rowBytes());
         bitmap->setPixelRef(sk_ref_sp(fBitmap.pixelRef()), origin.x(), origin.y());
