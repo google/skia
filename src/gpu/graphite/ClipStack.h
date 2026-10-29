@@ -102,7 +102,7 @@ public:
     using ElementList = skia_private::STArray<4, const Element*>;
     Clip visitClipStackForDraw(const Transform&,
                                Geometry*,
-                               const SkStrokeRec&,
+                               SkStrokeRec* style,
                                ElementList* outEffectiveElements) const;
 
     // Update the per-clip element state for later rendering using pre-computed clip state data for

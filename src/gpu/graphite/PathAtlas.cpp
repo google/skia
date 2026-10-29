@@ -41,12 +41,12 @@ std::pair<const Renderer*, std::optional<CoverageMaskShape>> PathAtlas::addShape
         const Shape& shape,
         const Transform& localToDevice,
         const SkStrokeRec& style) {
-    // It is possible for the transformed shape bounds to be fully clipped out while the draw still
-    // produces coverage due to an inverse fill. In this case, don't render any mask;
-    // CoverageMaskShapeRenderStep will automatically handle the simple fill. We'll handle this
-    // by adding an empty mask.
-    // TODO: We could have addShape() handle this fully except we need a valid TextureProxy still.
-    const bool emptyMask = transformedShapeBounds.isEmptyNegativeOrNaN();
+    // Inverse fills that don't intersect the scissor are drawn as flood fills, so
+    // there is always a non-empty region of the shape to rasterize here.
+    SkASSERT(!transformedShapeBounds.isEmptyNegativeOrNaN());
+    if (transformedShapeBounds.isEmptyNegativeOrNaN()) {
+        return std::make_pair(nullptr, std::nullopt);
+    }
 
     // Round out the shape bounds to preserve any fractional offset so that it is present in the
     // translation that we use when deriving the atlas-space transform later.
@@ -55,7 +55,7 @@ std::pair<const Renderer*, std::optional<CoverageMaskShape>> PathAtlas::addShape
     CoverageMaskShape::MaskInfo maskInfo;
     // This size does *not* include any padding that the atlas may place around the mask. This size
     // represents the area the shape can actually modify.
-    maskInfo.fMaskSize = emptyMask ? skvx::half2(0) : skvx::cast<uint16_t>(maskBounds.size());
+    maskInfo.fMaskSize = skvx::cast<uint16_t>(maskBounds.size());
     // We use the origin of the clipped mask bounds relative to the full mask to distinguish
     // between clips of the same size.
     Rect shapeDevBounds = localToDevice.mapRect(shape.bounds());

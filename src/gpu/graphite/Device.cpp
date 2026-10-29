@@ -1694,7 +1694,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     ClipStack::ElementList clipElements;
     Clip clip = fClip.visitClipStackForDraw(localToDevice,
                                             &geometry,
-                                            style,
+                                            &style,
                                             &clipElements);
     if (clip.isClippedOut()) {
         // Clipped out, so don't record anything.
