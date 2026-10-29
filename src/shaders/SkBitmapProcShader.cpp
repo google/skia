@@ -13,6 +13,7 @@
 #include "include/private/SkAssert.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapProcState.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -65,7 +66,7 @@ public:
     }
 
 private:
-    SkBitmapProcState*  fState;
+    raw_ptr<SkBitmapProcState> fState;
     uint32_t            fFlags;
 
     using INHERITED = SkShaderBase::Context;

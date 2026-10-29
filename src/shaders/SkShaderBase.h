@@ -19,6 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkOnlyStackAllocatable.h"
+#include "src/partition_alloc/raw_ref.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -322,7 +323,7 @@ public:
 
     protected:
         // Reference to shader, so we don't have to dupe information.
-        const SkShaderBase& fShader;
+        const raw_ref<const SkShaderBase, DanglingUntriaged> fShader;
 
         uint8_t getPaintAlpha() const { return fPaintAlpha; }
 

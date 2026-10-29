@@ -15,6 +15,7 @@
 #ifdef SK_BUILD_FOR_WIN
 
 #include "src/core/SkLeanWindows.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/utils/win/SkObjBase.h"
 #include <ole2.h>
 
@@ -91,7 +92,7 @@ public:
     SK_STDMETHODIMP Stat(STATSTG* pStatstg, DWORD grfStatFlag) override;
 
 private:
-    SkWStream *fSkWStream;
+    raw_ptr<SkWStream> fSkWStream;
 
     SkWIStream(SkWStream* stream);
     ~SkWIStream() override;

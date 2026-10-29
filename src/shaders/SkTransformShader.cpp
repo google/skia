@@ -52,5 +52,5 @@ bool SkTransformShader::appendStages(const SkStageRec& rec,
 
     // Propagate the wrapped shader's failure: a pipeline that is only partially
     // appended must never be compiled and executed.
-    return fShader.appendStages(rec, *childMRec);
+    return fShader->appendStages(rec, *childMRec);
 }

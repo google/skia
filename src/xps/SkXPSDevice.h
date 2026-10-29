@@ -25,6 +25,7 @@
 #include "src/core/SkBitmapDevice.h"
 #include "src/core/SkClipStackDevice.h"
 #include "src/cpu/Recorder.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/utils/SkBitSet.h"
 #include "src/utils/win/SkAutoCoInitialize.h"
 #include "src/utils/win/SkTScopedComPtr.h"
@@ -136,7 +137,7 @@ private:
     SkVector fCurrentPixelsPerMeter;
 
     skia_private::TArray<TypefaceUse, true> fTypefaces;
-    skia_private::TArray<TypefaceUse, true>* fTopTypefaces;
+    raw_ptr<skia_private::TArray<TypefaceUse, true>> fTopTypefaces;
 
     SkXPS::Options fOpts;
 

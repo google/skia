@@ -9,6 +9,7 @@
 #define SkOTUtils_DEFINED
 
 #include "include/core/SkTypeface.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/sfnt/SkOTTableTypes.h"
 #include "src/sfnt/SkOTTable_OS_2_V4.h"
 #include "src/sfnt/SkOTTable_name.h"
@@ -69,7 +70,7 @@ struct SkOTUtils {
     private:
         static SK_OT_USHORT familyNameTypes[3];
 
-        SK_OT_USHORT* fTypes;
+        raw_ptr<SK_OT_USHORT, AllowPtrArithmetic> fTypes;
         int fTypesCount;
         int fTypesIndex;
         std::unique_ptr<uint8_t[]> fNameTableData;

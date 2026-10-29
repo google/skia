@@ -15,6 +15,7 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkUTF.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstdint>
 #include <cstring>
@@ -413,7 +414,7 @@ private:
     char* fWrite;
     char* fBlockEnd;
 
-    SkWStream* fStream;
+    raw_ptr<SkWStream> fStream;
     Mode fMode;
     State fState;
     skia_private::STArray<16, Scope, true> fScopeStack;

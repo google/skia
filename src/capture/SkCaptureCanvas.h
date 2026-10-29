@@ -12,6 +12,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSurface.h"
 #include "include/utils/SkNWayCanvas.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 class SkCaptureManager;
 
@@ -133,8 +134,8 @@ private:
 
     bool fCapturing = false;
     SkPictureRecorder fRecorder;
-    SkCanvas* fBaseCanvas = nullptr;
-    SkCaptureManager* fManager = nullptr;
+    raw_ptr<SkCanvas, DanglingUntriaged> fBaseCanvas;
+    raw_ptr<SkCaptureManager> fManager;
 
     // Hide NWay management functions as clients shouldn't be using these directly.
     void addCanvas(SkCanvas* canvas) override {SkNWayCanvas::addCanvas(canvas);}
