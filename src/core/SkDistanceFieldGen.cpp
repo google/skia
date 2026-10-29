@@ -10,11 +10,13 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkTFitsIn.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkPointPriv.h"
+#include "src/core/SkSafeMath.h"
 
 #include <cstdint>
 #include <cstring>
@@ -349,13 +351,75 @@ static unsigned char pack_distance_field_val(float dist) {
 }
 #endif
 
+// Owns all temporary storage for one distance field generation:
+// the DFData working grid, its edge flags, and the padded 8-bit source copy
+class DFScratch {
+public:
+    static size_t ComputeTotalSize(int w, int h, size_t* gridCountOut = nullptr) {
+        if (w <= 0 || h <= 0) {
+            return 0;
+        }
+        constexpr int kPad = SK_DistanceFieldPad + 1;
+        SkSafeMath safe;
+        const size_t gridCount = safe.mul(safe.addInt(w, 2 * kPad), safe.addInt(h, 2 * kPad));
+        const size_t copyCount = safe.mul(safe.addInt(w, 2), safe.addInt(h, 2));
+        const size_t dataBytes = safe.mul(gridCount, sizeof(DFData));
+        const size_t total = safe.add(safe.add(dataBytes, gridCount), copyCount);
+        // The transform uses int pointer offsets over the padded grid
+        if (!safe || !SkTFitsIn<int>(total)) {
+            return 0;
+        }
+        if (gridCountOut) {
+            *gridCountOut = gridCount;
+        }
+        return total;
+    }
+
+    DFScratch(int w, int h) {
+        size_t gridCount = 0;
+        const size_t total = ComputeTotalSize(w, h, &gridCount);
+        if (total == 0) {
+            return;
+        }
+        fStorage.reset(sk_calloc_canfail(total));
+        if (!fStorage) {
+            return;
+        }
+        fData = static_cast<DFData*>(fStorage.get());
+        fEdge = reinterpret_cast<unsigned char*>(fData + gridCount);
+        fCopy = fEdge + gridCount;
+    }
+
+    explicit operator bool() const { return fStorage != nullptr; }
+
+    DFData* data() const { return fData; }
+    unsigned char* edge() const { return fEdge; }
+    unsigned char* copy() const { return fCopy; }
+
+private:
+    UniqueVoidPtr fStorage;
+    DFData* fData = nullptr;
+    unsigned char* fEdge = nullptr;
+    unsigned char* fCopy = nullptr;
+};
+
+size_t SkComputeDistanceFieldSize(int w, int h) {
+    // Reject dimensions whose distance field or DFScratch buffer cannot be allocated
+    if (DFScratch::ComputeTotalSize(w, h) == 0) {
+        return 0;
+    }
+    return static_cast<size_t>(w + 2 * SK_DistanceFieldPad) *
+           static_cast<size_t>(h + 2 * SK_DistanceFieldPad);
+}
+
 // assumes a padded 8-bit image and distance field
 // width and height are the original width and height of the image
 static bool generate_distance_field_from_image(unsigned char* distanceField,
-                                               const unsigned char* copyPtr,
-                                               int width, int height) {
+                                               const DFScratch& scratch,
+                                               int width,
+                                               int height) {
     SkASSERT(distanceField);
-    SkASSERT(copyPtr);
+    SkASSERT(scratch);
 
     // we expand our temp data by one more on each side to simplify
     // the scanning code -- will always be treated as infinitely far away
@@ -365,15 +429,18 @@ static bool generate_distance_field_from_image(unsigned char* distanceField,
     int dataWidth = width + 2*pad;
     int dataHeight = height + 2*pad;
 
-    // create zeroed temp DFData+edge storage
-    UniqueVoidPtr storage(sk_calloc_throw(dataWidth*dataHeight*(sizeof(DFData) + 1)));
-    DFData*        dataPtr = (DFData*)storage.get();
-    unsigned char* edgePtr = (unsigned char*)storage.get() + dataWidth*dataHeight*sizeof(DFData);
+    DFData* dataPtr = scratch.data();
+    unsigned char* edgePtr = scratch.edge();
 
     // copy glyph into distance field storage
-    init_glyph_data(dataPtr, edgePtr, copyPtr,
-                    dataWidth, dataHeight,
-                    width+2, height+2, SK_DistanceFieldPad);
+    init_glyph_data(dataPtr,
+                    edgePtr,
+                    scratch.copy(),
+                    dataWidth,
+                    dataHeight,
+                    width + 2,
+                    height + 2,
+                    SK_DistanceFieldPad);
 
     // create initial distance data, particularly at edges
     init_distances(dataPtr, edgePtr, dataWidth, dataHeight);
@@ -482,9 +549,11 @@ bool SkGenerateDistanceFieldFromA8Image(unsigned char* distanceField,
     SkASSERT(distanceField);
     SkASSERT(image);
 
-    // create temp data
-    SkAutoSMalloc<1024> copyStorage((width+2)*(height+2)*sizeof(char));
-    unsigned char* copyPtr = (unsigned char*) copyStorage.get();
+    DFScratch scratch(width, height);
+    if (!scratch) {
+        return false;
+    }
+    unsigned char* copyPtr = scratch.copy();
 
     // we copy our source image into a padded copy to ensure we catch edge transitions
     // around the outside
@@ -500,7 +569,7 @@ bool SkGenerateDistanceFieldFromA8Image(unsigned char* distanceField,
     }
     sk_bzero(currDestPtr, (width+2)*sizeof(char));
 
-    return generate_distance_field_from_image(distanceField, copyPtr, width, height);
+    return generate_distance_field_from_image(distanceField, scratch, width, height);
 }
 
 // assumes a 16-bit lcd mask and 8-bit distance field
@@ -510,9 +579,11 @@ bool SkGenerateDistanceFieldFromLCD16Mask(unsigned char* distanceField,
     SkASSERT(distanceField);
     SkASSERT(image);
 
-    // create temp data
-    SkAutoSMalloc<1024> copyStorage((w+2)*(h+2)*sizeof(char));
-    unsigned char* copyPtr = (unsigned char*) copyStorage.get();
+    DFScratch scratch(w, h);
+    if (!scratch) {
+        return false;
+    }
+    unsigned char* copyPtr = scratch.copy();
 
     // we copy our source image into a padded copy to ensure we catch edge transitions
     // around the outside
@@ -530,7 +601,7 @@ bool SkGenerateDistanceFieldFromLCD16Mask(unsigned char* distanceField,
     }
     sk_bzero(currDestPtr, (w+2)*sizeof(char));
 
-    return generate_distance_field_from_image(distanceField, copyPtr, w, h);
+    return generate_distance_field_from_image(distanceField, scratch, w, h);
 }
 
 // assumes a 1-bit image and 8-bit distance field
@@ -540,9 +611,11 @@ bool SkGenerateDistanceFieldFromBWImage(unsigned char* distanceField,
     SkASSERT(distanceField);
     SkASSERT(image);
 
-    // create temp data
-    SkAutoSMalloc<1024> copyStorage((width+2)*(height+2)*sizeof(char));
-    unsigned char* copyPtr = (unsigned char*) copyStorage.get();
+    DFScratch scratch(width, height);
+    if (!scratch) {
+        return false;
+    }
+    unsigned char* copyPtr = scratch.copy();
 
     // we copy our source image into a padded copy to ensure we catch edge transitions
     // around the outside
@@ -566,7 +639,7 @@ bool SkGenerateDistanceFieldFromBWImage(unsigned char* distanceField,
     }
     sk_bzero(currDestPtr, (width+2)*sizeof(char));
 
-    return generate_distance_field_from_image(distanceField, copyPtr, width, height);
+    return generate_distance_field_from_image(distanceField, scratch, width, height);
 }
 
 #endif // !defined(SK_DISABLE_SDF_TEXT)

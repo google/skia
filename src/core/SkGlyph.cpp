@@ -351,10 +351,9 @@ void SkGlyph::flattenMetrics(SkWriteBuffer& buffer) const {
 }
 
 void SkGlyph::flattenImage(SkWriteBuffer& buffer) const {
-    SkASSERT(this->setImageHasBeenCalled());
-
-    // If the glyph is empty or too big, then no image data is sent.
+    // If the glyph is empty or too big, then no image data is sent
     if (!this->isEmpty() && SkGlyphDigest::FitsInAtlas(*this)) {
+        SkASSERT(this->setImageHasBeenCalled());
         buffer.writeByteArray(this->image(), this->imageSize());
     }
 }
