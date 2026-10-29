@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include <array>
+#include <cstring>
 #include "src/xml/SkXMLParser.h"
 
 #include "include/core/SkStream.h"
@@ -18,6 +19,31 @@
 #include "src/core/SkUtils.h"
 
 #include <expat.h>
+
+// XML_SetHashSalt16Bytes() was added in Expat 2.8.0, which then deprecated
+// XML_SetHashSalt(). System copies of Expat may be older.
+#if XML_MAJOR_VERSION > 2 || (XML_MAJOR_VERSION == 2 && XML_MINOR_VERSION >= 8)
+#define SK_EXPAT_HAS_HASH_SALT_16_BYTES
+#endif
+
+// XML_GetCurrentLineNumber64() and XML_GetCurrentColumnNumber64() were added in
+// Expat 2.9.0, which then deprecated the XML_Size versions. System copies of
+// Expat may be older.
+[[maybe_unused]] static uint64_t sk_xml_current_line(XML_Parser parser) {
+#if XML_MAJOR_VERSION > 2 || (XML_MAJOR_VERSION == 2 && XML_MINOR_VERSION >= 9)
+    return XML_GetCurrentLineNumber64(parser);
+#else
+    return XML_GetCurrentLineNumber(parser);
+#endif
+}
+
+[[maybe_unused]] static uint64_t sk_xml_current_column(XML_Parser parser) {
+#if XML_MAJOR_VERSION > 2 || (XML_MAJOR_VERSION == 2 && XML_MINOR_VERSION >= 9)
+    return XML_GetCurrentColumnNumber64(parser);
+#else
+    return XML_GetCurrentColumnNumber(parser);
+#endif
+}
 
 #include <vector>
 
@@ -64,15 +90,31 @@ void SkXMLParserError::reset() {
 
 namespace {
 
-// Return a random number based on the clock to be consistent
+// Return a random number generator seeded from the clock, to be consistent
 // across platforms yet hard to guess and not leaking information.
+static SkRandom make_hash_salt_random() {
+    double nsecs = SkTime::GetNSecs();
+    uint64_t timeVal = sk_bit_cast<uint64_t>(nsecs);
+    return SkRandom(static_cast<uint32_t>(timeVal ^ timeVal >> 32));
+}
+
+#if defined(SK_EXPAT_HAS_HASH_SALT_16_BYTES)
+static const std::array<uint8_t, 16>& get_hash_salt() {
+    static const std::array<uint8_t, 16> s_salt = []() {
+        SkRandom rand = make_hash_salt_random();
+        std::array<uint8_t, 16> salt;
+        for (size_t i = 0; i < salt.size(); i += sizeof(uint32_t)) {
+            uint32_t value = rand.nextU();
+            memcpy(&salt[i], &value, sizeof(value));
+        }
+        return salt;
+    }();
+    return s_salt;
+}
+#else
 static uint32_t get_hash_salt() {
     static const uint32_t s_salt = []() {
-        double nsecs = SkTime::GetNSecs();
-        uint64_t timeVal = sk_bit_cast<uint64_t>(nsecs);
-        uint32_t seed = static_cast<uint32_t>(timeVal ^ timeVal >> 32);
-
-        SkRandom rand(seed);
+        SkRandom rand = make_hash_salt_random();
         uint32_t salt = rand.nextU();
         while (salt == 0) [[unlikely]] {
             // Expat hash seed must be non-zero or the default cPRNG will be used.
@@ -82,6 +124,7 @@ static uint32_t get_hash_salt() {
     }();
     return s_salt;
 }
+#endif
 
 const XML_Memory_Handling_Suite sk_XML_alloc = {
     sk_malloc_throw,
@@ -179,7 +222,11 @@ bool SkXMLParser::parse(SkStream& docStream)
     // random salt once per process oursevles ensures the salt is non-deterministic
     // and unguessable, while preventing calls to rand_s inside sandboxed processes
     // on Windows.
+#if defined(SK_EXPAT_HAS_HASH_SALT_16_BYTES)
+    XML_SetHashSalt16Bytes(ctx.fXMLParser, get_hash_salt().data());
+#else
     XML_SetHashSalt(ctx.fXMLParser, get_hash_salt());
+#endif
 
     XML_SetUserData(ctx.fXMLParser, &ctx);
     XML_SetElementHandler(ctx.fXMLParser, start_element_handler, end_element_handler);
@@ -216,8 +263,8 @@ bool SkXMLParser::parse(SkStream& docStream)
     if (XML_STATUS_ERROR == status) {
 #if defined(SK_DEBUG)
         XML_Error error = XML_GetErrorCode(ctx.fXMLParser);
-        int line = XML_GetCurrentLineNumber(ctx.fXMLParser);
-        int column = XML_GetCurrentColumnNumber(ctx.fXMLParser);
+        int line = (int)sk_xml_current_line(ctx.fXMLParser);
+        int column = (int)sk_xml_current_column(ctx.fXMLParser);
         const XML_LChar* errorString = XML_ErrorString(error);
         SkDEBUGF("parse error @%d:%d: %d (%s).\n", line, column, error, errorString);
 #endif

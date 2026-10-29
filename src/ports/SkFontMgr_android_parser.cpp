@@ -21,6 +21,25 @@
 
 #include <expat.h>
 
+// XML_GetCurrentLineNumber64() and XML_GetCurrentColumnNumber64() were added in
+// Expat 2.9.0, which then deprecated the XML_Size versions. System copies of
+// Expat may be older.
+[[maybe_unused]] static uint64_t sk_xml_current_line(XML_Parser parser) {
+#if XML_MAJOR_VERSION > 2 || (XML_MAJOR_VERSION == 2 && XML_MINOR_VERSION >= 9)
+    return XML_GetCurrentLineNumber64(parser);
+#else
+    return XML_GetCurrentLineNumber(parser);
+#endif
+}
+
+[[maybe_unused]] static uint64_t sk_xml_current_column(XML_Parser parser) {
+#if XML_MAJOR_VERSION > 2 || (XML_MAJOR_VERSION == 2 && XML_MINOR_VERSION >= 9)
+    return XML_GetCurrentColumnNumber64(parser);
+#else
+    return XML_GetCurrentColumnNumber(parser);
+#endif
+}
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -141,8 +160,8 @@ static bool memeq(const char* s1, const char* s2, size_t n1, size_t n2) {
 #define SK_FONTCONFIGPARSER_WARNING(message, ...)                                 \
     SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "%s:%d:%d: warning: " message "\n", \
              self->fFilename,                                                     \
-             (int)XML_GetCurrentLineNumber(self->fParser),                        \
-             (int)XML_GetCurrentColumnNumber(self->fParser),                      \
+             (int)sk_xml_current_line(self->fParser),                             \
+             (int)sk_xml_current_column(self->fParser),                           \
              ##__VA_ARGS__)
 
 static bool is_whitespace(char c) {
@@ -761,8 +780,8 @@ static int parse_config_file(const char* filename,
         XML_Status status = XML_ParseBuffer(parser, len, done);
         if (XML_STATUS_ERROR == status) {
             XML_Error error = XML_GetErrorCode(parser);
-            int line = XML_GetCurrentLineNumber(parser);
-            int column = XML_GetCurrentColumnNumber(parser);
+            int line = (int)sk_xml_current_line(parser);
+            int column = (int)sk_xml_current_column(parser);
             const XML_LChar* errorString = XML_ErrorString(error);
             SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "%s:%d:%d error %d: %s.\n",
                      filename, line, column, error, errorString);
