@@ -124,6 +124,7 @@ filegroup(
         "DirectMaskLimitTest.cpp",
         "DiscardableMemoryPoolTest.cpp",
         "DiscardableMemoryTest.cpp",
+        "DistanceFieldTest.cpp",
         "DrawBitmapRectTest.cpp",
         "DrawPathTest.cpp",
         "DrawTextTest.cpp",

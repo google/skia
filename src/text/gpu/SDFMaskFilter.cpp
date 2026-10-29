@@ -53,6 +53,12 @@ bool SDFMaskFilterImpl::filterMask(SkMaskBuilder* dst, const SkMask& src,
         && src.fFormat != SkMask::kLCD16_Format) {
         return false;
     }
+    // Reject dimensions whose distance field or scratch storage cannot be allocated
+    if (SkComputeDistanceFieldSize(src.fBounds.width(), src.fBounds.height()) == 0) {
+        dst->image() = nullptr;
+        dst->bounds().setEmpty();
+        return false;
+    }
 
     *dst = SkMaskBuilder::PrepareDestination(SK_DistanceFieldPad, SK_DistanceFieldPad, src);
     dst->format() = SkMask::kSDF_Format;
@@ -69,19 +75,26 @@ bool SDFMaskFilterImpl::filterMask(SkMaskBuilder* dst, const SkMask& src,
         return false;
     }
 
+    bool success = false;
     if (src.fFormat == SkMask::kA8_Format) {
-        return SkGenerateDistanceFieldFromA8Image(dst->image(), src.fImage,
-                                                  src.fBounds.width(), src.fBounds.height(),
-                                                  src.fRowBytes);
+        success = SkGenerateDistanceFieldFromA8Image(
+                dst->image(), src.fImage, src.fBounds.width(), src.fBounds.height(), src.fRowBytes);
     } else if (src.fFormat == SkMask::kLCD16_Format) {
-        return SkGenerateDistanceFieldFromLCD16Mask(dst->image(), src.fImage,
-                                                     src.fBounds.width(), src.fBounds.height(),
-                                                     src.fRowBytes);
+        success = SkGenerateDistanceFieldFromLCD16Mask(
+                dst->image(), src.fImage, src.fBounds.width(), src.fBounds.height(), src.fRowBytes);
     } else {
-        return SkGenerateDistanceFieldFromBWImage(dst->image(), src.fImage,
-                                                  src.fBounds.width(), src.fBounds.height(),
-                                                  src.fRowBytes);
+        success = SkGenerateDistanceFieldFromBWImage(
+                dst->image(), src.fImage, src.fBounds.width(), src.fBounds.height(), src.fRowBytes);
     }
+
+    // Release the destination buffer when distance field generation fails
+    if (!success) {
+        SkMaskBuilder::FreeImage(dst->image());
+        dst->image() = nullptr;
+        dst->bounds().setEmpty();
+        return false;
+    }
+    return true;
 }
 
 void SDFMaskFilterImpl::computeFastBounds(const SkRect& src,
