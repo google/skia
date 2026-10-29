@@ -12443,3 +12443,74 @@ DEF_TEST(SkParagraph_JustifyEllipsisRemovesRuns, reporter) {
     REPORTER_ASSERT(reporter, impl->lines().size() == 1);
     REPORTER_ASSERT(reporter, paragraph->didExceedMaxLines());
 }
+
+// ExtendedVisitorInfo::positions can be changed: the change stays in the glyph data. If the
+// paragraph was not painted or visited yet, the next paint() draws the glyphs at the changed
+// positions. paint() and visit() build the text blobs one time for each layout().
+DEF_TEST(SkParagraph_ExtendedVisitPositionsAreWritable, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    fontCollection->disableFontFallback();
+
+    TextStyle style;
+    style.setFontFamilies({SkString("Roboto")});
+    style.setFontSize(20);
+    style.setColor(SK_ColorBLACK);
+    ParagraphStyle paragraphStyle;
+    paragraphStyle.setTextStyle(style);
+
+    auto build = [&] {
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        builder.pushStyle(style);
+        builder.addText("Hello world");
+        auto paragraph = builder.Build();
+        paragraph->layout(300);
+        return paragraph;
+    };
+    // The first row that has a pixel which is not white
+    auto firstInkRow = [](Paragraph* paragraph) {
+        SkBitmap bitmap;
+        bitmap.allocN32Pixels(300, 100);
+        SkCanvas canvas(bitmap);
+        canvas.clear(SK_ColorWHITE);
+        paragraph->paint(&canvas, 0, 0);
+        for (int y = 0; y < bitmap.height(); ++y) {
+            for (int x = 0; x < bitmap.width(); ++x) {
+                if (bitmap.getColor(x, y) != SK_ColorWHITE) {
+                    return y;
+                }
+            }
+        }
+        return -1;
+    };
+
+    auto reference = build();
+    int referenceRow = firstInkRow(reference.get());
+    REPORTER_ASSERT(reporter, referenceRow >= 0);
+
+    auto paragraph = build();
+    int glyphs = 0;
+    SkPoint* firstPosition = nullptr;
+    paragraph->extendedVisit([&](int, const Paragraph::ExtendedVisitorInfo* info) {
+        for (int i = 0; info && i < info->count; ++i) {
+            info->positions[i].fY += 30;
+            ++glyphs;
+        }
+        if (info && !firstPosition) {
+            firstPosition = info->positions;
+        }
+    });
+    REPORTER_ASSERT(reporter, glyphs == 11);
+
+    // The pointer stays valid, and the paragraph keeps the change
+    int checked = 0;
+    paragraph->extendedVisit([&](int, const Paragraph::ExtendedVisitorInfo* info) {
+        if (info && checked++ == 0) {
+            REPORTER_ASSERT(reporter, info->positions == firstPosition);
+        }
+        for (int i = 0; info && i < info->count; ++i) {
+            REPORTER_ASSERT(reporter, info->positions[i].fY == 30);
+        }
+    });
+    REPORTER_ASSERT(reporter, firstInkRow(paragraph.get()) == referenceRow + 30);
+}
