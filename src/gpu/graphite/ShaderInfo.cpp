@@ -1494,8 +1494,10 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
                 fBlendInfo = SK_UNSAFE_TODO(gBlendTable[static_cast<int>(*finalBlendMode)]);
                 mainBody += emit_advanced_blend_color_output("sk_FragColor", outColor);
             } else {
-                // Porter-Duff blend modes can utilize BlendFormula.
-                // TODO: Determine whether draw is opaque and pass that to GetBlendFormula.
+                // Porter-Duff blend modes can utilize BlendFormula. Notice that `isOpaque` is false
+                // so that blend formulas default to unknown opacity without optimization.
+                // Opacity-based blend mode reductions in Graphite are performed when constructing
+                // the key in ShadingParams::toKey().
                 BlendFormula coverageBlendFormula =
                         finalCoverage == Coverage::kLCD
                                 ? skgpu::GetLCDBlendFormula(*finalBlendMode)
