@@ -126,7 +126,7 @@ private:
 
     sk_sp<GrVkFramebuffer>                      fFramebuffer;
     std::unique_ptr<GrVkSecondaryCommandBuffer> fCurrentSecondaryCommandBuffer;
-    const GrVkRenderPass*                       fCurrentRenderPass;
+    const GrVkRenderPass*                       fCurrentRenderPass = nullptr;
     SkIRect                                     fCurrentPipelineBounds;
     GrVkPipelineState*                          fCurrentPipelineState = nullptr;
     bool                                        fCurrentCBIsEmpty = true;
