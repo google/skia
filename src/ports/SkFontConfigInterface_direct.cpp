@@ -505,11 +505,7 @@ SkFontConfigInterfaceDirect::SkFontConfigInterfaceDirect(FcConfig* fc) : fFC(fc)
     SkDEBUGCODE(fontconfiginterface_unittest();)
 }
 
-SkFontConfigInterfaceDirect::~SkFontConfigInterfaceDirect() {
-    if (fFC) {
-        FcConfigDestroy(fFC);
-    }
-}
+SkFontConfigInterfaceDirect::~SkFontConfigInterfaceDirect() = default;
 
 bool SkFontConfigInterfaceDirect::isAccessible(const char* filename) {
     if (access(filename, R_OK) != 0) {

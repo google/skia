@@ -11,6 +11,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkGlyph.h"
 #include "src/partition_alloc/raw_ptr_exclusion.h"
 
@@ -126,6 +127,8 @@ struct IDOrDrawable {
 
 // -- StrikeMutationMonitor ------------------------------------------------------------------------
 class StrikeMutationMonitor {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 public:
     StrikeMutationMonitor(StrikeForGPU* strike);
     ~StrikeMutationMonitor();

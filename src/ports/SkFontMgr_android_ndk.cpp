@@ -15,6 +15,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkFeatures.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkChecksum.h"
@@ -432,6 +433,8 @@ static void normalizeAsciiCase(SkSpan<char> s) {
 }
 
 struct SkAFont {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkAFont(const AndroidFontAPI& api, AFont* font) : fAPI(api), fFont(font) {}
     SkAFont(SkAFont&& that) : fAPI(that.fAPI), fFont(that.fFont) {
         that.fFont = nullptr;
@@ -459,6 +462,8 @@ private:
 };
 
 struct SkASystemFontIterator {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkASystemFontIterator(const AndroidFontAPI& api)
         : fAPI(api)
         , fIterator(fAPI.ASystemFontIterator_open())

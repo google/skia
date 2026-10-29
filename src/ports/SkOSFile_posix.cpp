@@ -12,13 +12,13 @@
 #include "src/core/SkOSFile.h"
 
 #include <dirent.h>
-#include <new>
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <new>
 
 #ifdef SK_BUILD_FOR_IOS
 #include "src/ports/SkOSFile_ios.h"
@@ -130,9 +130,10 @@ size_t sk_qread(FILE* file, void* buffer, size_t count, size_t offset) {
 
 ////////////////////////////////////////////////////////////////////////////
 
+static void close_dir(DIR* dir) { ::closedir(dir); }
+
 struct SkOSFileIterData {
-    SkOSFileIterData() : fDIR(nullptr) { }
-    DIR* fDIR;
+    SkAutoTCallVProc<DIR, close_dir> fDIR;
     SkString fPath, fSuffix;
 };
 static_assert(sizeof(SkOSFileIterData) <= SkOSFile::Iter::kStorageSize, "not_enough_space");
@@ -146,26 +147,20 @@ SkOSFile::Iter::Iter(const char path[], const char suffix[]) {
 
 SkOSFile::Iter::~Iter() {
     SkOSFileIterData& self = *reinterpret_cast<SkOSFileIterData*>(fSelf);
-    if (self.fDIR) {
-        ::closedir(self.fDIR);
-    }
     self.~SkOSFileIterData();
 }
 
 void SkOSFile::Iter::reset(const char path[], const char suffix[]) {
     SkOSFileIterData& self = *reinterpret_cast<SkOSFileIterData*>(fSelf);
-    if (self.fDIR) {
-        ::closedir(self.fDIR);
-        self.fDIR = nullptr;
-    }
+    self.fDIR.reset();
     self.fPath.set(path);
 
     if (path) {
-        self.fDIR = ::opendir(path);
+        self.fDIR.reset(::opendir(path));
 #ifdef SK_BUILD_FOR_IOS
         // check bundle for directory
         if (!self.fDIR && ios_get_path_in_bundle(path, &self.fPath)) {
-            self.fDIR = ::opendir(self.fPath.c_str());
+            self.fDIR.reset(::opendir(self.fPath.c_str()));
         }
 #endif
         self.fSuffix.set(suffix);

@@ -19,6 +19,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkFontTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontStream.h"
@@ -1121,6 +1122,8 @@ SK_STDMETHODIMP_(ULONG) StreamFontCollectionLoader::Release() {
 }
 
 template <typename T> class [[nodiscard]] SkAutoIDWriteUnregister {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 public:
     SkAutoIDWriteUnregister(IDWriteFactory* factory, T* unregister)
         : fFactory(factory), fUnregister(unregister)

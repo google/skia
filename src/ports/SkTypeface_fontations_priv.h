@@ -16,11 +16,12 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkOnce.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkScalerContext.h"
-#include "src/ports/fontations/src/ffi.rs.h"
 #include "src/ports/SkTypeface_fontations_factory.h"
+#include "src/ports/fontations/src/ffi.rs.h"
 
 #include <memory>
 
@@ -32,6 +33,8 @@ namespace sk_fontations {
 /** Implementation of AxisWrapper FFI C++ interface, allowing Rust to call back into
  * C++ for populating variable axis availability information, see skpath_bridge.h. */
 class AxisWrapper : public fontations_ffi::AxisWrapper {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 public:
     AxisWrapper(SkFontParameters::Variation::Axis axisArray[], size_t axisCount);
     AxisWrapper() = delete;
@@ -46,6 +49,8 @@ private:
 };
 
 class ColorPainter : public fontations_ffi::ColorPainterWrapper {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 public:
     ColorPainter() = delete;
     ColorPainter(SkFontationsScalerContext& scaler_context,
@@ -124,6 +129,8 @@ private:
 
 /** Tracks transforms and clips to compute a bounding box without drawing pixels. */
 class BoundsPainter : public fontations_ffi::ColorPainterWrapper {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 public:
     BoundsPainter() = delete;
     BoundsPainter(SkFontationsScalerContext& scaler_context,

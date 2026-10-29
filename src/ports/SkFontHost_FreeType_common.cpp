@@ -18,6 +18,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/effects/SkGradient.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkColorData.h"
@@ -1902,6 +1903,8 @@ void SkScalerContextFTUtils::generateGlyphImage(FT_Face face, const SkGlyph& gly
 namespace {
 
 class SkFTGeometrySink {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkPathBuilder* fBuilder;
     bool fStarted;
     FT_Vector fCurrent;

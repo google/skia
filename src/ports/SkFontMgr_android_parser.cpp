@@ -11,6 +11,7 @@
 #include "include/core/SkStream.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTLogic.h"
 #include "include/private/SkTemplates.h"
@@ -94,6 +95,8 @@ struct TagHandler {
 
 /** Represents the current parsing state. */
 struct FamilyData {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     FamilyData(XML_Parser parser, std::vector<std::unique_ptr<FontFamily>>& families,
                const SkString& basePath, bool isFallback, const char* filename,
                const TagHandler* topLevelHandler)

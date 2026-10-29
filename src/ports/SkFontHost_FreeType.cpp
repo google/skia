@@ -21,6 +21,7 @@
 #include "include/ports/SkFontScanner_FreeType.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkMutex.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
@@ -445,6 +446,8 @@ SkTypeface_FreeType::FaceRec::Make(const SkTypeface_FreeType* typeface) {
 }
 
 class AutoFTAccess {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 public:
     AutoFTAccess(const SkTypeface_FreeType* tf) : fFaceRec(nullptr) {
         f_t_mutex().acquire();
