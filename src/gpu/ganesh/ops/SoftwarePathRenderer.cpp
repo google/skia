@@ -239,7 +239,6 @@ void SoftwarePathRenderer::DrawToTargetWithShapeMask(
         const GrUserStencilSettings& userStencilSettings,
         const GrClip* clip,
         const SkMatrix& viewMatrix,
-        const SkIPoint& textureOriginInDeviceSpace,
         const SkIRect& deviceSpaceRectToDraw) {
     SkMatrix invert;
     if (!viewMatrix.invert(&invert)) {
@@ -253,12 +252,30 @@ void SoftwarePathRenderer::DrawToTargetWithShapeMask(
     // We use device coords to compute the texture coordinates. We take the device coords and apply
     // a translation so that the top-left of the device bounds maps to 0,0, and then a scaling
     // matrix to normalized coords.
-    SkMatrix maskMatrix = SkMatrix::Translate(SkIntToScalar(-textureOriginInDeviceSpace.fX),
-                                              SkIntToScalar(-textureOriginInDeviceSpace.fY));
+    SkMatrix maskMatrix = SkMatrix::Translate(SkIntToScalar(-deviceSpaceRectToDraw.fLeft),
+                                              SkIntToScalar(-deviceSpaceRectToDraw.fTop));
     maskMatrix.preConcat(viewMatrix);
 
-    paint.setCoverageFragmentProcessor(GrTextureEffect::Make(
-            std::move(view), kPremul_SkAlphaType, maskMatrix, GrSamplerState::Filter::kNearest));
+    // The coverage mask effect and the GrPaint start from the same local coordinates, but the paint
+    // has already created its FPs so we can't use the SW mask's coords as the starting point. We
+    // have to adjust the draw's local coords into mask space. However, since we are filling dstRect
+    // with an identity view matrix, the draw's local coords are derived from invert*dstRect.
+    //
+    // When `viewMatrix` has absurdly large translations (which can be canceled out via the original
+    // shape's coordinates when preparing the mask), maskMatrix*(invert*dstRect) may lose precision
+    // due to intermediate rounding in floating point (after invert*dstRect is computed on the CPU,
+    // for instance). In that case, it may no longer map to within the mask subset that was
+    // initialized (0,0 to deviceSpaceRectToDraw.size()). To combat this, manually pass in the
+    // subset and domain to enable subset clamping.
+    SkRect maskSubset = SkRect::Make(deviceSpaceRectToDraw.size());
+    SkRect maskDomain = maskMatrix.mapRect(invert.mapRect(dstRect.makeInset(0.5f, 0.5f)));
+    paint.setCoverageFragmentProcessor(GrTextureEffect::MakeSubset(std::move(view),
+                                                                   kPremul_SkAlphaType,
+                                                                   maskMatrix,
+                                                                   GrSamplerState::Filter::kNearest,
+                                                                   maskSubset,
+                                                                   maskDomain,
+                                                                   *sdc->caps()));
     DrawNonAARect(sdc, std::move(paint), userStencilSettings, clip, SkMatrix::I(),
                   dstRect, invert);
 }
@@ -432,7 +449,7 @@ bool SoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
     DrawToTargetWithShapeMask(std::move(view), args.fSurfaceDrawContext, std::move(args.fPaint),
                               *args.fUserStencilSettings, args.fClip, *args.fViewMatrix,
-                              SkIPoint{boundsForMask->fLeft, boundsForMask->fTop}, *boundsForMask);
+                              *boundsForMask);
 
     return true;
 }
