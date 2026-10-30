@@ -92,22 +92,13 @@ bool ComputePathAtlas::isSuitableForAtlasing(const Rect& transformedShapeBounds,
     return true;
 }
 
-sk_sp<TextureProxy> ComputePathAtlas::addRect(skvx::half2 maskSize,
-                                              SkIPoint16* outPos) {
+sk_sp<TextureProxy> ComputePathAtlas::addRect(SkISize maskSize, SkIPoint16* outPos) {
+    SkASSERT(!maskSize.isEmpty());
     if (!this->initializeTextureIfNeeded()) {
         SKIA_LOG_E("Failed to instantiate an atlas texture");
         return nullptr;
     }
-
-    // An empty mask always fits, so just return the texture.
-    // TODO: This may not be needed if we can handle clipped out bounds with inverse fills
-    // another way. See PathAtlas::addShape().
-    if (!all(maskSize)) {
-        *outPos = {0, 0};
-        return fTexture;
-    }
-
-    if (!fRectanizer.addPaddedRect(maskSize.x(), maskSize.y(), kEntryPadding, outPos)) {
+    if (!fRectanizer.addPaddedRect(maskSize.width(), maskSize.height(), kEntryPadding, outPos)) {
         return nullptr;
     }
 
@@ -137,10 +128,9 @@ private:
     sk_sp<TextureProxy> onAddShape(const Shape&,
                                    const Transform& localToDevice,
                                    const SkStrokeRec&,
-                                   skvx::half2 maskOrigin,
-                                   skvx::half2 maskSize,
-                                   SkIVector transformedMaskOffset,
-                                   skvx::half2* outPos) override;
+                                   SkIRect maskBounds,
+                                   SkIPoint cacheMaskOrigin,
+                                   SkIPoint* outPos) override;
     void onReset() override {
         fCachedAtlasMgr.onReset();
 
@@ -169,7 +159,6 @@ private:
         bool onAddToAtlas(const Shape&,
                           const Transform& localToDevice,
                           const SkStrokeRec&,
-                          SkIRect shapeBounds,
                           SkIVector transformedMaskOffset,
                           const AtlasLocator&) override;
 
@@ -317,10 +306,10 @@ sk_sp<TextureProxy> VelloComputePathAtlas::onAddShape(
         const Shape& shape,
         const Transform& localToDevice,
         const SkStrokeRec& style,
-        skvx::half2 maskOrigin,
-        skvx::half2 maskSize,
-        SkIVector transformedMaskOffset,
-        skvx::half2* outPos) {
+        SkIRect maskBounds,
+        SkIPoint cacheMaskOrigin,
+        SkIPoint* outPos) {
+    SkASSERT(!maskBounds.isEmpty()); // Should have been validated by PathAtlas::addShape()
 
     skgpu::UniqueKey maskKey;
     if (!shape.isVolatilePath()) {
@@ -329,8 +318,7 @@ sk_sp<TextureProxy> VelloComputePathAtlas::onAddShape(
                                                                       shape,
                                                                       localToDevice,
                                                                       style,
-                                                                      maskOrigin,
-                                                                      maskSize,
+                                                                      maskBounds,
                                                                       transformedMaskOffset,
                                                                       outPos);
         if (proxy) {
@@ -340,17 +328,11 @@ sk_sp<TextureProxy> VelloComputePathAtlas::onAddShape(
 
     // Try to add to uncached texture
     SkIPoint16 iPos;
-    sk_sp<TextureProxy> texProxy = this->addRect(maskSize, &iPos);
+    sk_sp<TextureProxy> texProxy = this->addRect(maskBounds.size(), &iPos);
     if (!texProxy) {
         return nullptr;
     }
     *outPos = skvx::half2(iPos.x(), iPos.y());
-    // If the mask is empty, just return.
-    // TODO: This may not be needed if we can handle clipped out bounds with inverse fills
-    // another way. See PathAtlas::addShape().
-    if (!all(maskSize)) {
-        return texProxy;
-    }
 
     // TODO: The compute renderer doesn't support perspective yet. We assume that the path has been
     // appropriately transformed in that case.
@@ -358,7 +340,7 @@ sk_sp<TextureProxy> VelloComputePathAtlas::onAddShape(
 
     // Restrict the render to the occupied area of the atlas, including entry padding so that the
     // padded row/column is cleared when Vello renders.
-    Rect atlasBounds = Rect::XYWH(skvx::float2(iPos.x(), iPos.y()), skvx::cast<float>(maskSize));
+    Rect atlasBounds = Rect::XYWH(iPos.x(), iPos.y(), maskBounds.width(), maskBounds.height());
 
     add_shape_to_scene(shape, localToDevice, style, atlasBounds, transformedMaskOffset,
                        &fUncachedScene, &fUncachedOccupiedArea);
@@ -371,7 +353,6 @@ sk_sp<TextureProxy> VelloComputePathAtlas::onAddShape(
 bool VelloComputePathAtlas::VelloAtlasMgr::onAddToAtlas(const Shape& shape,
                                                         const Transform& localToDevice,
                                                         const SkStrokeRec& style,
-                                                        SkIRect shapeBounds,
                                                         SkIVector transformedMaskOffset,
                                                         const AtlasLocator& locator) {
     uint32_t index = locator.pageIndex();
@@ -386,11 +367,10 @@ bool VelloComputePathAtlas::VelloAtlasMgr::onAddToAtlas(const Shape& shape,
 
     // Restrict the render to the occupied area of the atlas, including entry padding so that the
     // padded row/column is cleared when Vello renders.
-    SkIPoint iPos = locator.topLeft();
-    Rect atlasBounds = Rect::XYWH(skvx::float2(iPos.x() + kEntryPadding, iPos.y() + kEntryPadding),
-                                  skvx::float2(shapeBounds.width(), shapeBounds.height()));
+    SkIRect atlasBounds = SkIRect::MakePtSize(locator.topLeft(), locator.dimensions())
+                                  .makeInset(kEntryPadding, kEntryPadding);
 
-    add_shape_to_scene(shape, localToDevice, style, atlasBounds, transformedMaskOffset,
+    add_shape_to_scene(shape, localToDevice, style, Rect(atlasBounds), transformedMaskOffset,
                        &fScenes[index], &fOccupiedAreas[index]);
 
     return true;

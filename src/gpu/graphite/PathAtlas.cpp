@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/draw/DrawParams.h"
 #include "src/gpu/graphite/geom/Transform.h"
 
 namespace skgpu::graphite {
@@ -37,37 +38,47 @@ PathAtlas::PathAtlas(Recorder* recorder, uint32_t requestedWidth, uint32_t reque
 PathAtlas::~PathAtlas() = default;
 
 std::pair<const Renderer*, std::optional<CoverageMaskShape>> PathAtlas::addShape(
-        const Rect& transformedShapeBounds,
+        const Clip& clip,
         const Shape& shape,
         const Transform& localToDevice,
         const SkStrokeRec& style) {
-    // Inverse fills that don't intersect the scissor are drawn as flood fills, so
-    // there is always a non-empty region of the shape to rasterize here.
-    SkASSERT(!transformedShapeBounds.isEmptyNegativeOrNaN());
-    if (transformedShapeBounds.isEmptyNegativeOrNaN()) {
+    SkASSERT(!clip.isClippedOut());
+
+    // Start with the transformed shape bounds clipped to the scissor (matches drawBounds for
+    // regular fills, but is a tighter bound for inverse fills).
+    Rect maskBounds = clip.transformedShapeBounds().makeIntersect(clip.scissor());
+
+    // Inverse fills that don't intersect the scissor are drawn as flood fills, so there is always a
+    // non-empty region of the shape to rasterize here.
+    SkASSERT(!maskBounds.isEmptyNegativeOrNaN());
+    if (maskBounds.isEmptyNegativeOrNaN()) {
         return std::make_pair(nullptr, std::nullopt);
     }
 
+    // If the clip isn't excluding very much of the original shape, store the entire path in the
+    // atlas to avoid redundant entries with slightly different clips.
+    if (maskBounds.area() >= 0.8f * clip.transformedShapeBounds().area()) {
+        maskBounds = clip.transformedShapeBounds();
+    }
+
     // Round out the shape bounds to preserve any fractional offset so that it is present in the
-    // translation that we use when deriving the atlas-space transform later.
-    Rect maskBounds = transformedShapeBounds.makeRoundOut();
+    // translation that we use when deriving the atlas-space transform later. Since `maskBounds`
+    // is roughly bounded by the output device size, the float -> int conversion is safe.
+    SkIRect iMaskBounds = maskBounds.makeRoundOut().asSkIRect();
 
     CoverageMaskShape::MaskInfo maskInfo;
     // This size does *not* include any padding that the atlas may place around the mask. This size
     // represents the area the shape can actually modify.
-    maskInfo.fMaskSize = skvx::cast<uint16_t>(maskBounds.size());
+    maskInfo.fMaskSize = iMaskBounds.size();
     // We use the origin of the clipped mask bounds relative to the full mask to distinguish
     // between clips of the same size.
-    Rect shapeDevBounds = localToDevice.mapRect(shape.bounds());
-    skvx::float2 clippedMaskOrigin = maskBounds.topLeft() - shapeDevBounds.topLeft();
-    SkIVector transformedMaskOffset = SkIVector::Make(maskBounds.topLeft().x(),
-                                                      maskBounds.topLeft().y());
+    SkIRect iShapeBounds = clip.transformedShapeBounds().makeRoundOut().asSkIRect();
+    SkIVector clippedMaskOrigin = iMaskBounds.topLeft() - iShapeBounds.topLeft();
     sk_sp<TextureProxy> atlasProxy = this->onAddShape(shape,
                                                       localToDevice,
                                                       style,
-                                                      skvx::cast<uint16_t>(clippedMaskOrigin),
-                                                      maskInfo.fMaskSize,
-                                                      transformedMaskOffset,
+                                                      iMaskBounds,
+                                                      clippedMaskOrigin,
                                                       &maskInfo.fTextureOrigin);
     if (!atlasProxy) {
         return std::make_pair(nullptr, std::nullopt);
@@ -75,7 +86,7 @@ std::pair<const Renderer*, std::optional<CoverageMaskShape>> PathAtlas::addShape
     return std::make_pair(fRecorder->priv().rendererProvider()->coverageMask(),
                           CoverageMaskShape(shape,
                                             std::move(atlasProxy),
-                                            SkM44::Translate(maskBounds.left(), maskBounds.top()),
+                                            SkM44::Translate(iMaskBounds.left(), iMaskBounds.top()),
                                             maskInfo));
 }
 
@@ -109,17 +120,16 @@ sk_sp<TextureProxy> PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorde
                                                                const Shape& shape,
                                                                const Transform& localToDevice,
                                                                const SkStrokeRec& strokeRec,
-                                                               skvx::half2 maskOrigin,
-                                                               skvx::half2 maskSize,
-                                                               SkIVector transformedMaskOffset,
-                                                               skvx::half2* outPos) {
+                                                               SkIRect maskBounds,
+                                                               SkIPoint cacheMaskOrigin,
+                                                               SkIPoint* outPos) {
     // TODO: pull this out so we don't have to recalculate it for each atlas?
     skgpu::UniqueKey maskKey = GeneratePathMaskKey(shape, localToDevice, strokeRec,
-                                                   maskOrigin, maskSize);
+                                                   cacheMaskOrigin, maskBounds.size());
     DrawAtlas::AtlasLocator* cachedLocator = fShapeCache.find(maskKey);
     if (cachedLocator) {
         SkIPoint topLeft = cachedLocator->topLeft();
-        *outPos = skvx::half2(topLeft.x() + kEntryPadding, topLeft.y() + kEntryPadding);
+        *outPos = {topLeft.x() + kEntryPadding, topLeft.y() + kEntryPadding};
         fDrawAtlas->setLastUseToken(*cachedLocator,
                                     recorder->priv().tokenTracker()->nextFlushToken());
         return SK_UNSAFE_TODO(fDrawAtlas->getProxies()[cachedLocator->pageIndex()]);
@@ -127,7 +137,7 @@ sk_sp<TextureProxy> PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorde
 
     DrawAtlas::AtlasLocator locator;
     sk_sp<TextureProxy> proxy = this->addToAtlas(recorder, shape, localToDevice, strokeRec,
-                                                 maskSize, transformedMaskOffset, outPos, &locator);
+                                                 maskBounds, outPos, &locator);
     if (!proxy) {
         return nullptr;
     }
@@ -147,12 +157,14 @@ sk_sp<TextureProxy> PathAtlas::DrawAtlasMgr::addToAtlas(Recorder* recorder,
                                                         const Shape& shape,
                                                         const Transform& localToDevice,
                                                         const SkStrokeRec& strokeRec,
-                                                        skvx::half2 maskSize,
-                                                        SkIVector transformedMaskOffset,
-                                                        skvx::half2* outPos,
+                                                        SkIRect maskBounds,
+                                                        SkIPoint* outPos,
                                                         DrawAtlas::AtlasLocator* locator) {
-    // Render mask.
-    SkIRect iShapeBounds = SkIRect::MakeXYWH(0, 0, maskSize.x(), maskSize.y());
+    // Should have been validated by `PathAtlas::addShape()` before getting this far.
+    SkASSERT(!maskBounds.isEmpty());
+
+    // Render mask with a logical (0,0) origin
+    SkIRect iShapeBounds = SkIRect::MakeSize(maskBounds.size());
     // Outset to take padding into account
     SkIRect iAtlasBounds = iShapeBounds.makeOutset(kEntryPadding, kEntryPadding);
 
@@ -165,19 +177,8 @@ sk_sp<TextureProxy> PathAtlas::DrawAtlasMgr::addToAtlas(Recorder* recorder,
         return nullptr;
     }
     SkIPoint topLeft = locator->topLeft();
-    *outPos = skvx::half2(topLeft.x()+kEntryPadding, topLeft.y()+kEntryPadding);
-
-    // If the mask is empty, just return.
-    // TODO: this may not be needed if we can handle clipped out bounds with inverse fills
-    // another way. See PathAtlas::addShape().
-    if (!all(maskSize)) {
-        fDrawAtlas->setLastUseToken(*locator,
-                                    recorder->priv().tokenTracker()->nextFlushToken());
-        return SK_UNSAFE_TODO(fDrawAtlas->getProxies()[locator->pageIndex()]);
-    }
-
-    if (!this->onAddToAtlas(shape, localToDevice, strokeRec, iShapeBounds, transformedMaskOffset,
-                            *locator)) {
+    *outPos = topLeft + SkIPoint{kEntryPadding, kEntryPadding};
+    if (!this->onAddToAtlas(shape, localToDevice, strokeRec, maskBounds.topLeft(), *locator)) {
         return nullptr;
     }
 

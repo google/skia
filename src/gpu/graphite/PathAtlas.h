@@ -18,6 +18,7 @@
 namespace skgpu::graphite {
 
 class Caps;
+class Clip;
 class DrawContext;
 class Recorder;
 class Rect;
@@ -68,9 +69,12 @@ public:
      * the padding. This allows the mask to be sampled safely with linear filtering without worrying
      * about HW filtering accessing pixels from other entries.
      *
+     * The `clip` determines the portion of `shape` that is preserved in the atlas. If the majority
+     * of the shape is visible within the clip, PathAtlas can choose to cache the entire shape.
+     *
      * `shape` will be drawn after applying the linear components (scale, rotation, skew) of the
-     * provided `localToDevice` transform. This is done by  translating the shape by the inverse of
-     * the rounded out `transformedShapeBounds` offset. For an unclipped shape this amounts to
+     * provided `localToDevice` transform. This is done by translating the shape by the inverse of
+     * the rounded out `transformedShapeBounds()` offset. For an unclipped shape this amounts to
      * translating it back to its origin while preserving any sub-pixel translation. For a clipped
      * shape, this ensures that the visible portions of the mask are centered in the atlas slot
      * while invisible portions that would lie outside the atlas slot get clipped out.
@@ -82,7 +86,7 @@ public:
      * and the fill.
      */
     std::pair<const Renderer*, std::optional<CoverageMaskShape>> addShape(
-            const Rect& transformedShapeBounds,
+            const Clip& clip,
             const Shape& shape,
             const Transform& localToDevice,
             const SkStrokeRec& style);
@@ -106,16 +110,18 @@ public:
     uint32_t height() const { return fHeight; }
 
 protected:
-    // The 'transform' has been adjusted to draw the Shape into a logical image from (0,0) to
-    // 'maskSize'. The actual rendering into the returned TextureProxy will need to be further
-    // translated by the value written to 'outPos', which is the responsibility of subclasses.
+    // The shape transformed by `localToDevice`, then translated by -maskBounds.topLeft() should
+    // be rendered into the local image from (0,0) to `maskBounds.size()`. The `maskOrigin` is
+    // an additional key parameter to identify the subset location of the full shape's mask, but
+    // does not impact what should be rendered.
+    //
+    // `outPos` holds the top-left texel position of the mask stored in the returned TextureProxy.
     virtual sk_sp<TextureProxy> onAddShape(const Shape&,
                                            const Transform& localToDevice,
                                            const SkStrokeRec&,
-                                           skvx::half2 maskOrigin,
-                                           skvx::half2 maskSize,
-                                           SkIVector transformedMaskOffset,
-                                           skvx::half2* outPos) = 0;
+                                           SkIRect maskBounds,
+                                           SkIPoint cacheMaskOrigin,
+                                           SkIPoint* outPos) = 0;
 
     // Wrapper class to manage DrawAtlas and associated caching operations
     class DrawAtlasMgr : public DrawAtlas::GenerationCounter,
@@ -127,19 +133,17 @@ protected:
                                               const Shape&,
                                               const Transform& localToDevice,
                                               const SkStrokeRec&,
-                                              skvx::half2 maskOrigin,
-                                              skvx::half2 maskSize,
-                                              SkIVector transformedMaskOffset,
-                                              skvx::half2* outPos);
+                                              SkIRect maskBounds,
+                                              SkIPoint cacheMaskOrigin,
+                                              SkIPoint* outPos);
         // Adds to DrawAtlas but not the cache.
         // If successful, returns a ref for the caller to use.
         sk_sp<TextureProxy> addToAtlas(Recorder* recorder,
                                        const Shape&,
                                        const Transform& localToDevice,
                                        const SkStrokeRec&,
-                                       skvx::half2 maskSize,
-                                       SkIVector transformedMaskOffset,
-                                       skvx::half2* outPos,
+                                       SkIRect maskBounds,
+                                       SkIPoint* outPos,
                                        DrawAtlas::AtlasLocator* locator);
         bool recordUploads(DrawContext*, Recorder*);
         void evict(DrawAtlas::PlotLocator) override;
@@ -154,10 +158,11 @@ protected:
                      DrawAtlas::UseStorageTextures useStorageTextures,
                      std::string_view label, const Caps*);
 
+        // Size and location of the mask within the atlas is represented by the
+        // AtlasLocator.
         bool virtual onAddToAtlas(const Shape&,
                                   const Transform& localToDevice,
                                   const SkStrokeRec&,
-                                  SkIRect shapeBounds,
                                   SkIVector transformedMaskOffset,
                                   const DrawAtlas::AtlasLocator&) = 0;
 

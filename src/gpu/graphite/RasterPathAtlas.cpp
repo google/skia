@@ -51,23 +51,21 @@ void RasterPathAtlas::recordUploads(DrawContext* dc) {
 sk_sp<TextureProxy> RasterPathAtlas::onAddShape(const Shape& shape,
                                                 const Transform& localToDevice,
                                                 const SkStrokeRec& strokeRec,
-                                                skvx::half2 maskOrigin,
-                                                skvx::half2 maskSize,
-                                                SkIVector transformedMaskOffset,
-                                                skvx::half2* outPos) {
+                                                SkIRect maskBounds,
+                                                SkIPoint cacheMaskOrigin,
+                                                SkIPoint* outPos) {
     sk_sp<TextureProxy> proxy;
 
     if (!shape.isVolatilePath()) {
         constexpr int kMaxSmallPathSize = 162;
         // Try to locate or add to cached DrawAtlas
-        if (maskSize.x() <= kMaxSmallPathSize && maskSize.y() <= kMaxSmallPathSize) {
+        if (maskBounds.width() <= kMaxSmallPathSize && maskBounds.height() <= kMaxSmallPathSize) {
             proxy = fSmallPathAtlasMgr.findOrCreateEntry(fRecorder,
                                                          shape,
                                                          localToDevice,
                                                          strokeRec,
-                                                         maskOrigin,
-                                                         maskSize,
-                                                         transformedMaskOffset,
+                                                         maskBounds,
+                                                         cacheMaskOrigin,
                                                          outPos);
         }
         if (!proxy) {
@@ -75,9 +73,8 @@ sk_sp<TextureProxy> RasterPathAtlas::onAddShape(const Shape& shape,
                                                       shape,
                                                       localToDevice,
                                                       strokeRec,
-                                                      maskOrigin,
-                                                      maskSize,
-                                                      transformedMaskOffset,
+                                                      maskBounds,
+                                                      cacheMaskOrigin,
                                                       outPos);
         }
     }
@@ -89,8 +86,7 @@ sk_sp<TextureProxy> RasterPathAtlas::onAddShape(const Shape& shape,
                                              shape,
                                              localToDevice,
                                              strokeRec,
-                                             maskSize,
-                                             transformedMaskOffset,
+                                             maskBounds,
                                              outPos,
                                              &loc);
     }
@@ -100,26 +96,22 @@ sk_sp<TextureProxy> RasterPathAtlas::onAddShape(const Shape& shape,
 
     // Failed to add to atlases, try to add to ProxyCache
     skgpu::UniqueKey maskKey = GeneratePathMaskKey(shape, localToDevice, strokeRec,
-                                                   maskOrigin, maskSize);
+                                                   cacheMaskOrigin, maskBounds.size());
     struct PathDrawContext {
         SK_ONLY_STACK_ALLOCATABLE;
 
         const Shape& fShape;
         const Transform& fLocalToDevice;
         const SkStrokeRec& fStrokeRec;
-        SkIRect fShapeBounds;
-        SkIVector fTransformedMaskOffset;
-    } context = { shape, localToDevice, strokeRec,
-                  SkIRect::MakeSize({maskSize.x(), maskSize.y()}).makeOffset(kEntryPadding,
-                                                                             kEntryPadding),
-                  transformedMaskOffset };
+        SkIRect fMaskBounds;
+    } context = { shape, localToDevice, strokeRec, maskBounds };
     sk_sp<TextureProxy> cachedProxy = fRecorder->priv().proxyCache()->findOrCreateCachedProxy(
             fRecorder, maskKey, &context,
             [](const void* ctx) {
                 const PathDrawContext* pdc = static_cast<const PathDrawContext*>(ctx);
                 auto [bm, helper] = RasterMaskHelper::Allocate(
-                        pdc->fShapeBounds.size(),
-                        -pdc->fTransformedMaskOffset,
+                        pdc->fMaskBounds.size(),
+                        -pdc->fMaskBounds.topLeft(),
                         kEntryPadding);
                 helper.drawShape(pdc->fShape, pdc->fLocalToDevice, pdc->fStrokeRec);
                 bm.setImmutable();
@@ -135,7 +127,6 @@ sk_sp<TextureProxy> RasterPathAtlas::onAddShape(const Shape& shape,
 bool RasterPathAtlas::RasterAtlasMgr::onAddToAtlas(const Shape& shape,
                                                    const Transform& localToDevice,
                                                    const SkStrokeRec& strokeRec,
-                                                   SkIRect shapeBounds,
                                                    SkIVector transformedMaskOffset,
                                                    const DrawAtlas::AtlasLocator& locator) {
     SkPixmap pixmap = fDrawAtlas->prepForRender(locator, kEntryPadding);

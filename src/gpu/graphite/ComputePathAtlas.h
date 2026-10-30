@@ -9,7 +9,6 @@
 #define skgpu_graphite_ComputePathAtlas_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkVx.h"
 #include "src/gpu/RectanizerSkyline.h"
 #include "src/gpu/graphite/PathAtlas.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -56,8 +55,7 @@ protected:
     explicit ComputePathAtlas(Recorder*);
 
     const TextureProxy* texture() const { return fTexture.get(); }
-    sk_sp<TextureProxy> addRect(skvx::half2 maskSize,
-                                SkIPoint16* outPos);
+    sk_sp<TextureProxy> addRect(SkISize maskSize, SkIPoint16* outPos);
     bool isSuitableForAtlasing(const Rect& transformedShapeBounds,
                                const Rect& clipBounds) const override;
 

@@ -12,7 +12,6 @@
 #include "include/private/SkNoncopyable.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"
-#include "src/core/SkVx.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/ClipStack.h"
 
@@ -73,8 +72,8 @@ private:
 skgpu::UniqueKey GeneratePathMaskKey(const Shape& shape,
                                      const Transform& transform,
                                      const SkStrokeRec& strokeRec,
-                                     skvx::half2 maskOrigin,
-                                     skvx::half2 maskSize);
+                                     SkIPoint maskOrigin,
+                                     SkISize maskSize);
 
 skgpu::UniqueKey GenerateClipMaskKey(uint32_t stackRecordID,
                                      const ClipStack::ElementList* elementsForMask,

@@ -11,7 +11,6 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAssert.h"
-#include "src/core/SkVx.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Shape.h"
@@ -39,20 +38,17 @@ namespace skgpu::graphite {
  * to its local space, so they are identical to its mask size.
  */
 class CoverageMaskShape {
-    using half2 = skvx::half2;
-    using int2 = skvx::int2;
-
 public:
     struct MaskInfo {
         // The texture-relative integer UV coordinates of the top-left corner of this shape's
         // coverage mask bounds. This will include the rounded out transformed device space bounds
         // of the shape plus a 1-pixel border.
-        half2 fTextureOrigin;
+        SkIPoint fTextureOrigin;
 
         // The width and height of the bounds of the coverage mask shape in device coordinates. This
         // includes the rounded out transformed device space bounds of the shape + a 1-pixel border
         // added for AA.
-        half2 fMaskSize;
+        SkISize fMaskSize;
     };
 
     CoverageMaskShape() = default;
@@ -78,7 +74,7 @@ public:
     // Returns the mask-space bounds of the clipped coverage mask shape. For inverse fills this
     // is different from the actual draw bounds stored in the Clip.
     Rect bounds() const {
-        return Rect(0.f, 0.f, (float) this->maskSize().x(), (float) this->maskSize().y());
+        return Rect(0.f, 0.f, (float) this->maskSize().width(), (float) this->maskSize().height());
     }
 
     // The transform from the mask's texture coordinate space to device coordinates, which may be
@@ -87,10 +83,10 @@ public:
 
     // The texture-relative integer UV coordinates of the top-left corner of this shape's
     // coverage mask bounds.
-    const half2& textureOrigin() const { return fMaskInfo.fTextureOrigin; }
+    SkIPoint textureOrigin() const { return fMaskInfo.fTextureOrigin; }
 
     // The width and height of the bounds of the coverage mask shape in the texture.
-    const half2& maskSize() const { return fMaskInfo.fMaskSize; }
+    SkISize maskSize() const { return fMaskInfo.fMaskSize; }
 
     // The texture that the shape will be rendered to.
     const TextureProxy* textureProxy() const { return fTextureProxy.get(); }

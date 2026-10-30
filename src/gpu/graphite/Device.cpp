@@ -1879,14 +1879,8 @@ void Device::drawGeometry(const Transform& localToDevice,
     // TODO (b/540923063): Moving the pathAtlas flush prior to key extraction could allow the
     // storage context to deduplicate uploads per draw pass.
     if (pathAtlas != nullptr) {
-        Rect clippedShapeBounds = clip.transformedShapeBounds().makeIntersect(clip.scissor());
-        if (clippedShapeBounds.area() >= 0.8f * clip.transformedShapeBounds().area()) {
-            // The clip isn't excluding very much of the original shape, so store the entire path
-            // in the atlas to avoid redundant entries with slightly different clips.
-            clippedShapeBounds = clip.transformedShapeBounds();
-        }
         std::optional<CoverageMaskShape> atlasMask;
-        std::tie(renderer, atlasMask) = pathAtlas->addShape(clippedShapeBounds,
+        std::tie(renderer, atlasMask) = pathAtlas->addShape(clip,
                                                             geometry.shape(),
                                                             localToDevice,
                                                             style);
@@ -1901,7 +1895,7 @@ void Device::drawGeometry(const Transform& localToDevice,
                     SK_DUMP_TASKS_CODE("Device::drawGeometry Atlas Flush"));
 
             // Try inserting the shape again.
-            std::tie(renderer, atlasMask) = pathAtlas->addShape(clippedShapeBounds,
+            std::tie(renderer, atlasMask) = pathAtlas->addShape(clip,
                                                                 geometry.shape(),
                                                                 localToDevice,
                                                                 style);
@@ -2463,10 +2457,8 @@ void Device::drawCoverageMask(const SkSpecialImage* mask,
                               const SkMatrix& maskToDevice,
                               const SkSamplingOptions& sampling,
                               const SkPaint& paint) {
-    CoverageMaskShape::MaskInfo maskInfo{/*fTextureOrigin=*/{SkTo<uint16_t>(mask->subset().fLeft),
-                                                             SkTo<uint16_t>(mask->subset().fTop)},
-                                         /*fMaskSize=*/{SkTo<uint16_t>(mask->width()),
-                                                        SkTo<uint16_t>(mask->height())}};
+    CoverageMaskShape::MaskInfo maskInfo{/*fTextureOrigin=*/mask->subset().topLeft(),
+                                         /*fMaskSize=*/mask->dimensions()};
 
     auto maskProxyView = AsView(mask->asImage());
     if (!maskProxyView) {

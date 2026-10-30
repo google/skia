@@ -187,7 +187,8 @@ void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
 
     // Move 'drawBounds' and 'maskBounds' into the atlas coordinate space, then adjust the
     // device translation to undo the atlas origin automatically in the vertex shader.
-    skvx::float2 textureOrigin = skvx::cast<float>(coverageMask.textureOrigin());
+    skvx::float2 textureOrigin = skvx::cast<float>(skvx::int2{coverageMask.textureOrigin().x(),
+                                                              coverageMask.textureOrigin().y()});
     maskBounds += textureOrigin.xyxy();
     drawBounds += textureOrigin.xyxy();
     deviceOrigin -= textureOrigin;
