@@ -203,7 +203,7 @@
     },
     {
       "build_file": "//bazel/external/vulkan_utility_libraries:BUILD.bazel",
-      "commit": "da050a01c5518cc270f2ff1dd736bf5631d942db",
+      "commit": "1e82d4167110e68890c6d0dfe8540a434e302752",
       "name": "vulkan_utility_libraries",
       "remote": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries"
     },
