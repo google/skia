@@ -18,6 +18,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <iterator>
+#include <memory>
 #include <type_traits>
 #include <utility>
 #include "src/partition_alloc/raw_ptr_exclusion.h"

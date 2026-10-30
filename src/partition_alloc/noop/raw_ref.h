@@ -14,7 +14,9 @@
 //
 // Here, skia provides a "no-op" implementation, because partition_alloc dependendency is missing.
 
+#include <cstddef>
 #include <functional>
+#include <memory>
 #include <type_traits>
 #include <utility>
 
