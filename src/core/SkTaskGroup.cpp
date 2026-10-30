@@ -15,7 +15,7 @@ SkTaskGroup::SkTaskGroup(SkFunctionalExecutor& executor) : fPending(0), fExecuto
 
 void SkTaskGroup::add(std::function<void()> work, int workList) {
     fPending.fetch_add(+1, std::memory_order_relaxed);
-    fExecutor->add([this, originalWork{std::move(work)}] {
+    fExecutor.add([this, originalWork{std::move(work)}] {
                       originalWork();
                       fPending.fetch_add(-1, std::memory_order_release);
                   },
@@ -32,6 +32,6 @@ void SkTaskGroup::wait() {
     // no thread ever blocks waiting for others to do its work.
     // (We may end up doing work that's not part of our task group.  That's fine.)
     while (!this->done()) {
-        fExecutor->borrow();
+        fExecutor.borrow();
     }
 }
