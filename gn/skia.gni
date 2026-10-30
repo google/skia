@@ -135,7 +135,8 @@ declare_args() {
   #
   # While GCC is supported, it lacks CI coverage to catch regressions.
   # Therefore, we disable it by default on GCC builds.
-  skia_use_partition_alloc = is_skia_standalone && is_clang
+  # Emscripten/Wasm lacks POSIX virtual memory primitives and is unsupported.
+  skia_use_partition_alloc = is_skia_standalone && is_clang && !is_wasm
   skia_partition_alloc_dir = "//third_party/externals/partition_alloc"
 }
 
