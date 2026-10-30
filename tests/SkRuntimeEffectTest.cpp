@@ -27,6 +27,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/core/SkVertices.h"
 #include "include/effects/SkBlenders.h"
 #include "include/effects/SkGradient.h"
 #include "include/effects/SkRuntimeEffect.h"
@@ -1988,4 +1989,48 @@ DEF_TEST(SkRuntimeColorFilter_b520831887, r) {
         sk_sp<SkColorFilter> cf = effect->makeColorFilter(nullptr);
         REPORTER_ASSERT(r, cf != nullptr);
     }
+}
+
+DEF_TEST(SkRuntimeShader_TransformShaderPropagatesChildFailure, r) {
+    // Compile a runtime shader with a conditional branch whose body invokes a child shader.
+    // When the child shader fails appendStages() (e.g. due to a non-invertible local matrix),
+    // SkSL::RP::Program::appendStages() exits early before reaching its branch fix-up loop,
+    // and SkTransformShader::appendStages() (inserted by drawVertices when texCoords != positions)
+    // must propagate that failure rather than compiling and running the partial pipeline.
+    auto [effect, err] = SkRuntimeEffect::MakeForShader(SkString(
+            "uniform shader child;"
+            "uniform half cond;"
+            "half4 main(float2 p) {"
+            "    if (cond > 0) {"
+            "        return child.eval(p);"
+            "    }"
+            "    return half4(0, 1, 0, 1);"
+            "}"));
+    REPORTER_ASSERT(r, effect != nullptr, "%s", err.c_str());
+
+    // SkShaders::Empty() always returns false from appendStages().
+    SkRuntimeShaderBuilder builder(effect);
+    builder.child("child") = SkShaders::Empty();
+    builder.uniform("cond") = 1.0f;
+    sk_sp<SkShader> runtimeShader = builder.makeShader();
+    REPORTER_ASSERT(r, runtimeShader != nullptr);
+
+    sk_sp<SkSurface> surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(16, 16));
+    surface->getCanvas()->clear(SK_ColorBLUE);
+
+    constexpr SkPoint positions[] = {{0, 0}, {16, 0}, {0, 16}};
+    constexpr SkPoint texCoords[] = {{0, 0}, {8, 0}, {0, 8}};
+    sk_sp<SkVertices> vertices = SkVertices::MakeCopy(
+            SkVertices::kTriangles_VertexMode, 3, positions, texCoords, /*colors=*/nullptr);
+
+    SkPaint paint;
+    paint.setShader(runtimeShader);
+    surface->getCanvas()->drawVertices(vertices, SkBlendMode::kSrcOver, paint);
+
+    // Because the shader failed to append stages, drawVertices should draw nothing, leaving the
+    // canvas cleared to blue.
+    SkBitmap bm;
+    bm.allocN32Pixels(16, 16);
+    REPORTER_ASSERT(r, surface->readPixels(bm, 0, 0));
+    REPORTER_ASSERT(r, bm.getColor(2, 2) == SK_ColorBLUE);
 }

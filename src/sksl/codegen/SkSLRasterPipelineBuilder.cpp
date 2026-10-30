@@ -1766,6 +1766,20 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
         pipeline->append(SkRasterPipelineOp::set_base_pointer, (*slotData).values.data());
     };
 
+    // Branch contexts temporarily hold an *absolute* pipeline index (see the branch case below)
+    // until every stage has been appended and the fix-up loop at the end rewrites them into
+    // relative offsets. If we bail out part-way through, the stages that were already appended to
+    // the caller's pipeline still reference those contexts. Callers should treat a `false` return
+    // as fatal, but if one of them runs the partial pipeline anyway, an absolute offset would make
+    // the branch stage dispatch past the end of the compiled program. Rewrite every pending branch
+    // into a harmless fall-through (+1) before returning failure.
+    auto failAndNeutralizeBranches = [&]() -> bool {
+        for (SkRasterPipelineContexts::BranchCtx* branchCtx : branchContexts) {
+            branchCtx->offset = 1;
+        }
+        return false;
+    };
+
     resetBasePointer();
 
     for (const Stage& stage : stages) {
@@ -1776,28 +1790,28 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
 
             case ProgramOp::invoke_shader:
                 if (!callbacks || !callbacks->appendShader(sk_bit_cast<intptr_t>(stage.ctx))) {
-                    return false;
+                    return failAndNeutralizeBranches();
                 }
                 resetBasePointer();
                 break;
 
             case ProgramOp::invoke_color_filter:
                 if (!callbacks || !callbacks->appendColorFilter(sk_bit_cast<intptr_t>(stage.ctx))) {
-                    return false;
+                    return failAndNeutralizeBranches();
                 }
                 resetBasePointer();
                 break;
 
             case ProgramOp::invoke_blender:
                 if (!callbacks || !callbacks->appendBlender(sk_bit_cast<intptr_t>(stage.ctx))) {
-                    return false;
+                    return failAndNeutralizeBranches();
                 }
                 resetBasePointer();
                 break;
 
             case ProgramOp::invoke_to_linear_srgb:
                 if (!callbacks) {
-                    return false;
+                    return failAndNeutralizeBranches();
                 }
                 callbacks->toLinearSrgb(stage.ctx);
                 // A ColorSpaceXform shouldn't ever alter the base pointer, so we don't need to call
@@ -1806,7 +1820,7 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
 
             case ProgramOp::invoke_from_linear_srgb:
                 if (!callbacks) {
-                    return false;
+                    return failAndNeutralizeBranches();
                 }
                 callbacks->fromLinearSrgb(stage.ctx);
                 // A ColorSpaceXform shouldn't ever alter the base pointer, so we don't need to call

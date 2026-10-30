@@ -50,6 +50,7 @@ bool SkTransformShader::appendStages(const SkStageRec& rec,
                                   : SkRasterPipelineOp::matrix_2x3;
     rec.fPipeline->append(type, fMatrixStorage);
 
-    fShader.appendStages(rec, *childMRec);
-    return true;
+    // Propagate the wrapped shader's failure: a pipeline that is only partially
+    // appended must never be compiled and executed.
+    return fShader.appendStages(rec, *childMRec);
 }
