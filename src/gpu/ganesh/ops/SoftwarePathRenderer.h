@@ -69,7 +69,6 @@ private:
                                           const GrUserStencilSettings&,
                                           const GrClip*,
                                           const SkMatrix& viewMatrix,
-                                          const SkIPoint& textureOriginInDeviceSpace,
                                           const SkIRect& deviceSpaceRectToDraw);
 
     StencilSupport onGetStencilSupport(const GrStyledShape&) const override {
