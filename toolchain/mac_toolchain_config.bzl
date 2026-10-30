@@ -28,7 +28,7 @@ load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load(":clang_layering_check.bzl", "make_layering_check_features")
 
 # Must stay in sync with download_mac_toolchain.bzl.
-CLANG_VER = "22"
+CLANG_VER = "24"
 
 _platform_constraints_to_import = {
     "@platforms//cpu:arm64": "_arm64_cpu",

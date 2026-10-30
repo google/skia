@@ -24,7 +24,7 @@ import utils
 # Downloading https://commondatastorage.googleapis.com/chromium-browser-clang/Mac/$TAR_FILE
 
 # This contains Intel binaries for clang, but does not contain pre-builts of libc++.
-TAR_FILE = "clang-llvmorg-22-init-14273-gea10026b-2.tar.xz"
+TAR_FILE = "clang-llvmorg-24-init-14453-ge063be79-1.tar.xz"
 GS_URL = f'https://commondatastorage.googleapis.com/chromium-browser-clang/Mac/{TAR_FILE}'
 
 def create_asset(target_dir):

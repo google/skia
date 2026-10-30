@@ -163,6 +163,9 @@ WARNINGS = [
     "-Wno-lifetime-safety",
     "-Wno-lifetime-safety-suggestions",
     "-Wno-lifetime-safety-validations",
+    "-Wno-experimental-lifetime-safety-field-origin-escape",
+    "-Wno-lifetime-safety-experimental",
+    "-Wno-unused-but-set-global",
 ] + select({
     "@platforms//os:windows": [
         # skbug.com/40045281

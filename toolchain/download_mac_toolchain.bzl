@@ -14,16 +14,25 @@ The destination folder for these files and symlinks are:
 
 load(":clang_layering_check.bzl", "generate_system_module_map")
 
-# https://chrome-infra-packages.appspot.com/p/skia/bots/clang_mac_intel/+/NL1eTB6Iud2w7mk4TkMXSFpVZmzjF3Ms4BwDE130ZkQC
-clang_intel_url = "https://chrome-infra-packages.appspot.com/dl/skia/bots/clang_mac_intel/+/version:0"
-clang_intel_sha256 = "34bd5e4c1e88b9ddb0ee69384e4317485a55666ce317732ce01c03135df46644"
+# Prebuilt Clang 24 from Chromium.
+# Once infra/bots/assets/clang_mac_{intel,arm} CIPD assets are re-uploaded, these URLs can point
+# back to https://chrome-infra-packages.appspot.com/dl/skia/bots/clang_mac_{intel,arm}/+/version:1
+clang_tar_file = "clang-llvmorg-24-init-14453-ge063be79-1.tar.xz"
+clang_intel_url = (
+    "https://commondatastorage.googleapis.com/chromium-browser-clang/Mac/" +
+    clang_tar_file
+)
+clang_intel_sha256 = "ae29ec360eda6e80e96f8638d368ecdeea93d19c18c527c525dc0932bd5243a4"
 
-# https://chrome-infra-packages.appspot.com/p/skia/bots/clang_mac_arm/+/lG-b1HzK2Qbd3ebEJvtaaF6iwbZgpcyu8xTerfoa2jAC
-clang_arm_url = "https://chrome-infra-packages.appspot.com/dl/skia/bots/clang_mac_arm/+/version:0"
-clang_arm_sha256 = "946f9bd47ccad906dddde6c426fb5a685ea2c1b660a5ccaef314deadfa1ada30"
+clang_arm_url = (
+    "https://commondatastorage.googleapis.com/chromium-browser-clang/Mac_arm64/" +
+    clang_tar_file
+)
+clang_arm_sha256 = "0a8d887534b3153c7f6860265dc7e075d420174521c60ccd52c2c243949ef468"
 
-# This should be the same across both arm and intel.
-clang_ver = "22"
+# This should be the same across both arm and intel, and must stay in sync with
+# CLANG_VER in //toolchain/mac_toolchain_config.bzl.
+clang_ver = "24"
 
 def _get_system_sdk_path(ctx):
     res = ctx.execute(["xcrun", "--sdk", "macosx", "--show-sdk-path"])
@@ -74,14 +83,14 @@ def _download_mac_toolchain_impl(ctx):
         clang_sha256 = clang_arm_sha256
     ctx.download_and_extract(
         url = clang_url,
-        type = "zip",
+        type = "tar.xz",
         output = "",
         sha256 = clang_sha256,
     )
 
     # Some std library headers use #include_next to include system specific headers, and
     # some skia source files require Xcode headers when compiling, (see SkTypes.h and look
-    # for TargetedConditionals.h)) All of these are located in Xcode, stopping the Mac
+    # for TargetedConditionals.h) All of these are located in Xcode, stopping the Mac
     # builds from being purely hermetic.
     # For now, we can grab the user's Xcode path by calling xcode-select and create a symlink in
     # our toolchain directory to refer to during compilation.
