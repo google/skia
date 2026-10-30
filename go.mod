@@ -14,7 +14,7 @@ require (
 	github.com/trietmn/go-wiki v1.0.1
 	github.com/vektra/mockery/v2 v2.53.6
 	go.chromium.org/luci v0.0.0-20251208084510-e9565e513ef0
-	go.skia.org/infra v0.0.0-20261028180418-62e7b9bfa8d5
+	go.skia.org/infra v0.0.0-20261029182354-d22c177c6c22
 	golang.org/x/oauth2 v0.36.0
 	google.golang.org/api v0.248.0
 	google.golang.org/protobuf v1.36.12
@@ -60,7 +60,7 @@ require (
 	github.com/fiorix/go-web v1.0.1-0.20150221144011-5b593f1e8966 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/go-chi/chi/v5 v5.0.8 // indirect
-	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.6 // indirect
 	github.com/go-json-experiment/json v0.0.0-20260213210345-44df1a37e875 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
