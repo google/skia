@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/KeyHelpers.h"
 
+#include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
@@ -833,8 +834,7 @@ void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext, const ImageData
     auto yAlphaTileModes = doTilingInHw ? imgData.fTileModes :
                            std::make_pair(SkTileMode::kClamp, SkTileMode::kClamp);
     if (imgData.fPacked) {
-        // Packed 4:2:2 stores all channels in a single plane; the snippet samples it twice
-        // (the pixel's own texel and its pair partner), so bind just the one texture.
+        // Packed 4:2:2 stores all channels in a single plane, so bind just the one texture.
         keyContext.pipelineDataGatherer()->add(imgData.fTextureProxies[0],
                                                {imgData.fSampling, yAlphaTileModes});
     } else {
@@ -2013,11 +2013,17 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
     imgData.fPacked = yuvaInfo.planeConfig() == SkYUVAInfo::PlaneConfig::kYUYV;
 #endif
     if (imgData.fPacked) {
-        // Mip levels average horizontally adjacent texels, which blends the packed U and V lanes.
+        // Hardware filtering averages pixel pairs lane by lane, not adjacent logical pixels.
+        // Use nearest sampling until filtering of the unpacked pixels is supported.
         imgData.fSampling = SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone);
         imgData.fSamplingUV = imgData.fSampling;
         imgData.fImgSize = yuvaImage->proxyView(SkYUVAInfo::kY).dimensions();
         imgData.fSubset = yuvaInfo.inverseOriginMatrix().mapRect(imgData.fSubset);
+        if (SkEncodedOriginSwapsWidthHeight(yuvaInfo.origin())) {
+            // The coords and subset are in plane space, where a 90-degree origin swaps the image's
+            // axes, so the tile modes swap too.
+            std::swap(imgData.fTileModes.first, imgData.fTileModes.second);
+        }
     }
     for (int locIndex = 0; locIndex < SkYUVAInfo::kYUVAChannelCount; ++locIndex) {
         const TextureProxyView& view = yuvaImage->proxyView(locIndex);

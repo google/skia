@@ -94,13 +94,6 @@ sk_sp<Image_YUVA> Image_YUVA::Make(const Caps* caps,
     if (!yuvaInfo.isValid()) {
         return nullptr;
     }
-#if defined(SK_ENABLE_YUVA_PACKED_422)
-    // TODO: kYUYV is a single 4-channel plane with one texel per 2x1 block of pixels, which the
-    // code below does not handle yet. Reject it so that no SkImage takes those code paths.
-    if (yuvaInfo.planeConfig() == SkYUVAInfo::PlaneConfig::kYUYV) {
-        return nullptr;
-    }
-#endif
     SkImageInfo info = SkImageInfo::Make(
             yuvaInfo.dimensions(), kAssumedColorType, yuva_alpha_type(yuvaInfo), imageColorSpace);
     if (!SkImageInfoIsValid(info)) {
@@ -135,10 +128,10 @@ sk_sp<Image_YUVA> Image_YUVA::Make(const Caps* caps,
     // Y channel should match the YUVAInfo dimensions
     SkISize yDims = yuvaInfo.dimensions();
 #if defined(SK_ENABLE_YUVA_PACKED_422)
-    if (yuvaInfo.planeConfig() == SkYUVAInfo::PlaneConfig::kYUYV &&
-        SkEncodedOriginSwapsWidthHeight(yuvaInfo.origin())) {
-        using std::swap;
-        swap(yDims.fWidth, yDims.fHeight);
+    if (yuvaInfo.planeConfig() == SkYUVAInfo::PlaneConfig::kYUYV) {
+        // The packed plane has half the image's horizontal texel dimensions.
+        SkASSERT(numPlanes == 1);
+        yDims = SK_UNSAFE_TODO(planeDimensions[0]);
     }
 #endif
     if (planes[locations[kY].fPlane].dimensions() != yDims) {
