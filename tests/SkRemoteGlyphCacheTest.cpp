@@ -35,6 +35,7 @@
 #include "include/private/SkMutex.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "include/private/chromium/Slug.h"
+#include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkFontMetricsPriv.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
@@ -1673,7 +1674,8 @@ DEF_TEST(SkRemoteGlyphCache_b576664769, reporter) {
             }
 
 #if !defined(SK_DISABLE_SDF_TEXT)
-            // Verify direct scaler context with SDFMaskFilter rejects 4071x65527 bounds upfront
+            // Verify direct scaler context with SDFMaskFilter rejects the oversized bounds.
+            // Exact bounds are scaler specific: FreeType gives 4071x65527, CoreText outsets by 1
             SkFont sdfFont(realTf, 162.f);
             SkPaint sdfPaint;
             sdfPaint.setMaskFilter(sktext::gpu::SDFMaskFilter::Make());
@@ -1682,7 +1684,8 @@ DEF_TEST(SkRemoteGlyphCache_b576664769, reporter) {
             std::unique_ptr<SkScalerContext> ctx = strikeSpec.createScalerContext();
             SkArenaAlloc alloc{256};
             SkGlyph glyph = ctx->makeGlyph(SkPackedGlyphID{gid}, &alloc);
-            REPORTER_ASSERT(reporter, glyph.width() == 4071 && glyph.height() == 65527);
+            REPORTER_ASSERT(reporter,
+                            SkComputeDistanceFieldSize(glyph.width(), glyph.height()) == 0);
             REPORTER_ASSERT(reporter, !SkGlyphDigest::FitsInAtlas(glyph));
             REPORTER_ASSERT(reporter, glyph.maskFormat() != SkMask::kSDF_Format);
 #endif
