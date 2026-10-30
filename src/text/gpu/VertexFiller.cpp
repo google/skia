@@ -18,11 +18,23 @@
 #include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/SubRunContainer.h"
 
+#include <cmath>
 #include <optional>
 
 using MaskFormat = skgpu::MaskFormat;
 
 namespace sktext::gpu {
+
+bool VertexFiller::ValidDirectPosition(SkPoint pt) {
+    // Single-precision floats have a 24-bit significand. At or below 2^21, floats can represent
+    // all 1/4 subpixel increments (ULP <= 0.25f) and exact integers. Bounding direct coordinates
+    // and offsets to 2^21 ensures that glyph bounds and sums remain well within the 2^24 exact
+    // integer range, prevents subpixel rounding absorption (e.g. pt + 0.5f == pt), and avoids
+    // 32-bit integer overflow.
+    return pt.isFinite() &&
+           std::abs(pt.x()) <= kMaxDirectCoord && std::abs(pt.y()) <= kMaxDirectCoord &&
+           SkScalarIsInt(pt.x()) && SkScalarIsInt(pt.y());
+}
 
 VertexFiller::VertexFiller(MaskFormat maskFormat,
                            const SkMatrix& creationMatrix,
@@ -42,6 +54,13 @@ VertexFiller VertexFiller::Make(MaskFormat maskType,
                                 SubRunAllocator *alloc,
                                 FillerType fillerType) {
     SkSpan<SkPoint> leftTop = alloc->makePODSpan<SkPoint>(positions);
+#if defined(SK_DEBUG)
+    if (fillerType == kIsDirect) {
+        for (const SkPoint& pt : leftTop) {
+            SkASSERT(ValidDirectPosition(pt));
+        }
+    }
+#endif
     return VertexFiller{
             maskType, creationMatrix, creationBounds, leftTop, fillerType == kIsDirect};
 }
@@ -55,22 +74,34 @@ SkMatrix VertexFiller::viewDifference(const SkMatrix &positionMatrix) const {
 
 // Check for integer translate with the same 2x2 matrix.
 // Returns the translation, and true if the change from creation matrix to the position matrix
-// supports using direct glyph masks.
+// supports using direct glyph masks. Returns {false, {0, 0}} otherwise.
 std::tuple<bool, SkVector> VertexFiller::CanUseDirect(
         const SkMatrix& creationMatrix, const SkMatrix& positionMatrix) {
-    // The existing direct glyph info can be used if the creationMatrix, and the
-    // positionMatrix have the same 2x2, the translation between them is integer, and no
-    // perspective is involved. Calculate the translation in source space to a translation in
-    // device space by mapping (0, 0) through both the creationMatrix and the positionMatrix;
-    // take the difference.
-    SkVector translation = positionMatrix.mapOrigin() - creationMatrix.mapOrigin();
-    return {creationMatrix.getScaleX() == positionMatrix.getScaleX() &&
-            creationMatrix.getScaleY() == positionMatrix.getScaleY() &&
-            creationMatrix.getSkewX()  == positionMatrix.getSkewX()  &&
-            creationMatrix.getSkewY()  == positionMatrix.getSkewY()  &&
-            !positionMatrix.hasPerspective() && !creationMatrix.hasPerspective() &&
-            SkScalarIsInt(translation.x()) && SkScalarIsInt(translation.y()),
-            translation};
+    // The existing direct glyph info can be used if the creationMatrix and the positionMatrix
+    // have the same 2x2, no perspective is involved, and the translation between them is a valid
+    // direct-mask offset.
+    if (!creationMatrix.isFinite() || !positionMatrix.isFinite() ||
+        creationMatrix.hasPerspective() || positionMatrix.hasPerspective() ||
+        creationMatrix.getScaleX() != positionMatrix.getScaleX() ||
+        creationMatrix.getScaleY() != positionMatrix.getScaleY() ||
+        creationMatrix.getSkewX()  != positionMatrix.getSkewX()  ||
+        creationMatrix.getSkewY()  != positionMatrix.getSkewY()) {
+        return {false, {0, 0}};
+    }
+
+    // Both translations are single-precision results of the same SkMatrix::preTranslate math, so
+    // drawing with an unchanged matrix yields an exact zero offset. Take the difference in double
+    // and require it to be exactly representable as a float so that rounding can't turn a
+    // non-integer (or overflowing) difference into an integer. Float rounding of very large
+    // translations can't cause atlas sampling problems: the validated integer offset is what
+    // positions the glyph quads.
+    const double dx = (double)positionMatrix.getTranslateX() - creationMatrix.getTranslateX();
+    const double dy = (double)positionMatrix.getTranslateY() - creationMatrix.getTranslateY();
+    const SkVector offset = {(float)dx, (float)dy};
+    if ((double)offset.x() != dx || (double)offset.y() != dy || !ValidDirectPosition(offset)) {
+        return {false, {0, 0}};
+    }
+    return {true, offset};
 }
 
 bool VertexFiller::isLCD() const { return fMaskFormat == MaskFormat::kA565; }
@@ -100,26 +131,20 @@ std::tuple<bool, SkRect> VertexFiller::deviceRectAndCheckTransform(
 std::tuple<SkRect, SkMatrix> VertexFiller::boundsAndDeviceMatrix(const SkMatrix& localToDevice,
                                                                  SkPoint drawOrigin,
                                                                  bool supportBilerpAtlas) const {
-    // The baked-in matrix differs from the current localToDevice by a translation if the
-    // upper 2x2 remains the same, and there's no perspective. Since there's no projection,
-    // Z is irrelevant, so it's okay that fCreationMatrix is an SkMatrix and has
-    // discarded the 3rd row/col, and can ignore those values in localToDevice.
-    const bool compatibleMatrix = localToDevice.rc(0, 0) == fCreationMatrix.rc(0, 0) &&
-                                  localToDevice.rc(0, 1) == fCreationMatrix.rc(0, 1) &&
-                                  localToDevice.rc(1, 0) == fCreationMatrix.rc(1, 0) &&
-                                  localToDevice.rc(1, 1) == fCreationMatrix.rc(1, 1) &&
-                                  !localToDevice.hasPerspective() &&
-                                  !fCreationMatrix.hasPerspective();
+    // Compute the positionMatrix exactly as it was computed when the glyphs were created, so
+    // that drawing with an unchanged matrix yields a zero offset. The baked-in matrix differs from
+    // the current positionMatrix by a translation if the upper 2x2 remains the same, and there's
+    // no perspective. Since there's no projection, Z is irrelevant, so it's okay that
+    // fCreationMatrix is an SkMatrix and has discarded the 3rd row/col, and can ignore those
+    // values in localToDevice.
+    SkMatrix positionMatrix = localToDevice;
+    positionMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
 
-    if (compatibleMatrix) {
-        SkPoint mappedOrigin = localToDevice.mapPoint(drawOrigin);
-        auto offset = mappedOrigin -
-                      SkPoint{fCreationMatrix.getTranslateX(), fCreationMatrix.getTranslateY()};
-        if (SkScalarIsInt(offset.fX) && SkScalarIsInt(offset.fY)) {
-            // The offset is an integer (but make sure), which means the generated mask can be
-            // accessed without changing how texels would be sampled.
-            return {fCreationBounds, SkMatrix::Translate(offset)};
-        }
+    if (auto [directDrawCompatible, offset] = CanUseDirect(fCreationMatrix, positionMatrix);
+        directDrawCompatible) {
+        // The offset is a bounded integer, which means the generated mask can be accessed
+        // without changing how texels would be sampled.
+        return {fCreationBounds, SkMatrix::Translate(offset)};
     }
 
     if (fCanDrawDirect && !supportBilerpAtlas) {
@@ -129,14 +154,13 @@ std::tuple<SkRect, SkMatrix> VertexFiller::boundsAndDeviceMatrix(const SkMatrix&
         return {SkRect::MakeEmpty(), SkMatrix::I()};
     }
 
-    // Otherwise compute the relative transformation from fCreationMatrix to
-    // localToDevice, with the drawOrigin applied. If fCreationMatrix or the
-    // concatenation is not invertible the returned Transform is marked invalid and the draw
-    // will be automatically dropped.
-    SkMatrix positionMatrix = localToDevice;
-    positionMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-    const SkMatrix viewDifference = this->viewDifference(positionMatrix);
-    return {fCreationBounds, viewDifference};
+    // Otherwise compute the relative transformation from fCreationMatrix to positionMatrix. If
+    // fCreationMatrix is not invertible, return empty bounds so the draw is dropped.
+    const std::optional<SkMatrix> inverse = fCreationMatrix.invert();
+    if (!inverse) {
+        return {SkRect::MakeEmpty(), SkMatrix::I()};
+    }
+    return {fCreationBounds, SkMatrix::Concat(positionMatrix, *inverse)};
 }
 
 }  // namespace sktext::gpu

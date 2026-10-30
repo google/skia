@@ -29,6 +29,10 @@ class SDFTMatrixRange {
 public:
     SDFTMatrixRange(SkScalar min, SkScalar max) : fMatrixMin{min}, fMatrixMax{max} {}
     bool matrixInRange(const SkMatrix& matrix) const;
+    // Returns true if both limits are finite and non-negative. SDFTSubRuns are only created with
+    // valid ranges, and deserialization rejects invalid ones. A valid range may have min > max
+    // (e.g. perspective text below the minimum SDFT size); such a range never matches.
+    bool isValid() const;
     void flatten(SkWriteBuffer& buffer) const;
     static SDFTMatrixRange MakeFromBuffer(SkReadBuffer& buffer);
 
