@@ -125,11 +125,14 @@ const char* SDFTextLCDRenderStep::fragmentCoverageSkSL() const {
     // TODO: Need to add 565 support.
     // TODO: Need aliased and possibly sRGB support.
     static_assert(kNumSDFAtlasTextures == 4);
+    // When not using flat interpolation, add 1/2 to the expected integral float value in case
+    // interpolation changes the value from N to N-epsilon, and then the int cast causes us to
+    // sample from atlas page N-1 instead.
     return "outputCoverage = sdf_text_lcd_coverage_fn(textureCoords, "
                                                      "pixelGeometryDelta, "
                                                      "gammaParams, "
                                                      "unormTexCoords, "
-                                                     "texIndex, "
+                                                     "int(texIndex + 0.5), "
                                                      "sdf_atlas_0, "
                                                      "sdf_atlas_1, "
                                                      "sdf_atlas_2, "

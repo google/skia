@@ -86,6 +86,8 @@ BitmapTextRenderStep::BitmapTextRenderStep(Layout layout, skgpu::MaskFormat vari
                       {"texIndex", SkSLType::kHalf},
                       {"maskFormat", SkSLType::kHalf}
 #else
+                      // TODO(nscobie): If we keep flat interpolation here, consider switching
+                      // `texIndex` to an int instead of having to cast it in the fragment shader.
                       {"texIndex", SkSLType::kHalf, Interpolation::kFlat},
                       {"maskFormat", SkSLType::kHalf, Interpolation::kFlat}
 #endif
@@ -146,7 +148,14 @@ std::string BitmapTextRenderStep::fragmentColorSkSL(const RootNodesInfo&) const 
     // (defined in the calling code).
     static_assert(kNumTextAtlasTextures == 4);
     return "primitiveColor = sample_indexed_atlas(textureCoords, "
+#ifdef SK_DISABLE_GRAPHITE_NONINTEGRAL_VARYINGS_FLAT_INTERPOLATION
+    // When not using flat interpolation, add 1/2 to the expected integral float value in case
+    // interpolation changes the value from N to N-epsilon, and then the int cast causes us to
+    // sample from atlas page N-1 instead.
+                                                 "int(texIndex + 0.5), "
+#else
                                                  "int(texIndex), "
+#endif
                                                  "text_atlas_0, "
                                                  "text_atlas_1, "
                                                  "text_atlas_2, "
