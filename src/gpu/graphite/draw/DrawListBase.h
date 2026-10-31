@@ -51,7 +51,7 @@ public:
     static constexpr int kMaxRenderSteps = 4096;
     static_assert(kMaxRenderSteps <= std::numeric_limits<uint16_t>::max());
 
-    DrawListBase() {}
+    DrawListBase(bool avoidDepth) : fAvoidDepth(avoidDepth) {}
     virtual ~DrawListBase() = default;
 
     virtual std::pair<DrawParams*, Layer*> recordDraw(
@@ -68,13 +68,14 @@ public:
             const StrokeStyle* stroke,
             Layer* latestInsertion) = 0;
 
-
     virtual std::unique_ptr<DrawPass> snapDrawPass(Recorder* recorder,
                                                    StorageContext* storageContext,
                                                    DrawContext* drawContext,
                                                    sk_sp<TextureProxy> target,
                                                    const SkImageInfo& targetInfo,
                                                    const DstReadStrategy dstReadStrategy) = 0;
+
+    bool avoidDepth() const { return fAvoidDepth; }
 
     int renderStepCount() const { return fRenderStepCount; }
 
@@ -122,6 +123,23 @@ protected:
     // TODO (thomsmit): Once sort-based draw ordering is removed, try putting the transforms onto
     // the DrawListLayer's arena allocator.
     SkTBlockList<Transform, 4> fTransforms{SkBlockAllocator::GrowthPolicy::kFibonacci};
+
+    // If true, the DrawContexts and Devices using this DrawList should take measures not to record
+    // work that would trigger using the depth buffer (e.g. complex clipping or out-of-order
+    // opaque draws for occlusion-culling).
+    //
+    // Depending on the PathRendererStrategy and atlas configuration, it may not be possible to
+    // guarantee avoiding depth. This is to maintain overall rendering consistency. The assumption
+    // with fAvoidDepth is that either
+    //   a) all DrawContexts are avoiding depth, so the path strategy and clip atlas are configured
+    //      such that they won't require depth, or
+    //   b) internal DrawContexts that avoid depth *should* contain simple content that doesn't
+    //      require clipping or path rendering.
+    //
+    // If b)'s content violates the assumptions, such as for an SkPicture rendered into a scratch
+    // surface for a shader or image filter, it should render identically to regular DrawContexts
+    // (forcing a different path renderer strategy would create inconsistency).
+    const bool fAvoidDepth;
 
     UniformDataCache      fUniformDataCache;
     TextureDataCache      fTextureDataCache;

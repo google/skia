@@ -99,8 +99,9 @@ DrawContext::DrawContext(const Caps* caps,
         , fPendingDraws(
                   caps->useDrawListLayer()
                           ? std::unique_ptr<DrawListBase>(std::make_unique<DrawListLayer>(
-                                   caps->storageBufferSupport()))
-                          : std::unique_ptr<DrawListBase>(std::make_unique<DrawList>()))
+                                   caps->avoidDepthMode(), caps->storageBufferSupport()))
+                          : std::unique_ptr<DrawListBase>(std::make_unique<DrawList>(
+                                   caps->avoidDepthMode())))
         , fPendingUploads(std::make_unique<UploadList>())
         , fStorageContext(caps->resourceBindingRequirements(),
                           caps->storageBufferSupport()) {
@@ -252,12 +253,12 @@ void DrawContext::flush(Recorder* recorder) {
     SkIRect dstReadPixelBounds = fPendingDraws->dstReadBounds().makeRoundOut().asSkIRect();
     const bool drawsRequireMSAA = fPendingDraws->drawsRequireMSAA();
     SkEnumBitMask<DepthStencilFlags> dsFlags = fPendingDraws->depthStencilFlags();
+    SkASSERT(!SkToBool(dsFlags & DepthStencilFlags::kDepth) || !fPendingDraws->avoidDepth());
     // TODO(michaelludwig): Track whether or not draws within fPendingDraw require the depth for
     // occlusion or clipping (per-draw depth is already accumulated into `dsFlags`). For now,
-    // always add kDepth. RenderPassDesc::Make() ignores kDepth when Caps::avoidDepthMode() is true.
-    // Instead we should ensure that kDepth was never included at all. Only add depth when there
-    // are draws; otherwise we'd create a depth attachment for must a clear.
-    if (fPendingDraws->renderStepCount() > 0) {
+    // always add kDepth if not avoiding it entirely, and if there are draws; otherwise we'd create
+    // a depth attachment for just a clear.
+    if (fPendingDraws->renderStepCount() > 0 && !fPendingDraws->avoidDepth()) {
         dsFlags |= DepthStencilFlags::kDepth;
     }
     // Determine the optimal dst read strategy for the drawpass given pending draw characteristics

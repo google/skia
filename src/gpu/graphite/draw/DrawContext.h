@@ -66,6 +66,7 @@ public:
 
     const TextureProxyView& target() const { return fTarget; }
     bool isTexturable() const { return fIsTexturable; }
+    bool avoidDepth() const { return fPendingDraws->avoidDepth(); }
 
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
 
@@ -129,7 +130,7 @@ private:
     TextureProxyView fTarget;
     SkImageInfo fImageInfo;
     const SkSurfaceProps fSurfaceProps;
-    bool fIsTexturable; // Cache at creation so we don't require constant Caps access
+    const bool fIsTexturable; // Cache at creation so we don't require constant Caps access
 
     // Does *not* reflect whether a dst read is needed by the DrawLists - simply specifies the
     // strategies to use should any encountered paint require it.

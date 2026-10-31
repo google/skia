@@ -100,10 +100,11 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
                                  targetInfo.sampleCount()};
     }
 
-    if (depthStencilFlags != DepthStencilFlags::kNone && !caps->avoidDepthMode()) {
+    if (depthStencilFlags != DepthStencilFlags::kNone) {
         // To reduce pipeline compiles and attachment creations, if we need multisampling and need
-        // a depth or stencil attachment, we always choose a depth-AND-stencil format.
-        if (desc.fColorAttachment.fSampleCount > SampleCount::k1) {
+        // a depth or stencil attachment, we always choose a depth-AND-stencil format (assuming
+        // we aren't avoiding depth entirely).
+        if (desc.fColorAttachment.fSampleCount > SampleCount::k1 && !caps->avoidDepthMode()) {
             depthStencilFlags = DepthStencilFlags::kDepthStencil;
         }
         TextureFormat dsFormat = caps->getDepthStencilFormat(depthStencilFlags);

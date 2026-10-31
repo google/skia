@@ -36,8 +36,8 @@ class Renderer;
 
 class DrawListLayer final : public DrawListBase {
 public:
-    explicit DrawListLayer(bool storageBufferSupport)
-        : DrawListBase()
+    explicit DrawListLayer(bool avoidDepth, bool storageBufferSupport)
+        : DrawListBase(avoidDepth)
         , fStorageBufferSupport(storageBufferSupport) {}
 
     // DrawList requires that all Transforms be valid and asserts as much; invalid transforms should

@@ -65,7 +65,7 @@ class Renderer;
 class DrawList : public DrawListBase {
 public:
     // Add a constructor to prevent default zero initialization of SkTBlockList members' storage.
-    DrawList() {}
+    DrawList(bool avoidDepth) : DrawListBase(avoidDepth) {}
 
     // DrawList requires that all Transforms be valid and asserts as much; invalid transforms should
     // be detected at the Device level or similar. The provided Renderer must be compatible with the

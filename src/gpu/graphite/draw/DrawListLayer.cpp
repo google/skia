@@ -176,6 +176,11 @@ std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* rendere
     SkASSERT(localToDevice.valid());
     SkASSERT(!geometry.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
 
+    // Device shouldn't be trying to record a draw that would require depth when avoiding depth
+    SkASSERT(!renderer->requiresDepth() || !fAvoidDepth);
+    // Device shouldn't be trying to record depth-only clip draws when avoiding depth
+    SkASSERT(paintID.isValid() || !fAvoidDepth);
+
     // `testMask` limits what we test against when searching backwards, which is based on the
     // Renderer's aggregate requirements so that the layer we find will be valid for all steps. This
     // is particularly important for stencil-based renderers, which consist of a non-shading
@@ -189,9 +194,10 @@ std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* rendere
         testMask |= BoundsFlags::kStencil;
     }
     // Draws that blend must respect painter's order, and clipping depth-only draws cannot be
-    // ordered in front of shading draws.
+    // ordered in front of shading draws. If avoiding depth, even opaque draws must be drawn back
+    // to front since the depth test can't be used to work it out.
     const bool isDepthOnly = !paintID.isValid();
-    const bool dependsOnDst = SkToBool(dstUsage & DstUsage::kDependsOnDst);
+    const bool dependsOnDst = SkToBool(dstUsage & DstUsage::kDependsOnDst) || fAvoidDepth;
     if (dependsOnDst || isDepthOnly) {
         testMask |= BoundsFlags::kColor;
     }
@@ -221,6 +227,8 @@ std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* rendere
     BindingList* lastStepBinding = nullptr;
     // If we're an easy draw, jump to the latestInsertion layer since we don't have to test
     if (testMask == BoundsFlags::kNone && baseLayerMask == BoundsFlags::kNone) {
+        // This should have set the testMask; early insertion only works with the depth test
+        SkASSERT(!fAvoidDepth);
         insertionLayer = lastInsertion ? lastInsertion : fLayers.head();
     }
 

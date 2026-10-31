@@ -1920,7 +1920,7 @@ void Device::drawGeometry(const Transform& localToDevice,
 
     // Determine whether or not this draw will also record an inner-fill draw. This must be done
     // before visiting the clip stack so that any clips account for both draws' Z values.
-    const bool avoidDepthMode = fRecorder->priv().caps()->avoidDepthMode();
+    const bool avoidDepthMode = fDC->avoidDepth();
     fCurrentDepth = fCurrentDepth.next();
     DrawOrder order(fCurrentDepth);
     Rect innerFillBounds = Rect::InfiniteInverted();
