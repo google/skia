@@ -1317,13 +1317,13 @@ void ParagraphImpl::visit(const Visitor& visitor) {
 
             STArray<128, uint32_t> clusterStorage;
             const Run* R = rec.fVisitor_Run;
-            const uint32_t* clusterPtr = &R->fClusterIndexes[0];
+            const uint32_t* clusterPtr = R->clusterIndexes().data();
 
             if (R->fClusterStart > 0) {
-                int count = R->fClusterIndexes.size();
+                int count = R->clusterIndexes().size();
                 clusterStorage.reset(count);
                 for (int i = 0; i < count; ++i) {
-                    clusterStorage[i] = R->fClusterStart + R->fClusterIndexes[i];
+                    clusterStorage[i] = R->globalClusterIndex(i);
                 }
                 clusterPtr = &clusterStorage[0];
             }
@@ -1551,8 +1551,7 @@ void ParagraphImpl::extendedVisit(const ExtendedVisitor& visitor) {
                     if (run->fClusterStart > 0) {
                         clusterStorage.reset(context.size);
                         for (size_t i = 0; i < context.size; ++i) {
-                          clusterStorage[i] =
-                              run->fClusterStart + run->fClusterIndexes[i];
+                            clusterStorage[i] = run->globalClusterIndex(i);
                         }
                         clusterPtr = &clusterStorage[0];
                     }
@@ -1562,7 +1561,7 @@ void ParagraphImpl::extendedVisit(const ExtendedVisitor& visitor) {
                         SkSize::Make(rect.width(), rect.height()),
                         SkToS16(context.size),
                         &run->glyphs()[context.pos],
-                        &run->fPositions[context.pos],
+                        &run->fGlyphData->positions()[context.pos],
                         &glyphBounds[context.pos],
                         clusterPtr,
                         0,  // flags

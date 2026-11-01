@@ -752,10 +752,11 @@ std::unique_ptr<Run> TextLine::ShapeString(ParagraphImpl* owner,
         Buffer runBuffer(const RunInfo& info) override {
             SkASSERT(!fRun);
             fRun = std::make_unique<Run>(nullptr, info, 0, fLineHeight, fUseHalfLeading, fBaselineShift, 0, 0);
-            return fRun->newRunBuffer();
+            return fRun->newRunBuffer(&fBuffer, info.glyphCount);
         }
 
         void commitRunBuffer(const RunInfo& info) override {
+            fRun->commit(fBuffer);
             fRun->fAdvance.fX = info.fAdvance.fX;
             fRun->fAdvance.fY = fRun->advance().fY;
             fRun->fPlaceholderIndex = std::numeric_limits<size_t>::max();
@@ -765,6 +766,7 @@ std::unique_ptr<Run> TextLine::ShapeString(ParagraphImpl* owner,
         void commitLine() override {}
 
         std::unique_ptr<Run> fRun;
+        Run::ShapingBuffer fBuffer;
         SkScalar fLineHeight;
         bool fUseHalfLeading;
         SkScalar fBaselineShift;

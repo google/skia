@@ -10,6 +10,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkAlign.h"
 #include "include/private/SkTArray.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/TextStyle.h"
@@ -72,12 +73,23 @@ public:
 
     void setOwner(ParagraphImpl* owner) { fOwner = owner; }
 
-    SkShaper::RunHandler::Buffer newRunBuffer();
+    // SkShaper writes the glyphs, positions and cluster indexes of a run into its glyph data,
+    // and the offsets into this buffer. SkShaper needs a separate offsets array, otherwise it
+    // adds the offsets to the positions. commit() then keeps the offsets only if one is not
+    // zero. A shaper keeps one buffer for all runs.
+    struct ShapingBuffer {
+        // Grows only, so a run seldom allocates.
+        skia_private::TArray<SkPoint, true> fOffsets;
+    };
+    SkShaper::RunHandler::Buffer newRunBuffer(ShapingBuffer* buffer, size_t glyphCount);
+    void commit(const ShapingBuffer& buffer);
+    // For a run that is not shaped: makes the glyph data, the caller fills the glyphs.
+    void allocateGlyphData(size_t glyphCount, bool hasOffsets);
 
-    SkScalar posX(size_t index) const { return fPositions[index].fX; }
-    void addX(size_t index, SkScalar shift) { fPositions[index].fX += shift; }
-    SkScalar posY(size_t index) const { return fPositions[index].fY; }
-    size_t size() const { return fGlyphs.size(); }
+    SkScalar posX(size_t index) const { return fGlyphData->positions()[index].fX; }
+    void addX(size_t index, SkScalar shift) { fGlyphData->positions()[index].fX += shift; }
+    SkScalar posY(size_t index) const { return fGlyphData->positions()[index].fY; }
+    size_t size() const { return fGlyphData->fSize; }
     void setWidth(SkScalar width) { fAdvance.fX = width; }
     void setHeight(SkScalar height) { fAdvance.fY = height; }
     void shift(SkScalar shiftX, SkScalar shiftY) {
@@ -104,8 +116,8 @@ public:
     SkScalar baselineShift() const { return fBaselineShift; }
     PlaceholderStyle* placeholderStyle() const;
     bool isPlaceholder() const { return fPlaceholderIndex != std::numeric_limits<size_t>::max(); }
-    size_t clusterIndex(size_t pos) const { return fClusterIndexes[pos]; }
-    size_t globalClusterIndex(size_t pos) const { return fClusterStart + fClusterIndexes[pos]; }
+    size_t clusterIndex(size_t pos) const { return fGlyphData->clusterIndexes()[pos]; }
+    size_t globalClusterIndex(size_t pos) const { return fClusterStart + clusterIndex(pos); }
     SkScalar positionX(size_t pos) const;
 
     TextRange textRange() const { return fTextRange; }
@@ -151,20 +163,15 @@ public:
     std::tuple<bool, ClusterIndex, ClusterIndex> findLimitingClusters(TextRange text) const;
     std::tuple<bool, TextIndex, TextIndex> findLimitingGlyphClusters(TextRange text) const;
     std::tuple<bool, TextIndex, TextIndex> findLimitingGraphemes(TextRange text) const;
-    SkSpan<const SkGlyphID> glyphs() const {
-        return SkSpan<const SkGlyphID>(fGlyphs.begin(), fGlyphs.size());
-    }
-    SkSpan<const SkPoint> positions() const {
-        return SkSpan<const SkPoint>(fPositions.begin(), fPositions.size());
-    }
+    SkSpan<const SkGlyphID> glyphs() const { return {fGlyphData->glyphs(), this->size()}; }
+    SkSpan<const SkPoint> positions() const { return {fGlyphData->positions(), this->size() + 1}; }
+    // Empty if all glyph offsets are zero
     SkSpan<const SkPoint> offsets() const {
-        return SkSpan<const SkPoint>(fOffsets.begin(), fOffsets.size());
+        return {fGlyphData->offsets(), fGlyphData->fHasOffsets ? this->size() : 0};
     }
     SkSpan<const uint32_t> clusterIndexes() const {
-        return SkSpan<const uint32_t>(fClusterIndexes.begin(), fClusterIndexes.size());
+        return {fGlyphData->clusterIndexes(), this->size() + 1};
     }
-
-    void commit() { }
 
     void resetJustificationShifts() {
         fJustificationShifts.clear();
@@ -190,25 +197,31 @@ private:
     TextIndex fClusterStart;
     SkShaper::RunHandler::Range fUtf8Range;
 
+    void setEndOfRun();
+
     // These fields are not modified after shaping completes and can safely be
     // shared among copies of the run that are held by different paragraphs.
-    // The arrays live in one exact-size block after the header; their sizes never change.
+    // One exact-size block: this header, then the arrays below; their sizes never change.
+    // The offsets are only for the runs that need them (marks, some kerning).
     struct GlyphData : SkNVRefCnt<GlyphData> {
-        static sk_sp<GlyphData> Make(size_t glyphCount);
+        static sk_sp<GlyphData> Make(size_t glyphCount, bool hasOffsets);
         // Only Make() creates a GlyphData, in a block from sk_malloc
         static void* operator new(size_t) = delete;
         static void* operator new(size_t, void* p) { return p; }
         static void operator delete(void* p) { sk_free(p); }
-        SkSpan<SkGlyphID> glyphs;
-        SkSpan<SkPoint> positions;
-        SkSpan<SkPoint> offsets;
-        SkSpan<uint32_t> clusterIndexes;
+        // fSize + 1 entries, the last one is the end of the run
+        SkPoint* positions() { return reinterpret_cast<SkPoint*>(this + 1); }
+        // fSize + 1 entries, the last one is the end of the run
+        uint32_t* clusterIndexes() { return reinterpret_cast<uint32_t*>(positions() + fSize + 1); }
+        SkGlyphID* glyphs() { return reinterpret_cast<SkGlyphID*>(clusterIndexes() + fSize + 1); }
+        // fSize entries after the glyphs, or null if all offsets are zero (most runs)
+        SkPoint* offsets() {
+            return fHasOffsets ? reinterpret_cast<SkPoint*>(glyphs() + SkAlign2(fSize)) : nullptr;
+        }
+        size_t fSize;
+        bool fHasOffsets;
     };
     sk_sp<GlyphData> fGlyphData;
-    SkSpan<SkGlyphID>& fGlyphs;
-    SkSpan<SkPoint>& fPositions;
-    SkSpan<SkPoint>& fOffsets;
-    SkSpan<uint32_t>& fClusterIndexes;
 
     // For justification (current and prev shifts). Empty unless the line is justified.
     skia_private::TArray<SkPoint, true> fJustificationShifts;
