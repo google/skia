@@ -17,7 +17,6 @@
 #include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
-#include "src/gpu/ganesh/vk/GrVkDescriptorSet.h"  // IWYU pragma: keep
 #include "src/gpu/ganesh/vk/GrVkDescriptorSetManager.h"
 #include "src/gpu/ganesh/vk/GrVkPipelineStateDataManager.h"
 
@@ -29,6 +28,7 @@ class GrPipeline;
 class GrProgramInfo;
 class GrSurfaceProxy;
 class GrVkCommandBuffer;
+class GrVkDescriptorSet;
 class GrVkGpu;
 class GrVkPipeline;
 class GrVkSampler;

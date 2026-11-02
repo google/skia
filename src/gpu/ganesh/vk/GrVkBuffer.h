@@ -13,6 +13,7 @@
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
+#include "src/gpu/GpuRefCnt.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 
 #include <cstddef>
@@ -27,6 +28,8 @@ public:
                                   size_t size,
                                   GrGpuBufferType bufferType,
                                   GrAccessPattern accessPattern);
+
+    ~GrVkBuffer() override;
 
     VkBuffer vkBuffer() const { return fBuffer; }
 
@@ -72,7 +75,7 @@ private:
     VkBuffer fBuffer;
     skgpu::VulkanAlloc fAlloc;
 
-    const GrVkDescriptorSet* fUniformDescriptorSet;
+    gr_rp<const GrVkDescriptorSet> fUniformDescriptorSet;
 
     using INHERITED = GrGpuBuffer;
 };

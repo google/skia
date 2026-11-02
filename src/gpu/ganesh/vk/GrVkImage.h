@@ -25,13 +25,13 @@
 #include "src/gpu/GpuRefCnt.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
-#include "src/gpu/ganesh/vk/GrVkDescriptorSet.h"  // IWYU pragma: keep
 #include "src/gpu/vk/VulkanMutableTextureStatePriv.h"
 
 #include <cinttypes>
 #include <cstdint>
 #include <string_view>
 
+class GrVkDescriptorSet;
 class GrVkGpu;
 class GrVkImageView;
 struct SkISize;

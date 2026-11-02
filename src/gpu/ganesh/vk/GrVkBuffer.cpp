@@ -48,6 +48,8 @@ GrVkBuffer::GrVkBuffer(GrVkGpu* gpu,
     this->registerWithCache(skgpu::Budgeted::kYes);
 }
 
+GrVkBuffer::~GrVkBuffer() = default;
+
 static const GrVkDescriptorSet* make_uniform_desc_set(GrVkGpu* gpu, VkBuffer buffer, size_t size) {
     const GrVkDescriptorSet* descriptorSet = gpu->resourceProvider().getUniformDescriptorSet();
     if (!descriptorSet) {
@@ -318,10 +320,7 @@ void GrVkBuffer::vkRelease() {
         fMapPtr = nullptr;
     }
 
-    if (fUniformDescriptorSet) {
-        fUniformDescriptorSet->recycle();
-        fUniformDescriptorSet = nullptr;
-    }
+    fUniformDescriptorSet.reset();
 
     SkASSERT(fBuffer);
     SkASSERT(fAlloc.fMemory && fAlloc.fBackendMemory);

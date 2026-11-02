@@ -15,22 +15,18 @@
 #include <cstddef>
 #include <type_traits>
 
-// We have to use auto for the function pointers here because if the actual functions live on the
-// base class of T we need the function here to be a pointer to a function of the base class and not
-// a function on T. Thus we can't have something like void(T::*Ref)() since we may need T or we may
-// need some base class of T.
-template <typename T, auto Ref, auto Unref> class gr_sp {
+template <typename T, typename Policy> class gr_sp {
 private:
     static inline T* SafeRef(T* obj) {
         if (obj) {
-            (obj->*Ref)();
+            Policy::Ref(obj);
         }
         return obj;
     }
 
     static inline void SafeUnref(T* obj) {
         if (obj) {
-            (obj->*Unref)();
+            Policy::Unref(obj);
         }
     }
 
@@ -44,10 +40,10 @@ public:
      * Shares the underlying object by calling Ref(), so that both the argument and the newly
      * created gr_sp both have a reference to it.
      */
-    gr_sp(const gr_sp<T, Ref, Unref>& that) : fPtr(SafeRef(that.get())) {}
+    gr_sp(const gr_sp<T, Policy>& that) : fPtr(SafeRef(that.get())) {}
     template <typename U,
               typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
-    gr_sp(const gr_sp<U, Ref, Unref>& that) : fPtr(SafeRef(that.get())) {}
+    gr_sp(const gr_sp<U, Policy>& that) : fPtr(SafeRef(that.get())) {}
 
     gr_sp(const sk_sp<T>& that) : fPtr(SafeRef(that.get())) {}
 
@@ -57,7 +53,7 @@ public:
      * new gr_sp will have a reference to the object, and the argument will point to null.
      * No call to Ref() or Unref() will be made.
      */
-    gr_sp(gr_sp<T, Ref, Unref>&& that) : fPtr(that.release()) {}
+    gr_sp(gr_sp<T, Policy>&& that) : fPtr(that.release()) {}
 
     /**
      * Copies the underlying object pointer from the argument to the gr_sp. It will then call
@@ -88,7 +84,7 @@ public:
      * Shares the underlying object referenced by the argument by calling Ref() on it. If this gr_sp
      * previously had a reference to an object (i.e. not null) it will call Unref() on that object.
      */
-    gr_sp& operator=(const gr_sp<T, Ref, Unref>& that) {
+    gr_sp& operator=(const gr_sp<T, Policy>& that) {
         if (this != &that) {
             this->reset(SafeRef(that.get()));
         }
@@ -110,7 +106,7 @@ public:
      * a reference to another object, Unref() will be called on that object. No call to Ref() will
      * be made.
      */
-    gr_sp& operator=(gr_sp<T, Ref, Unref>&& that) {
+    gr_sp& operator=(gr_sp<T, Policy>&& that) {
         this->reset(that.release());
         return *this;
     }
@@ -174,15 +170,22 @@ private:
  * current logical usages in Skia. This allows for a scratch resources to be reused for new draw
  * calls even if it is in use on the GPU.
  */
-template <typename T>
-using gr_cb = gr_sp<T, &T::refCommandBuffer, &T::unrefCommandBuffer>;
+struct GrCommandBufferRefPolicy {
+    template <typename T> static void Ref(T* obj) { obj->refCommandBuffer(); }
+    template <typename T> static void Unref(T* obj) { obj->unrefCommandBuffer(); }
+};
+template <typename T> using gr_cb = gr_sp<T, GrCommandBufferRefPolicy>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * This class mimics sk_sp but instead of calling unref it calls recycle instead.
  */
-template <typename T> using gr_rp = gr_sp<T, &T::ref, &T::recycle>;
+struct GrRecycleRefPolicy {
+    template <typename T> static void Ref(T* obj) { obj->ref(); }
+    template <typename T> static void Unref(T* obj) { obj->recycle(); }
+};
+template <typename T> using gr_rp = gr_sp<T, GrRecycleRefPolicy>;
 
 /**
  *  Returns a gr_rp wrapping the provided ptr AND calls ref on it (if not null).

@@ -15,7 +15,6 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/GpuRefCnt.h"
-#include "src/gpu/graphite/Resource.h"  // IWYU pragma: keep
 
 #include <cstddef>
 #include <memory>
@@ -37,6 +36,7 @@ class BackendTexture;
 class Buffer;
 class DispatchGroup;
 class DrawPass;
+class Resource;
 class ResourceProvider;
 class Sampler;
 class Texture;
