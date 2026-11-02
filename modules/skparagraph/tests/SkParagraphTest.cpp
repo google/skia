@@ -11806,6 +11806,127 @@ DEF_TEST(SkParagraph_JustificationHitTest, reporter) {
     }
 }
 
+// Lays out the text in one style, or in two styles if the second text is given
+static std::unique_ptr<Paragraph> layoutJustified(sk_sp<ResourceFontCollection> fontCollection,
+                                                  const char* family,
+                                                  SkScalar fontSize,
+                                                  TextDirection direction,
+                                                  SkScalar width,
+                                                  const char* text,
+                                                  const char* secondText = nullptr) {
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setApplyRoundingHack(false);
+    paragraph_style.setTextAlign(TextAlign::kJustify);
+    paragraph_style.setTextDirection(direction);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString(family), SkString("Roboto")});
+    text_style.setFontSize(fontSize);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+    if (secondText != nullptr) {
+        text_style.setFontSize(fontSize * 1.5f);
+        builder.pushStyle(text_style);
+        builder.addText(secondText);
+        builder.pop();
+    }
+    builder.pop();
+    auto paragraph = builder.Build();
+    paragraph->layout(width);
+    return paragraph;
+}
+
+// A hit inside the box of a code unit lands on that code unit: near the start of the box (in the
+// direction of its text) it returns the code unit downstream, near the end the next one upstream
+static void checkHitsInsideBoxes(skiatest::Reporter* reporter, Paragraph* paragraph) {
+    auto impl = static_cast<ParagraphImpl*>(paragraph);
+    impl->ensureUTF16Mapping();
+    auto length = SkToS32(impl->getUTF16Index(impl->text().size()));
+    for (int32_t i = 0; i < length; ++i) {
+        auto boxes = paragraph->getRectsForRange(
+                i, i + 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        for (auto& box : boxes) {
+            if (box.rect.width() < 1) {
+                continue;
+            }
+            SkScalar y = box.rect.centerY();
+            SkScalar quarter = box.rect.width() / 4;
+            auto left = paragraph->getGlyphPositionAtCoordinate(box.rect.fLeft + quarter, y);
+            auto right = paragraph->getGlyphPositionAtCoordinate(box.rect.fRight - quarter, y);
+            bool ltr = box.direction == TextDirection::kLtr;
+            auto start = ltr ? left : right;
+            auto end = ltr ? right : left;
+            REPORTER_ASSERT(reporter,
+                            start.position == i && start.affinity == Affinity::kDownstream,
+                            "box of %d [%g, %g): start hit %d %s",
+                            i,
+                            box.rect.fLeft,
+                            box.rect.fRight,
+                            start.position,
+                            start.affinity == Affinity::kUpstream ? "upstream" : "downstream");
+            REPORTER_ASSERT(reporter,
+                            end.position == i + 1 && end.affinity == Affinity::kUpstream,
+                            "box of %d [%g, %g): end hit %d %s",
+                            i,
+                            box.rect.fLeft,
+                            box.rect.fRight,
+                            end.position,
+                            end.affinity == Affinity::kUpstream ? "upstream" : "downstream");
+        }
+    }
+}
+
+// The text from https://github.com/flutter/flutter/issues/155062, where the box of the last
+// ideograph on a line ends at the line width
+UNIX_ONLY_TEST(SkParagraph_JustifiedIdeographicHitsInsideBoxes, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    auto paragraph = layoutJustified(
+            fontCollection,
+            "Source Han Serif CN",
+            15,
+            TextDirection::kLtr,
+            300,
+            "等一下我先下去，你跟在我后面，二伢子你带个土耗子殿后，三伢子你就别下去了，"
+            "四个人都下去，想退都来不及退，你就拉着土耗子的尾巴，我们在里面一吆喝你就把东西拉出来。”");
+    REPORTER_ASSERT(reporter, paragraph->lineNumber() > 1);
+    checkHitsInsideBoxes(reporter, paragraph.get());
+}
+
+// The trailing space of each justified line, and a space where the style changes
+UNIX_ONLY_TEST(SkParagraph_JustifiedSpacesHitsInsideBoxes, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    auto paragraph = layoutJustified(fontCollection,
+                                     "Roboto",
+                                     15,
+                                     TextDirection::kLtr,
+                                     300,
+                                     "The quick brown fox jumps over the lazy dog and ",
+                                     "keeps running across the wide green field until night");
+    REPORTER_ASSERT(reporter, paragraph->lineNumber() > 1);
+    checkHitsInsideBoxes(reporter, paragraph.get());
+}
+
+// Mixed RTL and LTR runs in justified RTL lines
+UNIX_ONLY_TEST(SkParagraph_JustifiedRtlMixedHitsInsideBoxes, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    for (SkScalar width : {110.0f, 140.0f, 180.0f, 300.0f}) {
+        auto paragraph =
+                layoutJustified(fontCollection,
+                                "Noto Naskh Arabic",
+                                15,
+                                TextDirection::kRtl,
+                                width,
+                                "Hello world دار ورد زاد and more english words دور رواد here ok");
+        REPORTER_ASSERT(reporter, paragraph->lineNumber() > 1);
+        checkHitsInsideBoxes(reporter, paragraph.get());
+    }
+}
+
 // Ensure BiDi control characters and dropped glyphs do not leave gaps in code unit cluster mapping
 DEF_TEST(SkParagraph_BidiControlGaps, reporter) {
     auto fontCollection = sk_make_sp<FontCollection>();

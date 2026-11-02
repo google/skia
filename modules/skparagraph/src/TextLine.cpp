@@ -1760,7 +1760,9 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                 }
 
                 SkScalar glyphemePosLeft = context.run->positionX(found) + context.fTextShift + offsetX;
-                SkScalar glyphemesWidth = context.run->positionX(found + 1) - context.run->positionX(found);
+                // The right edge comes from this glyph's own justification shift, as in the boxes;
+                // positionX(found + 1) would read the shift of the next cluster
+                SkScalar glyphemesWidth = context.run->calculateWidth(found, found + 1, false);
 
                 // Find the grapheme range that contains the point
                 auto clusterIndex8 = context.run->globalClusterIndex(found);
