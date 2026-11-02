@@ -9,13 +9,13 @@
     },
     {
       "build_file": "//bazel/external/dawn:BUILD.bazel",
-      "commit": "2e9d054d9b5b9df3407057192e7936e2fb41c816",
+      "commit": "ce2a022290e75255f2f5408138123dfacc7ddfd2",
       "name": "dawn",
       "remote": "https://dawn.googlesource.com/dawn.git"
     },
     {
       "build_file": "//bazel/external/jinja2:BUILD.bazel",
-      "commit": "c3027d884967773057bf74b957e3fea87e5df4d7",
+      "commit": "fde3c16799bd5937e4f15aedc9037c89f96236b9",
       "name": "jinja2",
       "patch_cmds": [
         "mkdir tmp_jinja2",
@@ -227,7 +227,7 @@
       "remote": "https://skia.googlesource.com/external/github.com/google/brotli.git"
     },
     {
-      "commit": "3ac1241bcd2b9dd66fe734fe963d583f3f1044a8",
+      "commit": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf",
       "name": "abseil_cpp",
       "patch_cmds": [
         "find . -name BUILD.bazel -type f -exec sed -i.bak -e '/do_not_use_for_gloop_visibility_only/d' {} +",
