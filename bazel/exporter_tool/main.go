@@ -204,6 +204,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/core:core_priv_srcs",
 				"//src/core:core_srcs",
 				"//src/core:textual_hdrs",
+				"//src/cpu:cpu_srcs",
 				"//src/image:image_hdrs",
 				"//src/image:image_srcs",
 				"//src/lazy:lazy",

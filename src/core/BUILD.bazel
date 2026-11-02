@@ -296,7 +296,6 @@ skia_filegroup(
     srcs = [
         # Implementation of public and private headers
         "RasterContext.cpp",
-        "Recorder.cpp",
         "SkAAClip.cpp",
         "SkATrace.cpp",
         "SkAlphaRuns.cpp",
@@ -576,6 +575,7 @@ skia_cc_library(
         ":core_priv_srcs",
         ":core_srcs",
         "//src/capture:capture_srcs",
+        "//src/cpu:cpu_srcs",
         "//src/effects:core_srcs",
         "//src/image:image_srcs",
         "//src/ports:core_srcs",
