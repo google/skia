@@ -13,3 +13,11 @@ skia_filegroup(
     ],
     visibility = ["//src/core:__pkg__"],
 )
+
+skia_filegroup(
+    name = "cpu_hdrs",
+    srcs = [
+        "Recorder.h",
+    ],
+    visibility = ["//src/core:__pkg__"],
+)

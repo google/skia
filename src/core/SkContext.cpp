@@ -13,7 +13,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/core/SkTypes.h"
-#include "include/cpu/Recorder.h"
 #include "include/private/SkGPUContext.h"
 #include "src/capture/SkCapture.h"
 #include "src/capture/SkCaptureManager.h"
@@ -23,6 +22,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkSynchronizedResourceCache.h"
 #include "src/core/SkTypefaceCache.h"
+#include "src/cpu/Recorder.h"
 
 SkContext::SkContext(const SkContextOptions& options) : SkContext(options, nullptr) {}
 

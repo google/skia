@@ -234,6 +234,7 @@ skia_filegroup(
         "//include/private:core_priv_hdrs",
         "//include/private/chromium:core_hdrs",
         "//src/capture:capture_hdrs",
+        "//src/cpu:cpu_hdrs",
         "//src/effects:core_priv_hdrs",
         "//src/image:image_hdrs",
         "//src/sfnt:sfnt_hdrs",
@@ -592,7 +593,6 @@ skia_cc_library(
     hdrs = [
         "//include/codec:core_hdrs",
         "//include/core:core_hdrs",
-        "//include/cpu:core_hdrs",
         "//include/effects:core_hdrs",
         "//include/private:private_hdrs",
         "//include/sksl:core_hdrs",

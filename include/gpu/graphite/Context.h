@@ -40,10 +40,6 @@ class SkTraceMemoryDump;
 struct SkIRect;
 struct SkImageInfo;
 
-namespace skcpu {
-class Recorder;
-}  // namespace skcpu
-
 namespace skgpu {
 enum class BackendApi : unsigned int;
 enum class GpuStatsFlags : uint32_t;
@@ -78,7 +74,6 @@ public:
     BackendApi backend() const;
 
     std::unique_ptr<Recorder> makeRecorder(const RecorderOptions& = {});
-    std::unique_ptr<skcpu::Recorder> makeCPURecorder();
 
     /** Creates a helper object that can be moved to a different thread and used
      *  for precompilation.
