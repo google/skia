@@ -1387,8 +1387,11 @@ bool ClipStack::DrawShape::applyStyle(const SkStrokeRec& style, const Rect& devi
             // well to handle rendering that pads beyond the 1/2px outset in the subpixel case.
             const float effectiveStrokeWidth = std::max(localAAOutset, style.getWidth());
             // Rectangles, rounded rectangles, and lines do not produce miters so don't count the
-            // pessimistic limit against their draw bounds.
-            const float effectiveMiterLimit = fShape.isPath() ? style.getMiter() : 1.f;
+            // pessimistic limit against their draw bounds. Arcs that don't fill the center do not
+            // form miters (but wedges can).
+            const float effectiveMiterLimit =
+                    (fShape.isPath() || (fShape.isArc() && fShape.arc().isWedge()))
+                            ? style.getMiter() : 1.f;
             // Rectangles and rounded rectangles don't have caps, so don't count that against their
             // draw bounds (if we could efficiently know a path was a closed contour, it could
             // be included here too).
