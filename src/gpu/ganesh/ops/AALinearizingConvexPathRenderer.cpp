@@ -151,20 +151,21 @@ public:
         fPaths.emplace_back(
                 PathData{viewMatrix, path, color, strokeWidth, miterLimit, style, join});
 
-        // compute bounds
-        SkRect bounds = path.getBounds();
-        SkScalar w = strokeWidth;
-        if (w > 0) {
-            w /= 2;
-            SkScalar maxScale = viewMatrix.getMaxScale();
-            // We should not have a perspective matrix, thus we should have a valid scale.
-            SkASSERT(maxScale != -1);
-            if (SkPaint::kMiter_Join == join && w * maxScale > 1.f) {
-                w *= miterLimit;
-            }
-            bounds.outset(w, w);
+        // Compute bounds in device space, which is the coordinate space that GrAAConvexTessellator
+        // operates in. This does not support perspective, so getMaxScale() should be valid.
+        // NOTE: strokeWidth is negative for fills; pin the outset to be above 0 in that case
+        SkASSERT(viewMatrix.getMaxScale() > 0);
+        const float effectiveStrokeWidth = viewMatrix.getMaxScale() * strokeWidth;
+        float devOutset = std::max(0.f, 0.5f * effectiveStrokeWidth) + 0.5f; // + 1/2 for AA
+        if (join == SkPaint::kMiter_Join) {
+            // A miter limit below 1 cannot shrink the stroke
+            devOutset *= std::max(miterLimit, 1.f);
         }
-        this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsHairline::kNo);
+        // Slack for the AA ring's own bevel/miter around a bevelled stroke corner and for the
+        // rounding of coordinates near pixel centers.
+        devOutset += 1.f;
+        SkRect devBounds = viewMatrix.mapRect(path.getBounds()).makeOutset(devOutset, devOutset);
+        this->setBounds(devBounds, HasAABloat::kYes, IsHairline::kNo);
     }
 
     const char* name() const override { return "AAFlatteningConvexPathOp"; }
