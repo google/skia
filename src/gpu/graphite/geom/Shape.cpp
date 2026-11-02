@@ -146,8 +146,10 @@ float Shape::getInflationRadius(SkPaint::Join join,
                                 float strokeWidth) const {
     SkASSERT(miterLimit >= 0.f && strokeWidth > 0.f);
     // Rectangles, rounded rectangles, and lines do not produce miters so don't count the
-    // pessimistic limit against their draw bounds.
-    const float effectiveMiterLimit = this->isPath() ? miterLimit : 1.f;
+    // pessimistic limit against their draw bounds. Arcs that don't fill the center do not
+    // form miters (but wedges can).
+    const float effectiveMiterLimit =
+            (this->isPath() || (this->isArc() && this->arc().isWedge())) ? miterLimit : 1.f;
     // Rectangles and rounded rectangles don't have caps, so don't count that against their
     // draw bounds (if we could efficiently know a path was a closed contour, it could
     // be included here too).
