@@ -24,5 +24,6 @@ void draw(SkCanvas* canvas) {
         canvas->drawImage(image, x, y);
         y += 128;
     }
+    dContext->flushAndSubmit(GrSyncCpu::kYes);
 }
 }  // END FIDDLE
