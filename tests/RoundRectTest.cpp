@@ -1816,3 +1816,117 @@ DEF_TEST(RRect_b561770646_part2, r) {
     SkRRect out;
     REPORTER_ASSERT(r, !transformedPath.isRRect(&out));
 }
+
+DEF_TEST(RRect_b573245889, r) {
+    // When minCoord < 0 < maxCoord with nearly equal magnitudes (e.g. fLeft = -(2^E - ulp),
+    // fRight = 2^E), HalfWidth rounds up to fRight.
+    for (int exp : {13, 20, 60, 100}) {
+        const float right = std::scalbn(1.0f, exp);
+        const float left = -std::nextafter(right, 0.0f);
+        const SkRect rect = SkRect::MakeLTRB(left, 0.0f, right, 100.0f);
+
+        SkRRect oval = SkRRect::MakeOval(rect);
+        REPORTER_ASSERT(r, oval.isValid());
+        REPORTER_ASSERT(r, oval.isOval());
+
+        const float halfW = rect.width() / 2.0f;
+        SkRRect simple = SkRRect::MakeRectXY(rect, halfW, 10.0f);
+        REPORTER_ASSERT(r, simple.isValid());
+
+        SkRRect ninePatch;
+        ninePatch.setNinePatch(rect, halfW, 10.0f, halfW, 20.0f);
+        REPORTER_ASSERT(r, ninePatch.isValid());
+
+        SkPath ovalPath = SkPath::RRect(oval);
+        REPORTER_ASSERT(r, ovalPath.isOval(nullptr));
+
+        SkPath simplePath = SkPath::RRect(simple);
+        SkRRect deduced;
+        REPORTER_ASSERT(r, simplePath.isRRect(&deduced));
+        REPORTER_ASSERT(r, deduced.isValid());
+    }
+}
+
+DEF_TEST(RRect_scaleRadii_strict_isValid, r) {
+    // 1. Coordinate absorption (minCoord > 0 with maxCoord - minCoord == maxCoord in double/float,
+    //    or maxCoord < 0 with maxCoord - minCoord == -minCoord).
+    //    scaleRadii() must step the radius down by 1 ULP so that maxCoord - r >= minCoord (and
+    //    minCoord + r <= maxCoord) rather than failing isValid() and degenerating to kRect_Type.
+    {
+        // Positive coords: fBottom - r2 < fTop when r2 == 100.0f
+        SkRect posRect = SkRect::MakeLTRB(0.0f, 1e-30f, 100.0f, 100.0f);
+        SkVector posRadii[4] = {
+                {0.0f, 0.0f},
+                {0.0f, 0.0f},
+                {0.0f, 0.0f},
+                {10.0f, 200.0f},  // scaled down by scaleRadii(); must not leave fY == 100.0f
+        };
+        SkRRect rrPos;
+        rrPos.setRectRadii(posRect, posRadii);
+        REPORTER_ASSERT(r, rrPos.isValid());
+        REPORTER_ASSERT(r, rrPos.isComplex());
+        REPORTER_ASSERT(r,
+                        rrPos.radii(SkRRect::kLowerLeft_Corner).fY == std::nextafter(100.0f, 0.0f));
+
+        // Same case triggered via offset() on a valid RRect when fuzzy logic is removed from
+        // isValid()
+        SkRRect baseRR;
+        const SkVector baseRadii[4] = {{0, 0}, {0, 0}, {0, 0}, {10.0f, 100.0f}};
+        baseRR.setRectRadii(SkRect::MakeWH(100.0f, 100.0f), baseRadii);
+        REPORTER_ASSERT(r, baseRR.isComplex());
+
+        SkRRect offsetRR = baseRR.makeOffset(0.0f, 1e-30f);
+        REPORTER_ASSERT(r, offsetRR.isValid());
+        REPORTER_ASSERT(r, offsetRR.isComplex());
+
+        // Negative coords: fLeft + r1 > fRight when r1 == 100.0f
+        SkRect negRect = SkRect::MakeLTRB(-100.0f, -100.0f, -1e-30f, 0.0f);
+        SkVector negRadii[4] = {
+                {200.0f, 10.0f},  // scaled down by scaleRadii(); must not leave fX == 100.0f
+                {0.0f, 0.0f},
+                {0.0f, 0.0f},
+                {0.0f, 0.0f},
+        };
+        SkRRect rrNeg;
+        rrNeg.setRectRadii(negRect, negRadii);
+        REPORTER_ASSERT(r, rrNeg.isValid());
+        REPORTER_ASSERT(r, rrNeg.isComplex());
+        REPORTER_ASSERT(r,
+                        rrNeg.radii(SkRRect::kUpperLeft_Corner).fX == std::nextafter(100.0f, 0.0f));
+    }
+
+    // 2. When minCoord < 0 < maxCoord with nearly equal magnitudes (b/573245889),
+    //    halfW + halfW > (double)fRight - (double)fLeft. scaleRadii() must adjust the top
+    //    and bottom edges consistently (left corners together, right corners together)
+    //    so nine-patch symmetry (UL.x == LL.x, UR.x == LR.x) is preserved.
+    {
+        const float right = std::scalbn(1.0f, 13);  // 8192.0f
+        const float left = -std::nextafter(right, 0.0f);
+        const SkRect rect = SkRect::MakeLTRB(left, 0.0f, right, 100.0f);
+        const float halfW = rect.width() / 2.0f;
+
+        const SkVector ninePatchRadii[4] = {
+                {halfW, 10.0f}, {halfW, 10.0f}, {halfW, 20.0f}, {halfW, 20.0f}};
+        SkRRect rr;
+        rr.setRectRadii(rect, ninePatchRadii);
+        REPORTER_ASSERT(r, rr.isValid());
+        REPORTER_ASSERT(r, rr.isNinePatch());
+    }
+
+    // 3. Translating non-oval RRects (Simple, NinePatch) whose radii sum to width by an offset
+    //    that shrinks float width due to rounding: (4.0f + 1.1f) - 4.0f < 1.1f.
+    {
+        const SkRect rect = SkRect::MakeWH(1.1f, 10.0f);
+
+        SkRRect simple = SkRRect::MakeRectXY(rect, 1.1f / 2.0f, 2.0f);
+        SkRRect offsetSimple = simple.makeOffset(4.0f, 0.0f);
+        REPORTER_ASSERT(r, offsetSimple.isValid());
+        REPORTER_ASSERT(r, !offsetSimple.isRect());
+
+        SkRRect ninePatch;
+        ninePatch.setNinePatch(rect, 0.5f, 2.0f, 1.1f - 0.5f, 3.0f);
+        SkRRect offsetNinePatch = ninePatch.makeOffset(4.0f, 0.0f);
+        REPORTER_ASSERT(r, offsetNinePatch.isValid());
+        REPORTER_ASSERT(r, !offsetNinePatch.isRect());
+    }
+}

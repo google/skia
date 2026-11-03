@@ -413,9 +413,7 @@ public:
         @param dx  offset added to rect().fLeft and rect().fRight
         @param dy  offset added to rect().fTop and rect().fBottom
     */
-    void offset(SkScalar dx, SkScalar dy) {
-        fRect.offset(dx, dy);
-    }
+    void offset(SkScalar dx, SkScalar dy);
 
     /** Returns SkRRect translated by (dx, dy).
 
@@ -424,7 +422,9 @@ public:
         @return    SkRRect bounds offset by (dx, dy), with unchanged corner radii
     */
     [[nodiscard]] SkRRect makeOffset(SkScalar dx, SkScalar dy) const {
-        return SkRRect(fRect.makeOffset(dx, dy), fRadii, fType);
+        SkRRect rr = *this;
+        rr.offset(dx, dy);
+        return rr;
     }
 
     /** Returns true if point is inside the bounds and corner radii, and if
