@@ -1223,21 +1223,6 @@
     "name": "Perf-Win11-Clang-NUC13Pro-GPU-IntelArc140V-x86_64-Release-All-Vulkan"
   },
   {
-    "name": "Perf-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE"
-  },
-  {
-    "name": "Perf-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Graphite_Dawn_D3D11"
-  },
-  {
-    "name": "Perf-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Graphite_Dawn_Vulkan"
-  },
-  {
-    "name": "Perf-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Perf-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan"
-  },
-  {
     "name": "Perf-Win11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Release-All"
   },
   {
@@ -2213,39 +2198,6 @@
   },
   {
     "name": "Test-Win11-Clang-NUC13Pro-GPU-IntelArc140V-x86_64-Release-All-Vulkan"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-ANGLE"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Graphite_Dawn_D3D11"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Graphite_Dawn_Vulkan"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Graphite_Dawn_D3D11"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Graphite_Dawn_Vulkan"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-NativeFonts"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan"
   },
   {
     "name": "Test-Win11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Debug-All"
