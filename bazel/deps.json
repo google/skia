@@ -9,7 +9,7 @@
     },
     {
       "build_file": "//bazel/external/dawn:BUILD.bazel",
-      "commit": "453319b88e70037ab449db86e45b07536dac8005",
+      "commit": "1301c5eecbf74a4480d7e6087aab7c13760a670d",
       "name": "dawn",
       "remote": "https://dawn.googlesource.com/dawn.git"
     },
@@ -227,7 +227,7 @@
       "remote": "https://skia.googlesource.com/external/github.com/google/brotli.git"
     },
     {
-      "commit": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf",
+      "commit": "34ede0d51ae535e13886d04e7bbb557fe34acdd5",
       "name": "abseil_cpp",
       "patch_cmds": [
         "find . -name BUILD.bazel -type f -exec sed -i.bak -e '/do_not_use_for_gloop_visibility_only/d' {} +",
