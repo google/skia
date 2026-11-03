@@ -10,10 +10,11 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
+#include "include/private/SkAssert.h"
 #include "include/private/SkTemplates.h"
-#include "src/codec/SkCodecPriv.h"
 #include "src/core/SkMemset.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 
@@ -31,7 +32,8 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
     // Use the proper memset routine to fill the remaining bytes
     switch (info.colorType()) {
         case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType: {
+        case kBGRA_8888_SkColorType:
+        case kRGBA_1010102_SkColorType: {
             uint32_t* dstRow = (uint32_t*) dst;
             for (int row = 0; row < numRows; row++) {
                 SkOpts::memset32(dstRow, 0, width);
@@ -47,7 +49,8 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
             }
             break;
         }
-        case kGray_8_SkColorType: {
+        case kGray_8_SkColorType:
+        case kAlpha_8_SkColorType: {
             uint8_t* dstRow = (uint8_t*) dst;
             for (int row = 0; row < numRows; row++) {
                 memset(dstRow, 0, width);
@@ -63,9 +66,16 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
             }
             break;
         }
-        default:
-            SkCodecPrintf("Error: Unsupported dst color type for fill().  Doing nothing.\n");
-            SkASSERT(false);
+        default: {
+            SkDEBUGFAILF("Unsupported dst color type for fill(): %d",
+                         static_cast<int>(info.colorType()));
+            const size_t fillBytes = info.minRowBytes();
+            uint8_t* dstRow = static_cast<uint8_t*>(dst);
+            for (int row = 0; row < numRows; row++) {
+                memset(dstRow, 0, fillBytes);
+                dstRow = SkTAddOffset<uint8_t>(dstRow, rowBytes);
+            }
             break;
+        }
     }
 }

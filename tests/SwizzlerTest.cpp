@@ -14,17 +14,18 @@
 #include "src/core/SkSwizzlePriv.h"
 #include "tests/Test.h"
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <memory>
 
 static void check_fill(skiatest::Reporter* r,
                        const SkImageInfo& imageInfo,
-                       uint32_t startRow,
-                       uint32_t endRow,
+                       int startRow,
+                       int endRow,
                        size_t rowBytes,
-                       uint32_t offset) {
-
+                       size_t offset) {
     // Calculate the total size of the image in bytes.  Use the smallest possible size.
     // The offset value tells us to adjust the pointer from the memory we allocate in order
     // to test on different memory alignments.  If offset is nonzero, we need to increase the
@@ -32,91 +33,80 @@ static void check_fill(skiatest::Reporter* r,
     // still allocating the smallest possible size.
     const size_t totalBytes = imageInfo.computeByteSize(rowBytes) + offset;
 
-    // Create fake image data where every byte has a value of 0
-    std::unique_ptr<uint8_t[]> storage(new uint8_t[totalBytes]);
-    memset(storage.get(), 0, totalBytes);
+    // Pre-fill 8-byte-aligned storage with a non-zero sentinel so we verify both that target
+    // rows are zeroed and that prefix bytes, surrounding rows, and row padding stay untouched.
+    constexpr uint8_t kSentinel = 0xA5;
+    auto storage = std::make_unique<uint64_t[]>((totalBytes + 7) / 8 + 1);
+    auto* rawStorage = reinterpret_cast<uint8_t*>(storage.get());
+    memset(rawStorage, kSentinel, totalBytes);
+
     // Adjust the pointer in order to test on different memory alignments
-    uint8_t* imageData = storage.get() + offset;
+    uint8_t* imageData = rawStorage + offset;
     uint8_t* imageStart = imageData + rowBytes * startRow;
     const SkImageInfo fillInfo = imageInfo.makeWH(imageInfo.width(), endRow - startRow + 1);
     SkSampler::Fill(fillInfo, imageStart, rowBytes, SkCodec::kNo_ZeroInitialized);
 
-    // Ensure that the pixels are filled properly
-    // The bots should catch any memory corruption
-    uint8_t* indexPtr = imageData + startRow * rowBytes;
-    uint8_t* grayPtr = indexPtr;
-    uint32_t* colorPtr = (uint32_t*) indexPtr;
-    uint16_t* color565Ptr = (uint16_t*) indexPtr;
-    for (uint32_t y = startRow; y <= endRow; y++) {
-        for (int32_t x = 0; x < imageInfo.width(); x++) {
-            switch (imageInfo.colorType()) {
-                case kN32_SkColorType:
-                    REPORTER_ASSERT(r, 0 == colorPtr[x]);
-                    break;
-                case kGray_8_SkColorType:
-                    REPORTER_ASSERT(r, 0 == grayPtr[x]);
-                    break;
-                case kRGB_565_SkColorType:
-                    REPORTER_ASSERT(r, 0 == color565Ptr[x]);
-                    break;
-                default:
-                    REPORTER_ASSERT(r, false);
-                    break;
+    for (size_t i = 0; i < offset; ++i) {
+        REPORTER_ASSERT(r, rawStorage[i] == kSentinel);
+    }
+    const size_t rowPixelBytes = imageInfo.minRowBytes();
+    const int height = imageInfo.height();
+    for (int y = 0; y < height; ++y) {
+        const uint8_t* rowPtr = imageData + y * rowBytes;
+        const size_t allocatedRowBytes = (y + 1 == height) ? rowPixelBytes : rowBytes;
+        const bool inFillRows = (y >= startRow && y <= endRow);
+        for (size_t byteIdx = 0; byteIdx < allocatedRowBytes; ++byteIdx) {
+            const uint8_t expected = (inFillRows && byteIdx < rowPixelBytes) ? 0x00 : kSentinel;
+            REPORTER_ASSERT(r, rowPtr[byteIdx] == expected);
+        }
+    }
+}
+
+static void check_fill_for_info(skiatest::Reporter* r, const SkImageInfo& info) {
+    const size_t bpp = info.bytesPerPixel();
+    // SkSampler::Fill casts row pointers to uint16_t*/uint32_t*/uint64_t*, so keep rowBytes
+    // and offset aligned to at least bpp (notably 8-byte aligned for kRGBA_F16).
+    const size_t align = std::max<size_t>(4, bpp);
+
+    for (size_t padding : {size_t(0), align}) {
+        const size_t rowBytes = info.minRowBytes() + padding;
+        for (size_t offset = 0; offset <= padding; offset += align) {
+            for (int startRow = 0; startRow < info.height(); ++startRow) {
+                for (int endRow = startRow; endRow < info.height(); ++endRow) {
+                    check_fill(r, info, startRow, endRow, rowBytes, offset);
+                }
             }
         }
-        indexPtr += rowBytes;
-        colorPtr = (uint32_t*) indexPtr;
     }
 }
 
 // Test Fill() with different combinations of dimensions, alignment, and padding
 DEF_TEST(SwizzlerFill, r) {
-    // Test on an invalid width and representative widths
-    const uint32_t widths[] = { 0, 10, 50 };
+    constexpr int kWidths[] = {0, 10, 50};
+    constexpr int kHeights[] = {1, 5, 10};
+    constexpr SkColorType kColorTypes[] = {
+            kRGBA_8888_SkColorType,
+            kBGRA_8888_SkColorType,
+            kRGBA_1010102_SkColorType,
+            kRGB_565_SkColorType,
+            kGray_8_SkColorType,
+            kAlpha_8_SkColorType,
+            kRGBA_F16_SkColorType,
+    };
 
-    // In order to call Fill(), there must be at least one row to fill
-    // Test on the smallest possible height and representative heights
-    const uint32_t heights[] = { 1, 5, 10 };
-
-    // Test on interesting possibilities for row padding
-    const uint32_t paddings[] = { 0, 4 };
-
-    // Iterate over test dimensions
-    for (uint32_t width : widths) {
-        for (uint32_t height : heights) {
-
-            // Create image info objects
-            const SkImageInfo colorInfo = SkImageInfo::MakeN32(width, height, kUnknown_SkAlphaType);
-            const SkImageInfo grayInfo = colorInfo.makeColorType(kGray_8_SkColorType);
-            const SkImageInfo color565Info = colorInfo.makeColorType(kRGB_565_SkColorType);
-
-            for (uint32_t padding : paddings) {
-
-                // Calculate row bytes
-                const size_t colorRowBytes = SkColorTypeBytesPerPixel(kN32_SkColorType) * width
-                        + padding;
-                const size_t indexRowBytes = width + padding;
-                const size_t grayRowBytes = indexRowBytes;
-                const size_t color565RowBytes =
-                        SkColorTypeBytesPerPixel(kRGB_565_SkColorType) * width + padding;
-
-                // If there is padding, we can invent an offset to change the memory alignment
-                for (uint32_t offset = 0; offset <= padding; offset += 4) {
-
-                    // Test all possible start rows with all possible end rows
-                    for (uint32_t startRow = 0; startRow < height; startRow++) {
-                        for (uint32_t endRow = startRow; endRow < height; endRow++) {
-
-                            // Test fill with each color type
-                            check_fill(r, colorInfo, startRow, endRow, colorRowBytes, offset);
-                            check_fill(r, grayInfo, startRow, endRow, grayRowBytes, offset);
-                            check_fill(r, color565Info, startRow, endRow, color565RowBytes, offset);
-                        }
-                    }
-                }
+    for (int width : kWidths) {
+        for (int height : kHeights) {
+            for (SkColorType colorType : kColorTypes) {
+                check_fill_for_info(
+                        r, SkImageInfo::Make(width, height, colorType, kUnknown_SkAlphaType));
             }
         }
     }
+
+#if !defined(SK_DEBUG)
+    // In release builds, unsupported color types fall back to a bytewise zero fill.
+    check_fill_for_info(r, SkImageInfo::Make(10, 5, kRGB_888x_SkColorType, kUnknown_SkAlphaType));
+#endif
 }
 
 DEF_TEST(SwizzleOpts, r) {
