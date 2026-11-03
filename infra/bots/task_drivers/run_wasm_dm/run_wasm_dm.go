@@ -14,7 +14,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -25,7 +24,6 @@ import (
 	"go.skia.org/infra/go/httputils"
 	"go.skia.org/infra/go/skerr"
 	"go.skia.org/infra/go/sklog"
-	"go.skia.org/infra/golden/go/jsonio"
 	"go.skia.org/infra/task_driver/go/lib/os_steps"
 	"go.skia.org/infra/task_driver/go/td"
 )
@@ -44,8 +42,6 @@ func main() {
 			"The directory to store the Chrome binary.")
 		buildPath = flag.String("build", "",
 			"The directory where the built wasm/js code is.")
-		workPath = flag.String("work_path", "",
-			"The directory to store working/temporary files.")
 
 		// Required flags for running on CQ
 		projectID     = flag.String("project_id", "", "ID of the Google Cloud project.")
@@ -64,11 +60,6 @@ func main() {
 	ctx := td.StartRun(projectID, taskID, taskName, outputSteps, local)
 	defer td.EndRun(ctx)
 
-	workDir := td.MustGetAbsolutePathOfFlag(ctx, *workPath, "work_path")
-	if err := os_steps.MkdirAll(ctx, workDir); err != nil {
-		td.Fatal(ctx, err)
-	}
-
 	cd, err := newChromeDriver(
 		ctx,
 		td.MustGetAbsolutePathOfFlag(ctx, *chromeCache, "chrome_cache"),
@@ -80,48 +71,26 @@ func main() {
 	defer cd.shutdown()
 
 	knownHashes := mustFetchFile(ctx, *goldHashesURL)
-	uploadsDir := filepath.Join(workDir, "uploads")
 	server, err := startLocalServer(
 		ctx,
 		knownHashes,
 		td.MustGetAbsolutePathOfFlag(ctx, *buildPath, "build"),
-		uploadsDir,
 	)
 	if err != nil {
 		td.Fatal(ctx, err)
 	}
 	defer server.Close()
 
-	jsResultsDir := jsPath("/tmp/images")
 	argv := dmArgv{
-		writePath:  jsResultsDir,
 		properties: mustUnmarshalFlag[map[string]string](ctx, *dmPropertiesStr, "dm_properties"),
 		extraFlags: mustUnmarshalFlag[[]string](ctx, *dmFlagsStr, "dm_flags"),
 	}
 	if err := runDm(ctx, cd, *local, server.URL, &argv); err != nil {
 		td.Fatal(ctx, err)
 	}
-
-	// Get results out of js
-	if err := copyTreeFromJs(ctx, cd, jsResultsDir); err != nil {
-		td.Fatal(ctx, err)
-	}
-
-	// Gather + upload
-	resultsDir := filepath.Join(uploadsDir, string(jsResultsDir))
-	uploadProps, err := gatherImagesForUpload(ctx, resultsDir, knownHashes)
-	if err != nil {
-		td.Fatal(ctx, err)
-	} else if err := uploadImages(ctx, uploadProps, *local, workDir); err != nil {
-		td.Fatal(ctx, err)
-	}
 }
 
-// Type alias to distinguish between paths in the JS filesystem vs local.
-type jsPath string
-
 type dmArgv struct {
-	writePath  jsPath
 	match      string
 	properties map[string]string
 	extraFlags []string
@@ -129,9 +98,6 @@ type dmArgv struct {
 
 func (a dmArgv) ToJson() ([]byte, error) {
 	argv := []string{}
-	if len(a.writePath) > 0 {
-		argv = append(argv, "--writePath", string(a.writePath))
-	}
 	if len(a.match) > 0 {
 		argv = append(argv, "-m", a.match)
 	}
@@ -141,13 +107,7 @@ func (a dmArgv) ToJson() ([]byte, error) {
 			argv = append(argv, k, v)
 		}
 	}
-	if len(a.extraFlags) > 0 {
-		flags := a.extraFlags
-		if flags[0] == "dm" {
-			flags = flags[1:]
-		}
-		argv = append(argv, flags...)
-	}
+	argv = append(argv, a.extraFlags...)
 	return json.Marshal(argv)
 }
 
@@ -204,28 +164,10 @@ func runDm(ctx context.Context, cd *chromeDriver, local bool, url string, argv *
 	return nil
 }
 
-func loadDmJson(path string) (*jsonio.GoldResults, error) {
-	b, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	var gr jsonio.GoldResults
-	if err := json.Unmarshal(b, &gr); err != nil {
-		return nil, err
-	} else if err := gr.UpdateLegacyFields(); err != nil {
-		return nil, err
-	} else if err := gr.Validate(); err != nil {
-		return nil, skerr.Wrapf(err, "dm.json failed validation")
-	}
-	return &gr, nil
-}
-
 func startLocalServer(
 	ctx context.Context,
 	knownHashes []byte,
 	buildPath string,
-	uploadsDir string,
 ) (*httptest.Server, error) {
 	ctx = td.StartStep(ctx, td.Props("start localhost server").Infra())
 	defer td.EndStep(ctx)
@@ -256,23 +198,6 @@ func startLocalServer(
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	// Accept a file from JS and write it to disk.
-	mux.HandleFunc("POST /upload", func(w http.ResponseWriter, r *http.Request) {
-		qpath := r.URL.Query().Get("path")
-		dst := filepath.Join(uploadsDir, filepath.FromSlash(qpath))
-		if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-		f, err := os.Create(dst)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-		defer f.Close()
-		io.Copy(f, r.Body)
-	})
-
 	// WASM pthreads require these headers.
 	addHeaders := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -283,29 +208,6 @@ func startLocalServer(
 	}
 
 	return httptest.NewServer(addHeaders(mux)), nil
-}
-
-func copyTreeFromJs(ctx context.Context, cd *chromeDriver, root jsPath) error {
-	ctx = td.StartStep(ctx, td.Props(fmt.Sprintf("copy from js filesystem: %s", root)).Infra())
-	defer td.EndStep(ctx)
-
-	listCmd := chromedp.Evaluate[[]string](fmt.Sprintf(`window.listDirectory(%q)`, root))
-	files, err := chromedp.Run(cd.ctx, listCmd)
-	if err != nil {
-		return td.FailStep(ctx, err)
-	}
-
-	logger := newLogger(td.NewLogStream(ctx, "copy files", td.SeverityInfo))
-	for _, f := range files {
-		uploadCmd := chromedp.Evaluate[chromedp.Void](fmt.Sprintf(`window.uploadFile(%q)`, f))
-		if _, err := chromedp.Run(cd.ctx, uploadCmd); err != nil {
-			return td.FailStep(ctx, err)
-		}
-		logger.Infof("received file from js: %s", f)
-	}
-
-	td.StepText(ctx, "number of files copied", strconv.Itoa(len(files)))
-	return nil
 }
 
 func mustFetchFile(ctx context.Context, urlStr string) []byte {

@@ -58834,8 +58834,6 @@
         "cache/chrome",
         "--build",
         "build",
-        "--work_path",
-        "./work",
         "--project_id",
         "skia-swarming-bots",
         "--task_id",

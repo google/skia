@@ -8,7 +8,6 @@
     // These routes are served by the go localhost http server.
     const Routes = {
       knownHashes: "/known-hashes.txt",
-      upload: "/upload?path="
     };
 
     // The wasm module instance, undefined until the "process" has started.
@@ -52,38 +51,11 @@
       return dst;
     }
 
-    window.listDirectory = function (root) {
-      const fs = Module.FS;
-      const out = [];
-      const walk = function (acc) {
-        for (const n of fs.readdir([root, ...acc].join('/'))) {
-          if (n === '.' || n === '..') {
-            continue;
-          }
-          const next = [...acc, n];
-          const m = fs.lstat([root, ...next].join('/')).mode;
-          if (fs.isDir(m)) {
-            walk(next);
-          } else if (fs.isFile(m)) {
-            out.push([root, ...next].join('/'));
-          }
-        }
-      };
-      walk([]);
-      return out;
-    }
-
-    window.uploadFile = async function (path) {
-      try {
-        const fs = Module.FS;
-        const data = fs.readFile(path);
-        await fetch(Routes.upload + encodeURIComponent(path), { method: 'POST', body: data });
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
     window.run = async function (argv = []) {
+      if (argv[0] === "dm") {
+        argv = argv.slice(1);
+      }
+
       console.log("calling wasm dm with args: " + JSON.stringify(argv));
       const status = await dm(argv);
 
