@@ -101,7 +101,7 @@ public:
     using ElementList = skia_private::STArray<4, const Element*>;
     Clip visitClipStackForDraw(const Transform&,
                                Geometry*,
-                               const SkStrokeRec&,
+                               SkStrokeRec* style,
                                ElementList* outEffectiveElements) const;
 
     // Update the per-clip element state for later rendering using pre-computed clip state data for
@@ -141,8 +141,8 @@ private:
     //
     // TransformedShape is a lightweight wrapper that can convert these different types into a
     // common type that Simplify() can reason about.
-    struct TransformedShape;
     class DrawShape;
+    struct TransformedShape;
 
     // This captures which of the two elements in (A op B) would be required when they are combined,
     // where op is intersect or difference.
