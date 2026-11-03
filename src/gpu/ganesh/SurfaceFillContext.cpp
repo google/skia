@@ -145,15 +145,19 @@ OpsTask* SurfaceFillContext::replaceOpsTask() {
     return fOpsTask.get();
 }
 
-void SurfaceFillContext::ClearToGrPaint(std::array<float, 4> color, GrPaint* paint) {
+void SurfaceFillContext::clearToGrPaint(std::array<float, 4> color, GrPaint* paint) {
     paint->setColor4f({color[0], color[1], color[2], color[3]});
-    if (color[3] == 1.f) {
-        // Can just rely on the src-over blend mode to do the right thing.
-        // This may improve batching.
+    GrColorFormatDesc formatDesc = GrGetColorTypeDesc(this->colorInfo().colorType());
+    if (color[3] == 1.f && formatDesc.encoding() != GrColorTypeEncoding::kFloat) {
+        // Can just rely on the src-over blend mode to do the right thing. This may improve batching
+        // but is only valid when the destination texture format has unorm data. Floating point
+        // data could be undefined and include non-finite values, at which point any HW blending
+        // will be corrupted.
         paint->setPorterDuffXPFactory(SkBlendMode::kSrcOver);
     } else {
         // A clear overwrites the prior color, so even if it's transparent, it behaves as if it
-        // were src blended
+        // were src blended. Since src blends disable HW blending, it will always safely overwrite
+        // non-finite values that were produced by a discard load op.
         paint->setPorterDuffXPFactory(SkBlendMode::kSrc);
     }
 }
@@ -252,7 +256,7 @@ void SurfaceFillContext::internalClear(const SkIRect* scissor,
                        (scissorState.enabled() && this->caps()->performPartialClearsAsDraws());
     if (clearAsDraw) {
         GrPaint paint;
-        ClearToGrPaint(color, &paint);
+        this->clearToGrPaint(color, &paint);
         auto op = FillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
                                             SkRect::Make(scissorState.rect()));
         this->addDrawOp(std::move(op));

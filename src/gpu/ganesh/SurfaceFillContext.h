@@ -144,7 +144,7 @@ protected:
     /**
      * Creates a constant color paint for a clear, using src-over if possible to improve batching.
      */
-    static void ClearToGrPaint(std::array<float, 4> color, GrPaint* paint);
+    void clearToGrPaint(std::array<float, 4> color, GrPaint* paint);
 
     void addOp(GrOp::Owner);
 
