@@ -11,7 +11,7 @@
 #include "include/core/SkContext.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkGPUContext.h"
-#include "src/core/SkSharedContext.h"
+#include "src/core/SkSharedState.h"
 
 #include <memory>
 
@@ -22,7 +22,7 @@ class SkContext;
     data members or virtual methods.*/
 class SkContextPrivConst {
 public:
-    const SkSharedContext* sharedContext() const { return fConstContext->fSharedContext.get(); }
+    const SkSharedState* sharedState() const { return fConstContext->fSharedState.get(); }
 
 protected:
     explicit SkContextPrivConst(const SkContext* context) : fConstContext(context) {}
@@ -42,7 +42,7 @@ private:
    additional data members or virtual methods.*/
 class SkContextPriv : public SkContextPrivConst {
 public:
-    SkSharedContext* sharedContext() { return fContext->fSharedContext.get(); }
+    SkSharedState* sharedState() { return fContext->fSharedState.get(); }
 
 private:
     friend class SkContext;

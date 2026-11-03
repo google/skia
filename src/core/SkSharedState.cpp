@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkSharedContext.h"
+#include "src/core/SkSharedState.h"
 
 #include "include/core/SkContextOptions.h"
 #include "src/core/SkStrikeCache.h"
@@ -16,7 +16,7 @@
 #include "include/private/chromium/SkDiscardableMemory.h"
 #endif
 
-SkSharedContext::SkSharedContext(const SkContextOptions& options) {
+SkSharedState::SkSharedState(const SkContextOptions& options) {
 #if defined(SK_USE_DISCARDABLE_SCALEDIMAGECACHE)
     fResourceCache = std::make_unique<SkSynchronizedResourceCache>(SkDiscardableMemory::Create);
 #else
@@ -34,46 +34,46 @@ SkSharedContext::SkSharedContext(const SkContextOptions& options) {
     fStrikeCache->setCacheSizeLimit(options.fFontCacheLimit);
 }
 
-SkSharedContext::~SkSharedContext() = default;
+SkSharedState::~SkSharedState() = default;
 
-size_t SkSharedContext::fontCacheLimit() const { return fStrikeCache->getCacheSizeLimit(); }
+size_t SkSharedState::fontCacheLimit() const { return fStrikeCache->getCacheSizeLimit(); }
 
-size_t SkSharedContext::setFontCacheLimit(size_t bytes) {
+size_t SkSharedState::setFontCacheLimit(size_t bytes) {
     return fStrikeCache->setCacheSizeLimit(bytes);
 }
 
-size_t SkSharedContext::fontCacheUsed() const { return fStrikeCache->getTotalMemoryUsed(); }
+size_t SkSharedState::fontCacheUsed() const { return fStrikeCache->getTotalMemoryUsed(); }
 
-int SkSharedContext::fontCacheCountLimit() const { return fStrikeCache->getCacheCountLimit(); }
+int SkSharedState::fontCacheCountLimit() const { return fStrikeCache->getCacheCountLimit(); }
 
-int SkSharedContext::setFontCacheCountLimit(int count) {
+int SkSharedState::setFontCacheCountLimit(int count) {
     return fStrikeCache->setCacheCountLimit(count);
 }
 
-int SkSharedContext::fontCacheCountUsed() const { return fStrikeCache->getCacheCountUsed(); }
+int SkSharedState::fontCacheCountUsed() const { return fStrikeCache->getCacheCountUsed(); }
 
-void SkSharedContext::purgeFontCache() { fStrikeCache->purgeAll(); }
+void SkSharedState::purgeFontCache() { fStrikeCache->purgeAll(); }
 
-void SkSharedContext::purgePinnedFontCache() { fStrikeCache->purgePinned(); }
+void SkSharedState::purgePinnedFontCache() { fStrikeCache->purgePinned(); }
 
-size_t SkSharedContext::resourceCacheTotalBytesUsed() const {
+size_t SkSharedState::resourceCacheTotalBytesUsed() const {
     return fResourceCache->getTotalBytesUsed();
 }
 
-size_t SkSharedContext::resourceCacheTotalByteLimit() const {
+size_t SkSharedState::resourceCacheTotalByteLimit() const {
     return fResourceCache->getTotalByteLimit();
 }
 
-size_t SkSharedContext::setResourceCacheTotalByteLimit(size_t newLimit) {
+size_t SkSharedState::setResourceCacheTotalByteLimit(size_t newLimit) {
     return fResourceCache->setTotalByteLimit(newLimit);
 }
 
-size_t SkSharedContext::resourceCacheSingleAllocationByteLimit() const {
+size_t SkSharedState::resourceCacheSingleAllocationByteLimit() const {
     return fResourceCache->getSingleAllocationByteLimit();
 }
 
-size_t SkSharedContext::setResourceCacheSingleAllocationByteLimit(size_t newLimit) {
+size_t SkSharedState::setResourceCacheSingleAllocationByteLimit(size_t newLimit) {
     return fResourceCache->setSingleAllocationByteLimit(newLimit);
 }
 
-void SkSharedContext::purgeResourceCache() { fResourceCache->purgeAll(); }
+void SkSharedState::purgeResourceCache() { fResourceCache->purgeAll(); }

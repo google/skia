@@ -157,11 +157,11 @@ int SkGraphics::SetTypefaceCacheCountLimit(int count) {
 
 SkGraphics::OpenTypeSVGDecoderFactory SkGraphics::SetOpenTypeSVGDecoderFactory(
         OpenTypeSVGDecoderFactory svgDecoderFactory) {
-    SkSharedContext* shrdCtx = SkContexts::GetGlobalSkContext()->priv().sharedContext();
-    return shrdCtx->setSVGDecoderFactory(svgDecoderFactory);
+    SkSharedState* shrdState = SkContexts::GetGlobalSkContext()->priv().sharedState();
+    return shrdState->setSVGDecoderFactory(svgDecoderFactory);
 }
 
 SkGraphics::OpenTypeSVGDecoderFactory SkGraphics::GetOpenTypeSVGDecoderFactory() {
-    SkSharedContext* shrdCtx = SkContexts::GetGlobalSkContext()->priv().sharedContext();
-    return shrdCtx->svgDecoderFactory();
+    SkSharedState* shrdState = SkContexts::GetGlobalSkContext()->priv().sharedState();
+    return shrdState->svgDecoderFactory();
 }

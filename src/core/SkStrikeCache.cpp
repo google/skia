@@ -16,7 +16,7 @@
 #include "include/private/SkMutex.h"
 #include "src/core/SkContextPriv.h"
 #include "src/core/SkDescriptor.h"
-#include "src/core/SkSharedContext.h"
+#include "src/core/SkSharedState.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeSpec.h"
 
@@ -33,7 +33,7 @@ SkStrikeCache* SkStrikeCache::GlobalStrikeCache() {
     static thread_local auto* cache = new SkStrikeCache;
     return cache;
 #else
-    return SkContexts::GetGlobalSkContext()->priv().sharedContext()->strikeCache();
+    return SkContexts::GetGlobalSkContext()->priv().sharedState()->strikeCache();
 #endif
 }
 

@@ -21,7 +21,7 @@ class SkContextPriv;
 class SkContextPrivConst;
 class SkGPUContext;
 class SkOpenTypeSVGDecoder;
-class SkSharedContext;
+class SkSharedState;
 class SkTraceMemoryDump;
 struct SkContextOptions;
 
@@ -106,7 +106,7 @@ private:
     friend class SkContextCtorAccessor;
 
     sk_sp<SkCaptureManager> fCaptureManager;
-    sk_sp<SkSharedContext> fSharedContext;
+    sk_sp<SkSharedState> fSharedState;
 
     std::unique_ptr<SkGPUContext> fGPUContext;
 };

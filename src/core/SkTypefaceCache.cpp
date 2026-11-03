@@ -14,7 +14,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkMutex.h"
 #include "src/core/SkContextPriv.h"
-#include "src/core/SkSharedContext.h"
+#include "src/core/SkSharedState.h"
 
 #include <atomic>
 #include <cstdint>
@@ -66,7 +66,7 @@ void SkTypefaceCache::purgeAll() {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkTypefaceCache& SkTypefaceCache::Get() {
-    return *SkContexts::GetGlobalSkContext()->priv().sharedContext()->typefaceCache();
+    return *SkContexts::GetGlobalSkContext()->priv().sharedState()->typefaceCache();
 }
 
 SkTypefaceID SkTypefaceCache::NewTypefaceID() {

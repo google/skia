@@ -5,14 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkSharedContext_DEFINED
-#define SkSharedContext_DEFINED
+#ifndef SkSharedState_DEFINED
+#define SkSharedState_DEFINED
 
 #include "include/core/SkRefCnt.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <utility>
 
 class SkOpenTypeSVGDecoder;
 class SkStrikeCache;
@@ -23,10 +24,10 @@ struct SkContextOptions;
 using OpenTypeSVGDecoderFactory = std::unique_ptr<SkOpenTypeSVGDecoder> (*)(const uint8_t* svg,
                                                                             size_t length);
 
-class SkSharedContext : public SkRefCnt {
+class SkSharedState : public SkRefCnt {
 public:
-    explicit SkSharedContext(const SkContextOptions& options);
-    ~SkSharedContext() override;
+    explicit SkSharedState(const SkContextOptions& options);
+    ~SkSharedState() override;
 
     const SkSynchronizedResourceCache* synchronizedResourceCache() const {
         return fResourceCache.get();
@@ -83,4 +84,4 @@ private:
     std::unique_ptr<SkTypefaceCache> fTypefaceCache;
 };
 
-#endif  // SkSharedContext_DEFINED
+#endif  // SkSharedState_DEFINED
