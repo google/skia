@@ -521,10 +521,10 @@ bool compare_pixels(SkSpan<const Channel> channels,
     return true;
 }
 
-PixelData transfer_data(const TextureFormatXferFn& xferFn,
-                        const PixelData& inputData,
-                        size_t srcPixelBits,
-                        size_t dstPixelBits) {
+std::pair<PixelData, bool> transfer_data(const TextureFormatXferFn& xferFn,
+                                         const PixelData& inputData,
+                                         size_t srcPixelBits,
+                                         size_t dstPixelBits) {
     // First do a conversion on a 1x1 image, which will represent the expected output when
     // testing various width/height/rowbyte combinations for a solid input.
     PixelData outputData{}; // zero-initialize for comparison stability on unwritten values.
@@ -577,13 +577,17 @@ PixelData transfer_data(const TextureFormatXferFn& xferFn,
         fill_image(kWidth, kHeight, srcRowBytes);
         for (bool outputDense : {true, false}) {
             size_t dstRowBytes = (outputDense ? kWidth : kMaxDim) * dstPixelBytes;
+            // Filling `dst` with non-zero values detects if any bytes are not written to by
+            // `xferFn` since the comparison value (`outputData` for the 1x1) will have skipped
+            // those same parts of the pixel and *was* zero-initialized.
+            dst->fill(1);
             xferFn.run(kWidth, kHeight, src->data(), srcRowBytes, dst->data(), dstRowBytes);
             if (!check_image(kWidth, kHeight, dstRowBytes)) {
-                return outputData;
+                return {outputData, false};
             }
         }
     }
-    return outputData;
+    return {outputData, true};
 }
 
 // Define the channel layout for every SkColorType for use in generating and validating the
@@ -1156,7 +1160,8 @@ void test_format_transfers(skiatest::Reporter* r,
                                                                    src.fChannels,
                                                                    loadSrc,
                                                                    validSrcAT);
-            PixelData actualGpuPixel = transfer_data(*xferFn, cpuPixel, cpuPixelBits, gpuPixelBits);
+            auto [actualGpuPixel, success] =
+                    transfer_data(*xferFn, cpuPixel, cpuPixelBits, gpuPixelBits);
 
             // The data transfer can skip alpha handling if we know that all samples/reads are going
             // to override it with 1.0 anyways. Testing the final readSwizzle includes both color
@@ -1174,7 +1179,8 @@ void test_format_transfers(skiatest::Reporter* r,
 
             const int tol = channel_tolerance(src.fChannels, validSrcAT,
                                               expectedTextureChannels, dstAT);
-            if (!compare_pixels(expectedTextureChannels, expectedGpuPixel, actualGpuPixel, tol,
+            if (!success ||
+                !compare_pixels(expectedTextureChannels, expectedGpuPixel, actualGpuPixel, tol,
                                 ignoreChannel)) {
                 dump_pixel_comparison(ctLabel,
                                       src.fChannels,
@@ -1236,11 +1242,12 @@ void test_format_transfers(skiatest::Reporter* r,
                                      gpuLabel, expectedTextureChannels, gpuPixel,
                                      ctLabel, dst.fChannels, expectedCpuPixel);
 
-            PixelData actualCpuPixel = transfer_data(*xferFn, gpuPixel, gpuPixelBits, cpuPixelBits);
-
+            auto [actualCpuPixel, success] =
+                    transfer_data(*xferFn, gpuPixel, gpuPixelBits, cpuPixelBits);
             const int tol = channel_tolerance(expectedTextureChannels, srcAT,
                                               dst.fChannels, dstAT);
-            if (!compare_pixels(dst.fChannels, expectedCpuPixel, actualCpuPixel, tol)) {
+            if (!success ||
+                !compare_pixels(dst.fChannels, expectedCpuPixel, actualCpuPixel, tol)) {
                 dump_pixel_comparison(gpuLabel,
                                       textureFormat.fChannels,
                                       gpuPixel,

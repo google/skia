@@ -574,7 +574,12 @@ std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
                     // so instead it can just use kForceOpaque
                     finalOps |= kForceOpaque;
                 }
-            } else if (!SkColorTypeIsAlwaysOpaque(*dstCT)) {
+            } else if (!SkColorTypeIsAlwaysOpaque(*dstCT) ||
+                       (!TextureIsDst && rgbx_to_rgba(dstCT))) {
+                // An RGBx CPU dst color type needs to be lifted to RGBA or the "src" texture format
+                // detection will pick a 3-channel format that would have normally included the
+                // FormatXferOp::kDropAlpha flag to handle the missing channel for CPU conversion.
+                // Since kIgnoreSrc is playing texture format games, it has to be handled manually.
                 finalOps |= kForceOpaque;
             }
 
