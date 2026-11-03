@@ -51,6 +51,7 @@
 #include "include/private/SkTemplates.h"
 
 #include <array>
+#include <vector>
 
 using namespace skia_private;
 
