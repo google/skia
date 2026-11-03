@@ -646,6 +646,12 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const PhysicalDevicePropertie
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
 
+    if (isARMProprietary &&
+        driverVersion >= skgpu::DriverVersion(42, 0) &&
+        driverVersion < skgpu::DriverVersion(56, 0)) {
+        fSleepAfterLostDeviceWait = true;
+    }
+
     // On Qualcomm the gpu resolves an area larger than the render pass bounds when using
     // discardable msaa attachments. This causes the resolve to resolve uninitialized data from the
     // msaa image into the resolve image. This was reproed on a Pixel4 using the DstReadShuffle GM
