@@ -81,10 +81,11 @@ protected:
 
 private:
     /*
-     * Allows SkRawCodec to communicate the color profile from the exif data.
+     * Allows SkRawCodec to communicate the color profile and orientation from the exif data.
      */
     static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*,
-            std::unique_ptr<SkCodecs::ColorProfile> defaultColorProfile);
+            std::unique_ptr<SkCodecs::ColorProfile> defaultColorProfile,
+            SkEncodedOrigin defaultOrigin = kDefault_SkEncodedOrigin);
 
     /*
      * Creates an instance of the decoder

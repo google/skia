@@ -65,12 +65,13 @@ static SkJpegMarkerList get_sk_marker_list(jpeg_decompress_struct* dinfo) {
     return markerList;
 }
 
-static SkEncodedOrigin get_exif_orientation(sk_sp<const SkData> exifData) {
-    SkEncodedOrigin origin = kDefault_SkEncodedOrigin;
+static SkEncodedOrigin get_exif_orientation(sk_sp<const SkData> exifData,
+                                            SkEncodedOrigin defaultOrigin) {
+    SkEncodedOrigin origin;
     if (exifData && SkParseEncodedOrigin(exifData->bytes(), exifData->size(), &origin)) {
         return origin;
     }
-    return kDefault_SkEncodedOrigin;
+    return defaultOrigin;
 }
 
 enum class SaveMarkers : bool {
@@ -123,7 +124,8 @@ std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(std::unique_ptr<SkStream> s
 
 std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(
         std::unique_ptr<SkStream> stream,
-        Result* result, std::unique_ptr<SkCodecs::ColorProfile> defaultColorProfile) {
+        Result* result, std::unique_ptr<SkCodecs::ColorProfile> defaultColorProfile,
+        SkEncodedOrigin defaultOrigin) {
     SkASSERT(result);
     if (!stream) {
         *result = SkCodec::kInvalidInput;
@@ -146,7 +148,8 @@ std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(
     auto metadataDecoder = std::make_unique<SkJpegMetadataDecoderImpl>(get_sk_marker_list(dinfo));
 
     SkEncodedOrigin orientation =
-            get_exif_orientation(metadataDecoder->getExifMetadata(/*copyData=*/false));
+            get_exif_orientation(metadataDecoder->getExifMetadata(/*copyData=*/false),
+                                 defaultOrigin);
 
     std::unique_ptr<SkCodecs::ColorProfile> profile;
     if (auto iccProfileData = metadataDecoder->getICCProfileData(/*copyData=*/true)) {

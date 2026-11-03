@@ -1210,6 +1210,34 @@ DEF_TEST(Codec_raw_notseekable, r) {
 
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
 }
+
+// Test that SkRawCodec propagates the outer DNG EXIF orientation to SkJpegCodec when the
+// embedded JPEG preview has no internal EXIF orientation marker.
+DEF_TEST(Codec_raw_preview_orientation, r) {
+    constexpr char path[] = "images/dng_with_preview.dng";
+    sk_sp<SkData> data(GetResourceAsData(path));
+    if (!data) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+
+    // Offset 138 is the little-endian uint16 value of the IFD0 Orientation tag (0x0112)
+    // in dng_with_preview.dng, whose embedded JPEG preview has no internal EXIF marker.
+    constexpr size_t kOrientationOffset = 138;
+    REPORTER_ASSERT(r, data->size() > kOrientationOffset + 1);
+    for (int o = kTopLeft_SkEncodedOrigin; o <= kLast_SkEncodedOrigin; ++o) {
+        sk_sp<SkData> modified = SkData::MakeWithCopy(data->bytes(), data->size());
+        uint8_t* bytes = static_cast<uint8_t*>(modified->writable_data());
+        bytes[kOrientationOffset] = static_cast<uint8_t>(o);
+        bytes[kOrientationOffset + 1] = 0;
+
+        std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(std::move(modified)));
+        REPORTER_ASSERT(r, codec);
+        if (codec) {
+            REPORTER_ASSERT(r, codec->getOrigin() == static_cast<SkEncodedOrigin>(o));
+        }
+    }
+}
 #endif
 
 // Test that even if webp_parse_header fails to peek enough, it will fall back to read()

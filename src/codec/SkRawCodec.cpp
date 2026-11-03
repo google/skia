@@ -731,8 +731,13 @@ std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> st
                 *result = kInvalidInput;
                 return nullptr;
             }
+            SkEncodedOrigin origin = kDefault_SkEncodedOrigin;
+            if (imageData.exif_orientation >= kTopLeft_SkEncodedOrigin &&
+                imageData.exif_orientation <= kLast_SkEncodedOrigin) {
+                origin = static_cast<SkEncodedOrigin>(imageData.exif_orientation);
+            }
             return SkJpegCodec::MakeFromStream(std::move(memoryStream), result,
-                                               std::move(profile));
+                                               std::move(profile), origin);
         }
     }
 
