@@ -1080,7 +1080,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 					"QuadroP400":   "10de:1cb3",
 					"IntelIrisXe":  "8086:9a49",
 					"IntelArcB570": "8086:e20c-26.0.3",
-					"RadeonVega8":  "1002:1638-23.2.1",
+					"RadeonVega8":  "1002:1638-25.2.8",
 				}[b.Parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Linux GPU mapping.", b.Parts["cpu_or_gpu_value"])
