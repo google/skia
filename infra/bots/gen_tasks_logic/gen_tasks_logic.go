@@ -1926,6 +1926,7 @@ func (b *jobBuilder) dmStandaloneWasm() {
 			"--dm_properties", b.recipeProperties["dm_properties"],
 			"--chrome_cache", CACHES_CHROME[0].Path,
 			"--build", OUTPUT_BUILD,
+			"--work_path", "./work",
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
 			"--task_name", b.Name,
