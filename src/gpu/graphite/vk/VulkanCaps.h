@@ -89,6 +89,7 @@ public:
     }
 
     bool mustLoadFullImageForMSAA() const { return fMustLoadFullImageForMSAA; }
+    bool sleepAfterLostDeviceWait() const { return fSleepAfterLostDeviceWait; }
 
     bool supportsFrameBoundary() const { return fSupportsFrameBoundary; }
 
@@ -237,6 +238,7 @@ private:
 
     // Flags to enable workarounds for driver bugs
     bool fMustLoadFullImageForMSAA = false;
+    bool fSleepAfterLostDeviceWait = false;
 
     // Cache the ReadonlySrcStageMask; optimistically adding the compute bit is a violation of the
     // spec if we don't have compute support, so initialize and cache it here instead.

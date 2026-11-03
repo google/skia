@@ -24,7 +24,9 @@
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cstring>
+#include <thread>
 
 class GrGpu;
 
@@ -679,6 +681,9 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
         // restart the whole device, so waiting on the queue shouldn't have any performance impact.
         if (submitResult == VK_ERROR_DEVICE_LOST) {
             GR_VK_CALL(gpu->vkInterface(), QueueWaitIdle(queue));
+            if (gpu->vkCaps().sleepAfterLostDeviceWait()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
         } else {
             SkASSERT(submitResult == VK_ERROR_OUT_OF_HOST_MEMORY ||
                      submitResult == VK_ERROR_OUT_OF_DEVICE_MEMORY);

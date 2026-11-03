@@ -118,6 +118,10 @@ public:
     // vkWaitForFences on each outstanding command buffer to make sure the driver signals the fence.
     bool mustSyncCommandBuffersWithQueue() const { return fMustSyncCommandBuffersWithQueue; }
 
+    // On device loss, some Mali drivers may return from vkQueueWaitIdle and vkDeviceWaitIdle
+    // before it's safe to destroy the device. crbug.com/580857377
+    bool sleepAfterLostDeviceWait() const { return fSleepAfterLostDeviceWait; }
+
     // Returns true if we should always make dedicated allocations for VkImages.
     bool shouldAlwaysUseDedicatedImageMemory() const {
         return fShouldAlwaysUseDedicatedImageMemory;
@@ -454,6 +458,7 @@ private:
     skia_private::STArray<1, skgpu::VulkanYcbcrConversionInfo> fYcbcrInfos;
 
     bool fMustSyncCommandBuffersWithQueue = false;
+    bool fSleepAfterLostDeviceWait = false;
     bool fShouldAlwaysUseDedicatedImageMemory = false;
 
     bool fAvoidUpdateBuffers = false;
