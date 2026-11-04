@@ -56,6 +56,8 @@ public:
 
     const gpu::SubRunContainerOwner& subRuns() const { return fSubRuns; }
 
+    bool canDraw(const SkMatrix& drawMatrix, bool supportBilerpAtlas) const;
+
     // Change memory management to handle the data after Slug, but in the same allocation
     // of memory. Only allow placement new.
     void operator delete(void* p) { ::operator delete(p); }
