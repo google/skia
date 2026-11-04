@@ -531,6 +531,9 @@
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Fast"
   },
   {
+    "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Fontations"
+  },
+  {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Fuzz"
   },
   {
@@ -1853,6 +1856,9 @@
   },
   {
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Release-All-MSAN"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts_Fontations"
   },
   {
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKVX_DISABLE_SIMD"

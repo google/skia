@@ -78,7 +78,10 @@ bool textBlobsAllPathsEqual(sk_sp<const SkTextBlob> blobA,
     SkTextBlob::Iter::ExperimentalRun runAInfo;
     SkTextBlob::Iter::ExperimentalRun runBInfo;
     while (iterA.experimentalNext(&runAInfo)) {
-        SkASSERT(iterB.experimentalNext(&runBInfo));
+        // Outside SkASSERT: release builds drop the condition, and with it the call
+        if (!iterB.experimentalNext(&runBInfo) || runBInfo.count != runAInfo.count) {
+            return false;
+        }
         for (int i = 0; i < runAInfo.count; ++i) {
             SkPath pathA = runAInfo.font.getPath(runAInfo.glyphs[i]).value_or(SkPath()),
                    pathB = runBInfo.font.getPath(runBInfo.glyphs[i]).value_or(SkPath());
