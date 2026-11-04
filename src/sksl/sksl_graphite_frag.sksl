@@ -16,9 +16,12 @@ const int $kShapeTypeRect = 0;
 const int $kShapeTypeRRect = 1;
 const int $kShapeTypeCircle = 2;
 
-// Matches GrTextureEffect::kLinearInset, to make sure we don't touch an outer
-// row or column with a weight of 0 when linear filtering.
-const float $kLinearInset = 0.5 + 0.00001;
+// Matches skgpu::kLinearInset, to make sure we don't touch an outer row or column with a weight of
+// 0 when linear filtering.
+const float $kLinearInset = 0.5 + 1.0 / 512;
+
+// NOTE: Was meant to match GrTextureEffect::kLinearInset but was off by a factor of 10.
+const float $kLegacyLinearInset_DO_NOT_USE = 0.5 + 0.00001;
 
 $pure half4 sk_error() {
     return half4(1.0, 0.0, 0.0, 1.0);
@@ -302,6 +305,97 @@ $pure half4 $sample_image(float2 pos, float2 invImgSize, sampler2D s) {
     return sample(s, pos * invImgSize);
 }
 
+$pure half4 $sample_image_subset_legacy_inset(float2 pos,
+                                              float2 invImgSize,
+                                              float4 subset,
+                                              int tileModeX,
+                                              int tileModeY,
+                                              int filterMode,
+                                              float2 linearFilterInset,
+                                              sampler2D s) {
+    // Do hard-edge shader transitions to the border color for nearest-neighbor decal tiling at the
+    // subset boundaries. Snap the input coordinates to nearest neighbor before comparing to the
+    // subset rect, to avoid GPU interpolation errors. See skbug.com/40041736.
+    if (tileModeX == $kTileModeDecal && filterMode == $kFilterModeNearest) {
+        float snappedX = floor(pos.x) + 0.5;
+        if (snappedX < subset.x || snappedX > subset.z) {
+            return half4(0);
+        }
+    }
+    if (tileModeY == $kTileModeDecal && filterMode == $kFilterModeNearest) {
+        float snappedY = floor(pos.y) + 0.5;
+        if (snappedY < subset.y || snappedY > subset.w) {
+            return half4(0);
+        }
+    }
+
+    pos.x = $tile(tileModeX, pos.x, subset.x, subset.z);
+    pos.y = $tile(tileModeY, pos.y, subset.y, subset.w);
+
+    // Clamp to an inset subset to prevent sampling neighboring texels when coords fall exactly at
+    // texel boundaries.
+    float4 insetClamp;
+    if (filterMode == $kFilterModeNearest) {
+        insetClamp = float4(floor(subset.xy) + $kLegacyLinearInset_DO_NOT_USE,
+                            ceil(subset.zw) - $kLegacyLinearInset_DO_NOT_USE);
+    } else {
+        insetClamp = float4(subset.xy + linearFilterInset, subset.zw - linearFilterInset);
+    }
+    float2 clampedPos = clamp(pos, insetClamp.xy, insetClamp.zw);
+    half4 color = $sample_image(clampedPos, invImgSize, s);
+
+    if (filterMode == $kFilterModeLinear) {
+        // Remember the amount the coord moved for clamping. This is used to implement shader-based
+        // filtering for repeat and decal tiling.
+        half2 error = half2(pos - clampedPos);
+        half2 absError = abs(error);
+
+        // Do 1 or 3 more texture reads depending on whether both x and y tiling modes are repeat
+        // and whether we're near a single subset edge or a corner. Then blend the multiple reads
+        // using the error values calculated above.
+        bool sampleExtraX = tileModeX == $kTileModeRepeat;
+        bool sampleExtraY = tileModeY == $kTileModeRepeat;
+        if (sampleExtraX || sampleExtraY) {
+            float extraCoordX;
+            float extraCoordY;
+            half4 extraColorX;
+            half4 extraColorY;
+            if (sampleExtraX) {
+                extraCoordX = error.x > 0 ? insetClamp.x : insetClamp.z;
+                extraColorX = $sample_image(float2(extraCoordX, clampedPos.y),
+                                            invImgSize, s);
+            }
+            if (sampleExtraY) {
+                extraCoordY = error.y > 0 ? insetClamp.y : insetClamp.w;
+                extraColorY = $sample_image(float2(clampedPos.x, extraCoordY),
+                                            invImgSize, s);
+            }
+            if (sampleExtraX && sampleExtraY) {
+                half4 extraColorXY = $sample_image(float2(extraCoordX, extraCoordY),
+                                                   invImgSize, s);
+                color = mix(mix(color, extraColorX, absError.x),
+                            mix(extraColorY, extraColorXY, absError.x),
+                            absError.y);
+            } else if (sampleExtraX) {
+                color = mix(color, extraColorX, absError.x);
+            } else if (sampleExtraY) {
+                color = mix(color, extraColorY, absError.y);
+            }
+        }
+
+        // Do soft edge shader filtering for decal tiling and linear filtering using the error
+        // values calculated above.
+        if (tileModeX == $kTileModeDecal) {
+            color *= max(1 - absError.x, 0);
+        }
+        if (tileModeY == $kTileModeDecal) {
+            color *= max(1 - absError.y, 0);
+        }
+    }
+
+    return color;
+}
+
 $pure half4 $sample_image_subset(float2 pos,
                                  float2 invImgSize,
                                  float4 subset,
@@ -392,6 +486,43 @@ $pure half4 $sample_image_subset(float2 pos,
     return color;
 }
 
+$pure half4 $cubic_filter_image_legacy_inset(float2 pos,
+                                             float2 invImgSize,
+                                             float4 subset,
+                                             int tileModeX,
+                                             int tileModeY,
+                                             half4x4 coeffs,
+                                             sampler2D s) {
+    // Determine pos's fractional offset f between texel centers.
+    float2 f = fract(pos - 0.5);
+    // Sample 16 points at 1-pixel intervals from [p - 1.5 ... p + 1.5].
+    pos -= 1.5;
+    // Snap to texel centers to prevent sampling neighboring texels.
+    pos = floor(pos) + 0.5;
+
+    half4 wx = coeffs * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);
+    half4 wy = coeffs * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);
+    half4 color = half4(0);
+    for (int y = 0; y < 4; ++y) {
+        half4 rowColor = half4(0);
+        for (int x = 0; x < 4; ++x) {
+            rowColor += wx[x] * $sample_image_subset_legacy_inset(
+                    pos + float2(x, y),
+                    invImgSize,
+                    subset,
+                    tileModeX, tileModeY,
+                    $kFilterModeNearest,
+                    float2($kLegacyLinearInset_DO_NOT_USE),
+                    s);
+        }
+        color += wy[y] * rowColor;
+    }
+    // Bicubic can send colors out of range, so clamp to get them back in gamut, assuming premul.
+    color.a = saturate(color.a);
+    color.rgb = clamp(color.rgb, half3(0.0), color.aaa);
+    return color;
+}
+
 $pure half4 $cubic_filter_image(float2 pos,
                                 float2 invImgSize,
                                 float4 subset,
@@ -424,6 +555,17 @@ $pure half4 $cubic_filter_image(float2 pos,
     return color;
 }
 
+$pure half4 sk_image_shader_legacy_inset(float2 coords,
+                                         float2 invImgSize,
+                                         float4 subset,
+                                         int tileModeX,
+                                         int tileModeY,
+                                         int filterMode,
+                                         sampler2D s) {
+    return $sample_image_subset_legacy_inset(coords, invImgSize, subset, tileModeX, tileModeY,
+                                             filterMode, float2($kLegacyLinearInset_DO_NOT_USE), s);
+}
+
 $pure half4 sk_image_shader(float2 coords,
                             float2 invImgSize,
                             float4 subset,
@@ -435,11 +577,24 @@ $pure half4 sk_image_shader(float2 coords,
                                 filterMode, float2($kLinearInset), s);
 }
 
+// NOTE: Does not need a legacy inset staging function since `subsetInsetClamp` already has the
+// inset applied via C++ code that accounts for the legacy mode.
 $pure half4 sk_image_shader_clamp(float2 coords,
                                   float2 invImgSize,
                                   float4 subsetInsetClamp,
                                   sampler2D s) {
     return $sample_image(clamp(coords, subsetInsetClamp.xy, subsetInsetClamp.zw), invImgSize, s);
+}
+
+$pure half4 sk_cubic_image_shader_legacy_inset(float2 coords,
+                                               float2 invImgSize,
+                                               float4 subset,
+                                               int tileModeX,
+                                               int tileModeY,
+                                               half4x4 cubicCoeffs,
+                                               sampler2D s) {
+    return $cubic_filter_image_legacy_inset(
+            coords, invImgSize, subset, tileModeX, tileModeY, cubicCoeffs, s);
 }
 
 $pure half4 sk_cubic_image_shader(float2 coords,
@@ -485,6 +640,60 @@ $pure half4 $yuv_to_rgb(half4 sampleColorY,
     half U = dot(channelSelectU, sampleColorU);
     half V = dot(channelSelectV, sampleColorV);
     return $yuv_to_rgb_no_swizzle(Y, U, V, alpha, yuvToRGBMatrix, yuvToRGBTranslate);
+}
+
+$pure half4 sk_yuv_image_shader_legacy_inset(float2 coords,
+                                             float2 invImgSizeY,
+                                             float2 invImgSizeUV,
+                                             float4 subset,
+                                             float2 linearFilterUVInset,
+                                             int tileModeX,
+                                             int tileModeY,
+                                             int filterModeY,
+                                             int filterModeUV,
+                                             half4 channelSelectY,
+                                             half4 channelSelectU,
+                                             half4 channelSelectV,
+                                             half4 channelSelectA,
+                                             half3x3 yuvToRGBMatrix,
+                                             half3 yuvToRGBTranslate,
+                                             sampler2D sY,
+                                             sampler2D sU,
+                                             sampler2D sV,
+                                             sampler2D sA) {
+    // If the filter modes are different between Y and UV, this means that
+    // the base filtermode is nearest and we have to snap the coords to Y's
+    // texel centers to get the correct positions for UV.
+    if (filterModeY != filterModeUV) {
+        coords = floor(coords) + 0.5;
+    }
+
+    int tileModeX_UV = tileModeX == $kTileModeDecal ? $kTileModeClamp : tileModeX;
+    int tileModeY_UV = tileModeY == $kTileModeDecal ? $kTileModeClamp : tileModeY;
+
+    half4 sampleColorY, sampleColorU, sampleColorV;
+    sampleColorY = $sample_image_subset_legacy_inset(
+            coords, invImgSizeY, subset, tileModeX, tileModeY,
+            filterModeY, float2($kLegacyLinearInset_DO_NOT_USE), sY);
+    sampleColorU = $sample_image_subset_legacy_inset(
+            coords, invImgSizeUV, subset, tileModeX_UV, tileModeY_UV,
+            filterModeUV, linearFilterUVInset, sU);
+    sampleColorV = $sample_image_subset_legacy_inset(
+            coords, invImgSizeUV, subset, tileModeX_UV, tileModeY_UV,
+            filterModeUV, linearFilterUVInset, sV);
+    half alpha;
+    if (channelSelectA == half4(1)) {
+        alpha = 1;
+    } else {
+        half4 sampleColorA = $sample_image_subset_legacy_inset(
+                coords, invImgSizeY, subset, tileModeX, tileModeY,
+                filterModeY, float2($kLegacyLinearInset_DO_NOT_USE), sA);
+        alpha = dot(channelSelectA, sampleColorA);
+    }
+
+    return $yuv_to_rgb(sampleColorY, sampleColorU, sampleColorV, alpha,
+                       channelSelectY, channelSelectU, channelSelectV,
+                       yuvToRGBMatrix, yuvToRGBTranslate);
 }
 
 $pure half4 sk_yuv_image_shader(float2 coords,
@@ -535,6 +744,66 @@ $pure half4 sk_yuv_image_shader(float2 coords,
     return $yuv_to_rgb(sampleColorY, sampleColorU, sampleColorV, alpha,
                        channelSelectY, channelSelectU, channelSelectV,
                        yuvToRGBMatrix, yuvToRGBTranslate);
+}
+
+$pure half4 sk_packed_yuv_image_shader_legacy_inset(float2 coords,
+                                                    float2 invImgSize,
+                                                    float4 subset,
+                                                    int tileModeX,
+                                                    int tileModeY,
+                                                    half4 channelSelectY,
+                                                    half4 channelSelectU,
+                                                    half4 channelSelectV,
+                                                    half3x3 yuvToRGBMatrix,
+                                                    half3 yuvToRGBTranslate,
+                                                    sampler2D sPlane) {
+    // Packed 4:2:2: the plane stores one 4-channel texel per 2x1 block of pixels, channels 0..3
+    // hold (Y0, U, Y1, V). The coords and subset arrive in pixel space (the image's encoded origin
+    // has been applied upstream) with the plane at half horizontal resolution, so the pixel's
+    // parity selects its channels and the texel fetch halves the x coordinate. Sampling is always
+    // nearest.
+
+    // Decal has to be resolved here rather than by the sampling helper: this plane carries no
+    // alpha, so a zeroed YUV sample would convert to an opaque color instead of transparency.
+    if (tileModeX == $kTileModeDecal) {
+        float snappedX = floor(coords.x) + 0.5;
+        if (snappedX < subset.x || snappedX > subset.z) {
+            return half4(0);
+        }
+    }
+    if (tileModeY == $kTileModeDecal) {
+        float snappedY = floor(coords.y) + 0.5;
+        if (snappedY < subset.y || snappedY > subset.w) {
+            return half4(0);
+        }
+    }
+
+    // Tile before deriving the pixel parity: repeat and mirror can map to a pixel of the opposite
+    // parity, changing which luma channel (Y0 or Y1) to select from the pair.
+    float2 tiled = float2($tile(tileModeX, coords.x, subset.x, subset.z),
+                          $tile(tileModeY, coords.y, subset.y, subset.w));
+
+    // Texel centers of the sampled region, so that tiled coords landing exactly on a subset
+    // boundary resolve to the edge texel rather than its neighbor. The plane's x texel centers span
+    // half the pixel range.
+    float4 insetClamp = float4(floor(subset.xy) + $kLegacyLinearInset_DO_NOT_USE,
+                               ceil(subset.zw) - $kLegacyLinearInset_DO_NOT_USE);
+
+    float pixelIdx = floor(clamp(tiled.x, insetClamp.x, insetClamp.z));
+    bool odd = mod(pixelIdx, 2.0) > 0.5;
+    float2 texelCenter = float2(floor(pixelIdx * 0.5) + 0.5,
+                                clamp(floor(tiled.y) + 0.5, insetClamp.y, insetClamp.w));
+    half4 sample = $sample_image(texelCenter, invImgSize, sPlane);
+
+    // Even pixels take (Y0, U, V) from channels 0, 1 and 3 and odd pixels take (Y1, U, V) from
+    // channels 2, 1 and 3 of the pair's texel. The swizzle-select for Y's odd channel is two
+    // channels over from its even channel.
+    half4 channelSelectYOdd = half4(channelSelectY.zw, channelSelectY.xy);
+    half Y = odd ? dot(channelSelectYOdd, sample) : dot(channelSelectY, sample);
+    half U = dot(channelSelectU, sample);
+    half V = dot(channelSelectV, sample);
+
+    return $yuv_to_rgb_no_swizzle(Y, U, V, 1, yuvToRGBMatrix, yuvToRGBTranslate);
 }
 
 $pure half4 sk_packed_yuv_image_shader(float2 coords,
@@ -596,6 +865,47 @@ $pure half4 sk_packed_yuv_image_shader(float2 coords,
     return $yuv_to_rgb_no_swizzle(Y, U, V, 1, yuvToRGBMatrix, yuvToRGBTranslate);
 }
 
+$pure half4 sk_cubic_yuv_image_shader_legacy_inset(float2 coords,
+                                                   float2 invImgSizeY,
+                                                   float2 invImgSizeUV,
+                                                   float4 subset,
+                                                   int tileModeX,
+                                                   int tileModeY,
+                                                   half4x4 cubicCoeffs,
+                                                   half4 channelSelectY,
+                                                   half4 channelSelectU,
+                                                   half4 channelSelectV,
+                                                   half4 channelSelectA,
+                                                   half3x3 yuvToRGBMatrix,
+                                                   half3 yuvToRGBTranslate,
+                                                   sampler2D sY,
+                                                   sampler2D sU,
+                                                   sampler2D sV,
+                                                   sampler2D sA) {
+    int tileModeX_UV = tileModeX == $kTileModeDecal ? $kTileModeClamp : tileModeX;
+    int tileModeY_UV = tileModeY == $kTileModeDecal ? $kTileModeClamp : tileModeY;
+
+    half4 sampleColorY, sampleColorU, sampleColorV;
+    sampleColorY = $cubic_filter_image_legacy_inset(
+            coords, invImgSizeY, subset, tileModeX, tileModeY, cubicCoeffs, sY);
+    sampleColorU = $cubic_filter_image_legacy_inset(
+            coords, invImgSizeUV, subset, tileModeX_UV, tileModeY_UV, cubicCoeffs, sU);
+    sampleColorV = $cubic_filter_image_legacy_inset(
+            coords, invImgSizeUV, subset, tileModeX_UV, tileModeY_UV, cubicCoeffs, sV);
+    half alpha;
+    if (channelSelectA == half4(1)) {
+        alpha = 1;
+    } else {
+        half4 sampleColorA = $cubic_filter_image_legacy_inset(
+                coords, invImgSizeY, subset, tileModeX, tileModeY, cubicCoeffs, sA);
+        alpha = dot(channelSelectA, sampleColorA);
+    }
+
+    return $yuv_to_rgb(sampleColorY, sampleColorU, sampleColorV, alpha,
+                       channelSelectY, channelSelectU, channelSelectV,
+                       yuvToRGBMatrix, yuvToRGBTranslate);
+}
+
 $pure half4 sk_cubic_yuv_image_shader(float2 coords,
                                       float2 invImgSizeY,
                                       float2 invImgSizeUV,  // Relative to Y's coordinate space
@@ -629,6 +939,59 @@ $pure half4 sk_cubic_yuv_image_shader(float2 coords,
     } else {
         half4 sampleColorA = $cubic_filter_image(coords, invImgSizeY, subset, tileModeX, tileModeY,
                                                  cubicCoeffs, sA);
+        alpha = dot(channelSelectA, sampleColorA);
+    }
+
+    return $yuv_to_rgb(sampleColorY, sampleColorU, sampleColorV, alpha,
+                       channelSelectY, channelSelectU, channelSelectV,
+                       yuvToRGBMatrix, yuvToRGBTranslate);
+}
+
+$pure half4 sk_hw_yuv_image_shader_legacy_inset(float2 coords,
+                                                float2 invImgSizeY,
+                                                float2 invImgSizeUV,
+                                                float4 subset,
+                                                float2 linearFilterUVInset,
+                                                half4 channelSelectY,
+                                                half4 channelSelectU,
+                                                half4 channelSelectV,
+                                                half4 channelSelectA,
+                                                half3x3 yuvToRGBMatrix,
+                                                half3 yuvToRGBTranslate,
+                                                sampler2D sY,
+                                                sampler2D sU,
+                                                sampler2D sV,
+                                                sampler2D sA) {
+    // If the base filtermode is nearest and we have to snap the coords to Y's
+    // texel centers to get the correct positions for UV, and then clamp so that
+    // we don't sample any coordinates beyond the boundary.
+    float4 subsetUV = subset;
+    if (linearFilterUVInset.x < 0) {
+        coords = floor(coords) + 0.5;
+        // Snap Y subset to texel boundaries for nearest neighbor filter mode;
+        // use the original subset for UV since it will have linear filtering.
+        subset = float4(floor(subset.xy), ceil(subset.zw));
+    }
+
+    float2 coordsUV = coords;
+    if (linearFilterUVInset.y < 0) {
+        linearFilterUVInset = abs(linearFilterUVInset);
+        coordsUV =
+                clamp(coords, subsetUV.xy + linearFilterUVInset, subsetUV.zw - linearFilterUVInset);
+        coords = clamp(coords,
+                       subset.xy + $kLegacyLinearInset_DO_NOT_USE,
+                       subset.zw - $kLegacyLinearInset_DO_NOT_USE);
+    }
+
+    half4 sampleColorY, sampleColorU, sampleColorV, sampleColorA;
+    sampleColorY = $sample_image(coords, invImgSizeY, sY);
+    sampleColorU = $sample_image(coordsUV, invImgSizeUV, sU);
+    sampleColorV = $sample_image(coordsUV, invImgSizeUV, sV);
+    half alpha;
+    if (channelSelectA == half4(1)) {
+        alpha = 1;
+    } else {
+        half4 sampleColorA = $sample_image(coords, invImgSizeY, sA);
         alpha = dot(channelSelectA, sampleColorA);
     }
 
@@ -686,6 +1049,52 @@ $pure half4 sk_hw_yuv_image_shader(float2 coords,
     return $yuv_to_rgb(sampleColorY, sampleColorU, sampleColorV, alpha,
                        channelSelectY, channelSelectU, channelSelectV,
                        yuvToRGBMatrix, yuvToRGBTranslate);
+}
+
+
+$pure half4 sk_hw_yuv_no_swizzle_image_shader_legacy_inset(float2 coords,
+                                                           float2 invImgSizeY,
+                                                           float2 invImgSizeUV,
+                                                           float4 subset,
+                                                           float2 linearFilterUVInset,
+                                                           half3x3 yuvToRGBMatrix,
+                                                           half4 yuvToRGBXlateAlphaParam,
+                                                           sampler2D sY,
+                                                           sampler2D sU,
+                                                           sampler2D sV,
+                                                           sampler2D sA) {
+    // If the base filtermode is nearest and we have to snap the coords to Y's
+    // texel centers to get the correct positions for UV, and then clamp so that
+    // we don't sample any coordinates beyond the boundary.
+    float4 subsetUV = subset;
+    if (linearFilterUVInset.x < 0) {
+        coords = floor(coords) + 0.5;
+        // Snap Y subset to texel boundaries for nearest neighbor filter mode;
+        // use the original subset for UV since it will have linear filtering.
+        subset = float4(floor(subset.xy), ceil(subset.zw));
+    }
+
+    float2 coordsUV = coords;
+    if (linearFilterUVInset.y < 0) {
+        linearFilterUVInset = abs(linearFilterUVInset);
+        coordsUV =
+                clamp(coords, subsetUV.xy + linearFilterUVInset, subsetUV.zw - linearFilterUVInset);
+        coords = clamp(coords,
+                       subset.xy + $kLegacyLinearInset_DO_NOT_USE,
+                       subset.zw - $kLegacyLinearInset_DO_NOT_USE);
+    }
+
+    half4 sampleColorY, sampleColorU, sampleColorV, sampleColorA;
+    half Y = $sample_image(coords, invImgSizeY, sY).r;
+    half U = $sample_image(coordsUV, invImgSizeUV, sU).r;
+    half V = $sample_image(coordsUV, invImgSizeUV, sV).r;
+    // When it's a Y_U_V_A texture, yuvToRGBXlateAlphaParam.w is 0 and we have a real A sampler so
+    // alpha is just that saturated value (should be a no-op). For Y_U_V, we set
+    // yuvToRGBXlateAlphaParam.w to 1 and sample from Y, which after the saturate is always 1.
+    half alpha = saturate($sample_image(coords, invImgSizeY, sA).r + yuvToRGBXlateAlphaParam.w);
+
+    return $yuv_to_rgb_no_swizzle(Y, U, V, alpha,
+                                  yuvToRGBMatrix, yuvToRGBXlateAlphaParam.xyz);
 }
 
 $pure half4 sk_hw_yuv_no_swizzle_image_shader(float2 coords,

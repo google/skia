@@ -519,9 +519,12 @@ void add_clamp_image_uniform_data(const KeyContext& keyContext,
     keyContext.pipelineDataGatherer()->write(SkSize::Make(1.f/imgData.fImgSize.width(),
                                                           1.f/imgData.fImgSize.height()));
 
-    // Matches GrTextureEffect::kLinearInset, to make sure we don't touch an outer row or column
-    // with a weight of 0 when linear filtering.
+#if defined(SK_LEGACY_LINEAR_INSET)
+    // NOTE: Was meant to match GrTextureEffect::kLinearInset but was smaller by a factor of 10!
     const float kLinearInset = 0.5f + 0.00001f;
+#else
+    const float kLinearInset = skgpu::kLinearInset;
+#endif
 
     // The subset should clamp texel coordinates to an inset subset to prevent sampling neighboring
     // texels when coords fall exactly at texel boundaries.
@@ -2063,6 +2066,13 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
         }
     }
 
+#if defined(SK_LEGACY_LINEAR_INSET)
+    // NOTE: Historically YUV shaders didn't have epsilon, but it probably should have
+    static constexpr float kLinearInset = 0.5f;
+#else
+    static constexpr float kLinearInset = skgpu::kLinearInset;
+#endif
+
     auto [ssx, ssy] = yuvaImage->uvSubsampleFactors();
     if (ssx > 1 || ssy > 1) {
         // We need to adjust the image size we use for sampling to reflect the actual image size of
@@ -2085,8 +2095,8 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
             // values may come from outside the subset. Hence, we will use the default inset
             // in Y texel space of 1/2. This applies the wrap mode to the subset but allows
             // linear filtering to read pixels that are just outside the subset.
-            imgData.fLinearFilterUVInset.fX = 0.5f;
-            imgData.fLinearFilterUVInset.fY = 0.5f;
+            imgData.fLinearFilterUVInset.fX = kLinearInset;
+            imgData.fLinearFilterUVInset.fY = kLinearInset;
         } else if (imgData.fSampling.filter == SkFilterMode::kLinear) {
             // We need to inset so that we aren't sampling outside the subset, but no farther.
             // Start by mapping the subset to UV texel space
@@ -2100,12 +2110,12 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
             SkIRect iSubsetUV = subsetUV.roundOut();
             // Inset in UV and map back to Y texel space. This gives us the largest possible
             // inset rectangle that will not sample outside of the subset texels in UV space.
-            SkRect insetRectUV = {(iSubsetUV.fLeft  +0.5f)*ssx,
-                                  (iSubsetUV.fTop   +0.5f)*ssy,
-                                  (iSubsetUV.fRight -0.5f)*ssx,
-                                  (iSubsetUV.fBottom-0.5f)*ssy};
+            SkRect insetRectUV = {(iSubsetUV.fLeft  +kLinearInset)*ssx,
+                                  (iSubsetUV.fTop   +kLinearInset)*ssy,
+                                  (iSubsetUV.fRight -kLinearInset)*ssx,
+                                  (iSubsetUV.fBottom-kLinearInset)*ssy};
             // Compute intersection with original inset
-            SkRect insetRect = imgData.fSubset.makeOutset(-0.5f, -0.5f);
+            SkRect insetRect = imgData.fSubset.makeInset(kLinearInset, kLinearInset);
             (void) insetRect.intersect(insetRectUV);
             // Compute max inset values to ensure we always remain within the subset.
             imgData.fLinearFilterUVInset = {std::max(insetRect.fLeft - imgData.fSubset.fLeft,

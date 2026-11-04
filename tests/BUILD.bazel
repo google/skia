@@ -71,6 +71,7 @@ filegroup(
         "AndroidCodecTest.cpp",
         "AnimatedImageTest.cpp",
         "AnnotationTest.cpp",
+        "ApproxFitLinearInsetTest.cpp",
         "ArenaAllocTest.cpp",
         "AsADashTest.cpp",
         "AvifTest.cpp",
