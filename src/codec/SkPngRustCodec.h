@@ -88,9 +88,9 @@ private:
         DecodingDstInfo& dst() { return std::get<DecodingDstInfo>(fDst); }
 
         // Intermediate buffer that holds color-transformed pixels that are
-        // ready to be blended with the destination. Used only when this frame
-        // uses `SkCodecAnimation::Blend::kSrcOver`. For interlaced images this
-        // buffer holds the whole frame; otherwise it holds only a single row.
+        // ready to be blended with the destination. Used only when a dependent
+        // frame uses `SkCodecAnimation::Blend::kSrcOver`. For interlaced images
+        // this buffer holds the whole frame; otherwise it holds only a single row.
         //
         // This is also used in the case of subsets or sampling for interlaced
         // images. We use this buffer as a full sized encoded image, which we then
@@ -120,7 +120,7 @@ private:
         int fCurrentSourceRow = 0;
         // Number of destination rows written to `fDst` so far:
         // * Non-interlaced: incremented after each decoded row.
-        // * Interlaced full-image: updated in `expandDecodedInterlacedRow` from
+        // * Interlaced unbuffered: updated in `expandDecodedInterlacedRow` from
         //   `fInterlacedDecodedHeight`.
         // * Interlaced subset/sampled: updated when flushing `fPreblendBuffer` in
         //   `writeSubsetOrSampleToOutput`.
@@ -130,8 +130,8 @@ private:
         // Only used for interlaced images.
         size_t fYByteOffset = 0;
 
-        // Height (in rows) initialized so far by `splat_last_interlaced_row` (+8
-        // rows per Pass 1 scanline).
+        // Height (in rows) covered so far by `expandDecodedInterlacedRow` (+8 rows
+        // per Pass 1 scanline, clamped to `fDstRowCount`).
         int fInterlacedDecodedHeight = 0;
     };
 

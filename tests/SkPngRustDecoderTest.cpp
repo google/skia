@@ -36,6 +36,7 @@
 #include "include/core/SkStream.h"
 #include "include/private/SkGainmapInfo.h"
 #include "src/codec/SkCodecPriv.h"
+#include "tests/CodecPriv.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -519,6 +520,58 @@ static void AssertAndroidStaticApng(skiatest::Reporter* r,
 #endif
 
 #if !defined(SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID)
+static void AssertSubrectColor(skiatest::Reporter* r,
+                               const SkBitmap& actual,
+                               const SkIRect& subrect,
+                               SkColor subrectColor,
+                               SkColor outsideColor = SK_ColorTRANSPARENT) {
+    SkBitmap expected;
+    expected.allocPixels(actual.info());
+    expected.eraseColor(outsideColor);
+    expected.erase(subrectColor, subrect);
+    CompareBitmaps(r, actual, expected);
+}
+
+// Returns a copy of `data` with its first `fcTL` chunk's `dispose_op` byte set
+// to `disposeOp` and its chunk CRC-32 updated.
+static sk_sp<SkData> WithFirstFctlDisposeOp(const SkData* data, uint8_t disposeOp) {
+    constexpr size_t kSignatureSize = 8;
+    constexpr size_t kChunkHeaderSize = 8;
+    constexpr size_t kFctlPayloadSize = 26;
+    constexpr size_t kDisposeOpOffset = 24;
+    constexpr size_t kCrcSize = 4;
+
+    sk_sp<SkData> copy = SkData::MakeWithCopy(data->data(), data->size());
+    uint8_t* bytes = static_cast<uint8_t*>(copy->writable_data());
+    size_t offset = kSignatureSize;
+    while (offset + kChunkHeaderSize <= copy->size()) {
+        const size_t length = (size_t{bytes[offset]} << 24) | (size_t{bytes[offset + 1]} << 16) |
+                              (size_t{bytes[offset + 2]} << 8) | size_t{bytes[offset + 3]};
+        const size_t crcOffset = offset + kChunkHeaderSize + length;
+        if (crcOffset + kCrcSize > copy->size()) {
+            break;
+        }
+        if (length == kFctlPayloadSize && memcmp(bytes + offset + 4, "fcTL", 4) == 0) {
+            bytes[offset + kChunkHeaderSize + kDisposeOpOffset] = disposeOp;
+            uint32_t crc = 0xFFFFFFFFu;
+            for (size_t i = offset + 4; i < crcOffset; ++i) {
+                crc ^= bytes[i];
+                for (int bit = 0; bit < 8; ++bit) {
+                    crc = (crc >> 1) ^ ((crc & 1u) ? 0xEDB88320u : 0u);
+                }
+            }
+            crc = ~crc;
+            bytes[crcOffset] = static_cast<uint8_t>(crc >> 24);
+            bytes[crcOffset + 1] = static_cast<uint8_t>(crc >> 16);
+            bytes[crcOffset + 2] = static_cast<uint8_t>(crc >> 8);
+            bytes[crcOffset + 3] = static_cast<uint8_t>(crc);
+            return copy;
+        }
+        offset = crcOffset + kCrcSize;
+    }
+    return nullptr;
+}
+
 // Decodes into a buffer surrounded by guard bytes to detect out-of-bounds writes
 // even in builds without ASAN, and asserts that the decode is refused with
 // `SkCodec::kUnimplemented`.
@@ -1953,42 +2006,214 @@ DEF_TEST(RustPngCodec_apng_offset_frame_small_row_bytes, r) {
 
 // On non-Android (`!SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID`), the refusal above
 // must not change a full-canvas decode: the `fdAT` frame still goes to its
-// y=32 origin.  On Android (`SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID`), the
-// 64x64 `IDAT` default image is decoded instead, matching `libpng`.
+// y=32 origin, and the surrounding canvas rows (0..31) must be initialized to
+// transparent black by the codec even when the caller's buffer is not
+// zero-initialized (b/581301904).  On Android
+// (`SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID`), the 64x64 `IDAT` default image is
+// decoded instead, matching `libpng`.
 DEF_TEST(RustPngCodec_apng_offset_frame_full_canvas_placement, r) {
     const char* path = "images/apng-single-frame-with-offset.png";
 #if !defined(SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID)
     sk_sp<SkData> data = GetResourceAsData(path);
+    REPORTER_ASSERT(r, data);
     if (!data) {
-        ERRORF(r, "Missing resource: %s", path);
         return;
     }
 
-    auto codec = SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(data), nullptr);
-    if (!codec) {
-        ERRORF(r, "Failed to create a codec for %s", path);
-        return;
-    }
-
-    for (SkAlphaType alphaType : {kUnpremul_SkAlphaType, kPremul_SkAlphaType}) {
-        SkBitmap bm;
-        bm.allocPixels(codec->getInfo().makeColorType(kN32_SkColorType).makeAlphaType(alphaType));
-        // The APNG spec says the output buffer starts as transparent black.
-        bm.eraseColor(SK_ColorTRANSPARENT);
-
-        SkCodec::Result result = codec->getPixels(bm.pixmap());
-        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
-
-        // Rows above the frame stay transparent.  The frame fills rows 32..63.
-        REPORTER_ASSERT(r, bm.getColor(0, 0) == SK_ColorTRANSPARENT);
-        REPORTER_ASSERT(r, bm.getColor(63, 31) == SK_ColorTRANSPARENT);
-        REPORTER_ASSERT(r, bm.getColor(0, 32) == SK_ColorMAGENTA);
-        REPORTER_ASSERT(r, bm.getColor(63, 63) == SK_ColorMAGENTA);
+    const SkIRect kSubrect = SkIRect::MakeXYWH(0, 32, 64, 32);
+    // Cover both `canReadRow()` (`kRGBA_8888_SkColorType` + `kUnpremul_SkAlphaType` + `nullptr`
+    // colorSpace) and `!canReadRow()` (`kN32_SkColorType` + `kPremul_SkAlphaType`).
+    for (const auto& [colorType, alphaType] : {
+                 std::make_pair(kRGBA_8888_SkColorType, kUnpremul_SkAlphaType),
+                 std::make_pair(kN32_SkColorType, kPremul_SkAlphaType),
+         }) {
+        auto makeDstInfo = [&](const SkImageInfo& info) {
+            return info.makeColorType(colorType).makeAlphaType(alphaType).makeColorSpace(nullptr);
+        };
+        std::optional<SkBitmap> bm = DecodePixels(
+                r,
+                SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(data), nullptr),
+                makeDstInfo);
+        std::optional<SkBitmap> incrBm = DecodeIncrementalOneShot(r, data, makeDstInfo);
+        if (bm && incrBm) {
+            AssertSubrectColor(r, *bm, kSubrect, SK_ColorMAGENTA);
+            AssertSubrectColor(r, *incrBm, kSubrect, SK_ColorMAGENTA);
+        }
     }
 #else
     AssertAndroidStaticApng(r, path);
 #endif
 }
+
+#if !defined(SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID)
+// Regression test for b/581301904: when an independent sub-rectangle APNG frame
+// (`yOffset = 32`, `height = 32` on a 64x64 canvas) fails part-way through with
+// `kIncompleteInput`, the surrounding canvas must still be initialized to
+// transparent black and the already-decoded rows inside the sub-rectangle
+// (`y = 32..41`) must not be overwritten by `SkCodec::fillIncompleteImage`.
+DEF_TEST(RustPngCodec_apng_offset_frame_incomplete, r) {
+    sk_sp<SkData> data = GetResourceAsData("images/apng-single-frame-with-offset.png");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+
+    // At 4988 bytes (32 bytes into Frame 0's `fdAT` payload), 10 rows of the
+    // 64x32 frame (`y = 32..41`) have been decoded.
+    constexpr size_t kInitialBytes = 4988;
+    constexpr int kDecodedFrameRows = 10;
+    const SkIRect kPartialSubrect = SkIRect::MakeXYWH(0, 32, 64, kDecodedFrameRows);
+    const SkIRect kFullSubrect = SkIRect::MakeXYWH(0, 32, 64, 32);
+
+    for (const auto& [colorType, alphaType] : {
+                 std::make_pair(kRGBA_8888_SkColorType, kUnpremul_SkAlphaType),
+                 std::make_pair(kN32_SkColorType, kPremul_SkAlphaType),
+         }) {
+        auto makeDstInfo = [&](const SkImageInfo& info) {
+            return info.makeColorType(colorType).makeAlphaType(alphaType).makeColorSpace(nullptr);
+        };
+        std::optional<SkBitmap> getPixelsBm = DecodePixels(
+                r,
+                SkPngRustDecoder::Decode(
+                        SkMemoryStream::Make(SkData::MakeSubset(data.get(), 0, kInitialBytes)),
+                        nullptr),
+                makeDstInfo,
+                /*options=*/{},
+                SkCodec::kIncompleteInput);
+        if (getPixelsBm) {
+            AssertSubrectColor(r, *getPixelsBm, kPartialSubrect, SK_ColorMAGENTA);
+        }
+
+        auto haltingStream = std::make_unique<HaltingStream>(data, kInitialBytes);
+        HaltingStream* retainedStream = haltingStream.get();
+        SkBitmap incrBm;
+        std::unique_ptr<SkCodec> incrCodec =
+                StartIncrementalDecode(r, std::move(haltingStream), &incrBm, makeDstInfo);
+        if (!incrCodec) {
+            return;
+        }
+        int rowsDecoded = -1;
+        REPORTER_ASSERT(r, incrCodec->incrementalDecode(&rowsDecoded) == SkCodec::kIncompleteInput);
+        REPORTER_ASSERT(r, rowsDecoded == kDecodedFrameRows);
+        AssertSubrectColor(r, incrBm, kPartialSubrect, SK_ColorMAGENTA);
+
+        retainedStream->addNewData(data->size() - kInitialBytes);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, incrCodec->incrementalDecode());
+        AssertSubrectColor(r, incrBm, kFullSubrect, SK_ColorMAGENTA);
+    }
+}
+
+// Regression test for b/581301904: an independent sub-rectangle frame at
+// `fFrameIndex > 0` (after a `kRestoreBGColor` Frame 0) with both horizontal
+// and vertical offsets must initialize all surrounding margins to transparent
+// black, even when `fPriorFrame` and `kYes_ZeroInitialized` are set.
+DEF_TEST(RustPngCodec_apng_independent_subrect_later_frame, r) {
+    sk_sp<SkData> rawData =
+            GetResourceAsData("images/apng-test-suite--regions--dispose-op-none.png");
+    REPORTER_ASSERT(r, rawData);
+    if (!rawData) {
+        return;
+    }
+    sk_sp<SkData> data = WithFirstFctlDisposeOp(rawData.get(), /*disposeOp=*/1);
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+    for (bool withPriorFrameAndZeroInit : {false, true}) {
+        auto codec = SkPngRustDecoder::Decode(SkMemoryStream::Make(data), nullptr);
+        REPORTER_ASSERT(r, codec);
+        if (!codec) {
+            return;
+        }
+        SkBitmap bm;
+        bm.allocPixels(codec->getInfo().makeColorType(kN32_SkColorType));
+        bm.eraseColor(kUnreadSentinelColor);
+
+        SkCodec::Options options;
+        options.fFrameIndex = 1;
+        if (withPriorFrameAndZeroInit) {
+            options.fPriorFrame = 0;
+            options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
+        }
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(bm.pixmap(), &options));
+        AssertSubrectColor(r, bm, SkIRect::MakeXYWH(32, 16, 64, 32), SK_ColorGREEN);
+    }
+}
+
+// Regression test for b/581301904: an independent full-canvas frame at
+// `fFrameIndex > 0` with `Blend::kSrcOver` must overwrite (`kSrc`) rather than
+// blending over uninitialized or prior-frame pixels in `dst`.
+DEF_TEST(RustPngCodec_apng_independent_full_frame_kSrcOver, r) {
+    sk_sp<SkData> rawData = GetResourceAsData(
+            "images/apng-test-suite--blend-ops--over-on-solid-and-transparent.png");
+    REPORTER_ASSERT(r, rawData);
+    if (!rawData) {
+        return;
+    }
+    sk_sp<SkData> data = WithFirstFctlDisposeOp(rawData.get(), /*disposeOp=*/1);
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+    SkCodec::Options options;
+    options.fFrameIndex = 1;
+    std::optional<SkBitmap> bm = DecodePixels(
+            r,
+            SkPngRustDecoder::Decode(SkMemoryStream::Make(std::move(data)), nullptr),
+            [](const SkImageInfo& imgInfo) { return imgInfo.makeColorType(kN32_SkColorType); },
+            options);
+    if (bm) {
+        REPORTER_ASSERT(r, CountNonSentinelRows(*bm, SK_ColorTRANSPARENT) == 0);
+    }
+}
+
+// Regression test for b/581301904: an interlaced sub-rectangle APNG frame
+// truncated mid-decode must report `rowsDecoded > 0` from
+// `expandDecodedInterlacedRow` and must not have its decoded pixels wiped out
+// by `SkCodec::fillIncompleteImage`.
+DEF_TEST(RustPngCodec_apng_interlaced_subrect_incomplete, r) {
+    sk_sp<SkData> rawData = GetResourceAsData("images/interlaced-multiframe-with-blending.png");
+    REPORTER_ASSERT(r, rawData);
+    if (!rawData) {
+        return;
+    }
+    // Patching Frame 0's `dispose_op` to `kRestoreBGColor` (`1`) makes Frame 2
+    // (a 3x2 interlaced sub-rectangle at (1, 0) on the 5x5 canvas, with `fdAT`
+    // at bytes 530..565) independent (`fRequiredFrame == kNoFrame`) and unbuffered.
+    sk_sp<SkData> data = WithFirstFctlDisposeOp(rawData.get(), /*disposeOp=*/1);
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+    sk_sp<SkData> truncated = SkData::MakeSubset(data.get(), 0, /*length=*/555);
+    auto makeDstInfo = [](const SkImageInfo& info) {
+        return info.makeColorType(kN32_SkColorType).makeAlphaType(kPremul_SkAlphaType);
+    };
+    SkCodec::Options options;
+    options.fFrameIndex = 2;
+
+    SkBitmap incrBm;
+    std::unique_ptr<SkCodec> incrCodec = StartIncrementalDecode(
+            r, SkMemoryStream::Make(truncated), &incrBm, makeDstInfo, options);
+    if (!incrCodec) {
+        return;
+    }
+    int rowsDecoded = -1;
+    REPORTER_ASSERT(r, incrCodec->incrementalDecode(&rowsDecoded) == SkCodec::kIncompleteInput);
+    REPORTER_ASSERT(r, rowsDecoded == 2);
+
+    std::optional<SkBitmap> getPixelsBm =
+            DecodePixels(r,
+                         SkPngRustDecoder::Decode(SkMemoryStream::Make(truncated), nullptr),
+                         makeDstInfo,
+                         options,
+                         SkCodec::kIncompleteInput);
+    if (getPixelsBm) {
+        CompareBitmaps(r, incrBm, *getPixelsBm);
+        REPORTER_ASSERT(r, CountNonSentinelRows(*getPixelsBm, SK_ColorTRANSPARENT) > 0);
+    }
+}
+#endif
 
 #ifdef SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID
 // Decodes a top subset of `path` and asserts that the decode stopped short of the end of the

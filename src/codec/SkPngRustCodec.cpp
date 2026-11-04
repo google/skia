@@ -790,6 +790,9 @@ SkCodec::Result SkPngRustCodec::initializeDecodingDst(DecodingState& decodingSta
         }
     }
 
+    const bool independent = frame->getRequiredFrame() == kNoFrame;
+    const bool blendWithPrevFrame =
+            !independent && frame->getBlend() == SkCodecAnimation::Blend::kSrcOver;
     size_t preblendBufferSize = 0;
     if (fReader->interlaced()) {
         // Use fPreblendBuffer to decode whole image untransformed, then truncate/xform later.
@@ -800,10 +803,10 @@ SkCodec::Result SkPngRustCodec::initializeDecodingDst(DecodingState& decodingSta
             if (!safe.ok()) {
                 return kErrorInInput;
             }
-        } else if (frame->getBlend() == SkCodecAnimation::Blend::kSrcOver) {
+        } else if (blendWithPrevFrame) {
             preblendBufferSize = dstSpan.size();
         }
-    } else if (frame->getBlend() == SkCodecAnimation::Blend::kSrcOver) {
+    } else if (blendWithPrevFrame) {
         preblendBufferSize = dstRowSize;
     }
 
@@ -825,6 +828,14 @@ SkCodec::Result SkPngRustCodec::initializeDecodingDst(DecodingState& decodingSta
                 return result;
             }
         }
+    }
+
+    if (!this->isSampling() && !this->options().fSubset && independent &&
+        frame->frameRect() != this->bounds()) {
+        SkSampler::Fill(this->dstInfo(),
+                        uninit.fDstPtr,
+                        uninit.fDstRowStride,
+                        this->options().fZeroInitialized);
     }
 
     decodingState.fDst = DecodingDstInfo{
@@ -894,26 +905,18 @@ void SkPngRustCodec::expandDecodedInterlacedRow(DecodingState& decodingState,
         // user.  The final image is not affected.
         fReader->splat_last_interlaced_row(
                 rust::Slice<uint8_t>(wholeFrame), dstRowStride, expandedRow, bitsPerPixel);
-        // During Pass 1, `splat_last_interlaced_row` replicates each decoded row across 8
-        // vertical rows, initializing all rows of `wholeFrame` by the end of Pass 1.
-        decodingState.fInterlacedDecodedHeight =
-                std::min(decodingState.fInterlacedDecodedHeight + 8, decodingDst.fDstRowCount);
-        // Record `fRowsWrittenToOutput` when `splat_last_interlaced_row` wrote directly into
-        // full-canvas rows `0..N-1` of `fDst`. This excludes:
-        // - Buffered decodes (`!fPreblendBuffer.empty()`): `kSrcOver` APNG frames are only
-        //   blended into `fDst` at `EndOfFrame` (to avoid double-blending across Adam7 passes),
-        //   and subset/sampled decodes update `fRowsWrittenToOutput` when flushing
-        //   `fPreblendBuffer` in `writeSubsetOrSampleToOutput`.
-        // - Sub-rect APNG frames (`frame->frameRect() != this->bounds()`): only the frame's
-        //   sub-rect is written, not full canvas rows starting at row 0.
-        const SkFrame* frame = fFrameHolder.getFrame(this->options().fFrameIndex);
-        if (decodingState.fPreblendBuffer.empty() && frame &&
-            frame->frameRect() == this->bounds()) {
-            decodingState.fRowsWrittenToOutput = decodingState.fInterlacedDecodedHeight;
-        }
     } else {
         fReader->expand_last_interlaced_row(
                 rust::Slice<uint8_t>(dstFrame), dstRowStride, expandedRow, bitsPerPixel);
+    }
+    // During Pass 1, each decoded row covers 8 vertical rows, reaching
+    // `fDstRowCount` by the end of Pass 1. Record `fRowsWrittenToOutput` when
+    // writing directly into `fDst` (`fPreblendBuffer.empty()`); buffered decodes
+    // instead update `fRowsWrittenToOutput` when flushing `fPreblendBuffer`.
+    decodingState.fInterlacedDecodedHeight =
+            std::min(decodingState.fInterlacedDecodedHeight + 8, decodingDst.fDstRowCount);
+    if (decodingState.fPreblendBuffer.empty()) {
+        decodingState.fRowsWrittenToOutput = decodingState.fInterlacedDecodedHeight;
     }
 }
 
