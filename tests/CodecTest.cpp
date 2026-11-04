@@ -2200,14 +2200,169 @@ DEF_TEST(Codec_kBGR_101010x_XR_SkColorType_supported, r) {
             .makeAlphaType(kOpaque_SkAlphaType);
     SkImageInfo dstInfo = srcInfo.makeColorType(kBGR_101010x_XR_SkColorType);
     srcBm.allocPixels(srcInfo);
+    srcBm.eraseColor(SK_ColorGREEN);
     sk_sp<SkData> data = SkPngEncoder::Encode(srcBm.pixmap(), {});
     SkASSERT_RELEASE(data != nullptr);
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
     SkBitmap dstBm;
     dstBm.allocPixels(dstInfo);
-    bool success = codec->getPixels(dstInfo, dstBm.getPixels(), dstBm.rowBytes());
-    REPORTER_ASSERT(r, SkCodec::kSuccess == success);
+    SkCodec::Result result = codec->getPixels(dstInfo, dstBm.getPixels(), dstBm.rowBytes());
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 }
+
+DEF_TEST(Codec_XRColorTypes, r) {
+    const std::initializer_list<const char*> kResources = {
+#if defined(SK_CODEC_DECODES_JPEG) || defined(SK_CODEC_DECODES_JPEG_WITH_RUST)
+            "images/color_wheel.jpg",
+#endif
+#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG) || defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+            "images/pngsuite/basn3p01.png",
+            "images/index8.png",
+#endif
+#if defined(SK_CODEC_DECODES_BMP) || defined(SK_CODEC_DECODES_BMP_WITH_RUST)
+            "images/rle.bmp",
+            "images/bmp-size-32x32-8bpp.bmp",
+#endif
+#if defined(SK_CODEC_DECODES_ICO) || defined(SK_CODEC_DECODES_ICO_WITH_RUST)
+            "images/color_wheel.ico",
+#endif
+#if defined(SK_CODEC_DECODES_WEBP)
+            "images/color_wheel.webp",
+#endif
+#if defined(SK_CODEC_DECODES_GIF)
+            "images/gif-transparent-index.gif",
+#endif
+    };
+
+    for (const char* path : kResources) {
+        skiatest::ReporterContext subtest(r, path);
+        sk_sp<SkData> data = GetResourceAsData(path);
+        if (!data) {
+            continue;
+        }
+        std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(data);
+        REPORTER_ASSERT(r, codec);
+        if (!codec) {
+            continue;
+        }
+
+        const SkImageInfo baseInfo = codec->getInfo();
+        const bool isOpaque = baseInfo.isOpaque();
+        const SkIPoint kSamplePoints[] = {{0, 0}, {baseInfo.width() / 2, baseInfo.height() / 2}};
+
+        for (const sk_sp<SkColorSpace>& cs :
+             {sk_sp<SkColorSpace>(nullptr), SkColorSpace::MakeSRGB()}) {
+            // kBGRA_10101010_XR_SkColorType is not implemented in SkCodec and must be rejected
+            // up front rather than reaching codec bodies with unconfigured color transforms.
+            SkBitmap bgraXR;
+            bgraXR.allocPixels(
+                    baseInfo.makeColorType(kBGRA_10101010_XR_SkColorType).makeColorSpace(cs));
+            REPORTER_ASSERT(r, codec->getPixels(bgraXR.pixmap()) == SkCodec::kInvalidConversion);
+
+            SkBitmap refF16;
+            if (isOpaque) {
+                refF16.allocPixels(
+                        baseInfo.makeColorType(kRGBA_F16_SkColorType).makeColorSpace(cs));
+                REPORTER_ASSERT(r, codec->getPixels(refF16.pixmap()) == SkCodec::kSuccess);
+            }
+
+            const SkImageInfo pixelF32 =
+                    SkImageInfo::Make(1, 1, kRGBA_F32_SkColorType, kOpaque_SkAlphaType, cs);
+            for (SkCodec::ZeroInitialized zeroInit :
+                 {SkCodec::kNo_ZeroInitialized, SkCodec::kYes_ZeroInitialized}) {
+                SkBitmap bgrXR;
+                SkImageInfo bgrInfo =
+                        baseInfo.makeColorType(kBGR_101010x_XR_SkColorType).makeColorSpace(cs);
+                bgrXR.allocPixels(bgrInfo);
+                if (zeroInit == SkCodec::kYes_ZeroInitialized) {
+                    memset(bgrXR.getPixels(), 0, bgrXR.computeByteSize());
+                }
+                SkCodec::Options opts;
+                opts.fZeroInitialized = zeroInit;
+                const SkCodec::Result expected =
+                        isOpaque ? SkCodec::kSuccess : SkCodec::kInvalidConversion;
+                REPORTER_ASSERT(r, codec->getPixels(bgrXR.pixmap(), &opts) == expected);
+                if (isOpaque) {
+                    for (SkIPoint pt : kSamplePoints) {
+                        SkColor4f refPixel = {};
+                        SkColor4f xrPixel = {};
+                        REPORTER_ASSERT(
+                                r,
+                                refF16.readPixels(
+                                        pixelF32, &refPixel, sizeof(refPixel), pt.x(), pt.y()));
+                        REPORTER_ASSERT(
+                                r,
+                                bgrXR.readPixels(
+                                        pixelF32, &xrPixel, sizeof(xrPixel), pt.x(), pt.y()));
+                        for (int c = 0; c < 4; ++c) {
+                            REPORTER_ASSERT(r, SkScalarNearlyEqual(refPixel[c], xrPixel[c], 0.02f));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#if defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG) && \
+        (defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG) || defined(SK_CODEC_DECODES_PNG_WITH_RUST))
+DEF_TEST(Codec_XRIncompleteDecode, r) {
+    constexpr int kWidth = 16;
+    constexpr int kHeight = 64;
+    SkBitmap src;
+    src.allocPixels(SkImageInfo::Make(kWidth,
+                                      kHeight,
+                                      kRGBA_8888_SkColorType,
+                                      kOpaque_SkAlphaType,
+                                      SkColorSpace::MakeSRGB()));
+    src.eraseColor(SK_ColorRED);
+
+    // Store uncompressed so truncating at half the byte size reliably lands mid-image.
+    SkPngEncoder::Options encoderOptions;
+    encoderOptions.fFilterFlags = SkPngEncoder::FilterFlag::kNone;
+    encoderOptions.fZLibLevel = 0;
+    sk_sp<SkData> fullData = SkPngEncoder::Encode(src.pixmap(), encoderOptions);
+    REPORTER_ASSERT(r, fullData);
+    if (!fullData) {
+        return;
+    }
+    sk_sp<SkData> truncated = SkData::MakeWithoutCopy(fullData->bytes(), fullData->size() / 2);
+
+    constexpr uint32_t kZeroBGR = 0x18060180u;
+    constexpr uint32_t kRedBGR = (384u << 0) | (384u << 10) | ((384u + 510u) << 20);
+
+    for (SkCodec::ZeroInitialized zeroInit :
+         {SkCodec::kNo_ZeroInitialized, SkCodec::kYes_ZeroInitialized}) {
+        std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(truncated);
+        REPORTER_ASSERT(r, codec);
+        if (!codec) {
+            return;
+        }
+        SkImageInfo dstInfo = codec->getInfo().makeColorType(kBGR_101010x_XR_SkColorType);
+        SkBitmap dst;
+        dst.allocPixels(dstInfo);
+        const uint8_t initByte = (zeroInit == SkCodec::kYes_ZeroInitialized) ? 0x00 : 0xA5;
+        memset(dst.getPixels(), initByte, dst.computeByteSize());
+
+        SkCodec::Options opts;
+        opts.fZeroInitialized = zeroInit;
+        SkCodec::Result res = codec->getPixels(dstInfo, dst.getPixels(), dst.rowBytes(), &opts);
+        REPORTER_ASSERT(r, res == SkCodec::kIncompleteInput || res == SkCodec::kErrorInInput);
+
+        int rowsDecoded = 0;
+        while (rowsDecoded < kHeight && *dst.getAddr32(0, rowsDecoded) == kRedBGR) {
+            ++rowsDecoded;
+        }
+        REPORTER_ASSERT(r, rowsDecoded > 0 && rowsDecoded < kHeight);
+        for (int y = 0; y < kHeight; ++y) {
+            const uint32_t expected = (y < rowsDecoded) ? kRedBGR : kZeroBGR;
+            for (int x = 0; x < kWidth; ++x) {
+                REPORTER_ASSERT(r, *dst.getAddr32(x, y) == expected);
+            }
+        }
+    }
+}
+#endif
 
 DEF_TEST(Codec_gif_notseekable, r) {
     constexpr char path[] = "images/flightAnim.gif";

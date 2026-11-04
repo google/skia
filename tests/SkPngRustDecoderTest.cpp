@@ -1239,7 +1239,7 @@ DEF_TEST(RustPngCodec_apng_invalid_num_frames_outside_valid_range, r) {
     REPORTER_ASSERT(r, codec->getFrameCount() == 1);
 }
 
-DEF_TEST(RustPngCodec_png_swizzling_target_unimplemented, r) {
+DEF_TEST(RustPngCodec_XR_color_types, r) {
     std::unique_ptr<SkCodec> codec =
             SkPngRustDecoderDecode(r, "images/apng-test-suite--basic--ignoring-default-image.png");
     if (!codec) {
@@ -1247,16 +1247,24 @@ DEF_TEST(RustPngCodec_png_swizzling_target_unimplemented, r) {
     }
     REPORTER_ASSERT(r, codec->getFrameCount() == 1);
 
-    // Ask to decode into an esoteric `SkColorType`:
-    //
-    // * Unsupported by `SkSwizzler`.
-    // * Supported by `SkCodec::conversionSupported`.
     SkImageInfo dstInfo = SkImageInfo::Make(
             codec->dimensions(), kBGRA_10101010_XR_SkColorType, kPremul_SkAlphaType);
 
     auto [image, result] = codec->getImage(dstInfo);
-    REPORTER_ASSERT(r, result == SkCodec::kUnimplemented);
+    REPORTER_ASSERT(r, result == SkCodec::kInvalidConversion);
     REPORTER_ASSERT(r, !image);
+
+    // 1-bit opaque indexed PNG exercises swizzle_small_index_to_n32 for kBGR_101010x_XR.
+    std::unique_ptr<SkCodec> indexedCodec =
+            SkPngRustDecoderDecode(r, "images/pngsuite/basn3p01.png");
+    if (!indexedCodec) {
+        return;
+    }
+    SkImageInfo bgrXRInfo = SkImageInfo::Make(
+            indexedCodec->dimensions(), kBGR_101010x_XR_SkColorType, kOpaque_SkAlphaType);
+    auto [bgrXRImage, bgrXRResult] = indexedCodec->getImage(bgrXRInfo);
+    REPORTER_ASSERT(r, bgrXRResult == SkCodec::kSuccess);
+    REPORTER_ASSERT(r, bgrXRImage);
 }
 
 DEF_TEST(RustPngCodec_png_was_encoded_with_16_bits_or_more_per_component, r) {

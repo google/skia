@@ -8,16 +8,24 @@
 #define SkSampler_DEFINED
 
 #include "include/codec/SkCodec.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
 #include "src/codec/SkCodecPriv.h"
 
 #include <cstddef>
+#include <cstdint>
 
 struct SkImageInfo;
 
 class SkSampler : public SkNoncopyable {
 public:
+    // Biased 0.0f (384) representations for 10-bit extended-range (XR) color types.
+    static constexpr uint32_t kBGR_101010x_XR_Zero = (384u << 0) | (384u << 10) | (384u << 20);
+    static constexpr uint64_t kBGRA_10101010_XR_Zero =
+            (uint64_t{384} << (0 + 6)) | (uint64_t{384} << (16 + 6)) | (uint64_t{384} << (32 + 6)) |
+            (uint64_t{384} << (48 + 6));
+
     /**
      *  Update the sampler to sample every sampleX'th pixel. Returns the
      *  width after sampling.
@@ -54,7 +62,8 @@ public:
      *
      * 0 has a different meaning depending on the SkColorType. For color types
      * with transparency, this means transparent. For k565 and kGray, 0 is
-     * black.
+     * black. Extended-range (XR) color types fill with their biased 0.0f
+     * representation even when zeroInit is kYes_ZeroInitialized.
      *
      * @param info
      * Contains the color type of the rows to fill.
@@ -72,6 +81,11 @@ public:
      */
     static void Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
                      SkCodec::ZeroInitialized zeroInit);
+
+    static bool FillIsZeroBytes(SkColorType colorType) {
+        return colorType != kBGR_101010x_XR_SkColorType &&
+               colorType != kBGRA_10101010_XR_SkColorType;
+    }
 
     virtual int fillWidth() const = 0;
 

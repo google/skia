@@ -22,7 +22,7 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
                      SkCodec::ZeroInitialized zeroInit) {
     SkASSERT(dst != nullptr);
 
-    if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+    if (SkCodec::kYes_ZeroInitialized == zeroInit && FillIsZeroBytes(info.colorType())) {
         return;
     }
 
@@ -37,6 +37,14 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
             uint32_t* dstRow = (uint32_t*) dst;
             for (int row = 0; row < numRows; row++) {
                 SkOpts::memset32(dstRow, 0, width);
+                dstRow = SkTAddOffset<uint32_t>(dstRow, rowBytes);
+            }
+            break;
+        }
+        case kBGR_101010x_XR_SkColorType: {
+            uint32_t* dstRow = static_cast<uint32_t*>(dst);
+            for (int row = 0; row < numRows; row++) {
+                SkOpts::memset32(dstRow, kBGR_101010x_XR_Zero, width);
                 dstRow = SkTAddOffset<uint32_t>(dstRow, rowBytes);
             }
             break;
@@ -62,6 +70,14 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
             uint64_t* dstRow = (uint64_t*) dst;
             for (int row = 0; row < numRows; row++) {
                 SkOpts::memset64(dstRow, 0, width);
+                dstRow = SkTAddOffset<uint64_t>(dstRow, rowBytes);
+            }
+            break;
+        }
+        case kBGRA_10101010_XR_SkColorType: {
+            uint64_t* dstRow = static_cast<uint64_t*>(dst);
+            for (int row = 0; row < numRows; row++) {
+                SkOpts::memset64(dstRow, kBGRA_10101010_XR_Zero, width);
                 dstRow = SkTAddOffset<uint64_t>(dstRow, rowBytes);
             }
             break;

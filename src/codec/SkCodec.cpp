@@ -298,7 +298,6 @@ bool SkCodec::conversionSupported(const SkImageInfo& dst, bool srcIsOpaque, bool
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
         case kRGBA_F16_SkColorType:
-        case kBGRA_10101010_XR_SkColorType:
             return true;
         case kBGR_101010x_XR_SkColorType:
         case kRGB_565_SkColorType:
@@ -776,7 +775,7 @@ int SkCodec::onOutputScanline(int inputScanline) const {
 
 void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t rowBytes,
         ZeroInitialized zeroInit, int linesRequested, int linesDecoded) {
-    if (kYes_ZeroInitialized == zeroInit) {
+    if (kYes_ZeroInitialized == zeroInit && SkSampler::FillIsZeroBytes(info.colorType())) {
         return;
     }
 
