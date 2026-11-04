@@ -677,6 +677,13 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r,
             "    { float2 pos = float2(0); return half4(half2(p - 0.5 + pos), 0, 1); }"
             "}");
     effect.test({0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF});
+    effect.build(
+            "half4 main(float2 p) {"
+            "    float2 pos = p - 0.5;"
+            "    float2 pos_1 = float2(0);"
+            "    return half4(half2(pos + pos_1), 0, 1);"
+            "}");
+    effect.test({0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF});
 
     //
     // Sampling children
@@ -1261,6 +1268,13 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffect_BlenderLocalNames_Graph
             "    { half4 inColor = half4(0); return s + inColor; }"
             "}");
     effect.test(0xFF888888);
+    effect.build(
+            "half4 main(half4 s, half4 d) {"
+            "    half4 inColor = half4(1, 0, 0, 1);"
+            "    half4 inColor_1 = s;"
+            "    return half4(inColor.r, inColor_1.gba);"
+            "}");
+    effect.test(0xFF8888FF);
 }
 #endif
 

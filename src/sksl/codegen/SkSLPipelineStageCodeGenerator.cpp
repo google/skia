@@ -24,6 +24,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/analysis/SkSLSpecialization.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
@@ -106,7 +107,8 @@ private:
     std::string typedVariable(const Type& type, std::string_view name);
 
     // Whether `name` is one of the names the caller substitutes for main's parameters.
-    bool isMainParameter(std::string_view name) const;
+    const char* findMainParameter(std::string_view name) const;
+    bool isNameTaken(std::string_view name) const;
 
     void writeVarDeclaration(const VarDeclaration& var);
     void writeGlobalVarDeclaration(const GlobalVarDeclaration& g);
@@ -759,16 +761,35 @@ std::string PipelineStageCodeGenerator::modifierString(ModifierFlags flags) {
 std::string PipelineStageCodeGenerator::typedVariable(const Type& type, std::string_view name) {
     const Type& baseType = type.isArray() ? type.componentType() : type;
 
-    std::string decl = this->typeName(baseType) + " " + std::string(name);
+    std::string decl = this->typeName(baseType);
+    decl.push_back(' ');
+    decl.append(name.data(), name.size());
     if (type.isArray()) {
         decl += "[" + std::to_string(type.columns()) + "]";
     }
     return decl;
 }
 
-bool PipelineStageCodeGenerator::isMainParameter(std::string_view name) const {
+const char* PipelineStageCodeGenerator::findMainParameter(std::string_view name) const {
     for (const char* paramName : {fSampleCoords, fInputColor, fDestColor}) {
         if (paramName && name == paramName) {
+            return paramName;
+        }
+    }
+    return nullptr;
+}
+
+bool PipelineStageCodeGenerator::isNameTaken(std::string_view name) const {
+    if (this->findMainParameter(name)) {
+        return true;
+    }
+    for (const auto& [var, counts] : fProgram->usage()->fVariableCounts) {
+        if (counts.fVarExists && var->name() == name) {
+            return true;
+        }
+    }
+    for (const auto& [var, mangledName] : fVariableNames) {
+        if (mangledName == name) {
             return true;
         }
     }
@@ -780,8 +801,13 @@ void PipelineStageCodeGenerator::writeVarDeclaration(const VarDeclaration& var) 
     std::string_view name = variable->name();
     // References to main's parameters are written as the caller's names (see
     // writeVariableReference), so a local of the same name would redeclare or shadow them.
-    if (this->isMainParameter(name)) {
-        std::string mangledName = fCallbacks->getMangledName(std::string(name).c_str());
+    if (const char* paramName = this->findMainParameter(name)) {
+        std::string mangledName = fCallbacks->getMangledName(paramName);
+        int index = 0;
+        while (this->isNameTaken(mangledName)) {
+            mangledName = fCallbacks->getMangledName(
+                    String::printf("%s_%d", paramName, index++).c_str());
+        }
         name = *fVariableNames.set(variable, std::move(mangledName));
     }
     this->write(this->modifierString(variable->modifierFlags()));
