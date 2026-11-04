@@ -66,9 +66,33 @@ sk_sp<Slug> SlugImpl::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient*
             initializer.initialize(std::move(alloc), std::move(container), sourceBounds, origin));
 }
 
+namespace {
 SkMatrix position_matrix(const SkMatrix& drawMatrix, SkPoint drawOrigin) {
     SkMatrix position_matrix = drawMatrix;
     return position_matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+}
+
+bool valid_slug_matrices(const SkMatrix& creationMatrix, const SkMatrix& positionMatrix) {
+    if (creationMatrix == positionMatrix) {
+        return true;
+    }
+
+    SkVector translation = positionMatrix.mapOrigin() - creationMatrix.mapOrigin();
+    return creationMatrix.getScaleX() == positionMatrix.getScaleX() &&
+           creationMatrix.getScaleY() == positionMatrix.getScaleY() &&
+           creationMatrix.getSkewX()  == positionMatrix.getSkewX()  &&
+           creationMatrix.getSkewY()  == positionMatrix.getSkewY()  &&
+           !positionMatrix.hasPerspective() && !creationMatrix.hasPerspective() &&
+           SkScalarIsInt(translation.x()) && SkScalarIsInt(translation.y());
+}
+}  // namespace
+
+bool SlugImpl::canDraw(const SkMatrix& drawMatrix, bool supportBilerpAtlas) const {
+    if (supportBilerpAtlas) {
+        return true;
+    }
+    const SkMatrix positionMatrix = position_matrix(drawMatrix, fOrigin);
+    return valid_slug_matrices(this->initialPositionMatrix(), positionMatrix);
 }
 
 sk_sp<SlugImpl> SlugImpl::Make(const SkMatrix& viewMatrix,
