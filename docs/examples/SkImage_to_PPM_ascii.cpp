@@ -26,7 +26,7 @@ sk_sp<SkData> Encode_PPM_A(const SkPixmap& src) {
     SkString s = SkStringPrintf("P3\n%d %d\n255\n", src.width(), src.height());
     buf.write(s.c_str(), s.size());
     for (int y = 0; y < src.height(); ++y) {
-        for (int x = 0; x < src.height(); ++x) {
+        for (int x = 0; x < src.width(); ++x) {
             char buffer[13];
             SkColor c = src.getColor(x, y);
             int n = snprintf(buffer, sizeof(buffer), "%u %u %u\n", SkColorGetR(c),

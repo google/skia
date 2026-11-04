@@ -28,7 +28,7 @@ sk_sp<SkData> Encode_PPM_B(const SkPixmap& src) {
     memcpy(ptr, s.c_str(), s.size());
     ptr += s.size();
     for (int y = 0; y < src.height(); ++y) {
-        for (int x = 0; x < src.height(); ++x) {
+        for (int x = 0; x < src.width(); ++x) {
             SkColor c = src.getColor(x, y);
             *ptr++ = SkColorGetR(c);
             *ptr++ = SkColorGetG(c);
