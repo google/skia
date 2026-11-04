@@ -2132,7 +2132,8 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, bool useMultisampleFBO,
                       glRT->numStencilBits(useMultisampleFBO));
     }
     this->flushStencil(stencil, programInfo.origin());
-    this->flushScissorTest(GrScissorTest(programInfo.pipeline().isScissorTestEnabled()));
+    // Scissor state is configured dynamically in GrGLOpsRenderPass::onBindPipeline and
+    // GrGLOpsRenderPass::onSetScissorRect.
     this->flushWindowRectangles(programInfo.pipeline().getWindowRectsState(),
                                 glRT, programInfo.origin());
     this->flushConservativeRasterState(programInfo.pipeline().usesConservativeRaster());

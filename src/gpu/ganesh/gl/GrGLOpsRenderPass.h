@@ -108,6 +108,7 @@ private:
 
     // Per-pipeline state.
     GrPrimitiveType fPrimitiveType;
+    SkIRect fCurrentPipelineBounds;
     GrGLAttribArrayState* fAttribArrayState = nullptr;
 
     // If using an index buffer, this gets set during onBindBuffers. It is either the CPU address of
