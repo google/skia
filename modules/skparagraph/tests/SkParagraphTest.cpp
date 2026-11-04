@@ -6237,6 +6237,13 @@ UNIX_ONLY_TEST(SkParagraph_CachePreservesUnresolvedGlyphs, reporter) {
     auto cached = make(180);
     REPORTER_ASSERT(reporter, cached->unresolvedGlyphs() == cold->unresolvedGlyphs());
     REPORTER_ASSERT(reporter, cached->unresolvedCodepoints() == unresolved);
+    // Shaping again after a cache hit must not change the set the cache shares
+    fonts->getParagraphCache()->turnOn(false);
+    cached->markDirty();
+    cached->layout(150);
+    REPORTER_ASSERT(reporter, cached->unresolvedCodepoints() == unresolved);
+    REPORTER_ASSERT(reporter, cold->unresolvedCodepoints() == unresolved);
+    REPORTER_ASSERT(reporter, make(120)->unresolvedCodepoints() == unresolved);
 }
 
 UNIX_ONLY_TEST(SkParagraph_CacheText, reporter) {
