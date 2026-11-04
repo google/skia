@@ -298,12 +298,21 @@ std::vector<sk_sp<SkTypeface>> FontCollection::findTypefaces(const std::vector<S
 
 sk_sp<SkTypeface> FontCollection::matchTypeface(const SkString& familyName, SkFontStyle fontStyle) {
     for (const auto& manager : this->getFontManagerOrder()) {
+        // Prefer the single-call style lookup. On Linux, fontconfig implements this
+        // with FcFontMatch, while matchFamily() walks every font in the system to
+        // build a style set.
+        sk_sp<SkTypeface> match(manager->matchFamilyStyle(familyName.c_str(), fontStyle));
+        if (match) {
+            return match;
+        }
+
+        // Preserve the old behavior for font managers that only implement matchFamily().
         sk_sp<SkFontStyleSet> set(manager->matchFamily(familyName.c_str()));
         if (!set || set->count() == 0) {
             continue;
         }
 
-        sk_sp<SkTypeface> match(set->matchStyle(fontStyle));
+        match = set->matchStyle(fontStyle);
         if (match) {
             return match;
         }

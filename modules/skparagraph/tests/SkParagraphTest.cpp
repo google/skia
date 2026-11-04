@@ -12015,6 +12015,55 @@ DEF_TEST(SkParagraph_BidiIsolateStyledBlockNoSpaceFont, reporter) {
 }
 
 namespace {
+// A font manager that only implements matchFamilyStyle (not matchFamily) to
+// verify that FontCollection resolves families through the style API.
+class StyleOnlyFontMgr : public TypefaceFontProvider {
+public:
+    explicit StyleOnlyFontMgr(sk_sp<SkTypeface> typeface) : fTypeface(std::move(typeface)) {}
+
+    int matchFamilyCalls() const { return fMatchFamilyCalls; }
+    int matchFamilyStyleCalls() const { return fMatchFamilyStyleCalls; }
+
+private:
+    sk_sp<SkFontStyleSet> onMatchFamily(const char[]) const override {
+        ++fMatchFamilyCalls;
+        return nullptr;
+    }
+
+    sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[],
+                                         const SkFontStyle&) const override {
+        ++fMatchFamilyStyleCalls;
+        return familyName && strcmp(familyName, "StyleOnly") == 0 ? fTypeface : nullptr;
+    }
+
+    sk_sp<SkTypeface> fTypeface;
+    mutable int fMatchFamilyCalls = 0;
+    mutable int fMatchFamilyStyleCalls = 0;
+};
+}  // namespace
+
+DEF_TEST(SkParagraph_FindTypefacesUsesMatchFamilyStyle, reporter) {
+    auto typeface =
+            ToolUtils::TestFontMgr()->makeFromStream(GetResourceAsStream("fonts/abc/abc.ttf"), {});
+    if (!typeface) {
+        return;
+    }
+
+    sk_sp<SkTypeface> expected = typeface;
+    auto manager = sk_make_sp<StyleOnlyFontMgr>(std::move(typeface));
+    auto collection = sk_make_sp<FontCollection>();
+    collection->setDefaultFontManager(manager);
+
+    auto faces = collection->findTypefaces({SkString("StyleOnly")}, SkFontStyle());
+    REPORTER_ASSERT(reporter, faces.size() == 1);
+    if (faces.size() == 1) {
+        REPORTER_ASSERT(reporter, faces[0] == expected);
+    }
+    REPORTER_ASSERT(reporter, manager->matchFamilyStyleCalls() == 1);
+    REPORTER_ASSERT(reporter, manager->matchFamilyCalls() == 0);
+}
+
+namespace {
 // Counts fallback requests and finds no fallback typeface
 class CountingFallbackFontMgr : public TypefaceFontProvider {
 public:
@@ -12106,6 +12155,8 @@ public:
     explicit CountingFontMgr(sk_sp<SkFontMgr> fontMgr) : fFontMgr(std::move(fontMgr)) {}
     mutable int fCharacterMatches = 0;
     mutable int fFamilyStyleMatches = 0;
+    // Counted apart from fFamilyStyleMatches because matchTypeface also calls matchFamilyStyle
+    mutable int fEmojiFamilyMatches = 0;
 
 protected:
     int onCountFamilies() const override { return fFontMgr->countFamilies(); }
@@ -12121,6 +12172,9 @@ protected:
     sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[],
                                          const SkFontStyle& style) const override {
         ++fFamilyStyleMatches;
+        if (familyName && std::strcmp(familyName, "Apple Color Emoji") == 0) {
+            ++fEmojiFamilyMatches;
+        }
         return fFontMgr->matchFamilyStyle(familyName, style);
     }
     sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char familyName[],
@@ -12192,7 +12246,7 @@ DEF_TEST(SkParagraph_FallbackCacheAcrossParagraphs, reporter) {
 
     // Distinct emoji codepoints must not re-query family-based Apple Color Emoji fallback
     layoutWith(fontCollection, "e 一 ❯ \U0001F602");
-    REPORTER_ASSERT(reporter, otherFontMgr->fFamilyStyleMatches <= 1);
+    REPORTER_ASSERT(reporter, otherFontMgr->fEmojiFamilyMatches <= 1);
 
     // Emoji fallback must work when only a non-default font manager is configured
     auto testFontMgr = sk_make_sp<CountingFontMgr>(ToolUtils::TestFontMgr());
