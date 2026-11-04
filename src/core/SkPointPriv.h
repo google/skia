@@ -52,7 +52,7 @@ public:
     }
 
     static bool EqualsWithinTolerance(const SkPoint& p1, const SkPoint& p2) {
-        return !CanNormalize(p1.fX - p2.fX, p1.fY - p2.fY);
+        return EqualsWithinTolerance(p1, p2, SK_ScalarNearlyZero);
     }
 
     static bool EqualsWithinTolerance(const SkPoint& pt, const SkPoint& p, SkScalar tol) {
