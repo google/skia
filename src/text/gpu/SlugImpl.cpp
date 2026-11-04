@@ -19,6 +19,7 @@
 #include "src/text/GlyphRun.h"
 #include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/SubRunContainer.h"
+#include "src/text/gpu/VertexFiller.h"
 
 #include <memory>
 #include <utility>
@@ -36,6 +37,19 @@ SlugImpl::SlugImpl(SubRunAllocator&& alloc,
         , fSourceBounds{sourceBounds}
         , fOrigin{origin} {}
 
+namespace {
+SkMatrix position_matrix(const SkMatrix& drawMatrix, SkPoint drawOrigin) {
+    SkMatrix position_matrix = drawMatrix;
+    return position_matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+}
+
+// Every Slug has finite, non-empty source bounds and a finite origin. Slugs are only created with
+// values that pass this check, and deserialization rejects any that don't.
+bool valid_bounds_and_origin(SkRect sourceBounds, SkPoint origin) {
+    return sourceBounds.isFinite() && !sourceBounds.isEmpty() && origin.isFinite();
+}
+}  // namespace
+
 void SlugImpl::doFlatten(SkWriteBuffer& buffer) const {
     buffer.writeRect(fSourceBounds);
     buffer.writePoint(fOrigin);
@@ -45,10 +59,10 @@ void SlugImpl::doFlatten(SkWriteBuffer& buffer) const {
 
 sk_sp<Slug> SlugImpl::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {
     SkRect sourceBounds = buffer.readRect();
-    if (!buffer.validate(!sourceBounds.isEmpty())) {
+    SkPoint origin = buffer.readPoint();
+    if (!buffer.validate(valid_bounds_and_origin(sourceBounds, origin))) {
         return nullptr;
     }
-    SkPoint origin = buffer.readPoint();
     int allocSizeHint = gpu::SubRunContainer::AllocSizeHintFromBuffer(buffer);
 
     auto [initializer, _, alloc] =
@@ -66,33 +80,20 @@ sk_sp<Slug> SlugImpl::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient*
             initializer.initialize(std::move(alloc), std::move(container), sourceBounds, origin));
 }
 
-namespace {
-SkMatrix position_matrix(const SkMatrix& drawMatrix, SkPoint drawOrigin) {
-    SkMatrix position_matrix = drawMatrix;
-    return position_matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-}
-
-bool valid_slug_matrices(const SkMatrix& creationMatrix, const SkMatrix& positionMatrix) {
-    if (creationMatrix == positionMatrix) {
-        return true;
-    }
-
-    SkVector translation = positionMatrix.mapOrigin() - creationMatrix.mapOrigin();
-    return creationMatrix.getScaleX() == positionMatrix.getScaleX() &&
-           creationMatrix.getScaleY() == positionMatrix.getScaleY() &&
-           creationMatrix.getSkewX()  == positionMatrix.getSkewX()  &&
-           creationMatrix.getSkewY()  == positionMatrix.getSkewY()  &&
-           !positionMatrix.hasPerspective() && !creationMatrix.hasPerspective() &&
-           SkScalarIsInt(translation.x()) && SkScalarIsInt(translation.y());
-}
-}  // namespace
-
 bool SlugImpl::canDraw(const SkMatrix& drawMatrix, bool supportBilerpAtlas) const {
-    if (supportBilerpAtlas) {
+    // Only direct-mask glyphs are packed into the atlas without padding, and only when the atlas
+    // doesn't support bilerp. Every other SubRun type is either padded in the atlas (atlas
+    // entries are keyed by padding, so they are never shared with direct masks) or doesn't use
+    // the atlas at all, so it can be drawn with any matrix.
+    if (supportBilerpAtlas || !fSubRuns->hasDirectMaskSubRuns()) {
         return true;
     }
-    const SkMatrix positionMatrix = position_matrix(drawMatrix, fOrigin);
-    return valid_slug_matrices(this->initialPositionMatrix(), positionMatrix);
+    // Direct masks may only be drawn with a bounded integer translation of their creation
+    // matrix. Use the same check, on the same single-precision positionMatrix, that the backends
+    // use when drawing the direct-mask SubRuns.
+    auto [canUseDirect, _] = VertexFiller::CanUseDirect(this->initialPositionMatrix(),
+                                                       position_matrix(drawMatrix, fOrigin));
+    return canUseDirect;
 }
 
 sk_sp<SlugImpl> SlugImpl::Make(const SkMatrix& viewMatrix,
@@ -100,11 +101,18 @@ sk_sp<SlugImpl> SlugImpl::Make(const SkMatrix& viewMatrix,
                                const SkPaint& paint,
                                SkStrikeDeviceInfo strikeDeviceInfo,
                                sktext::StrikeForGPUCacheInterface* strikeCache) {
+    // Only make Slugs that can be deserialized: SlugImpl::MakeFromBuffer requires valid bounds and
+    // origin, and SubRunContainer::MakeFromBufferInAlloc requires a finite positionMatrix (its
+    // translation can overflow even when the viewMatrix and origin are finite).
+    const SkMatrix positionMatrix = position_matrix(viewMatrix, glyphRunList.origin());
+    if (!positionMatrix.isFinite() ||
+        !valid_bounds_and_origin(glyphRunList.sourceBounds(), glyphRunList.origin())) {
+        return nullptr;
+    }
+
     size_t subRunSizeHint = gpu::SubRunContainer::EstimateAllocSize(glyphRunList);
     auto [initializer, _, alloc] =
             SubRunAllocator::AllocateClassMemoryAndArena<SlugImpl>(subRunSizeHint);
-
-    const SkMatrix positionMatrix = position_matrix(viewMatrix, glyphRunList.origin());
 
     auto subRuns = gpu::SubRunContainer::MakeInAlloc(glyphRunList,
                                                      positionMatrix,

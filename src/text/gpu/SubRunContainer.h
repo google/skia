@@ -62,6 +62,7 @@ public:
 
     void flatten(SkWriteBuffer& buffer) const;
     static SubRunOwner MakeFromBuffer(SkReadBuffer& buffer,
+                                      const SkMatrix& initialPositionMatrix,
                                       sktext::gpu::SubRunAllocator* alloc,
                                       const SkStrikeClient* client);
 
@@ -72,6 +73,10 @@ public:
     // Given an already cached subRun, can this subRun handle this combination paint, matrix, and
     // position.
     virtual bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const = 0;
+
+    // Returns true if this SubRun draws direct masks, which are packed into the atlas without
+    // padding when atlas bilerp is unsupported.
+    virtual bool canDrawDirect() const { return false; }
 
     // Return the underlying atlas SubRun if it exists. Otherwise, return nullptr.
     // * Don't use this API. It is only to support testing.
@@ -127,6 +132,8 @@ public:
         bool isAA;
     };
     virtual GlyphParams glyphParams() const = 0;
+
+    bool canDrawDirect() const override { return fVertexFiller.canDrawDirect(); }
 
     const VertexFiller& vertexFiller() const { return fVertexFiller; }
 
@@ -219,6 +226,7 @@ public:
 
     const SkMatrix& initialPosition() const { return fInitialPositionMatrix; }
     bool isEmpty() const { return fSubRuns.isEmpty(); }
+    bool hasDirectMaskSubRuns() const;
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const;
 
 private:
