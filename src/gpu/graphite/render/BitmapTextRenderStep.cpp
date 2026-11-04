@@ -167,7 +167,12 @@ const char* BitmapTextRenderStep::fragmentCoverageSkSL() const {
     // the calling code) with the actual coverage splatted out into all four channels.
     static_assert(kNumTextAtlasTextures == 4);
     return "outputCoverage = bitmap_text_coverage_fn(sample_indexed_atlas(textureCoords, "
+#ifdef SK_DISABLE_GRAPHITE_NONINTEGRAL_VARYINGS_FLAT_INTERPOLATION
+    // See fragmentColorSkSL()
+                                                                         "int(texIndex + 0.5), "
+#else
                                                                          "int(texIndex), "
+#endif
                                                                          "text_atlas_0, "
                                                                          "text_atlas_1, "
                                                                          "text_atlas_2, "
