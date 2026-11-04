@@ -9,6 +9,7 @@
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
+#include "modules/skshaper/utils/FactoryHelpers.h"
 #include "tools/Resources.h"
 #include "tools/fonts/FontToolUtils.h"
 
@@ -39,7 +40,8 @@ struct ParagraphBench : public Benchmark {
         fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         ParagraphStyle paragraph_style;
         paragraph_style.turnHintingOff();
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(
+                paragraph_style, fontCollection, SkShapers::BestAvailableUnicode());
         builder.addText(text);
         auto paragraph = builder.Build();
 
@@ -47,10 +49,9 @@ struct ParagraphBench : public Benchmark {
         SkCanvas* canvas = rec.beginRecording({0,0, 2000,3000});
         while (loops-- > 0) {
             paragraph->layout(fWidth);
-            auto impl = static_cast<ParagraphImpl*>(paragraph.get());
             paragraph->paint(canvas, 0, 0);
             paragraph->markDirty();
-            impl->resetCache();
+            fontCollection->getParagraphCache()->reset();
         }
     }
 };
