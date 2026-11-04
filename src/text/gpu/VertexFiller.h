@@ -90,12 +90,25 @@ public:
     }
     SkMatrix viewDifference(const SkMatrix& positionMatrix) const;
 
-private:
-    friend class AtlasSubRun;
+    // Direct-mask glyph positions and draw offsets are limited to +/-kMaxDirectCoord. Their sum
+    // then stays well inside the range where floats represent every integer exactly, and inside
+    // the int32 range used when clipping direct-mask quads.
+    static constexpr SkScalar kMaxDirectCoord = 1 << 21;  // 2,097,152
 
+    // Returns true if pt is finite, integral, and within +/-kMaxDirectCoord. Direct-mask glyphs
+    // are packed into the atlas without padding, so their device positions must be integers for
+    // texel centers to align with pixel centers.
+    static bool ValidDirectPosition(SkPoint pt);
+
+    // Returns true, and the device-space offset, if positionMatrix differs from creationMatrix
+    // only by an integer translation that is a valid direct-mask offset; otherwise returns
+    // {false, {0, 0}}. positionMatrix must be computed the same way it was at creation time,
+    // i.e. drawMatrix.preTranslate(drawOrigin) in single precision, so that drawing with an
+    // unchanged matrix yields a bit-exact zero offset.
     static std::tuple<bool, SkVector> CanUseDirect(const SkMatrix& creationMatrix,
                                                    const SkMatrix& positionMatrix);
 
+private:
     const skgpu::MaskFormat fMaskFormat;
     const bool fCanDrawDirect;
     const SkMatrix fCreationMatrix;

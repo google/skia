@@ -145,6 +145,10 @@ bool SDFTMatrixRange::matrixInRange(const SkMatrix& matrix) const {
     return fMatrixMin < maxScale && maxScale <= fMatrixMax;
 }
 
+bool SDFTMatrixRange::isValid() const {
+    return SkIsFinite(fMatrixMin, fMatrixMax) && 0 <= fMatrixMin && 0 <= fMatrixMax;
+}
+
 void SDFTMatrixRange::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fMatrixMin);
     buffer.writeScalar(fMatrixMax);
@@ -153,7 +157,11 @@ void SDFTMatrixRange::flatten(SkWriteBuffer& buffer) const {
 SDFTMatrixRange SDFTMatrixRange::MakeFromBuffer(SkReadBuffer& buffer) {
     SkScalar min = buffer.readScalar();
     SkScalar max = buffer.readScalar();
-    return SDFTMatrixRange{min, max};
+    SDFTMatrixRange range{min, max};
+    if (!buffer.validate(range.isValid())) {
+        return SDFTMatrixRange{0, 0};
+    }
+    return range;
 }
 #endif // !defined(SK_DISABLE_SDF_TEXT)
 
