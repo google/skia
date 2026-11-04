@@ -170,9 +170,10 @@ public:
         requires std::is_integral_v<Integer>
     constexpr explicit(Extent != SkDynamicExtent) SkSpan(T* ptr, Integer size)
             : INHERITED{ptr, SkToSizeT(size)} {
-        SkASSERT_RELEASE(SkTFitsIn<size_t>(size));
-        SkASSERT_RELEASE(ptr || this->size() == 0);  // disallow nullptr + a nonzero size
-        SkASSERT_RELEASE(this->size() < (std::numeric_limits<size_t>::max() / sizeof(T)));
+        // Debug-only: SkASSERT_RELEASE here costs up to 21% in SkParagraph layout (b/520529526)
+        SkASSERT(SkTFitsIn<size_t>(size));
+        SkASSERT(ptr || this->size() == 0);  // disallow nullptr + a nonzero size
+        SkASSERT(this->size() < (std::numeric_limits<size_t>::max() / sizeof(T)));
     }
 
     template <typename U, size_t OtherExtent>
