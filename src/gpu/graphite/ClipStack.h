@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
@@ -104,6 +105,10 @@ public:
                                Geometry*,
                                SkStrokeRec* style,
                                ElementList* outEffectiveElements) const;
+
+    // Returns the number of elements in `elements` that have not yet been drawn in the current
+    // pass.
+    static int CountPendingElementDraws(SkSpan<const Element* const> elements);
 
     // Update the per-clip element state for later rendering using pre-computed clip state data for
     // a particular draw. The provided 'z' value is the depth value that the draw will use if it's

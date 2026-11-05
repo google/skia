@@ -358,7 +358,9 @@ private:
                                        const SkStrokeRec&,
                                        const Rect& drawBounds) const;
 
-    bool needsFlushBeforeDraw(int numNewRenderSteps, DstReadStrategy);
+    bool needsFlushBeforeDraw(int numNewRenderSteps,
+                              SkSpan<const ClipStack::Element* const> clipElements,
+                              DstReadStrategy);
 
     // Flush internal work, such as pending clip draws and atlas uploads, into the Device's DrawTask
     void internalFlush();
