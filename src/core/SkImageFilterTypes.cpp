@@ -754,6 +754,15 @@ SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
     }
     bool hasPixelPadding = fBoundary != PixelBoundary::kUnknown;
 
+    float scaleFactors[2];
+    std::optional<bool> hasScaleFactors;
+    auto getScaleFactors = [&]() {
+        if (!hasScaleFactors.has_value()) {
+            hasScaleFactors = SkMatrix(netTransform).getMinMaxScales(scaleFactors);
+        }
+        return *hasScaleFactors;
+    };
+
     if (!SkRectPriv::QuadContainsRect(netM44,
                                       decalLeaks ? safeImageBounds : imageBounds,
                                       pixelCenterBounds,
@@ -766,8 +775,7 @@ SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
             // Some amount of decal tiling will be visible in the output so check the relative size
             // of the decal interpolation from texel to dst space; if it's not close to 1 it needs
             // to be handled specially to keep rendering methods visually consistent.
-            float scaleFactors[2];
-            if (!(SkMatrix(netTransform).getMinMaxScales(scaleFactors) &&
+            if (!(getScaleFactors() &&
                     SkScalarNearlyEqual(scaleFactors[0], 1.f, 0.2f) &&
                     SkScalarNearlyEqual(scaleFactors[1], 1.f, 0.2f))) {
                 analysis |= BoundsAnalysis::kRequiresDecalInLayerSpace;
@@ -784,22 +792,43 @@ SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
         return analysis; // skip sampling analysis
     } else if (scope == BoundsScope::kCanDrawDirectly &&
                !(analysis & BoundsAnalysis::kHasLayerFillingEffect)) {
-        // When drawing the image directly, the geometry is limited to the image. If the texels
-        // are pixel aligned, then it is safe to skip shader-based tiling.
+        // When drawing the image directly, the geometry is limited to the image. It is safe to
+        // skip shader-based tiling when:
+        // 1. Sampling is nearest-neighbor or bilinear and the draw is pixel-aligned.
+        // 2. We can clamp to a 1px transparent boundary via a non-AA outset draw in draw()
+        //    (NOTE: draw() must use kStrict_SrcRectConstraint on makePixelOutset() whenever the
+        //    draw is not pixel-aligned so filtering or clip-induced AA outsetting cannot sample
+        //    beyond the 1px border).
+        // 3. Sampling is nearest-neighbor or bilinear, there is 1px padding, the minimum scale
+        //    factor is >= 1, and the unclipped image is not a hairline
+        //    (SurfaceDrawContext::attemptQuadOptimization refuses to crop a quad into a subpixel
+        //    hairline). Without minification, coordinate extrapolation from MSAA, filtering, and
+        //    anti-aliasing outsets stays within the 1px padding; minified draws are harder to
+        //    reason about and fall through to the QuadContainsRectMask check below.
+        const bool canUseTransparentPadding = hasPixelPadding &&
+                                              this->canClampToTransparentBoundary(analysis) &&
+                                              fSamplingOptions == kDefaultSampling;
         const bool nnOrBilerp = fSamplingOptions == kDefaultSampling ||
                                 fSamplingOptions == kNearestNeighbor;
-        if (nnOrBilerp && (hasPixelPadding || isPixelAligned)) {
+        if ((nnOrBilerp && isPixelAligned) || canUseTransparentPadding) {
+            return analysis;
+        }
+        if (hasPixelPadding && nnOrBilerp &&
+            getScaleFactors() &&
+            scaleFactors[0] >= 1.f &&
+            fImage->width() * scaleFactors[0] >= 1.f &&
+            fImage->height() * scaleFactors[0] >= 1.f) {
             return analysis;
         }
     }
 
     // 3. Would image pixels outside of its subset be sampled if shader-clamping is skipped?
 
-    // Include the padding for sampling analysis and inset the dst by 1/2 px to represent where the
-    // sampling is evaluated at.
+    // Include the padding for sampling analysis
     if (hasPixelPadding) {
         safeImageBounds.outset(1.f, 1.f);
     }
+    // Inset the dst by 1/2 px to represent where shader sampling is evaluated at.
     pixelCenterBounds.inset(kHalfPixel, kHalfPixel);
 
     // True if all corners of 'pixelCenterBounds' are on the inside of each edge of
@@ -1309,8 +1338,17 @@ void FilterResult::draw(const Context& ctx,
 #endif
             }
             netTransform.preTranslate(-1.f, -1.f);
+            // makePixelOutset() consumes the 1px transparent border, so if the draw is not
+            // pixel-aligned, clamp to the outset subset so filtering or clip-induced AA
+            // outsetting cannot sample beyond the 1px border (analyzeBounds() relies on this when
+            // returning early for canUseTransparentPadding). This is not recorded via
+            // ctx.markShaderBasedTilingRequired() because Stats tracks when kRequiresShaderTiling
+            // prevented using the transparent border optimization.
+            SkCanvas::SrcRectConstraint constraint = pixelAligned
+                    ? SkCanvas::kFast_SrcRectConstraint
+                    : SkCanvas::kStrict_SrcRectConstraint;
             device->drawSpecial(fImage->makePixelOutset().get(), netTransform, sampling, paint,
-                                SkCanvas::kFast_SrcRectConstraint);
+                                constraint);
         } else {
             paint.setAntiAlias(true);
             SkCanvas::SrcRectConstraint constraint = SkCanvas::kFast_SrcRectConstraint;

@@ -188,12 +188,13 @@ void draw_texture(skgpu::ganesh::SurfaceDrawContext* sdc,
     // rect would access pixels outside the proxy's content area without the constraint.
     if (constraint != SkCanvas::kStrict_SrcRectConstraint && !proxy->isFunctionallyExact()) {
         // Conservative estimate of how much a coord could be outset from src rect:
-        // 1/2 pixel for AA and 1/2 pixel for filtering. Linear filtering uses a 1/2 pixel kernel,
-        // and nearest filtering under high magnification can snap onto the texel just outside the
-        // subset due to limited sub-texel precision (e.g. Vulkan: subTexelPrecisionBits >= 4).
-        float buffer = 0.5f * (aaFlags != GrQuadAAFlags::kNone) + GrTextureEffect::kLinearInset;
+        // 1/2 pixel for linear filtering, or 1/2 + epsilon for nearest filtering under high
+        // magnification due to limited sub-texel precision (e.g. Vulkan:
+        // subTexelPrecisionBits >= 4). AA-induced coordinate extrapolation for non-exact proxies
+        // is handled downstream via the proxy-bounds subset in TextureOp::Make/TextureOpImpl and
+        // the caps-aware GrTextureEffect::Make overload in SurfaceDrawContext::drawTexture().
         SkRect safeBounds = proxy->getBoundsRect();
-        safeBounds.inset(buffer, buffer);
+        safeBounds.inset(GrTextureEffect::kLinearInset, GrTextureEffect::kLinearInset);
         if (!safeBounds.contains(srcRect)) {
             constraint = SkCanvas::kStrict_SrcRectConstraint;
         }
@@ -313,10 +314,17 @@ void Device::drawEdgeAAImage(const SkImage* image,
 
     bool restrictToSubset = SkCanvas::kStrict_SrcRectConstraint == constraint;
 
-    // If we have to outset for AA then we will generate texture coords outside the src rect. The
-    // same happens for any mask filter that extends the bounds rendered in the dst.
-    // This is conservative as a mask filter does not have to expand the bounds rendered.
-    bool coordsAllInsideSrcRect = aaFlags == GrQuadAAFlags::kNone && !mf;
+    // If we have to outset for AA (either from edge flags or an AA clip cropping the quad) or
+    // evaluate fragment varyings at MSAA pixel centers outside the quad, we can generate texture
+    // coords outside the src rect. The same happens for any mask filter that extends the bounds
+    // rendered in the dst. This is conservative as a mask filter does not have to expand the bounds
+    // rendered. Note: !sdc->alwaysAntialias() must be checked before isClipAntiAliased(), which
+    // asserts !fSurfaceDrawContext->alwaysAntialias() when encountering non-AA clip elements.
+    bool coordsAllInsideSrcRect = aaFlags == GrQuadAAFlags::kNone &&
+                                  !mf &&
+                                  !sdc->alwaysAntialias() &&
+                                  sdc->chooseAAType(GrAA::kNo) == GrAAType::kNone &&
+                                  !this->isClipAntiAliased();
 
     // Check for optimization to drop the src rect constraint when using linear filtering.
     // TODO: Just rely on image to handle this.
