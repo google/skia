@@ -447,14 +447,12 @@ bool Cluster::isSoftBreak() const {
 }
 
 bool Cluster::isSoftHyphen() const {
-    auto text = fOwner->text();
-    const char* p = text.begin() + fTextRange.start;
-    const char* end = text.begin() + fTextRange.end;
-    if (p >= end) {
+    // U+00AD has one valid UTF-8 form, so there is no need to decode the text.
+    if (fTextRange.width() != 2) {
         return false;
     }
-    SkUnichar cp = SkUTF::NextUTF8(&p, end);
-    return cp == 0x00AD && p == end;
+    const char* p = fOwner->text().begin() + fTextRange.start;
+    return static_cast<uint8_t>(p[0]) == 0xC2 && static_cast<uint8_t>(p[1]) == 0xAD;
 }
 
 bool Cluster::isGraphemeBreak() const {
