@@ -297,7 +297,10 @@ func copyTreeFromJs(ctx context.Context, cd *chromeDriver, root jsPath) error {
 
 	logger := newLogger(td.NewLogStream(ctx, "copy files", td.SeverityInfo))
 	for _, f := range files {
-		uploadCmd := chromedp.Evaluate[chromedp.Void](fmt.Sprintf(`window.uploadFile(%q)`, f))
+		uploadCmd := chromedp.Evaluate[chromedp.Void](
+			fmt.Sprintf(`window.uploadFile(%q)`, f),
+			chromedp.EvalAwaitPromise,
+		)
 		if _, err := chromedp.Run(cd.ctx, uploadCmd); err != nil {
 			return td.FailStep(ctx, err)
 		}

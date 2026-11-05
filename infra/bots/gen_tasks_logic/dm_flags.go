@@ -1105,6 +1105,15 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("lottie")
 	}
 
+	if b.ExtraConfig("StandaloneWasm") && b.GPU() {
+		// TODO(denniston.t@gmail.com): until there is a StandaloneWasm WebGL sink,
+		// we can only run the unit tests.
+		removeFromArgs("gm")
+		removeFromArgs("image")
+		removeFromArgs("colorImage")
+		removeFromArgs("svg")
+	}
+
 	if b.ExtraConfig("TSAN") {
 		// skbug.com/40042212
 		removeFromArgs("svg")

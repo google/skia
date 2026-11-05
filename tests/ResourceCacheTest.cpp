@@ -1298,10 +1298,11 @@ static void test_time_purge(skiatest::Reporter* reporter) {
     auto nowish = []() {
         // We sleep so that we ensure we get a value that is greater than the last call to
         // GrStdSteadyClock::now().
-        std::this_thread::sleep_for(skgpu::StdSteadyClock::duration(5));
+        static constexpr auto kDur = std::chrono::microseconds(1);
+        std::this_thread::sleep_for(kDur);
         auto result = skgpu::StdSteadyClock::now();
         // Also sleep afterwards so we don't get this value again.
-        std::this_thread::sleep_for(skgpu::StdSteadyClock::duration(5));
+        std::this_thread::sleep_for(kDur);
         return result;
     };
 

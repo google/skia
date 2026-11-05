@@ -3098,6 +3098,11 @@
         "Test-Ubuntu24.04-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Release-All-Vulkan"
       ]
     },
+    "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Debug-All-StandaloneWasm": {
+      "tasks": [
+        "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Debug-All-StandaloneWasm"
+      ]
+    },
     "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit": {
       "tasks": [
         "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit"
@@ -3111,6 +3116,16 @@
     "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {
       "tasks": [
         "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit"
+      ]
+    },
+    "Test-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Debug-All-StandaloneWasm": {
+      "tasks": [
+        "Test-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Debug-All-StandaloneWasm"
+      ]
+    },
+    "Test-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-StandaloneWasm": {
+      "tasks": [
+        "Test-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-StandaloneWasm"
       ]
     },
     "Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Dawn_Vulkan": {
@@ -58403,6 +58418,79 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
+    "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Debug-All-StandaloneWasm": {
+      "caches": [
+        {
+          "name": "chrome",
+          "path": "cache/chrome"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fcf75df72c29e9da611beb93d48e2b046c11adc0"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:47"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:582"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "./run_wasm_dm",
+        "--local=false",
+        "--dm_flags",
+        "[\"dm\",\"--nameByHash\",\"--key\",\"arch\",\"wasm\",\"compiler\",\"EMCC\",\"configuration\",\"Debug\",\"cpu_or_gpu\",\"CPU\",\"cpu_or_gpu_value\",\"AVX2\",\"extra_config\",\"StandaloneWasm\",\"model\",\"GCE\",\"os\",\"Ubuntu24.04\",\"style\",\"default\",\"--randomProcessorTest\",\"--nogpu\",\"--config\",\"8888\",\"--src\",\"tests\",\"gm\",\"image\",\"colorImage\",\"--skip\",\"_\",\"test\",\"_\",\"Skottie_Shaper_CTStrict\",\"_\",\"test\",\"_\",\"BigImageTest_Ganesh\",\"_\",\"image\",\"gen_platf\",\"error\",\"--nonativeFonts\",\"--verbose\"]",
+        "--dm_properties",
+        "{\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"builder\":\"Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Debug-All-StandaloneWasm\",\"gitHash\":\"<(REVISION)\",\"issue\":\"<(ISSUE)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"patchset\":\"<(PATCHSET)\",\"swarming_bot_id\":\"${SWARMING_BOT_ID}\",\"swarming_task_id\":\"${SWARMING_TASK_ID}\",\"task_id\":\"<(TASK_ID)\"}",
+        "--chrome_cache",
+        "cache/chrome",
+        "--build",
+        "build",
+        "--work_path",
+        "./work",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Debug-All-StandaloneWasm",
+        "--gold_hashes_url",
+        "https://gold.skia.org/json/v1/hashes"
+      ],
+      "dependencies": [
+        "Build-Ubuntu24.04-EMCC-wasm-Debug-StandaloneWasm",
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "machine_type:n1-standard-16",
+        "os:Ubuntu-24.04",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 1,
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
     "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit": {
       "caches": [
         {
@@ -58638,6 +58726,150 @@
       },
       "io_timeout_ns": 14400000000000,
       "max_attempts": 2,
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Debug-All-StandaloneWasm": {
+      "caches": [
+        {
+          "name": "chrome",
+          "path": "cache/chrome"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fcf75df72c29e9da611beb93d48e2b046c11adc0"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:47"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:582"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "./run_wasm_dm",
+        "--local=false",
+        "--dm_flags",
+        "[\"dm\",\"--nameByHash\",\"--key\",\"arch\",\"wasm\",\"compiler\",\"EMCC\",\"configuration\",\"Debug\",\"cpu_or_gpu\",\"GPU\",\"cpu_or_gpu_value\",\"QuadroP400\",\"extra_config\",\"StandaloneWasm\",\"model\",\"Golo\",\"os\",\"Ubuntu24.04\",\"style\",\"default\",\"--randomProcessorTest\",\"--nocpu\",\"--config\",\"gl\",\"gldft\",\"glmsaa4\",\"gldmsaa\",\"gl1010102\",\"gltestpersistentcache\",\"gltestglslcache\",\"gltestprecompile\",\"--src\",\"tests\",\"--skip\",\"_\",\"test\",\"_\",\"SkRuntimeBlender_Ganesh\",\"gl1010102\",\"image\",\"_\",\"_\",\"gltestpersistentcache\",\"gm\",\"_\",\"atlastext\",\"gltestpersistentcache\",\"gm\",\"_\",\"dftext\",\"gltestpersistentcache\",\"gm\",\"_\",\"glyph_pos_h_b\",\"gltestpersistentcache\",\"gm\",\"_\",\"glyph_pos_h_f\",\"gltestpersistentcache\",\"gm\",\"_\",\"glyph_pos_n_f\",\"gltestglslcache\",\"gm\",\"_\",\"atlastext\",\"gltestglslcache\",\"gm\",\"_\",\"dftext\",\"gltestglslcache\",\"gm\",\"_\",\"glyph_pos_h_b\",\"gltestglslcache\",\"gm\",\"_\",\"glyph_pos_h_f\",\"gltestglslcache\",\"gm\",\"_\",\"glyph_pos_n_f\",\"gltestprecompile\",\"gm\",\"_\",\"atlastext\",\"gltestprecompile\",\"gm\",\"_\",\"dftext\",\"gltestprecompile\",\"gm\",\"_\",\"glyph_pos_h_b\",\"gltestprecompile\",\"gm\",\"_\",\"glyph_pos_h_f\",\"gltestprecompile\",\"gm\",\"_\",\"glyph_pos_n_f\",\"gltestpersistentcache\",\"gm\",\"_\",\"tessellation\",\"gltestglslcache\",\"gm\",\"_\",\"tessellation\",\"gltestprecompile\",\"gm\",\"_\",\"tessellation\",\"_\",\"svg\",\"_\",\"svgparse_\",\"_\",\"test\",\"_\",\"Skottie_Shaper_CTStrict\",\"_\",\"test\",\"_\",\"BigImageTest_Ganesh\",\"_\",\"image\",\"gen_platf\",\"error\",\"_\",\"image\",\"_\",\"interlaced1.png\",\"_\",\"image\",\"_\",\"interlaced2.png\",\"_\",\"image\",\"_\",\"interlaced3.png\",\"_\",\"image\",\"_\",\".arw\",\"_\",\"image\",\"_\",\".cr2\",\"_\",\"image\",\"_\",\".dng\",\"_\",\"image\",\"_\",\".nef\",\"_\",\"image\",\"_\",\".nrw\",\"_\",\"image\",\"_\",\".orf\",\"_\",\"image\",\"_\",\".raf\",\"_\",\"image\",\"_\",\".rw2\",\"_\",\"image\",\"_\",\".pef\",\"_\",\"image\",\"_\",\".srw\",\"_\",\"image\",\"_\",\".ARW\",\"_\",\"image\",\"_\",\".CR2\",\"_\",\"image\",\"_\",\".DNG\",\"_\",\"image\",\"_\",\".NEF\",\"_\",\"image\",\"_\",\".NRW\",\"_\",\"image\",\"_\",\".ORF\",\"_\",\"image\",\"_\",\".RAF\",\"_\",\"image\",\"_\",\".RW2\",\"_\",\"image\",\"_\",\".PEF\",\"_\",\"image\",\"_\",\".SRW\",\"--nonativeFonts\",\"--verbose\"]",
+        "--dm_properties",
+        "{\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"builder\":\"Test-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Debug-All-StandaloneWasm\",\"gitHash\":\"<(REVISION)\",\"issue\":\"<(ISSUE)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"patchset\":\"<(PATCHSET)\",\"swarming_bot_id\":\"${SWARMING_BOT_ID}\",\"swarming_task_id\":\"${SWARMING_TASK_ID}\",\"task_id\":\"<(TASK_ID)\"}",
+        "--chrome_cache",
+        "cache/chrome",
+        "--build",
+        "build",
+        "--work_path",
+        "./work",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Test-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Debug-All-StandaloneWasm",
+        "--gold_hashes_url",
+        "https://gold.skia.org/json/v1/hashes"
+      ],
+      "dependencies": [
+        "Build-Ubuntu24.04-EMCC-wasm-Debug-StandaloneWasm",
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3",
+        "os:Ubuntu-24.04",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 1,
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-StandaloneWasm": {
+      "caches": [
+        {
+          "name": "chrome",
+          "path": "cache/chrome"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fcf75df72c29e9da611beb93d48e2b046c11adc0"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:47"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:582"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "./run_wasm_dm",
+        "--local=false",
+        "--dm_flags",
+        "[\"dm\",\"--nameByHash\",\"--key\",\"arch\",\"wasm\",\"compiler\",\"EMCC\",\"configuration\",\"Release\",\"cpu_or_gpu\",\"GPU\",\"cpu_or_gpu_value\",\"QuadroP400\",\"extra_config\",\"StandaloneWasm\",\"model\",\"Golo\",\"os\",\"Ubuntu24.04\",\"style\",\"default\",\"--randomProcessorTest\",\"--nocpu\",\"--config\",\"gl\",\"gldft\",\"glmsaa4\",\"gldmsaa\",\"gl1010102\",\"gltestpersistentcache\",\"gltestglslcache\",\"gltestprecompile\",\"--src\",\"tests\",\"--skip\",\"_\",\"test\",\"_\",\"SkRuntimeBlender_Ganesh\",\"gl1010102\",\"image\",\"_\",\"_\",\"gltestpersistentcache\",\"gm\",\"_\",\"atlastext\",\"gltestpersistentcache\",\"gm\",\"_\",\"dftext\",\"gltestpersistentcache\",\"gm\",\"_\",\"glyph_pos_h_b\",\"gltestpersistentcache\",\"gm\",\"_\",\"glyph_pos_h_f\",\"gltestpersistentcache\",\"gm\",\"_\",\"glyph_pos_n_f\",\"gltestglslcache\",\"gm\",\"_\",\"atlastext\",\"gltestglslcache\",\"gm\",\"_\",\"dftext\",\"gltestglslcache\",\"gm\",\"_\",\"glyph_pos_h_b\",\"gltestglslcache\",\"gm\",\"_\",\"glyph_pos_h_f\",\"gltestglslcache\",\"gm\",\"_\",\"glyph_pos_n_f\",\"gltestprecompile\",\"gm\",\"_\",\"atlastext\",\"gltestprecompile\",\"gm\",\"_\",\"dftext\",\"gltestprecompile\",\"gm\",\"_\",\"glyph_pos_h_b\",\"gltestprecompile\",\"gm\",\"_\",\"glyph_pos_h_f\",\"gltestprecompile\",\"gm\",\"_\",\"glyph_pos_n_f\",\"gltestpersistentcache\",\"gm\",\"_\",\"tessellation\",\"gltestglslcache\",\"gm\",\"_\",\"tessellation\",\"gltestprecompile\",\"gm\",\"_\",\"tessellation\",\"_\",\"svg\",\"_\",\"svgparse_\",\"_\",\"test\",\"_\",\"Skottie_Shaper_CTStrict\",\"_\",\"test\",\"_\",\"BigImageTest_Ganesh\",\"_\",\"image\",\"gen_platf\",\"error\",\"_\",\"image\",\"_\",\"interlaced1.png\",\"_\",\"image\",\"_\",\"interlaced2.png\",\"_\",\"image\",\"_\",\"interlaced3.png\",\"_\",\"image\",\"_\",\".arw\",\"_\",\"image\",\"_\",\".cr2\",\"_\",\"image\",\"_\",\".dng\",\"_\",\"image\",\"_\",\".nef\",\"_\",\"image\",\"_\",\".nrw\",\"_\",\"image\",\"_\",\".orf\",\"_\",\"image\",\"_\",\".raf\",\"_\",\"image\",\"_\",\".rw2\",\"_\",\"image\",\"_\",\".pef\",\"_\",\"image\",\"_\",\".srw\",\"_\",\"image\",\"_\",\".ARW\",\"_\",\"image\",\"_\",\".CR2\",\"_\",\"image\",\"_\",\".DNG\",\"_\",\"image\",\"_\",\".NEF\",\"_\",\"image\",\"_\",\".NRW\",\"_\",\"image\",\"_\",\".ORF\",\"_\",\"image\",\"_\",\".RAF\",\"_\",\"image\",\"_\",\".RW2\",\"_\",\"image\",\"_\",\".PEF\",\"_\",\"image\",\"_\",\".SRW\",\"--nonativeFonts\",\"--verbose\"]",
+        "--dm_properties",
+        "{\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"builder\":\"Test-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-StandaloneWasm\",\"gitHash\":\"<(REVISION)\",\"issue\":\"<(ISSUE)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"patchset\":\"<(PATCHSET)\",\"swarming_bot_id\":\"${SWARMING_BOT_ID}\",\"swarming_task_id\":\"${SWARMING_TASK_ID}\",\"task_id\":\"<(TASK_ID)\"}",
+        "--chrome_cache",
+        "cache/chrome",
+        "--build",
+        "build",
+        "--work_path",
+        "./work",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Test-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-StandaloneWasm",
+        "--gold_hashes_url",
+        "https://gold.skia.org/json/v1/hashes"
+      ],
+      "dependencies": [
+        "Build-Ubuntu24.04-EMCC-wasm-Release-StandaloneWasm",
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3",
+        "os:Ubuntu-24.04",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 1,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Dawn_Vulkan": {
