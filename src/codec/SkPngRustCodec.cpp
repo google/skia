@@ -1027,6 +1027,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
                                  decodingDst.fDstRowStride,
                                  this->dstInfo().colorType(),
                                  this->dstInfo().alphaType());
+                    decodingState.fRowsWrittenToOutput = decodingDst.fDstRowCount;
                 }
             }
             if (!interlaced && !partialDecode) {
@@ -1152,6 +1153,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState) 
                              decodingDst.fDstRowStride,
                              this->dstInfo().colorType(),
                              this->dstInfo().alphaType());
+                decodingState.fRowsWrittenToOutput = decodingDst.fDstRowCount;
             }
 
             if (!interlaced) {
@@ -1199,12 +1201,8 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState) 
     }
 }
 
-void SkPngRustCodec::reportRowsDecoded(Result result,
-                                       const DecodingState& decodingState,
-                                       int* rowsDecoded) const {
-    // TODO(b/562804783): Consider setting `*rowsDecoded` unconditionally (including on `kSuccess`),
-    // aligning with `SkBmpRustCodec`, `SkJpegRustCodec`, and `SkWuffsCodec`.
-    if ((result != kIncompleteInput && result != kErrorInInput) || !rowsDecoded) {
+void SkPngRustCodec::reportRowsDecoded(const DecodingState& decodingState, int* rowsDecoded) const {
+    if (!rowsDecoded) {
         return;
     }
     *rowsDecoded = decodingState.fRowsWrittenToOutput;
@@ -1229,7 +1227,7 @@ SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
             result = this->incrementalDecodeXForm(*decodingState);
         }
     }
-    this->reportRowsDecoded(result, *decodingState, rowsDecoded);
+    this->reportRowsDecoded(*decodingState, rowsDecoded);
     return result;
 }
 
@@ -1256,7 +1254,7 @@ SkCodec::Result SkPngRustCodec::onIncrementalDecode(int* rowsDecoded) {
             result = this->incrementalDecodeXForm(*fIncrementalDecodingState);
         }
     }
-    this->reportRowsDecoded(result, *fIncrementalDecodingState, rowsDecoded);
+    this->reportRowsDecoded(*fIncrementalDecodingState, rowsDecoded);
     if (result != kIncompleteInput) {
         // After successfully reading the whole row (`kSuccess`), and after a
         // fatal error (only recoverable error is `kIncompleteInput`) our client

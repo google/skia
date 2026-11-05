@@ -122,6 +122,8 @@ private:
         // * Non-interlaced: incremented after each decoded row.
         // * Interlaced unbuffered: updated in `expandDecodedInterlacedRow` from
         //   `fInterlacedDecodedHeight`.
+        // * Interlaced `kSrcOver` (buffered): updated at `EndOfFrame` after
+        //   `blendAllRows`.
         // * Interlaced subset/sampled: updated when flushing `fPreblendBuffer` in
         //   `writeSubsetOrSampleToOutput`.
         int fRowsWrittenToOutput = 0;
@@ -169,12 +171,9 @@ private:
     // for interlaced subset/sampled decodes both on halt and at end-of-frame.
     void writeSubsetOrSampleToOutput(DecodingState& decodingState);
 
-    // Populates `rowsDecoded` after a failed decode (`kIncompleteInput` or
-    // `kErrorInInput`) with the number of destination rows written so far,
-    // matching `SkPngCodec` so callers only fill the remaining rows.
-    void reportRowsDecoded(Result result,
-                           const DecodingState& decodingState,
-                           int* rowsDecoded) const;
+    // Populates `rowsDecoded` with the number of destination rows written so
+    // far.
+    void reportRowsDecoded(const DecodingState& decodingState, int* rowsDecoded) const;
 
     // Helper for reading until the start of the next `fdAT` sequence.
     Result readToStartOfNextFrame();
