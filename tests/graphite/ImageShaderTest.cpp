@@ -127,6 +127,9 @@ static bool supports_packed_yuyv(Recorder* recorder) {
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageShaderPackedYUYVDecalTest, reporter, context,
                                          CtsEnforcement::kNever) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
     // Test that decal tiling on a packed 4:2:2 image is resolved per pixel, not per pixel pair,
     // when the subset bounds fall on odd pixels. The plane holds one texel per 2x1 block of pixels,
     // so pixels 2 and 3 (and 6 and 7) share a texel even though the subset splits them.
@@ -225,6 +228,9 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageShaderPackedYUYVDecalTest, reporte
 }
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageShaderPackedYUYVTileOriginTest, reporter, context,
                                          CtsEnforcement::kNever) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     REPORTER_ASSERT(reporter, recorder);
     if (!recorder || !supports_packed_yuyv(recorder.get())) {

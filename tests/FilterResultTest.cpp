@@ -668,6 +668,20 @@ public:
     skif::Backend* backend() const { return fBackend.get(); }
     sk_sp<skif::Backend> refBackend() const { return fBackend; }
 
+    bool supportsProtectedContent() const {
+#if defined(SK_GANESH)
+        if (fDirectContext) {
+            return fDirectContext->supportsProtectedContent();
+        }
+#endif
+#if defined(SK_GRAPHITE)
+        if (fRecorder) {
+            return fRecorder->priv().isProtected() == skgpu::Protected::kYes;
+        }
+#endif
+        return false;
+    }
+
     bool compareImages(const skif::Context& ctx,
                        SkSpecialImage* expectedImage,
                        SkIPoint expectedOrigin,
@@ -2799,6 +2813,10 @@ DEF_TEST_SUITE(BlurTransformSubsetClamp,
                r,
                CtsEnforcement::kNever,
                CtsEnforcement::kNever) {
+    if (r.supportsProtectedContent()) {
+        return;
+    }
+
     sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeSRGB();
 
     // Pre-populate the backend's scratch texture pool with red-filled surfaces matching the
