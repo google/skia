@@ -128,7 +128,8 @@ void Precompile(PrecompileContext* precompileContext,
         }
 
         // TODO(robertphillips): address mismatches between the MSAA requirements of the Renderers
-        // associated w/ the requested drawTypes and the specified MSAA setting
+        // associated w/ the requested drawTypes and the specified MSAA setting. Similarly, address
+        // mismatches with the requested depth/stencil attachments and the context's depth mode.
 
         // On Native Metal, the LoadOp, StoreOp and clearColor fields don't influence
         // the actual RenderPassDescKey.

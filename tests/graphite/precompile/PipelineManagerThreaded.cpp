@@ -33,17 +33,25 @@ const RenderPassProperties kRGBA_1_D {
         /* fRequiresMSAA= */ false
 };
 
+const RenderPassProperties kRGBA_1 {
+        DepthStencilFlags::kNone,
+        kRGBA_8888_SkColorType,
+        /* fDstCS= */ nullptr,
+        /* fRequiresMSAA= */ false
+};
+
 namespace {
 
 void precompile_an_arc_draw(skiatest::Reporter* reporter,
-                            PrecompileContext* precompileContext) {
+                            PrecompileContext* precompileContext,
+                            bool avoidDepth) {
     PaintOptions paintOptions;
     paintOptions.addBlendMode(SkBlendMode::kSrcOver);
 
     Precompile(precompileContext,
                paintOptions,
                DrawTypeFlags::kCircularArc,
-               { kRGBA_1_D });
+               { avoidDepth ? kRGBA_1 : kRGBA_1_D });
 }
 
 void draw_an_arc(skiatest::Reporter* reporter, Context* context) {
@@ -96,14 +104,16 @@ void run_test(skiatest::Reporter* reporter, GraphiteTestContext* testContext,
         std::unique_ptr<Context> context = testContext->makeContext(newOptions);
         std::unique_ptr<PrecompileContext> precompileContext = context->makePrecompileContext();
 
+        const bool avoidDepth = context->priv().caps()->avoidDepthMode();
+
         if (precompileFirst) {
-            precompile_an_arc_draw(reporter, precompileContext.get());
+            precompile_an_arc_draw(reporter, precompileContext.get(), avoidDepth);
         }
 
         draw_an_arc(reporter, context.get());
 
         if (!precompileFirst) {
-            precompile_an_arc_draw(reporter, precompileContext.get());
+            precompile_an_arc_draw(reporter, precompileContext.get(), avoidDepth);
         }
 
         testContext->syncedSubmit(context.get());
