@@ -91,7 +91,11 @@ static inline void append_multitexture_lookup(GrGeometryProcessor::ProgramImpl::
 
     // conditionally load from the indexed texture sampler
     for (int i = 0; i < numTextureSamplers-1; ++i) {
-        args.fFragBuilder->codeAppendf("if (%s == %d) { %s = ", texIdx.fsIn(), i, colorName);
+        // Add 1/2 and cast to an int to ensure floating point error during interpolation doesn't
+        // cause incorrect atlas lookups (these varyings are marked kCanBeFlat, but that leaves
+        // the possibility that they may still be interpolated).
+        args.fFragBuilder->codeAppendf("if (int(%s + 0.5) == %d) { %s = ",
+                                       texIdx.fsIn(), i, colorName);
         args.fFragBuilder->appendTextureLookup(args.fTexSamplers[i],
                                                coordName);
         args.fFragBuilder->codeAppend("; } else ");
@@ -118,7 +122,7 @@ static inline void append_multitexture_lookup_lcd(GrGeometryProcessor::ProgramIm
 
     // conditionally load from the indexed texture sampler
     for (int i = 0; i < numTextureSamplers; ++i) {
-        args.fFragBuilder->codeAppendf("if (%s == %d) {", texIdx.fsIn(), i);
+        args.fFragBuilder->codeAppendf("if (int(%s + 0.5) == %d) {", texIdx.fsIn(), i);
 
         // green is distance to uv center
         args.fFragBuilder->codeAppendf("%s.y = ", distanceName);
