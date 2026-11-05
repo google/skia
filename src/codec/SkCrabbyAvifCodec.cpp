@@ -259,9 +259,12 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
         // Do not set matrix_coefficients here because cicp_get_sk_color_space in SkAndroidCodec.cpp
         // fails if matrix_coeffieicnts is not zero:
         // https://skia.googlesource.com/skia/+/33b2d3333755ac5ce21495959c2d4bb11f299f8b/src/codec/SkAndroidCodec.cpp#186
+        // The profile describes the decoded RGB, which is always full range: the decoder applies
+        // the YUV range (yuvRange) when converting to RGB. Passing the YUV range here would drop
+        // the color space for limited-range images.
         profile = SkCodecs::ColorProfile::MakeCICP(
             image->colorPrimaries, image->transferCharacteristics, 0,
-            image->yuvRange == crabbyavif::AVIF_RANGE_FULL);
+            /*full_range_flag=*/1);
     }
     if (profile && profile->dataSpace() != SkCodecs::ColorProfile::DataSpace::kRGB) {
         profile = nullptr;
