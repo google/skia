@@ -59,6 +59,7 @@
 #include "src/gpu/graphite/SpecialImage_Graphite.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/TextureUtils.h"
+#include "tools/graphite/GraphiteTestContext.h"
 #endif
 
 
@@ -164,9 +165,20 @@ public:
                 return ShaderSampleMode::kShaderTile;
             }
         }
-        // If we got here, it will be drawn directly but a clamp can be needed if the data outside
-        // the image is unknown and sampling might pull those values in accidentally.
-        if (image.fBoundary == FilterResult::PixelBoundary::kUnknown) {
+        // If we got here, it will be drawn directly, but a clamp can still be needed if:
+        // - the data outside the image is unknown (no 1px padding),
+        // - cubic or anisotropic sampling is used (kernel radius > 1px padding), or
+        // - the transform has perspective or a minimum scale factor < 1 (where coverage-AA or MSAA
+        //   outsetting can extrapolate beyond the 1px padding).
+        // Note: when canClampToTransparentBoundary() is used, draw() clamps to makePixelOutset()
+        // without recording markShaderBasedTilingRequired(), so fNumShaderClampedDraws remains 0.
+        float scales[2];
+        bool isCubicOrAniso = image.sampling().useCubic || image.sampling().isAniso();
+        bool hasPerspectiveOrMinification =
+                !SkMatrix(image.fTransform).getMinMaxScales(scales) || scales[0] < 1.f;
+        if (image.fBoundary == FilterResult::PixelBoundary::kUnknown ||
+            isCubicOrAniso ||
+            hasPerspectiveOrMinification) {
             return ShaderSampleMode::kShaderClamp;
         } else {
             return ShaderSampleMode::kFast;
@@ -1359,13 +1371,12 @@ sk_sp<SkColorFilter> affect_transparent(SkColor4f color) {
 
 #if defined(SK_GRAPHITE)
 #define DEF_GRAPHITE_TEST_SUITE(name, ctsEnforcement)                            \
-    DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(FilterResult_graphite_##name, \
-                                                   skgpu::IsNativeBackend,       \
-                                                   r,                            \
-                                                   context,                      \
-                                                   testContext,                  \
-                                                   true,                         \
-                                                   ctsEnforcement) {             \
+    DEF_GRAPHITE_TEST_FOR_CONTEXTS(FilterResult_graphite_##name,                 \
+                                   skgpu::IsNativeBackend,                       \
+                                   r,                                            \
+                                   context,                                      \
+                                   testContext,                                  \
+                                   ctsEnforcement) {                             \
         using namespace skgpu::graphite;                                         \
         auto recorder = context->makeRecorder();                                 \
         TestRunner runner(r, recorder.get());                                    \
@@ -2783,5 +2794,160 @@ DEF_TEST_SUITE(MakeFromImage,
     testSuccess(kContainingSrc, kIdentitySrc, {32,32,96,96},
                 "Containing src rect is clipped and dst is scaled on both axes");
 }
+
+DEF_TEST_SUITE(BlurTransformSubsetClamp,
+               r,
+               CtsEnforcement::kNever,
+               CtsEnforcement::kNever) {
+    sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeSRGB();
+
+    // Pre-populate the backend's scratch texture pool with red-filled surfaces matching the
+    // approximate-fit backing sizes allocated by the blur engine:
+    // - Case 1 blurs [-8, -8, 98, 58] (106x66, plus 1px padding = 108x68) -> 128x128 kApprox.
+    //   128x128 is listed twice because intermediate blur passes may hold one 128x128 scratch
+    //   texture live while allocating the final output texture.
+    // - Case 2 blurs [-12, -12, 122, 57] (134x69, plus 1px padding = 136x71) -> 256x128 kApprox.
+    auto populateScratchWithRed = [&]() {
+        for (SkISize sz : {SkISize{128, 128}, SkISize{256, 128}, SkISize{128, 128}}) {
+            sk_sp<SkDevice> dev = r.backend()->makeDevice(sz, colorSpace);
+            if (dev) {
+                SkCanvas canvas(dev);
+                canvas.clear(SK_ColorRED);
+                dev->setImmutable();
+                (void)dev->snapSpecial(SkIRect::MakeSize(sz));
+            }
+        }
+    };
+
+    auto makeBlueFilterResult = [&](SkISize size) {
+        sk_sp<SkDevice> srcDev = r.backend()->makeDevice(size, colorSpace);
+        SkCanvas srcCanvas(srcDev);
+        srcCanvas.clear(SK_ColorBLUE);
+        srcDev->setImmutable();
+        return FilterResult(srcDev->snapSpecial(SkIRect::MakeSize(size)),
+                            LayerSpace<SkIPoint>({0, 0}));
+    };
+
+    auto checkNoRedPixels = [&](SkCanvas& dstCanvas, SkISize size, const char* label) {
+        SkBitmap bm;
+        bm.allocPixels(SkImageInfo::Make(size, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
+        REPORTER_ASSERT(r, dstCanvas.readPixels(bm, 0, 0));
+        int badPixels = 0;
+        int firstX = -1, firstY = -1;
+        SkColor firstColor = 0;
+        for (int y = 0; y < bm.height(); ++y) {
+            for (int x = 0; x < bm.width(); ++x) {
+                SkColor c = bm.getColor(x, y);
+                if (SkColorGetR(c) != 0) {
+                    if (badPixels == 0) {
+                        firstX = x;
+                        firstY = y;
+                        firstColor = c;
+                    }
+                    ++badPixels;
+                }
+            }
+        }
+        REPORTER_ASSERT(r,
+                        badPixels == 0,
+                        "%s: %d pixels had red > 0 (first at (%d, %d) = 0x%08x)",
+                        label,
+                        badPixels,
+                        firstX,
+                        firstY,
+                        firstColor);
+    };
+
+    // Note: On Graphite and raster backends, `stats.fNumShaderClampedDraws == 1` is the primary
+    // assertion that shader-based clamping was not dropped, while `checkNoRedPixels` additionally
+    // verifies that Ganesh's kApprox scratch texture slack is not sampled into the output.
+
+    // Case 1: AA-clipped minified blur.
+    {
+        populateScratchWithRed();
+
+        Context blurCtx{r.refBackend(),
+                        Mapping(),
+                        LayerSpace<SkIRect>(SkIRect::MakeLTRB(-8, -8, 98, 58)),
+                        /*source=*/{},
+                        colorSpace.get(),
+                        /*stats=*/nullptr};
+        FilterResult blueSrc = makeBlueFilterResult({90, 50});
+        FilterResult::Builder builder(blurCtx);
+        builder.add(blueSrc);
+        FilterResult blurred = builder.blur(LayerSpace<SkSize>({2.5f, 2.5f}));
+        REPORTER_ASSERT(r, blurred.image());
+        if (!blurred.image()) {
+            return;
+        }
+        if (blurred.image()->isGaneshBacked()) {
+            REPORTER_ASSERT(r, !blurred.image()->isExactFit());
+        }
+
+        Stats stats;
+        Context xformCtx = blurCtx.withNewDesiredOutput(
+                LayerSpace<SkIRect>(SkIRect::MakeWH(64, 128)));
+        FilterResultTestAccess::TrackStats(&xformCtx, &stats);
+        SkMatrix minMatrix = SkMatrix::RectToRect(SkRect::MakeLTRB(-8.f, -8.f, 98.f, 58.f),
+                                                  SkRect::MakeLTRB(2.58f, 0.f, 4.32f, 95.f));
+        FilterResult minified = blurred.applyTransform(
+                xformCtx, LayerSpace<SkMatrix>(minMatrix), FilterResult::kDefaultSampling);
+
+        sk_sp<SkDevice> dstDev = r.backend()->makeDevice({64, 128}, colorSpace);
+        SkCanvas dstCanvas(dstDev);
+        dstCanvas.clear(SK_ColorBLACK);
+        dstCanvas.save();
+        dstCanvas.clipRect(SkRect::MakeLTRB(2.6f, 1.f, 4.3f, 94.f),
+                           SkClipOp::kIntersect,
+                           /*doAntiAlias=*/true);
+        FilterResultTestAccess::Draw(
+                xformCtx, dstDev.get(), minified, /*preserveDeviceState=*/true);
+        dstCanvas.restore();
+
+        REPORTER_ASSERT(r, stats.fNumShaderClampedDraws == 1);
+        checkNoRedPixels(dstCanvas, {64, 128}, "Case 1 (minified AA-clipped blur)");
+    }
+
+    // Case 2: Blur drawn under a strong skew transform on the destination device.
+    {
+        populateScratchWithRed();
+
+        Stats stats;
+        Context blurCtx{r.refBackend(),
+                        Mapping(),
+                        LayerSpace<SkIRect>(SkIRect::MakeLTRB(-12, -12, 122, 57)),
+                        /*source=*/{},
+                        colorSpace.get(),
+                        /*stats=*/nullptr};
+        FilterResult blueSrc = makeBlueFilterResult({110, 45});
+        FilterResult::Builder builder(blurCtx);
+        builder.add(blueSrc);
+        FilterResult blurred = builder.blur(LayerSpace<SkSize>({4.f, 4.f}));
+        REPORTER_ASSERT(r, blurred.image());
+        if (!blurred.image()) {
+            return;
+        }
+        if (blurred.image()->isGaneshBacked()) {
+            REPORTER_ASSERT(r, !blurred.image()->isExactFit());
+        }
+
+        FilterResultTestAccess::TrackStats(&blurCtx, &stats);
+        sk_sp<SkDevice> dstDev = r.backend()->makeDevice({256, 256}, colorSpace);
+        SkCanvas dstCanvas(dstDev);
+        dstCanvas.clear(SK_ColorBLACK);
+        dstCanvas.save();
+        const float skewX = std::tan(SkDegreesToRadians(88.f));
+        SkMatrix m;
+        m.setTranslate(128.f - 55.f - skewX * 22.5f, 128.f - 22.5f);
+        m.preSkew(skewX, 0.f);
+        dstCanvas.concat(m);
+        FilterResultTestAccess::Draw(blurCtx, dstDev.get(), blurred, /*preserveDeviceState=*/true);
+        dstCanvas.restore();
+
+        REPORTER_ASSERT(r, stats.fNumShaderClampedDraws == 1);
+        checkNoRedPixels(dstCanvas, {256, 256}, "Case 2 (skewed blur)");
+    }
+}
+DEF_GRAPHITE_TEST_SUITE(BlurTransformSubsetClamp, CtsEnforcement::kNever)
 
 } // anonymous namespace
