@@ -16,6 +16,8 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -29,6 +31,7 @@
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/private/SingleOwner.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/chromium/GrDeferredDisplayList.h"
@@ -75,6 +78,7 @@
 #include "tests/Test.h"
 #include "tools/ganesh/ProxyUtils.h"
 
+#include <atomic>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -1677,4 +1681,100 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache16Verts,
 
     helper.checkImage(reporter, std::move(ddl1));
     helper.checkImage(reporter, std::move(ddl2));
+}
+
+// Case 17: Ensure that when a DDL recording thread replaces and drops the final reference to a
+//          GPU-backed VertexData in GrThreadSafeCache, the underlying GrGpuBuffer is returned via
+//          message bus rather than touching GrResourceCache off-thread.
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache17Verts,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
+    GrDirectContext* dContext = ctxInfo.directContext();
+
+    skgpu::UniqueKey key;
+    create_vert_key(&key, kImageWH, kNoID);
+
+    {
+        TestHelper helper(dContext, newer_is_always_better);
+
+        helper.addVertAccess(helper.liveCanvas(),
+                             kImageWH,
+                             kNoID,
+                             /*failLookup=*/false,
+                             /*failFillingIn=*/false);
+        dContext->flush();
+        dContext->submit(GrSyncCpu::kYes);
+
+        {
+            REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+            auto [vertexData, xtraData] = helper.threadSafeCache()->findVertsWithData(key);
+            REPORTER_ASSERT(reporter, vertexData && vertexData->gpuBuffer());
+            REPORTER_ASSERT(reporter, !vertexData->refCntGreaterThan(2));
+        }
+
+        sk_sp<GrDeferredDisplayList> ddl1;
+        {
+            // Hold SingleOwner on the direct-context thread while the worker thread replaces and
+            // destroys the GPU-backed VertexData; any direct GrResourceCache call on the worker
+            // thread will trip ASSERT_SINGLE_OWNER.
+            SKGPU_ASSERT_SINGLE_OWNER(dContext->priv().singleOwner())
+            std::thread worker([&] {
+                helper.addVertAccess(helper.ddlCanvas1(),
+                                     kImageWH,
+                                     kNoID,
+                                     /*failLookup=*/true,
+                                     /*failFillingIn=*/false);
+                ddl1 = helper.snap1();
+            });
+            worker.join();
+        }
+
+        dContext->purgeUnlockedResources(GrPurgeResourceOptions::kScratchResourcesOnly);
+        helper.checkImage(reporter, std::move(ddl1));
+    }
+
+    // Also exercise the end-to-end TriangulatingPathOp::onPrePrepareDraws replacement path
+    // concurrently with GrResourceCache activity on the direct-context thread.
+    sk_sp<SkSurface> surface =
+            SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, default_ii(kImageWH));
+    REPORTER_ASSERT(reporter, surface);
+    GrSurfaceCharacterization characterization;
+    REPORTER_ASSERT(reporter, surface->characterize(&characterization));
+
+    const SkPath concaveCubic =
+            SkPathBuilder().moveTo(2.f, 2.f).cubicTo(30.f, 2.f, 2.f, 30.f, 30.f, 30.f).detach();
+    SkPaint nonAAFill;
+    nonAAFill.setAntiAlias(false);
+    nonAAFill.setStyle(SkPaint::kFill_Style);
+
+    for (int i = 0; i < 8; ++i) {
+        // Seed a coarse (0.1x scale -> tol 2.5) GPU-backed triangulation on the direct context.
+        SkCanvas* live = surface->getCanvas();
+        live->save();
+        live->scale(0.1f, 0.1f);
+        live->drawPath(concaveCubic, nonAAFill);
+        live->restore();
+        dContext->flush();
+        dContext->submit(GrSyncCpu::kYes);
+
+        std::atomic<bool> workerDone{false};
+        sk_sp<GrDeferredDisplayList> ddl;
+        std::thread worker([&] {
+            GrDeferredDisplayListRecorder recorder(characterization);
+            recorder.getCanvas()->drawPath(concaveCubic, nonAAFill);
+            ddl = recorder.detach();
+            workerDone.store(true, std::memory_order_release);
+        });
+
+        while (!workerDone.load(std::memory_order_acquire)) {
+            dContext->purgeUnlockedResources(GrPurgeResourceOptions::kScratchResourcesOnly);
+        }
+        worker.join();
+
+        REPORTER_ASSERT(reporter, ddl);
+        skgpu::ganesh::DrawDDL(surface, std::move(ddl));
+        dContext->flush();
+        dContext->submit(GrSyncCpu::kYes);
+    }
 }

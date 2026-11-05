@@ -9,9 +9,9 @@
 #define GrThreadSafeCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
-#include "include/private/SkMalloc.h"
 #include "include/private/SkThreadAnnotations.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkSpinlock.h"
@@ -29,7 +29,6 @@
 #include <tuple>
 #include <utility>
 
-class GrDirectContext;
 class GrResourceCache;
 class SkData;
 enum GrSurfaceOrigin : int;
@@ -137,20 +136,13 @@ public:
         GrGpuBuffer* gpuBuffer() { return fGpuBuffer.get(); }
         sk_sp<GrGpuBuffer> refGpuBuffer() { return fGpuBuffer; }
 
-        void setGpuBuffer(sk_sp<GrGpuBuffer> gpuBuffer) {
-            // TODO: once we add the gpuBuffer we could free 'fVertices'. Deinstantiable
-            // DDLs could throw a monkey wrench into that plan though.
-            SkASSERT(!fGpuBuffer);
-            fGpuBuffer = std::move(gpuBuffer);
-        }
+        void setGpuBuffer(sk_sp<GrGpuBuffer> gpuBuffer);
 
-        void reset() {
-            sk_free(const_cast<void*>(fVertices));
-            fVertices = nullptr;
-            fNumVertices = 0;
-            fVertexSize = 0;
-            fGpuBuffer.reset();
-        }
+        // Defined in GrThreadSafeCache.cpp: releasing 'fGpuBuffer' must not touch the
+        // GrResourceCache when called from a thread other than the GrDirectContext's. If called
+        // from a thread other than the GrDirectContext's, this will forward the release on to the
+        // GrResourceCache.
+        void reset();
 
     private:
         friend class GrThreadSafeCache;  // for access to ctor
@@ -161,18 +153,14 @@ public:
                 , fVertexSize(vertexSize) {
         }
 
-        VertexData(sk_sp<GrGpuBuffer> gpuBuffer, int numVertices, size_t vertexSize)
-                : fVertices(nullptr)
-                , fNumVertices(numVertices)
-                , fVertexSize(vertexSize)
-                , fGpuBuffer(std::move(gpuBuffer)) {
-        }
+        VertexData(sk_sp<GrGpuBuffer> gpuBuffer, int numVertices, size_t vertexSize);
 
-        const void*        fVertices;
-        int                fNumVertices;
-        size_t             fVertexSize;
+        const void* fVertices;
+        int fNumVertices;
+        size_t fVertexSize;
 
         sk_sp<GrGpuBuffer> fGpuBuffer;
+        GrDirectContext::DirectContextID fGpuBufferContextID;
     };
 
     // The returned VertexData object takes ownership of 'vertices' which had better have been

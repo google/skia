@@ -509,6 +509,7 @@ void GrResourceCache::purgeAsNeeded() {
 
     if (stillOverbudget) {
         fThreadSafeCache->dropUniqueRefs(this);
+        this->processFreedGpuResources();
 
         stillOverbudget = this->overBudget();
         while (stillOverbudget && fPurgeableQueue.count()) {
@@ -530,6 +531,7 @@ void GrResourceCache::purgeUnlockedResources(const skgpu::StdSteadyClock::time_p
         } else {
             fThreadSafeCache->dropUniqueRefs(nullptr);
         }
+        this->processFreedGpuResources();
 
         // We could disable maintaining the heap property here, but it would add a lot of
         // complexity. Moreover, this is rarely called.
