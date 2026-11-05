@@ -18,7 +18,7 @@ class SkScopeExit {
 public:
     SkScopeExit() = default;
     explicit SkScopeExit(std::function<void()> f) : fFn(std::move(f)) {}
-    SkScopeExit(SkScopeExit&& that) : fFn(std::move(that.fFn)) {}
+    SkScopeExit(SkScopeExit&& that) : fFn(std::exchange(that.fFn, nullptr)) {}
 
     ~SkScopeExit() {
         if (fFn) {
@@ -29,7 +29,7 @@ public:
     void clear() { fFn = {}; }
 
     SkScopeExit& operator=(SkScopeExit&& that) {
-        fFn = std::move(that.fFn);
+        fFn = std::exchange(that.fFn, nullptr);
         return *this;
     }
 

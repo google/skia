@@ -10,6 +10,7 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkRandom.h"
+#include "src/core/SkScopeExit.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
 #include "src/core/SkUtils.h"
@@ -643,4 +644,37 @@ DEF_TEST(UtilsPreserveBitPatterns, r) {
 
         REPORTER_ASSERT(r, sk_bit_cast<uint32_t>(sk_bit_cast<float>(srcBits)) == srcBits);
     }
+}
+
+DEF_TEST(SkScopeExitBasicUsage, reporter) {
+    int ncalls = 0;
+
+    {
+        SkScopeExit s([&ncalls] { ++ncalls; });
+        REPORTER_ASSERT(reporter, ncalls == 0);
+    }
+    REPORTER_ASSERT(reporter, ncalls == 1);
+
+    {
+        SkScopeExit s([&ncalls] { ++ncalls; });
+        s.clear();
+    }
+    REPORTER_ASSERT(reporter, ncalls == 1);
+}
+
+DEF_TEST(SkScopeExitMoves, reporter) {
+    int ncalls = 0;
+
+    {
+        SkScopeExit s1([&ncalls] { ++ncalls; });
+        SkScopeExit s2(std::move(s1));
+    }
+    REPORTER_ASSERT(reporter, ncalls == 1, "ncalls = %d", ncalls);
+
+    {
+        SkScopeExit s1([&ncalls] { ++ncalls; });
+        SkScopeExit s2;
+        s2 = std::move(s1);
+    }
+    REPORTER_ASSERT(reporter, ncalls == 2, "ncalls = %d", ncalls);
 }
