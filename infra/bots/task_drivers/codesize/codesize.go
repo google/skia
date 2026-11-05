@@ -132,9 +132,12 @@ func main() {
 	perfGCS := gcsclient.New(store, perfGCSBucketName)
 
 	// Make a Gerrit client.
-	gerritClient, err := gerrit.NewGerrit(repoState.Server, httpClient)
-	if err != nil {
-		td.Fatal(ctx, skerr.Wrap(err))
+	var gerritClient *gerrit.Gerrit
+	if repoState.IsTryJob() {
+		gerritClient, err = gerrit.NewGerrit(repoState.Server, httpClient)
+		if err != nil {
+			td.Fatal(ctx, skerr.Wrap(err))
+		}
 	}
 
 	// Make a Gitiles client.
