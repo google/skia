@@ -269,7 +269,7 @@ SkRuntimeEffect* make_displacement_shader() {
     static constexpr char kDisplacementShaderCode[] =
         "uniform shader displMap;"
         "uniform shader colorMap;"
-        "uniform half2 scale;"
+        "uniform float2 scale;"
         "uniform half4 xSelect;" // Only one of RGBA will be 1, the rest are 0
         "uniform half4 ySelect;"
 
