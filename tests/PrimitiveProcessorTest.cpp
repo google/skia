@@ -29,6 +29,8 @@
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrProcessorSet.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrUniformDataManager.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
@@ -39,7 +41,10 @@
 #include "tests/Test.h"
 
 #include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <memory>
+#include <optional>
 #include <utility>
 
 class GrDstProxyView;
@@ -247,3 +252,66 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(VertexAttributeCount,
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 1);
 #endif
 }
+
+DEF_TEST(GrUniformDataManagerAndSetTransform, reporter) {
+    // 1. Verify GrUniformDataManager zero-initializes its uniform buffer, including padding.
+    class TestUniformDataManager : public GrUniformDataManager {
+    public:
+        TestUniformDataManager(uint32_t count, uint32_t size) : GrUniformDataManager(count, size) {
+            fUniforms[0].fOffset = 0;
+            fUniforms[0].setType(SkSLType::kFloat3x3);
+            SkDEBUGCODE(fUniforms[0].fArrayCount = GrShaderVar::kNonArray;)
+        }
+        const uint8_t* data() const { return static_cast<const uint8_t*>(fUniformData.get()); }
+        bool isDirty() const { return fUniformsDirty; }
+        void resetDirty() { fUniformsDirty = false; }
+    };
+
+    // Allocate and free a buffer filled with non-zero bytes to encourage allocator reuse.
+    constexpr uint32_t kBufferSize = 64;
+    {
+        SkAutoMalloc poison(kBufferSize);
+        memset(poison.get(), 0xAB, kBufferSize);
+    }
+
+    TestUniformDataManager udm(1, kBufferSize);
+    for (uint32_t i = 0; i < kBufferSize; ++i) {
+        REPORTER_ASSERT(reporter, udm.data()[i] == 0);
+    }
+
+    // 2. Verify ProgramImpl::SetTransform writes uniform data even when the first matrix is
+    // SkMatrix::InvalidMatrix().
+    class TestProgramImpl : public GrGeometryProcessor::ProgramImpl {
+    public:
+        using GrGeometryProcessor::ProgramImpl::SetTransform;
+        static UniformHandle MakeHandle(int idx) { return UniformHandle(idx); }
+        void setData(const GrGLSLProgramDataManager&,
+                     const GrShaderCaps&,
+                     const GrGeometryProcessor&) override {}
+    private:
+        void onEmitCode(EmitArgs&, GrGPArgs*) override {}
+    };
+
+    GrShaderCaps shaderCaps;
+    auto uni = TestProgramImpl::MakeHandle(0);
+    std::optional<SkMatrix> state;
+
+    TestProgramImpl::SetTransform(udm, shaderCaps, uni, SkMatrix::InvalidMatrix(), &state);
+    REPORTER_ASSERT(reporter, udm.isDirty());
+    REPORTER_ASSERT(reporter, state.has_value());
+
+    const float* floatData = reinterpret_cast<const float*>(udm.data());
+    // In std140/std430 3x3 layout, each column is 4 floats (3 matrix elements + 1 padding float).
+    for (int col = 0; col < 3; ++col) {
+        REPORTER_ASSERT(reporter, floatData[col * 4 + 0] == SK_ScalarMax);
+        REPORTER_ASSERT(reporter, floatData[col * 4 + 1] == SK_ScalarMax);
+        REPORTER_ASSERT(reporter, floatData[col * 4 + 2] == SK_ScalarMax);
+        REPORTER_ASSERT(reporter, floatData[col * 4 + 3] == 0.0f);
+    }
+
+    // Subsequent call with the same matrix should be a no-op.
+    udm.resetDirty();
+    TestProgramImpl::SetTransform(udm, shaderCaps, uni, SkMatrix::InvalidMatrix(), &state);
+    REPORTER_ASSERT(reporter, !udm.isDirty());
+}
+

@@ -279,8 +279,8 @@ private:
             fragBuilder->codeAppendf("half4 %s = half4(edgeAlpha);", args.fOutputCoverage);
         }
 
-        SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
-        UniformHandle fLocalMatrixUniform;
+        std::optional<SkMatrix> fLocalMatrix;
+        UniformHandle           fLocalMatrixUniform;
     };
 
     SkMatrix fLocalMatrix;
@@ -540,8 +540,8 @@ private:
             fragBuilder->codeAppendf("half4 %s = half4(edgeAlpha);", args.fOutputCoverage);
         }
 
-        SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
-        UniformHandle fLocalMatrixUniform;
+        std::optional<SkMatrix> fLocalMatrix;
+        UniformHandle           fLocalMatrixUniform;
     };
 
     SkMatrix fLocalMatrix;
@@ -727,8 +727,8 @@ private:
 
         using INHERITED = ProgramImpl;
 
-        SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
-        UniformHandle fLocalMatrixUniform;
+        std::optional<SkMatrix> fLocalMatrix;
+        UniformHandle           fLocalMatrixUniform;
     };
 
     Attribute fInPosition;
@@ -917,8 +917,8 @@ private:
             fragBuilder->codeAppendf("half4 %s = half4(half(edgeAlpha));", args.fOutputCoverage);
         }
 
-        SkMatrix fViewMatrix = SkMatrix::InvalidMatrix();
-        UniformHandle fViewMatrixUniform;
+        std::optional<SkMatrix> fViewMatrix;
+        UniformHandle           fViewMatrixUniform;
     };
 
     Attribute fInPosition;

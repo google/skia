@@ -579,7 +579,7 @@ private:
         }
 
     private:
-        SkMatrix fViewMatrix = SkMatrix::InvalidMatrix();
+        std::optional<SkMatrix> fViewMatrix;
 
         STArray<2, std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fChildImpls;
         UniformHandle                                                 fViewMatrixUniform;

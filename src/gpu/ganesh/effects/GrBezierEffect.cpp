@@ -45,10 +45,10 @@ public:
 private:
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
-    SkMatrix    fViewMatrix    = SkMatrix::InvalidMatrix();
-    SkMatrix    fLocalMatrix   = SkMatrix::InvalidMatrix();
-    SkPMColor4f fColor         = SK_PMColor4fILLEGAL;
-    uint8_t     fCoverageScale = 0xFF;
+    std::optional<SkMatrix> fViewMatrix;
+    std::optional<SkMatrix> fLocalMatrix;
+    SkPMColor4f             fColor         = SK_PMColor4fILLEGAL;
+    uint8_t                 fCoverageScale = 0xFF;
 
     UniformHandle fColorUniform;
     UniformHandle fCoverageScaleUniform;
@@ -233,10 +233,10 @@ public:
 private:
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
-    SkMatrix    fViewMatrix     = SkMatrix::InvalidMatrix();
-    SkMatrix    fLocalMatrix    = SkMatrix::InvalidMatrix();
-    SkPMColor4f fColor          = SK_PMColor4fILLEGAL;
-    uint8_t     fCoverageScale  = 0xFF;
+    std::optional<SkMatrix> fViewMatrix;
+    std::optional<SkMatrix> fLocalMatrix;
+    SkPMColor4f             fColor         = SK_PMColor4fILLEGAL;
+    uint8_t                 fCoverageScale = 0xFF;
 
     UniformHandle fColorUniform;
     UniformHandle fCoverageScaleUniform;

@@ -25,6 +25,9 @@ GrUniformDataManager::GrUniformDataManager(uint32_t uniformCount, uint32_t unifo
     : fUniformSize(uniformSize)
     , fUniformsDirty(false) {
     fUniformData.reset(uniformSize);
+    if (uniformSize > 0) {
+        memset(fUniformData.get(), 0, uniformSize);
+    }
     fUniforms.push_back_n(uniformCount);
     // subclasses fill in the uniforms in their constructor
 }

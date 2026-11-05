@@ -126,9 +126,9 @@ private:
     }
 
 private:
-    SkPMColor4f fColor           = SK_PMColor4fILLEGAL;
-    SkISize     fAtlasDimensions = {-1, -1};
-    SkMatrix    fLocalMatrix     = SkMatrix::InvalidMatrix();
+    SkPMColor4f             fColor           = SK_PMColor4fILLEGAL;
+    SkISize                 fAtlasDimensions = {-1, -1};
+    std::optional<SkMatrix> fLocalMatrix;
 
     UniformHandle fColorUniform;
     UniformHandle fAtlasDimensionsInvUniform;

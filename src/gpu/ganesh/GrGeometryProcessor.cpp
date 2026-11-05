@@ -348,8 +348,9 @@ void ProgramImpl::SetTransform(const GrGLSLProgramDataManager& pdman,
                                const GrShaderCaps& shaderCaps,
                                const UniformHandle& uniform,
                                const SkMatrix& matrix,
-                               SkMatrix* state) {
-    if (!uniform.isValid() || (state && SkMatrixPriv::CheapEqual(*state, matrix))) {
+                               std::optional<SkMatrix>* state) {
+    if (!uniform.isValid() ||
+        (state && state->has_value() && SkMatrixPriv::CheapEqual(**state, matrix))) {
         // No update needed
         return;
     }

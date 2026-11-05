@@ -395,7 +395,7 @@ protected:
                              const GrShaderCaps&,
                              const UniformHandle& uniform,
                              const SkMatrix& matrix,
-                             SkMatrix* state = nullptr);
+                             std::optional<SkMatrix>* state = nullptr);
 
     struct GrGPArgs {
         // Used to specify the output variable used by the GP to store its device position. It can

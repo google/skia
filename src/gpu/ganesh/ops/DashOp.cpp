@@ -798,8 +798,8 @@ public:
 private:
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
-    SkMatrix    fLocalMatrix         = SkMatrix::InvalidMatrix();
-    SkPMColor4f fColor               = SK_PMColor4fILLEGAL;
+    std::optional<SkMatrix> fLocalMatrix;
+    SkPMColor4f             fColor = SK_PMColor4fILLEGAL;
 
     UniformHandle fParamUniform;
     UniformHandle fColorUniform;
@@ -987,8 +987,8 @@ public:
 private:
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
-    SkPMColor4f fColor       = SK_PMColor4fILLEGAL;
-    SkMatrix    fLocalMatrix = SkMatrix::InvalidMatrix();
+    SkPMColor4f             fColor = SK_PMColor4fILLEGAL;
+    std::optional<SkMatrix> fLocalMatrix;
 
     UniformHandle fLocalMatrixUniform;
     UniformHandle fColorUniform;

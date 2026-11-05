@@ -709,7 +709,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> QuadEdgeEffect::makeProgramImp
         }
 
     private:
-        SkMatrix fLocalMatrix = SkMatrix::InvalidMatrix();
+        std::optional<SkMatrix> fLocalMatrix;
 
         UniformHandle fLocalMatrixUniform;
     };
