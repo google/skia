@@ -32,9 +32,12 @@ static constexpr float kMaxHdrHeadroom = 6.f;
 // The maximum linear value is exp2(kMaxHdrHeadroom) =  64.
 static constexpr float kMaxLinearHdrHeadroom = 64.f;
 
-static bool in_unit_interval(float x) {
-  return x >= 0.f && x <= 1.f;
-}
+// Return true if `x` is in the closed interval [`min`, `max`]. Because all comparisons with NaN are
+// false, this returns false if `x` is NaN. It also returns false if `x` is infinite, as long as
+// `min` and `max` are finite.
+static bool in_interval(float x, float min, float max) { return x >= min && x <= max; }
+
+static bool in_unit_interval(float x) { return in_interval(x, 0.f, 1.f); }
 
 // AGTM tone mapping shader.
 static constexpr char gAgtmSKSL[] =
@@ -154,22 +157,46 @@ static sk_sp<SkRuntimeEffect> agtm_runtime_effect() {
 
 namespace skhdr {
 
+namespace {
+
+// Normalize the component mixing coefficients so that their sum equals 1.
+AdaptiveGlobalToneMap::ComponentMixingFunction NormalizeComponentMixing(
+        const AdaptiveGlobalToneMap::ComponentMixingFunction& mix) {
+    const float sum = mix.fRed + mix.fGreen + mix.fBlue + mix.fMax + mix.fMin + mix.fComponent;
+    if (sum <= 0.f) {
+        return mix;
+    }
+    const float invSum = 1.f / sum;
+    return {
+            .fRed = mix.fRed * invSum,
+            .fGreen = mix.fGreen * invSum,
+            .fBlue = mix.fBlue * invSum,
+            .fMax = mix.fMax * invSum,
+            .fMin = mix.fMin * invSum,
+            .fComponent = mix.fComponent * invSum,
+    };
+}
+
+}  // namespace
+
 SkColor4f AgtmHelpers::EvaluateComponentMixingFunction(
         const AdaptiveGlobalToneMap::ComponentMixingFunction& mix, const SkColor4f& c) {
+    const auto normMix = NormalizeComponentMixing(mix);
+
     // This implements that math in Formula (9).
-    float common = mix.fRed * c.fR + mix.fGreen * c.fG + mix.fBlue * c.fB  +
-                   mix.fMax * std::max(std::max(c.fR, c.fG), c.fB) +
-                   mix.fMin * std::min(std::min(c.fR, c.fG), c.fB);
+    float common = normMix.fRed * c.fR + normMix.fGreen * c.fG + normMix.fBlue * c.fB +
+                   normMix.fMax * std::max(std::max(c.fR, c.fG), c.fB) +
+                   normMix.fMin * std::min(std::min(c.fR, c.fG), c.fB);
 
     // Optimization for when all components are the same.
-    if (mix.fComponent == 0.f) {
+    if (normMix.fComponent == 0.f) {
         return {common, common, common, c.fA};
     }
 
     // Formula (10).
-    return {mix.fComponent * c.fR + common,
-            mix.fComponent * c.fG + common,
-            mix.fComponent * c.fB + common,
+    return {normMix.fComponent * c.fR + common,
+            normMix.fComponent * c.fG + common,
+            normMix.fComponent * c.fB + common,
             c.fA};
 }
 
@@ -563,21 +590,22 @@ sk_sp<SkColorFilter> MakeColorFilter(
         }
         const auto& gain = hatm.fAlternateImages[
             weighting.fAlternateImageIndex[a]].fColorGainFunction;
+        const auto mix = NormalizeComponentMixing(gain.fComponentMixing);
 
         std::array<const char *, 2> mix_rgbx_str = {"mix_rgbx_i", "mix_rgbx_j"};
         builder.uniform(mix_rgbx_str[a]) = SkColor4f({
-            gain.fComponentMixing.fRed,
-            gain.fComponentMixing.fGreen,
-            gain.fComponentMixing.fBlue,
-            0.f,
+                mix.fRed,
+                mix.fGreen,
+                mix.fBlue,
+                0.f,
         });
 
         std::array<const char *, 2> mix_Mmcx_str = {"mix_Mmcx_i", "mix_Mmcx_j"};
         builder.uniform(mix_Mmcx_str[a]) = SkColor4f({
-            gain.fComponentMixing.fMax,
-            gain.fComponentMixing.fMin,
-            gain.fComponentMixing.fComponent,
-            0.f,
+                mix.fMax,
+                mix.fMin,
+                mix.fComponent,
+                0.f,
         });
 
         std::array<const char*, 2> curve_texcoord_y_str = {"curve_texcoord_y_i",
@@ -688,7 +716,8 @@ bool PopulateToneMapAgtmParams(const Metadata& metadata,
 }
 
 bool Validate(const AdaptiveGlobalToneMap& agtm) {
-    if (agtm.fHdrReferenceWhite < 0.f || agtm.fHdrReferenceWhite > 10000.f) {
+    // The value of L_white shall be in the interval (0, 10000].
+    if (!in_interval(agtm.fHdrReferenceWhite, 0.f, 10000.f) || agtm.fHdrReferenceWhite == 0.f) {
         SkCodecPrintf("Agtm validation failed: HdrReferenceWhite invalid\n");
         return false;
     }
@@ -704,8 +733,7 @@ bool Validate(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm) {
     // Enforce the constraints listed in Clause 6.2.2.
     {
         // The value of H_baseline shall be in the interval [0, 6].
-        if (hatm.fBaselineHdrHeadroom < kMinHdrHeadroom ||
-            hatm.fBaselineHdrHeadroom > kMaxHdrHeadroom) {
+        if (!in_interval(hatm.fBaselineHdrHeadroom, kMinHdrHeadroom, kMaxHdrHeadroom)) {
             SkCodecPrintf("Agtm validation failed: H_baseline invalid\n");
             return false;
         }
@@ -715,17 +743,21 @@ bool Validate(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm) {
             SkCodecPrintf("Agtm validation failed: NumAlternateImages invalid\n");
             return false;
         }
-        // H_alt,i shall not equal H_baseline.
-        for (const auto& alt : hatm.fAlternateImages) {
+        for (size_t a = 0; a < hatm.fAlternateImages.size(); ++a) {
+            const auto& alt = hatm.fAlternateImages[a];
+            // The value of H_alt,i shall be in the interval [0, 6]. This check comes first, so
+            // that the comparisons below never involve NaN.
+            if (!in_interval(alt.fHdrHeadroom, kMinHdrHeadroom, kMaxHdrHeadroom)) {
+                SkCodecPrintf("Agtm validation failed: H_alt invalid\n");
+                return false;
+            }
+            // H_alt,i shall not equal H_baseline.
             if (alt.fHdrHeadroom == hatm.fBaselineHdrHeadroom) {
                 SkCodecPrintf("Agtm validation failed: Alternate headroom equal to baseline\n");
                 return false;
             }
-        }
-        // H_{alt,i} shall be strictly less than H_{alt,i+1}
-        for (size_t a = 1; a < hatm.fAlternateImages.size(); ++a) {
-            if (hatm.fAlternateImages[a].fHdrHeadroom <=
-                hatm.fAlternateImages[a - 1].fHdrHeadroom) {
+            // H_{alt,i} shall be strictly less than H_{alt,i+1}
+            if (a > 0 && alt.fHdrHeadroom <= hatm.fAlternateImages[a - 1].fHdrHeadroom) {
                 SkCodecPrintf("Agtm validation failed: Alternate headrooms not ascending\n");
                 return false;
             }
@@ -776,11 +808,10 @@ bool Validate(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm) {
             SkCodecPrintf("Agtm validation failed: mix coefficients not in unit interval\n");
             return false;
         }
-        // The sum of all components shall equal 1. The coefficients are encoded in steps of
-        // 0.00001. Allow the sum to be at most one step away from 1.
+        // The sum of all components must be greater than 0.
         const float sum = mix.fRed + mix.fGreen + mix.fBlue + mix.fMax + mix.fMin + mix.fComponent;
-        if (sum < 0.99999f || sum > 1.00001f) {
-            SkCodecPrintf("Agtm validation failed: mix coefficients don't sum to 1\n");
+        if (sum <= 0.f) {
+            SkCodecPrintf("Agtm validation failed: mix coefficients sum to 0\n");
             return false;
         }
     }
@@ -796,15 +827,19 @@ bool Validate(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm) {
         }
         for (size_t c = 0; c < curve.fControlPoints.size(); ++c) {
             // The value of x_i shall be in the interval [0, 64].
-            if (curve.fControlPoints[c].fX < 0.f ||
-                curve.fControlPoints[c].fX > kMaxLinearHdrHeadroom) {
+            if (!in_interval(curve.fControlPoints[c].fX, 0.f, kMaxLinearHdrHeadroom)) {
                 SkCodecPrintf("Agtm validation failed: invalid X value\n");
                 return false;
             }
             // The value of y_i shall be in the interval [-6, 6].
-            if (curve.fControlPoints[c].fY < -kMaxHdrHeadroom ||
-                curve.fControlPoints[c].fY > kMaxHdrHeadroom) {
+            if (!in_interval(curve.fControlPoints[c].fY, -kMaxHdrHeadroom, kMaxHdrHeadroom)) {
                 SkCodecPrintf("Agtm validation failed: invalid Y value\n");
+                return false;
+            }
+            // The value of m_i has no specified constraints, but must not be NaN or infinite.
+            // Note that std::isfinite() returns false for both NaN and +/-infinity.
+            if (!std::isfinite(curve.fControlPoints[c].fM)) {
+                SkCodecPrintf("Agtm validation failed: invalid M value\n");
                 return false;
             }
             if (c > 0) {
