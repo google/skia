@@ -122,9 +122,12 @@ SkCodec::Result SkSampledCodec::onGetAndroidPixels(const SkImageInfo& info, void
                 return SkCodec::kSuccess;
             }
             if (incResult == SkCodec::kIncompleteInput || incResult == SkCodec::kErrorInInput) {
-                // FIXME: Can zero initialized be read from SkCodec::fOptions?
-                this->codec()->fillIncompleteImage(scaledInfo, pixels, rowBytes,
-                        options.fZeroInitialized, scaledSubsetHeight, rowsDecoded);
+                this->codec()->fillIncompleteImage(scaledInfo,
+                                                   pixels,
+                                                   rowBytes,
+                                                   this->codec()->options().fZeroInitialized,
+                                                   scaledSubsetHeight,
+                                                   rowsDecoded);
             }
             return incResult;
         } else if (startResult != SkCodec::kUnimplemented) {
@@ -248,8 +251,12 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
             }
             if (incResult == SkCodec::kIncompleteInput || incResult == SkCodec::kErrorInInput) {
                 SkASSERT(rowsDecoded <= info.height());
-                this->codec()->fillIncompleteImage(info, pixels, rowBytes, options.fZeroInitialized,
-                                                   info.height(), rowsDecoded);
+                this->codec()->fillIncompleteImage(info,
+                                                   pixels,
+                                                   rowBytes,
+                                                   this->codec()->options().fZeroInitialized,
+                                                   info.height(),
+                                                   rowsDecoded);
             }
             return incResult;
         } else if (startResult == SkCodec::kIncompleteInput

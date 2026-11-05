@@ -72,8 +72,9 @@ public:
 
 protected:
     const SkFrame* onGetFrame(int i) const override {
-        SkASSERT(i >= 0 && static_cast<size_t>(i) < fFrames.size());
-        return static_cast<const SkFrame*>(&fFrames[i]);
+        return (i >= 0 && static_cast<size_t>(i) < fFrames.size())
+                       ? static_cast<const SkFrame*>(&fFrames[i])
+                       : nullptr;
     }
 };
 

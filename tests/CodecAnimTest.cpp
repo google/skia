@@ -453,10 +453,14 @@ DEF_TEST(Codec_frames, r) {
                 SkCodec::Options opts;
                 opts.fFrameIndex = index;
                 opts.fPriorFrame = cachedIndex;
+                if (cachedIndex != SkCodec::kNoFrame) {
+                    opts.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
+                }
                 const auto result = codec->getPixels(decodeInfo, bm->getPixels(), bm->rowBytes(),
                                                      &opts);
                 if (cachedIndex != SkCodec::kNoFrame &&
-                        restore_previous(frameInfos[cachedIndex])) {
+                    frameInfos[index].fRequiredFrame != SkCodec::kNoFrame &&
+                    restore_previous(frameInfos[cachedIndex])) {
                     if (result == SkCodec::kInvalidParameters) {
                         return true;
                     }
@@ -476,13 +480,9 @@ DEF_TEST(Codec_frames, r) {
                     continue;
                 }
                 const auto reqFrame = frameInfos[i].fRequiredFrame;
-                if (reqFrame == SkCodec::kNoFrame) {
-                    // Nothing to compare against.
-                    continue;
-                }
-                for (int j = reqFrame; j < i; j++) {
+                for (int j = reqFrame == SkCodec::kNoFrame ? 0 : reqFrame; j < i; j++) {
                     SkBitmap frame;
-                    if (restore_previous(frameInfos[j])) {
+                    if (reqFrame != SkCodec::kNoFrame && restore_previous(frameInfos[j])) {
                         (void) decode(&frame, i, j);
                         continue;
                     }
@@ -586,6 +586,37 @@ DEF_TEST(AndroidCodec_animated, r) {
 
 DEF_TEST(AndroidCodec_animated_gif, r) {
     test_animated_AndroidCodec(r, "images/required.gif");
+}
+
+// Regression test for b/581301904: when an independent frame (`fRequiredFrame ==
+// kNoFrame`, Frame 1 of `alphabetAnim.gif`) is decoded into a buffer still
+// holding a prior frame (`fPriorFrame = 0`) with `kYes_ZeroInitialized` on a
+// truncated stream (`220` bytes), `SkCodec` must clear `fZeroInitialized` so
+// undecoded pixels are zero-filled rather than retaining prior-frame bytes.
+DEF_TEST(Codec_incompleteAnimFrame, r) {
+    sk_sp<SkData> data = GetResourceAsData("images/alphabetAnim.gif");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+    auto codec = SkCodec::MakeFromData(SkData::MakeSubset(data.get(), 0, 220));
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+    REPORTER_ASSERT(r, codec->getFrameCount() == 2);
+
+    SkBitmap bm;
+    bm.allocPixels(codec->getInfo().makeColorType(kN32_SkColorType));
+    bm.eraseColor(SK_ColorMAGENTA);
+
+    SkCodec::Options options;
+    options.fFrameIndex = 1;
+    options.fPriorFrame = 0;
+    options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
+    REPORTER_ASSERT(r, codec->getPixels(bm.pixmap(), &options) == SkCodec::kIncompleteInput);
+    REPORTER_ASSERT(r, bm.getColor(0, 0) == SK_ColorTRANSPARENT);
+    REPORTER_ASSERT(r, bm.getColor(50, 74) == SK_ColorTRANSPARENT);
 }
 
 DEF_TEST(EncodedOriginToMatrixTest, r) {

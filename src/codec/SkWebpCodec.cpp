@@ -481,8 +481,7 @@ const SkFrame* SkWebpCodec::FrameHolder::onGetFrame(int i) const {
 }
 
 const SkWebpCodec::Frame* SkWebpCodec::FrameHolder::frame(int i) const {
-    SkASSERT(i >= 0 && i < this->size());
-    return &fFrames[i];
+    return (i >= 0 && i < this->size()) ? &fFrames[i] : nullptr;
 }
 
 bool SkWebpCodec::onGetFrameInfo(int i, FrameInfo* frameInfo) const {

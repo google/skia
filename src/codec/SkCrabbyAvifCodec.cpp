@@ -340,8 +340,7 @@ SkCrabbyAvifCodec::Frame* SkCrabbyAvifCodec::FrameHolder::appendNewFrame(bool ha
 }
 
 const SkCrabbyAvifCodec::Frame* SkCrabbyAvifCodec::FrameHolder::frame(int i) const {
-    SkASSERT(i >= 0 && i < this->size());
-    return &fFrames[i];
+    return (i >= 0 && i < this->size()) ? &fFrames[i] : nullptr;
 }
 
 bool SkCrabbyAvifCodec::onGetFrameInfo(int i, FrameInfo* frameInfo) const {

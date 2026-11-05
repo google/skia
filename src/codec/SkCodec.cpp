@@ -475,6 +475,18 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
         ? kSuccess : kInvalidConversion;
 }
 
+static const SkFrame* get_frame(const SkFrameHolder* frameHolder, int frameIndex) {
+    return frameHolder ? frameHolder->getFrame(frameIndex) : nullptr;
+}
+
+static bool dst_has_prior_frame(const SkCodec::Options& options, const SkFrameHolder* frameHolder) {
+    if (options.fPriorFrame != SkCodec::kNoFrame) {
+        return true;
+    }
+    const SkFrame* frame = get_frame(frameHolder, options.fFrameIndex);
+    return frame && frame->getRequiredFrame() != SkCodec::kNoFrame;
+}
+
 bool SkCodec::allocateFromBudget(size_t numBytes) {
     if (numBytes > fDecodeBudget) SK_UNLIKELY {
         return false;
@@ -533,11 +545,14 @@ SkCodec::Result SkCodec::getPixelsBudgeted(const SkImageInfo& info,
 
     fDstInfo = info;
     fOptions = *options;
+    if (dst_has_prior_frame(fOptions, this->getFrameHolder())) {
+        fOptions.fZeroInitialized = kNo_ZeroInitialized;
+    }
 
     // On an incomplete decode, the subclass will specify the number of scanlines that it decoded
     // successfully.
     int rowsDecoded = 0;
-    const Result result = this->onGetPixels(info, pixels, rowBytes, *options, &rowsDecoded);
+    const Result result = this->onGetPixels(info, pixels, rowBytes, fOptions, &rowsDecoded);
 
     // A return value of kIncompleteInput indicates a truncated image stream.
     // In this case, we will fill any uninitialized memory with a default value.
@@ -551,8 +566,8 @@ SkCodec::Result SkCodec::getPixelsBudgeted(const SkImageInfo& info,
         // differenty from the other codecs, and it needs to use the width specified by the info.
         // Set the subset to null so SkWebpCodec uses the correct width.
         fOptions.fSubset = nullptr;
-        this->fillIncompleteImage(info, pixels, rowBytes, options->fZeroInitialized, info.height(),
-                rowsDecoded);
+        this->fillIncompleteImage(
+                info, pixels, rowBytes, fOptions.fZeroInitialized, info.height(), rowsDecoded);
     }
 
     return result;
@@ -656,6 +671,9 @@ SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& info, void* p
 
     fDstInfo = info;
     fOptions = *options;
+    if (dst_has_prior_frame(fOptions, this->getFrameHolder())) {
+        fOptions.fZeroInitialized = kNo_ZeroInitialized;
+    }
 
     const Result result = this->onStartIncrementalDecode(info, pixels, rowBytes, fOptions);
     if (kSuccess == result) {
@@ -777,6 +795,15 @@ void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t row
         ZeroInitialized zeroInit, int linesRequested, int linesDecoded) {
     if (kYes_ZeroInitialized == zeroInit && SkSampler::FillIsZeroBytes(info.colorType())) {
         return;
+    }
+    if (const SkFrame* frame = get_frame(this->getFrameHolder(), fOptions.fFrameIndex)) {
+        // Do not overwrite the destination buffer if it already holds a required
+        // prior frame, or if the codec has already pre-filled the full canvas
+        // before decoding a sub-rectangle frame (`linesDecoded > 0`).
+        if (frame->getRequiredFrame() != kNoFrame ||
+            (frame->frameRect() != this->bounds() && linesDecoded > 0)) {
+            return;
+        }
     }
 
     const int linesRemaining = linesRequested - linesDecoded;
