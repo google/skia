@@ -222,6 +222,23 @@ TextLine::TextLine(ParagraphImpl* owner,
             break;
         }
     }
+    // Glyphs of every run, right to left ones too, keep their whole letter spacing on their
+    // right side, so the shift keeps the ink inside the line width only up to the half spacing
+    // of the visually rightmost text cluster (same as with uniform spacing). Trailing
+    // placeholders keep the shift (InlinePlaceholder tests pin it)
+    if (fShift > 0) {
+        for (auto visual = fRunsInVisualOrder.size(); visual > 0; --visual) {
+            const Run& run = owner->run(fRunsInVisualOrder[visual - 1]);
+            ClusterRange inLine = intersected(run.clusterRange(), fClusterRange);
+            if (run.isPlaceholder() || inLine.width() == 0) {
+                continue;
+            }
+            const Cluster& right =
+                    owner->cluster(run.leftToRight() ? inLine.end - 1 : inLine.start);
+            fShift = std::min(fShift, std::max(right.getHalfLetterSpacing(), 0.0f));
+            break;
+        }
+    }
 }
 
 void TextLine::paint(ParagraphPainter* painter, SkScalar x, SkScalar y) {
