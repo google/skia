@@ -9,7 +9,7 @@
     },
     {
       "build_file": "//bazel/external/dawn:BUILD.bazel",
-      "commit": "dc5320f3ebebe9d42023c24d0ee76828412b66b4",
+      "commit": "10d3bca717c0b9ff3977b8f8c8c868b66794bc58",
       "name": "dawn",
       "remote": "https://dawn.googlesource.com/dawn.git"
     },
