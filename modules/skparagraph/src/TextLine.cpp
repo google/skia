@@ -1393,7 +1393,8 @@ void TextLine::getRectsForRange(TextRange textRange0,
                 return true;
             }
 
-            auto paragraphStyle = fOwner->paragraphStyle();
+            // A copy would allocate per run: ParagraphStyle owns strings and font family vectors
+            const auto& paragraphStyle = fOwner->paragraphStyle();
 
             // Found a run that intersects with the text
             auto context = this->measureTextInsideOneRun(
@@ -1569,7 +1570,10 @@ void TextLine::getRectsForRange(TextRange textRange0,
         return true;
     });
     if (fOwner->getApplyRoundingHack()) {
-        for (auto& r : boxes) {
+        // Boxes before startBox belong to earlier lines of the same query and are already
+        // rounded; rounding them again on every line makes the whole query O(lines^2)
+        for (size_t i = startBox; i < boxes.size(); ++i) {
+            auto& r = boxes[i];
             r.rect.fLeft = littleRound(r.rect.fLeft);
             r.rect.fRight = littleRound(r.rect.fRight);
             r.rect.fTop = littleRound(r.rect.fTop);

@@ -4915,6 +4915,54 @@ UNIX_ONLY_TEST(SkParagraph_VeryLongWordParagraph, reporter) {
     REPORTER_ASSERT(reporter, static_cast<ParagraphImpl*>(paragraph.get())->lines().size() > 1000);
 }
 
+// getRectsForRange over the whole text must stay linear in the number of lines when the rounding
+// hack is on: an 8x longer text must not take ~64x longer. Serial, so other tests do not skew
+// the timing, and with the portable test fonts, so it runs on every bot
+DEF_SERIAL_TEST(SkParagraph_GetRectsForRangeLinearInLines, reporter) {
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    TextStyle text_style;
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    paragraph_style.setApplyRoundingHack(true);
+
+    auto timeRects = [&](int lineCount, size_t* boxCount) {
+        std::string text;
+        for (int i = 0; i < lineCount; ++i) {
+            text += "line\n";
+        }
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+        builder.pushStyle(text_style);
+        builder.addText(text.data(), text.size());
+        auto paragraph = builder.Build();
+        paragraph->layout(1000);
+        double best = std::numeric_limits<double>::max();
+        // The best of several runs filters out scheduler noise on shared bots
+        for (int run = 0; run < 3; ++run) {
+            auto start = std::chrono::steady_clock::now();
+            auto boxes = paragraph->getRectsForRange(0, text.size(), RectHeightStyle::kTight,
+                                                     RectWidthStyle::kTight);
+            std::chrono::duration<double, std::milli> ms =
+                    std::chrono::steady_clock::now() - start;
+            best = std::min(best, ms.count());
+            *boxCount = boxes.size();
+        }
+        return best;
+    };
+
+    size_t smallBoxes = 0;
+    size_t largeBoxes = 0;
+    double small = timeRects(1000, &smallBoxes);
+    double large = timeRects(8000, &largeBoxes);
+    REPORTER_ASSERT(reporter, smallBoxes >= 1000 && largeBoxes >= 8000,
+                    "%zu %zu", smallBoxes, largeBoxes);
+    // Linear work gives a ratio of ~8 and rounding all earlier boxes on every line gives ~50;
+    // the threshold leaves a 3x margin on both sides for noisy bots
+    REPORTER_ASSERT(reporter, large < 24 * small, "%f ms vs %f ms", large, small);
+}
+
 // Checked: DIFF?
 UNIX_ONLY_TEST(SkParagraph_KernScaleParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
