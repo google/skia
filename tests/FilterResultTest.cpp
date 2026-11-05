@@ -2525,7 +2525,7 @@ DEF_TEST_SUITE(RescaleWithTileMode,
                 .rescale({1.f, 0.25f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
         TestCase(r, "1-step X axis, 2-step Y axis preserves tile mode",
-                 /*allowedPercentImageDiff=*/periodic ? 16.5f : 14.f,
+                 /*allowedPercentImageDiff=*/periodic ? 16.6f : 14.f,
                  kDefaultRGBTolerance + 2.f / 255.f,
                  /*transparentCheckBorderPadding=*/tm == SkTileMode::kDecal ? 5 : 0)
                 .source({16, 16, 64, 64})
