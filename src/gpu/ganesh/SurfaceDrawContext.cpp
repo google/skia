@@ -623,7 +623,9 @@ void SurfaceDrawContext::drawTexture(const GrClip* clip,
                                              GrSamplerState(filter, mm), srcRect,
                                              *this->caps());
         } else {
-            fp = GrTextureEffect::Make(view, srcAlphaType, SkMatrix::I(), filter, mm);
+            fp = GrTextureEffect::Make(view, srcAlphaType, SkMatrix::I(),
+                                       GrSamplerState(GrSamplerState::WrapMode::kClamp, filter, mm),
+                                       *this->caps());
         }
         if (colorSpaceXform) {
             fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(colorSpaceXform));
