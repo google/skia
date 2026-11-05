@@ -88,3 +88,11 @@ $pure $genHType subgroupExclusiveAdd($genHType value);
 $pure $genIType subgroupExclusiveAdd($genIType value);
 $pure $genUType subgroupExclusiveAdd($genUType value);
 
+// Returns `value` from the invocation whose sk_SubgroupInvocationID is `id`. Unlike
+// subgroupBroadcast, `id` may vary per invocation. The result is undefined if that invocation is
+// inactive or `id` >= sk_SubgroupSize. A constant `id` must be less than 128, as in WGSL.
+$pure $genType  subgroupShuffle($genType  value, uint id);
+$pure $genHType subgroupShuffle($genHType value, uint id);
+$pure $genIType subgroupShuffle($genIType value, uint id);
+$pure $genUType subgroupShuffle($genUType value, uint id);
+

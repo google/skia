@@ -571,3 +571,43 @@ DEF_SUBGROUP_TEST(SubgroupExclusiveAddTest, reporter, context, testContext) {
                         ArithOp::kAdd,
                         ArithScope::kExclusiveScan);
 }
+
+// Shuffles with a constant id, ids that are a pattern of sk_SubgroupInvocationID, and an id that
+// depends on the data. The result is undefined when the source invocation doesn't exist.
+DEF_SUBGROUP_TEST(SubgroupShuffleTest, reporter, context, testContext) {
+    // Returns the id an invocation reads from, given its id, its subgroup's size and its input.
+    using SourceFn = uint32_t (*)(uint32_t invocationID, uint32_t subgroupSize, uint32_t input);
+    for (ValueType type : kAllTypes) {
+        const std::pair<std::string, SourceFn> kCases[] = {
+                {"3u", [](uint32_t, uint32_t, uint32_t) { return 3u; }},
+                {"sk_SubgroupInvocationID ^ 1u",
+                 [](uint32_t id, uint32_t, uint32_t) { return id ^ 1; }},
+                {"sk_SubgroupSize - 1u - sk_SubgroupInvocationID",
+                 [](uint32_t id, uint32_t size, uint32_t) { return size - 1 - id; }},
+                // Many-to-one: the low bits of the input's bit pattern.
+                {sksl_bits(type, "inData[i]") + " % sk_SubgroupSize",
+                 [](uint32_t, uint32_t size, uint32_t input) { return input % size; }},
+        };
+        const std::vector<uint32_t> input = test_values(type);
+        for (const auto& [id, fn] : kCases) {
+            const std::string call = "subgroupShuffle(inData[i], " + id + ")";
+            const SourceFn sourceID = fn;  // C++17 lambdas can't capture structured bindings.
+            run_subgroup_test(reporter,
+                              context,
+                              testContext,
+                              type,
+                              input,
+                              "result = " + sksl_bits(type, call) + ";",
+                              [&](const Subgroup& subgroup,
+                                  uint32_t invocationID) -> std::optional<uint32_t> {
+                                  const uint32_t self = subgroup.fInvocations.at(invocationID);
+                                  auto source = subgroup.fInvocations.find(
+                                          sourceID(invocationID, subgroup.fSize, input[self]));
+                                  if (source == subgroup.fInvocations.end()) {
+                                      return std::nullopt;
+                                  }
+                                  return input[source->second];
+                              });
+        }
+    }
+}

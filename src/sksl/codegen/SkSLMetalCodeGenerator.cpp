@@ -974,6 +974,13 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->write("simd_broadcast_first");
             this->writeArgumentList(arguments);
             return true;
+        case k_subgroupShuffle_IntrinsicKind:
+            this->write("simd_shuffle(");
+            this->writeExpression(*arguments[0], Precedence::kSequence);
+            this->write(", ushort(");
+            this->writeExpression(*arguments[1], Precedence::kSequence);
+            this->write("))");
+            return true;
         case k_subgroupAdd_IntrinsicKind:
             this->write("simd_sum");
             this->writeArgumentList(arguments);

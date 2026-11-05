@@ -1,0 +1,36 @@
+/*#pragma settings SubgroupSupport*/
+
+layout(local_size_x = 64) in;
+
+layout(metal, binding = 0) buffer inputs {
+    float inputBuffer[];
+};
+
+layout(metal, binding = 1) buffer outputs {
+    float4 floatOut[];
+};
+
+layout(metal, binding = 2) buffer intOutputs {
+    int4 intOut[];
+};
+
+layout(metal, binding = 3) buffer uintOutputs {
+    uint4 uintOut[];
+};
+
+void main() {
+    uint idx = sk_GlobalInvocationID.x;
+    float f = inputBuffer[idx];
+    int i = int(f);
+    uint u = idx;
+    // A dynamic id, and a constant one.
+    uint neighbor = sk_SubgroupInvocationID ^ 1;
+    const uint kLane = 5;
+
+    floatOut[idx] = float4(subgroupShuffle(f, neighbor), subgroupShuffle(f, kLane), 0, 0) +
+                    float4(subgroupShuffle(half4(f), neighbor));
+    intOut[idx] = int4(subgroupShuffle(i, neighbor), 0, 0, 0) +
+                  subgroupShuffle(int4(i, -i, i, -i), uint(i) & 7);
+    uintOut[idx] = uint4(subgroupShuffle(u, 63 - sk_SubgroupInvocationID), 0, 0, 0) +
+                   subgroupShuffle(uint4(u), 0);
+}

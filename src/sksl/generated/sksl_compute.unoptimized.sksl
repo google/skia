@@ -29,4 +29,7 @@ static constexpr char SKSL_MINIFIED_sksl_compute[] =
 " $genIType subgroupInclusiveAdd($genIType value);$pure $genUType subgroupInclusiveAdd"
 "($genUType value);$pure $genType subgroupExclusiveAdd($genType value);$pure"
 " $genHType subgroupExclusiveAdd($genHType value);$pure $genIType subgroupExclusiveAdd"
-"($genIType value);$pure $genUType subgroupExclusiveAdd($genUType value);";
+"($genIType value);$pure $genUType subgroupExclusiveAdd($genUType value);$pure"
+" $genType subgroupShuffle($genType value,uint id);$pure $genHType subgroupShuffle"
+"($genHType value,uint id);$pure $genIType subgroupShuffle($genIType value,uint"
+" id);$pure $genUType subgroupShuffle($genUType value,uint id);";

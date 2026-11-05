@@ -1261,20 +1261,25 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
         }
     }
 
-    if (function.intrinsicKind() == k_subgroupBroadcast_IntrinsicKind) {
+    if (function.intrinsicKind() == k_subgroupBroadcast_IntrinsicKind ||
+        function.intrinsicKind() == k_subgroupShuffle_IntrinsicKind) {
         // SPIR-V before 1.5 requires the id operand of OpGroupNonUniformBroadcast to come from a
-        // constant instruction, and GLSL and WGSL require a constant expression as well. WGSL also
-        // limits the id to [0, 128). Code generators rely on this to emit the id as a literal.
+        // constant instruction, and GLSL and WGSL require a constant expression as well. Code
+        // generators rely on this to emit the broadcast id as a literal. subgroupShuffle accepts
+        // a dynamic id. WGSL rejects a constant id outside [0, 128) for both, so SkSL does too,
+        // rather than failing only when targeting WGSL.
         SkASSERT(arguments.size() == 2);
+        const bool isBroadcast = function.intrinsicKind() == k_subgroupBroadcast_IntrinsicKind;
         SKSL_INT id;
         if (!ConstantFolder::GetConstantInt(*arguments[1], &id)) {
+            if (isBroadcast) {
+                context.fErrors->error(arguments[1]->position(),
+                                       "subgroupBroadcast id must be a constant expression");
+                return nullptr;
+            }
+        } else if (id < 0 || id >= 128) {
             context.fErrors->error(arguments[1]->position(),
-                                   "subgroupBroadcast id must be a constant expression");
-            return nullptr;
-        }
-        if (id < 0 || id >= 128) {
-            context.fErrors->error(arguments[1]->position(),
-                                   "subgroupBroadcast id must be less than 128");
+                                   std::string(function.name()) + " id must be less than 128");
             return nullptr;
         }
     }

@@ -1,0 +1,19 @@
+layout(local_size_x = 64) in;
+
+layout(metal, binding = 0) buffer outputs {
+    uint outputBuffer[];
+};
+
+void main() {
+    uint x = sk_GlobalInvocationID.x;
+    const uint kTooBig = 128;
+    outputBuffer[x] = subgroupShuffle(x, outputBuffer[0]) +  // a dynamic id is fine
+                      subgroupShuffle(x, 127) +
+                      subgroupShuffle(x, kTooBig) +
+                      subgroupShuffle(x, 100 + 100);
+}
+
+/*%%*
+subgroupShuffle id must be less than 128
+subgroupShuffle id must be less than 128
+*%%*/

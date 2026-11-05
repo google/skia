@@ -1022,6 +1022,7 @@ SPIRVCodeGenerator::Intrinsic SPIRVCodeGenerator::getIntrinsic(IntrinsicKind ik)
         case k_subgroupInclusiveAdd_IntrinsicKind:
         case k_subgroupMax_IntrinsicKind:
         case k_subgroupMin_IntrinsicKind:
+        case k_subgroupShuffle_IntrinsicKind:
             return SPECIAL(Subgroup);
 
         default:
@@ -2721,6 +2722,21 @@ SpvId SPIRVCodeGenerator::writeSubgroupIntrinsic(const FunctionCall& c, SPIRVBlo
                                    result,
                                    scopeId,
                                    value,
+                                   out);
+            return result;
+        }
+        case k_subgroupShuffle_IntrinsicKind: {
+            this->addCapability(SpvCapabilityGroupNonUniformShuffle);
+            SpvId value = this->writeExpression(*arguments[0], out);
+            // Unlike OpGroupNonUniformBroadcast, the id may be dynamic.
+            SpvId id = this->writeExpression(*arguments[1], out);
+            SpvId result = this->nextId(&callType);
+            this->writeInstruction(SpvOpGroupNonUniformShuffle,
+                                   this->getType(callType),
+                                   result,
+                                   scopeId,
+                                   value,
+                                   id,
                                    out);
             return result;
         }
