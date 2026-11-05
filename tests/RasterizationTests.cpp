@@ -19,7 +19,6 @@
 
 #include <initializer_list>
 
-#if !defined(SK_LEGACY_ALPHA_RUNS)
 DEF_TEST(path_aaa_walk_convex_vertical_clip, reporter) {
     SkPath path = SkPathBuilder()
                           .moveTo(161564.5f, 20.75f)
@@ -56,4 +55,3 @@ DEF_TEST(path_aaa_walk_convex_vertical_clip, reporter) {
         canvas->drawPath(oval, paint);
     }
 }
-#endif

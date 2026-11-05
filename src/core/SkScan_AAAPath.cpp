@@ -321,11 +321,7 @@ protected:
 
     int fOffsetX;
 
-#if defined(SK_LEGACY_ALPHA_RUNS)
-    bool check(int x, int width) const { return x >= 0 && x + width <= fWidth; }
-#else
     bool check(int x, int width) const { return x >= 0 && width >= 0 && x + width <= fWidth; }
-#endif
 
     // extra one to store the zero at the end
     int getRunsSz() const { return (fWidth + 1 + (fWidth + 2) / 2) * sizeof(int16_t); }
@@ -414,11 +410,9 @@ void RunBasedAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
         x = 0;
     }
     len = std::min(len, fWidth - x);
-#if !defined(SK_LEGACY_ALPHA_RUNS)
     if (len <= 0) {
         return;
     }
-#endif
     SkASSERT(check(x, len));
 
     if (x < fOffsetX) {
@@ -455,7 +449,6 @@ void RunBasedAdditiveBlitter::blitAntiH(int x, int y, int width, SkAlpha alpha) 
     checkY(y);
     x -= fLeft;
 
-#if !defined(SK_LEGACY_ALPHA_RUNS)
     if (x < 0) {
         width += x;
         x = 0;
@@ -464,7 +457,6 @@ void RunBasedAdditiveBlitter::blitAntiH(int x, int y, int width, SkAlpha alpha) 
     if (width <= 0) {
         return;
     }
-#endif
 
     if (x < fOffsetX) {
         fOffsetX = 0;
@@ -500,11 +492,9 @@ void SafeRLEAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha antialias[], 
         x = 0;
     }
     len = std::min(len, fWidth - x);
-#if !defined(SK_LEGACY_ALPHA_RUNS)
     if (len <= 0) {
         return;
     }
-#endif
     SkASSERT(check(x, len));
 
     if (x < fOffsetX) {
@@ -543,7 +533,6 @@ void SafeRLEAdditiveBlitter::blitAntiH(int x, int y, int width, SkAlpha alpha) {
     checkY(y);
     x -= fLeft;
 
-#if !defined(SK_LEGACY_ALPHA_RUNS)
     if (x < 0) {
         width += x;
         x = 0;
@@ -552,7 +541,6 @@ void SafeRLEAdditiveBlitter::blitAntiH(int x, int y, int width, SkAlpha alpha) {
     if (width <= 0) {
         return;
     }
-#endif
 
     if (x < fOffsetX) {
         fOffsetX = 0;
@@ -1089,26 +1077,6 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
     for (;;) {
         // We have to check fLowerY first because some edges might be alone (e.g., there's only
         // a left edge but no right edge in a given y scan line) due to precision limit.
-#if defined(SK_LEGACY_ALPHA_RUNS)
-        while (leftE->fLowerY <= y) {  // Due to smooth jump, we may pass multiple short edges
-            if (!leftE->update(y)) {
-                if (SkFixedFloorToInt(currE->fUpperY) >= stop_y) {
-                    goto END_WALK;
-                }
-                leftE = currE;
-                currE = (SkAnalyticEdge*)currE->fNext;
-            }
-        }
-        while (riteE->fLowerY <= y) {  // Due to smooth jump, we may pass multiple short edges
-            if (!riteE->update(y)) {
-                if (SkFixedFloorToInt(currE->fUpperY) >= stop_y) {
-                    goto END_WALK;
-                }
-                riteE = currE;
-                currE = (SkAnalyticEdge*)currE->fNext;
-            }
-        }
-#else
         while (leftE->fLowerY <= y || riteE->fLowerY <= y) {
             while (leftE->fLowerY <= y) {  // Due to smooth jump, we may pass multiple short edges
                 if (!leftE->update(y)) {
@@ -1132,7 +1100,6 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
             y = std::max({y, leftE->fUpperY, riteE->fUpperY});
             blitter->flush_if_y_changed(prevY, y);
         }
-#endif
 
         SkASSERT(leftE);
         SkASSERT(riteE);
@@ -1158,15 +1125,9 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
         }
         local_bot_fixed = std::min(local_bot_fixed, SkIntToFixed(stop_y));
 
-#if defined(SK_LEGACY_ALPHA_RUNS)
-        SkFixed left  = std::max(leftBound, leftE->fX);
-        SkFixed dLeft = leftE->fDX;
-        SkFixed rite  = std::min(riteBound, riteE->fX);
-#else
         SkFixed left  = std::clamp(leftE->fX, leftBound, riteBound);
         SkFixed dLeft = leftE->fDX;
         SkFixed rite  = std::clamp(riteE->fX, leftBound, riteBound);
-#endif
         SkFixed dRite = riteE->fDX;
         if (0 == (dLeft | dRite)) {
             int     fullLeft    = SkFixedCeilToInt(left);
@@ -1264,10 +1225,8 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
             const SkFixed kSnapMask  = (-1 ^ (kSnapDigit - 1));
             left += kSnapHalf;
             rite += kSnapHalf;  // For fast rounding
-#if !defined(SK_LEGACY_ALPHA_RUNS)
             const SkFixed minX = leftBound + kSnapHalf;
             const SkFixed maxX = riteBound + kSnapHalf;
-#endif
 
             // Number of blit_trapezoid_row calls we'll have
             int count = SkFixedCeilToInt(local_bot_fixed) - SkFixedFloorToInt(y);
@@ -1287,15 +1246,10 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
                     count--;
                     SkFixed nextY    = SkFixedCeilToFixed(y + 1);
                     SkFixed dY       = nextY - y;
-#if defined(SK_LEGACY_ALPHA_RUNS)
-                    SkFixed nextLeft = left + SkFixedMul(dLeft, dY);
-                    SkFixed nextRite = rite + SkFixedMul(dRite, dY);
-#else
                     SkFixed nextLeft =
                             std::clamp(Sk32_sat_add(left, SkFixedMul(dLeft, dY)), minX, maxX);
                     SkFixed nextRite =
                             std::clamp(Sk32_sat_add(rite, SkFixedMul(dRite, dY)), minX, maxX);
-#endif
                     SkASSERT((left & kSnapMask) >= leftBound && (rite & kSnapMask) <= riteBound &&
                              (nextLeft & kSnapMask) >= leftBound &&
                              (nextRite & kSnapMask) <= riteBound);
@@ -1321,13 +1275,9 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
                     if (isUsingMask) {
                         maskRow = static_cast<MaskAdditiveBlitter*>(blitter)->getRow(y >> 16);
                     }
-#if defined(SK_LEGACY_ALPHA_RUNS)
-                    SkFixed nextY = y + SK_Fixed1, nextLeft = left + dLeft, nextRite = rite + dRite;
-#else
                     SkFixed nextY    = y + SK_Fixed1;
                     SkFixed nextLeft = std::clamp(Sk32_sat_add(left, dLeft), minX, maxX);
                     SkFixed nextRite = std::clamp(Sk32_sat_add(rite, dRite), minX, maxX);
-#endif
                     SkASSERT((left & kSnapMask) >= leftBound && (rite & kSnapMask) <= riteBound &&
                              (nextLeft & kSnapMask) >= leftBound &&
                              (nextRite & kSnapMask) <= riteBound);
@@ -1358,13 +1308,8 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
             // Smooth jumping to integer y may make the last nextLeft/nextRite out of bound.
             // Take them back into the bound here.
             // Note that we substract kSnapHalf later so we have to add them to leftBound/riteBound
-#if defined(SK_LEGACY_ALPHA_RUNS)
-            SkFixed nextLeft = std::max(left + SkFixedMul(dLeft, dY), leftBound + kSnapHalf);
-            SkFixed nextRite = std::min(rite + SkFixedMul(dRite, dY), riteBound + kSnapHalf);
-#else
             SkFixed nextLeft = std::clamp(Sk32_sat_add(left, SkFixedMul(dLeft, dY)), minX, maxX);
             SkFixed nextRite = std::clamp(Sk32_sat_add(rite, SkFixedMul(dRite, dY)), minX, maxX);
-#endif
             SkASSERT((left & kSnapMask) >= leftBound && (rite & kSnapMask) <= riteBound &&
                      (nextLeft & kSnapMask) >= leftBound && (nextRite & kSnapMask) <= riteBound);
             blit_trapezoid_row(blitter,

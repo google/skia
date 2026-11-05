@@ -42,11 +42,9 @@ SkEdgeBuilder::Combine SkBasicEdgeBuilder::combineVertical(const SkEdge* edge, S
         }
         return kNo_Combine;
     }
-#if !defined(SK_LEGACY_ALPHA_RUNS)
     if (!fCanCullToTheRight) {
         return kNo_Combine;
     }
-#endif
     if (edge->fFirstY == last->fFirstY) {
         if (edge->fLastY == last->fLastY) {
             return kTotal_Combine;
@@ -96,11 +94,9 @@ SkEdgeBuilder::Combine SkAnalyticEdgeBuilder::combineVertical(const SkAnalyticEd
         }
         return kNo_Combine;
     }
-#if !defined(SK_LEGACY_ALPHA_RUNS)
     if (!fCanCullToTheRight) {
         return kNo_Combine;
     }
-#endif
     if (approximately_equal(edge->fUpperY, last->fUpperY)) {
         if (approximately_equal(edge->fLowerY, last->fLowerY)) {
             return kTotal_Combine;
@@ -362,9 +358,7 @@ int SkEdgeBuilder::buildEdges(const SkPathRaw& raw,
                               const SkIRect* shiftedClip) {
     // If we're convex, then we need both edges, even if the right edge is past the clip.
     const bool canCullToTheRight = !raw.isKnownToBeConvex();
-#if !defined(SK_LEGACY_ALPHA_RUNS)
     fCanCullToTheRight = canCullToTheRight;
-#endif
 
     // We can use our buildPoly() optimization if all the segments are lines.
     // (Edges are homogeneous and stored contiguously in memory, no need for indirection.)
