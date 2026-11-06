@@ -163,6 +163,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     }
 
     if (fState < kShaped) {
+        this->fShapedEllipses.clear();
         // Check if we have the text in the cache and don't need to shape it again
         if (!fFontCollection->getParagraphCache()->findParagraph(this)) {
             if (fState < kIndexed) {

@@ -5246,6 +5246,97 @@ UNIX_ONLY_TEST(SkParagraph_Ellipsize, reporter) {
     }
 }
 
+// A layout at another width reuses the shaped ellipsis of the run and style block, and gets
+// the same result as a new paragraph. A new shaping of the paragraph shapes it again.
+UNIX_ONLY_TEST(SkParagraph_EllipsisReusedAtOtherWidths, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    fontCollection->disableFontFallback();
+
+    ParagraphStyle paragraphStyle;
+    paragraphStyle.setMaxLines(1);
+    paragraphStyle.setEllipsis(u"…");
+    paragraphStyle.turnHintingOff();
+    TextStyle first;
+    first.setFontFamilies({SkString("Roboto")});
+    first.setFontSize(14);
+    const char* firstText = "Short text in a small font. ";
+    const char* secondText = "More text in a large font that does not fit on the line.";
+    SkScalar secondFontSize = 28;
+    auto build = [&]() {
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        builder.pushStyle(first);
+        builder.addText(firstText);
+        builder.pop();
+        TextStyle second = first;
+        second.setFontSize(secondFontSize);
+        builder.pushStyle(second);
+        builder.addText(secondText);
+        builder.pop();
+        return builder.Build();
+    };
+    auto ellipsisOf = [](Paragraph* paragraph) {
+        auto impl = static_cast<ParagraphImpl*>(paragraph);
+        return impl->lines().size() == 1 ? impl->lines()[0].ellipsis() : nullptr;
+    };
+    auto sameAsNewParagraph = [&](Paragraph* paragraph, SkScalar width) {
+        auto fresh = build();
+        fresh->layout(width);
+        const Run* a = ellipsisOf(paragraph);
+        const Run* b = ellipsisOf(fresh.get());
+        if (!a || !b) {
+            return false;
+        }
+        auto ga = a->glyphs();
+        auto gb = b->glyphs();
+        return a->advance() == b->advance() && a->font() == b->font() &&
+               std::equal(ga.begin(), ga.end(), gb.begin(), gb.end()) &&
+               paragraph->getLongestLine() == fresh->getLongestLine();
+    };
+
+    auto paragraph = build();
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    // The line ends in the small text.
+    paragraph->layout(100);
+    REPORTER_ASSERT(reporter, impl->shapedEllipsisCount() == 1);
+    REPORTER_ASSERT(reporter, sameAsNewParagraph(paragraph.get(), 100));
+    const SkScalar smallAdvance = ellipsisOf(paragraph.get())->advance().fX;
+    paragraph->layout(110);
+    REPORTER_ASSERT(reporter, impl->shapedEllipsisCount() == 1);
+    REPORTER_ASSERT(reporter, sameAsNewParagraph(paragraph.get(), 110));
+
+    // The line ends in the large text, which has its own run and style block.
+    paragraph->layout(400);
+    REPORTER_ASSERT(reporter, impl->shapedEllipsisCount() == 2);
+    REPORTER_ASSERT(reporter, sameAsNewParagraph(paragraph.get(), 400));
+    REPORTER_ASSERT(reporter, ellipsisOf(paragraph.get())->advance().fX > smallAdvance);
+    paragraph->layout(100);
+    REPORTER_ASSERT(reporter, impl->shapedEllipsisCount() == 2);
+    REPORTER_ASSERT(reporter, sameAsNewParagraph(paragraph.get(), 100));
+
+    // A change of the font size shapes the paragraph again, and the old ellipses are gone.
+    paragraph->updateFontSize(0, impl->text().size(), 20);
+    paragraph->layout(100);
+    REPORTER_ASSERT(reporter, impl->shapedEllipsisCount() == 1);
+    REPORTER_ASSERT(reporter, ellipsisOf(paragraph.get())->advance().fX > smallAdvance);
+
+    // Blocks whose font sizes are nearly equal share one run, but each ellipsis uses the exact
+    // size of its block.
+    secondFontSize = 14 + 0.5f * SK_ScalarNearlyZero;
+    paragraph = build();
+    impl = static_cast<ParagraphImpl*>(paragraph.get());
+    paragraph->layout(100);
+    REPORTER_ASSERT(reporter, impl->runs().size() == 1);
+    REPORTER_ASSERT(reporter, impl->shapedEllipsisCount() == 1);
+    REPORTER_ASSERT(reporter, sameAsNewParagraph(paragraph.get(), 100));
+    paragraph->layout(300);
+    REPORTER_ASSERT(reporter, impl->shapedEllipsisCount() == 2);
+    REPORTER_ASSERT(reporter, sameAsNewParagraph(paragraph.get(), 300));
+    paragraph->layout(110);
+    REPORTER_ASSERT(reporter, impl->shapedEllipsisCount() == 2);
+    REPORTER_ASSERT(reporter, sameAsNewParagraph(paragraph.get(), 110));
+}
+
 // Checked: NO DIFF
 UNIX_ONLY_TEST(SkParagraph_UnderlineShiftParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();

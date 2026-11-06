@@ -692,7 +692,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
         auto& cluster = fOwner->cluster(clusterIndex - 1);
         // Shape the ellipsis if the run has changed
         if (lastRun != cluster.runIndex()) {
-            ellipsisRun = this->shapeEllipsis(ellipsis, &cluster);
+            ellipsisRun = this->shapeEllipsisOnce(ellipsis, &cluster);
             if (ellipsisRun->advance().fX > maxWidth) {
                 // Ellipsis is bigger than the entire line; no way we can add it at all
                 // BUT! We can keep scanning in case the next run will give us better results
@@ -730,7 +730,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
         // alone, in the style of the first character of the line (the line break of an empty
         // line), so the line still shows that text is hidden
         auto& first = fOwner->cluster(fGhostClusterRange.start);
-        ellipsisRun = this->shapeEllipsis(ellipsis, &first);
+        ellipsisRun = this->shapeEllipsisOnce(ellipsis, &first);
         if (ellipsisRun->advance().fX <= maxWidth) {
             fAdvance.fX = 0;
             fEllipsis = std::move(ellipsisRun);
@@ -800,6 +800,34 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
     return ShapeString(fOwner, fBlockRange, ellipsis, cluster);
 }
 
+std::unique_ptr<Run> TextLine::shapeEllipsisOnce(const SkString& ellipsis, const Cluster* cluster) {
+    // The shaped ellipsis depends only on the run and the style block of the cluster. Blocks
+    // whose font sizes are nearly equal can share a run, so the key has the block too.
+    const RunIndex runIndex = cluster->runIndex();
+    const BlockIndex blockIndex = AffixBlock(fOwner, fBlockRange, cluster);
+    for (const auto& shaped : fOwner->fShapedEllipses) {
+        if (shaped.fRun == runIndex && shaped.fBlock == blockIndex) {
+            return std::make_unique<Run>(shaped.fShaped);
+        }
+    }
+    auto run = this->shapeEllipsis(ellipsis, cluster);
+    fOwner->fShapedEllipses.push_back({runIndex, blockIndex, *run});
+    return run;
+}
+
+BlockIndex TextLine::AffixBlock(ParagraphImpl* owner,
+                                BlockRange blockRange,
+                                const Cluster* cluster) {
+    const bool ltr = cluster->run().leftToRight();
+    for (auto i = blockRange.start; i < blockRange.end; ++i) {
+        auto end = owner->block(i).fRange.end;
+        if (ltr ? cluster->textRange().end <= end : cluster->textRange().start <= end) {
+            return i;
+        }
+    }
+    return EMPTY_INDEX;
+}
+
 std::unique_ptr<Run> TextLine::ShapeString(ParagraphImpl* owner,
                                            BlockRange blockRange,
                                            const SkString& ellipsis,
@@ -850,17 +878,9 @@ std::unique_ptr<Run> TextLine::ShapeString(ParagraphImpl* owner,
     };
 
     const Run& run = cluster->run();
-    TextStyle textStyle = owner->paragraphStyle().getTextStyle();
-    for (auto i = blockRange.start; i < blockRange.end; ++i) {
-        auto& block = owner->block(i);
-        if (run.leftToRight() && cluster->textRange().end <= block.fRange.end) {
-            textStyle = block.fStyle;
-            break;
-        } else if (!run.leftToRight() && cluster->textRange().start <= block.fRange.end) {
-            textStyle = block.fStyle;
-            break;
-        }
-    }
+    const BlockIndex blockIndex = AffixBlock(owner, blockRange, cluster);
+    const TextStyle& textStyle = blockIndex == EMPTY_INDEX ? owner->paragraphStyle().getTextStyle()
+                                                           : owner->block(blockIndex).fStyle;
 
     // Shape the affix in the surrounding run's direction, so neutral and weak
     // characters in it (like a "!" after Arabic letters, or the default "-" and

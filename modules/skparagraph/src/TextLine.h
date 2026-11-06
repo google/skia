@@ -162,6 +162,14 @@ private:
     std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis, const Cluster* cluster);
     // Sets fHasBackground, fHasDecorations and fHasShadows from the styles in fBlockRange
     void updateStyleFlags();
+    // Shapes the ellipsis for the run and the style block of the cluster only once for each
+    // shaping of the paragraph, and returns a copy.
+    std::unique_ptr<Run> shapeEllipsisOnce(const SkString& ellipsis, const Cluster* cluster);
+    // The style block that gives the style of an affix at the cluster, or EMPTY_INDEX for the
+    // paragraph style.
+    static BlockIndex AffixBlock(ParagraphImpl* owner,
+                                 BlockRange blockRange,
+                                 const Cluster* cluster);
     void justify(SkScalar maxWidth);
 
     void buildTextBlob(TextRange textRange, const TextStyle& style, const ClipContext& context);
