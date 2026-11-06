@@ -2639,29 +2639,35 @@ static int select_curve_ops(const skcms_Curve* curves, int numChannels, OpAndArg
     return cursor;
 }
 
+// skcms_PixelFormat pairs RGB/BGR variants as (even, odd), so shifting right by 1
+// selects the format family (ignoring RGB/BGR order) and bit 0 selects R/B swap.
+static constexpr int format_family(skcms_PixelFormat fmt) {
+    return fmt >> 1;
+}
+
 static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
-    switch (fmt >> 1) {   // ignore rgb/bgr
-        case skcms_PixelFormat_A_8              >> 1: return  1;
-        case skcms_PixelFormat_G_8              >> 1: return  1;
-        case skcms_PixelFormat_GA_88            >> 1: return  2;
-        case skcms_PixelFormat_ABGR_4444        >> 1: return  2;
-        case skcms_PixelFormat_RGB_565          >> 1: return  2;
-        case skcms_PixelFormat_RGB_888          >> 1: return  3;
-        case skcms_PixelFormat_RGBA_8888        >> 1: return  4;
-        case skcms_PixelFormat_RGBA_8888_sRGB   >> 1: return  4;
-        case skcms_PixelFormat_RGBA_1010102     >> 1: return  4;
-        case skcms_PixelFormat_RGB_101010x_XR   >> 1: return  4;
-        case skcms_PixelFormat_RGB_161616LE     >> 1: return  6;
-        case skcms_PixelFormat_RGBA_10101010_XR >> 1: return  8;
-        case skcms_PixelFormat_RGBA_16161616LE  >> 1: return  8;
-        case skcms_PixelFormat_RGB_161616BE     >> 1: return  6;
-        case skcms_PixelFormat_RGBA_16161616BE  >> 1: return  8;
-        case skcms_PixelFormat_RGB_hhh_Norm     >> 1: return  6;
-        case skcms_PixelFormat_RGBA_hhhh_Norm   >> 1: return  8;
-        case skcms_PixelFormat_RGB_hhh          >> 1: return  6;
-        case skcms_PixelFormat_RGBA_hhhh        >> 1: return  8;
-        case skcms_PixelFormat_RGB_fff          >> 1: return 12;
-        case skcms_PixelFormat_RGBA_ffff        >> 1: return 16;
+    switch (format_family(fmt)) {
+        case format_family(skcms_PixelFormat_A_8             ): return  1;
+        case format_family(skcms_PixelFormat_G_8             ): return  1;
+        case format_family(skcms_PixelFormat_GA_88           ): return  2;
+        case format_family(skcms_PixelFormat_ABGR_4444       ): return  2;
+        case format_family(skcms_PixelFormat_RGB_565         ): return  2;
+        case format_family(skcms_PixelFormat_RGB_888         ): return  3;
+        case format_family(skcms_PixelFormat_RGBA_8888       ): return  4;
+        case format_family(skcms_PixelFormat_RGBA_8888_sRGB  ): return  4;
+        case format_family(skcms_PixelFormat_RGBA_1010102    ): return  4;
+        case format_family(skcms_PixelFormat_RGB_101010x_XR  ): return  4;
+        case format_family(skcms_PixelFormat_RGB_161616LE    ): return  6;
+        case format_family(skcms_PixelFormat_RGBA_10101010_XR): return  8;
+        case format_family(skcms_PixelFormat_RGBA_16161616LE ): return  8;
+        case format_family(skcms_PixelFormat_RGB_161616BE    ): return  6;
+        case format_family(skcms_PixelFormat_RGBA_16161616BE ): return  8;
+        case format_family(skcms_PixelFormat_RGB_hhh_Norm    ): return  6;
+        case format_family(skcms_PixelFormat_RGBA_hhhh_Norm  ): return  8;
+        case format_family(skcms_PixelFormat_RGB_hhh         ): return  6;
+        case format_family(skcms_PixelFormat_RGBA_hhhh       ): return  8;
+        case format_family(skcms_PixelFormat_RGB_fff         ): return 12;
+        case format_family(skcms_PixelFormat_RGBA_ffff       ): return 16;
     }
     assert(false);
     return 0;
@@ -2845,45 +2851,45 @@ bool skcms_Transform(const void*             src,
     // This will store the full source to destination gamut conversion matrix, if it is needed.
     skcms_Matrix3x3        dst_from_src;
 
-    switch (srcFmt >> 1) {
+    switch (format_family(srcFmt)) {
         default: return false;
-        case skcms_PixelFormat_A_8              >> 1: add_op(Op::load_a8);          break;
-        case skcms_PixelFormat_G_8              >> 1: add_op(Op::load_g8);          break;
-        case skcms_PixelFormat_GA_88            >> 1: add_op(Op::load_ga88);        break;
-        case skcms_PixelFormat_ABGR_4444        >> 1: add_op(Op::load_4444);        break;
-        case skcms_PixelFormat_RGB_565          >> 1: add_op(Op::load_565);         break;
-        case skcms_PixelFormat_RGB_888          >> 1: add_op(Op::load_888);         break;
-        case skcms_PixelFormat_RGBA_8888        >> 1: add_op(Op::load_8888);        break;
-        case skcms_PixelFormat_RGBA_1010102     >> 1: add_op(Op::load_1010102);     break;
-        case skcms_PixelFormat_RGB_101010x_XR   >> 1: add_op(Op::load_101010x_XR);  break;
-        case skcms_PixelFormat_RGBA_10101010_XR >> 1: add_op(Op::load_10101010_XR); break;
-        case skcms_PixelFormat_RGB_161616LE     >> 1: add_op(Op::load_161616LE);    break;
-        case skcms_PixelFormat_RGBA_16161616LE  >> 1: add_op(Op::load_16161616LE);  break;
-        case skcms_PixelFormat_RGB_161616BE     >> 1: add_op(Op::load_161616BE);    break;
-        case skcms_PixelFormat_RGBA_16161616BE  >> 1: add_op(Op::load_16161616BE);  break;
-        case skcms_PixelFormat_RGB_hhh_Norm     >> 1: add_op(Op::load_hhh);         break;
-        case skcms_PixelFormat_RGBA_hhhh_Norm   >> 1: add_op(Op::load_hhhh);        break;
-        case skcms_PixelFormat_RGB_hhh          >> 1: add_op(Op::load_hhh);         break;
-        case skcms_PixelFormat_RGBA_hhhh        >> 1: add_op(Op::load_hhhh);        break;
-        case skcms_PixelFormat_RGB_fff          >> 1: add_op(Op::load_fff);         break;
-        case skcms_PixelFormat_RGBA_ffff        >> 1: add_op(Op::load_ffff);        break;
+        case format_family(skcms_PixelFormat_A_8             ): add_op(Op::load_a8);          break;
+        case format_family(skcms_PixelFormat_G_8             ): add_op(Op::load_g8);          break;
+        case format_family(skcms_PixelFormat_GA_88           ): add_op(Op::load_ga88);        break;
+        case format_family(skcms_PixelFormat_ABGR_4444       ): add_op(Op::load_4444);        break;
+        case format_family(skcms_PixelFormat_RGB_565         ): add_op(Op::load_565);         break;
+        case format_family(skcms_PixelFormat_RGB_888         ): add_op(Op::load_888);         break;
+        case format_family(skcms_PixelFormat_RGBA_8888       ): add_op(Op::load_8888);        break;
+        case format_family(skcms_PixelFormat_RGBA_1010102    ): add_op(Op::load_1010102);     break;
+        case format_family(skcms_PixelFormat_RGB_101010x_XR  ): add_op(Op::load_101010x_XR);  break;
+        case format_family(skcms_PixelFormat_RGBA_10101010_XR): add_op(Op::load_10101010_XR); break;
+        case format_family(skcms_PixelFormat_RGB_161616LE    ): add_op(Op::load_161616LE);    break;
+        case format_family(skcms_PixelFormat_RGBA_16161616LE ): add_op(Op::load_16161616LE);  break;
+        case format_family(skcms_PixelFormat_RGB_161616BE    ): add_op(Op::load_161616BE);    break;
+        case format_family(skcms_PixelFormat_RGBA_16161616BE ): add_op(Op::load_16161616BE);  break;
+        case format_family(skcms_PixelFormat_RGB_hhh_Norm    ): add_op(Op::load_hhh);         break;
+        case format_family(skcms_PixelFormat_RGBA_hhhh_Norm  ): add_op(Op::load_hhhh);        break;
+        case format_family(skcms_PixelFormat_RGB_hhh         ): add_op(Op::load_hhh);         break;
+        case format_family(skcms_PixelFormat_RGBA_hhhh       ): add_op(Op::load_hhhh);        break;
+        case format_family(skcms_PixelFormat_RGB_fff         ): add_op(Op::load_fff);         break;
+        case format_family(skcms_PixelFormat_RGBA_ffff       ): add_op(Op::load_ffff);        break;
 
-        case skcms_PixelFormat_RGBA_8888_sRGB >> 1:
+        case format_family(skcms_PixelFormat_RGBA_8888_sRGB):
             add_op(Op::load_8888);
             add_op_ctx(Op::tf_rgb, skcms_sRGB_TransferFunction());
             break;
     }
-    if (srcFmt == skcms_PixelFormat_RGB_hhh_Norm ||
-        srcFmt == skcms_PixelFormat_RGBA_hhhh_Norm) {
+    if (format_family(srcFmt) == format_family(skcms_PixelFormat_RGB_hhh_Norm) ||
+        format_family(srcFmt) == format_family(skcms_PixelFormat_RGBA_hhhh_Norm)) {
         add_op(Op::clamp);
     }
     if (srcFmt & 1) {
         add_op(Op::swap_rb);
     }
     skcms_ICCProfile gray_dst_profile;
-    switch (dstFmt >> 1) {
-        case skcms_PixelFormat_G_8:
-        case skcms_PixelFormat_GA_88:
+    switch (format_family(dstFmt)) {
+        case format_family(skcms_PixelFormat_G_8):
+        case format_family(skcms_PixelFormat_GA_88):
             // When transforming to gray, stop at XYZ (by setting toXYZ to identity), then transform
             // luminance (Y) by the destination transfer function.
             gray_dst_profile = *dstProfile;
@@ -3099,30 +3105,31 @@ bool skcms_Transform(const void*             src,
     if (dstFmt & 1) {
         add_op(Op::swap_rb);
     }
-    switch (dstFmt >> 1) {
+    switch (format_family(dstFmt)) {
         default: return false;
-        case skcms_PixelFormat_A_8              >> 1: add_op(Op::store_a8);          break;
-        case skcms_PixelFormat_G_8              >> 1: add_op(Op::store_g8);          break;
-        case skcms_PixelFormat_GA_88            >> 1: add_op(Op::store_ga88);        break;
-        case skcms_PixelFormat_ABGR_4444        >> 1: add_op(Op::store_4444);        break;
-        case skcms_PixelFormat_RGB_565          >> 1: add_op(Op::store_565);         break;
-        case skcms_PixelFormat_RGB_888          >> 1: add_op(Op::store_888);         break;
-        case skcms_PixelFormat_RGBA_8888        >> 1: add_op(Op::store_8888);        break;
-        case skcms_PixelFormat_RGBA_1010102     >> 1: add_op(Op::store_1010102);     break;
-        case skcms_PixelFormat_RGB_161616LE     >> 1: add_op(Op::store_161616LE);    break;
-        case skcms_PixelFormat_RGBA_16161616LE  >> 1: add_op(Op::store_16161616LE);  break;
-        case skcms_PixelFormat_RGB_161616BE     >> 1: add_op(Op::store_161616BE);    break;
-        case skcms_PixelFormat_RGBA_16161616BE  >> 1: add_op(Op::store_16161616BE);  break;
-        case skcms_PixelFormat_RGB_hhh_Norm     >> 1: add_op(Op::store_hhh);         break;
-        case skcms_PixelFormat_RGBA_hhhh_Norm   >> 1: add_op(Op::store_hhhh);        break;
-        case skcms_PixelFormat_RGB_101010x_XR   >> 1: add_op(Op::store_101010x_XR);  break;
-        case skcms_PixelFormat_RGBA_10101010_XR >> 1: add_op(Op::store_10101010_XR); break;
-        case skcms_PixelFormat_RGB_hhh          >> 1: add_op(Op::store_hhh);         break;
-        case skcms_PixelFormat_RGBA_hhhh        >> 1: add_op(Op::store_hhhh);        break;
-        case skcms_PixelFormat_RGB_fff          >> 1: add_op(Op::store_fff);         break;
-        case skcms_PixelFormat_RGBA_ffff        >> 1: add_op(Op::store_ffff);        break;
+        case format_family(skcms_PixelFormat_A_8             ): add_op(Op::store_a8);         break;
+        case format_family(skcms_PixelFormat_G_8             ): add_op(Op::store_g8);         break;
+        case format_family(skcms_PixelFormat_GA_88           ): add_op(Op::store_ga88);       break;
+        case format_family(skcms_PixelFormat_ABGR_4444       ): add_op(Op::store_4444);       break;
+        case format_family(skcms_PixelFormat_RGB_565         ): add_op(Op::store_565);        break;
+        case format_family(skcms_PixelFormat_RGB_888         ): add_op(Op::store_888);        break;
+        case format_family(skcms_PixelFormat_RGBA_8888       ): add_op(Op::store_8888);       break;
+        case format_family(skcms_PixelFormat_RGBA_1010102    ): add_op(Op::store_1010102);    break;
+        case format_family(skcms_PixelFormat_RGB_161616LE    ): add_op(Op::store_161616LE);   break;
+        case format_family(skcms_PixelFormat_RGBA_16161616LE ): add_op(Op::store_16161616LE); break;
+        case format_family(skcms_PixelFormat_RGB_161616BE    ): add_op(Op::store_161616BE);   break;
+        case format_family(skcms_PixelFormat_RGBA_16161616BE ): add_op(Op::store_16161616BE); break;
+        case format_family(skcms_PixelFormat_RGB_hhh_Norm    ): add_op(Op::store_hhh);        break;
+        case format_family(skcms_PixelFormat_RGBA_hhhh_Norm  ): add_op(Op::store_hhhh);       break;
+        case format_family(skcms_PixelFormat_RGB_101010x_XR  ): add_op(Op::store_101010x_XR); break;
+        case format_family(skcms_PixelFormat_RGBA_10101010_XR): add_op(Op::store_10101010_XR);
+            break;
+        case format_family(skcms_PixelFormat_RGB_hhh         ): add_op(Op::store_hhh);        break;
+        case format_family(skcms_PixelFormat_RGBA_hhhh       ): add_op(Op::store_hhhh);       break;
+        case format_family(skcms_PixelFormat_RGB_fff         ): add_op(Op::store_fff);        break;
+        case format_family(skcms_PixelFormat_RGBA_ffff       ): add_op(Op::store_ffff);       break;
 
-        case skcms_PixelFormat_RGBA_8888_sRGB >> 1:
+        case format_family(skcms_PixelFormat_RGBA_8888_sRGB):
             add_op_ctx(Op::tf_rgb, skcms_sRGB_Inverse_TransferFunction());
             add_op(Op::store_8888);
             break;
