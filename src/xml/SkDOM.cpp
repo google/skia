@@ -18,17 +18,13 @@
 bool SkXMLParser::parse(const SkDOM& dom, const SkDOMNode* node) {
     const char* elemName = dom.getName(node);
 
-    if (this->startElement(elemName)) {
-        return false;
-    }
+    this->startElement(elemName);
 
     SkDOM::AttrIter iter(dom, node);
     const char*     name, *value;
 
     while ((name = iter.next(&value)) != nullptr) {
-        if (this->addAttribute(name, value)) {
-            return false;
-        }
+        this->addAttribute(name, value);
     }
 
     if ((node = dom.getFirstChild(node)) != nullptr) {
@@ -38,7 +34,8 @@ bool SkXMLParser::parse(const SkDOM& dom, const SkDOMNode* node) {
             }
         } while ((node = dom.getNextSibling(node)) != nullptr);
     }
-    return !this->endElement(elemName);
+    this->endElement(elemName);
+    return true;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -115,19 +112,17 @@ protected:
         fAttrs.reset();
     }
 
-    bool onStartElement(const char elem[]) override {
+    void onStartElement(const char elem[]) override {
         this->startCommon(elem, strlen(elem), SkDOM::kElement_Type);
-        return false;
     }
 
-    bool onAddAttribute(const char name[], const char value[]) override {
+    void onAddAttribute(const char name[], const char value[]) override {
         SkDOM::Attr* attr = fAttrs.append();
         attr->fName = dupstr(fAlloc, name, strlen(name));
         attr->fValue = dupstr(fAlloc, value, strlen(value));
-        return false;
     }
 
-    bool onEndElement(const char elem[]) override {
+    void onEndElement(const char elem[]) override {
         if (fNeedToFlush)
             this->flushAttributes();
         fNeedToFlush = false;
@@ -145,14 +140,11 @@ protected:
             child = next;
         }
         parent->fFirstChild = prev;
-        return false;
     }
 
-    bool onText(const char text[], int len) override {
+    void onText(const char text[], int len) override {
         this->startCommon(text, len, SkDOM::kText_Type);
         this->SkDOMParser::onEndElement(fElemName);
-
-        return false;
     }
 
 private:

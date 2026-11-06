@@ -66,18 +66,18 @@ public:
     static void GetNativeErrorString(int nativeErrorCode, SkString* str);
 
 protected:
-    // override in subclasses; return true to stop parsing
-    virtual bool onStartElement(const char elem[]);
-    virtual bool onAddAttribute(const char name[], const char value[]);
-    virtual bool onEndElement(const char elem[]);
-    virtual bool onText(const char text[], int len);
+    // override in subclasses
+    virtual void onStartElement(const char elem[]);
+    virtual void onAddAttribute(const char name[], const char value[]);
+    virtual void onEndElement(const char elem[]);
+    virtual void onText(const char text[], int len);
 
 public:
     // public for ported implementation, not meant for clients to call
-    bool startElement(const char elem[]);
-    bool addAttribute(const char name[], const char value[]);
-    bool endElement(const char elem[]);
-    bool text(const char text[], int len);
+    void startElement(const char elem[]);
+    void addAttribute(const char name[], const char value[]);
+    void endElement(const char elem[]);
+    void text(const char text[], int len);
     raw_ptr<void> fParser;
 
 protected:

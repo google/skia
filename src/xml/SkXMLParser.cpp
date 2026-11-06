@@ -238,29 +238,25 @@ void SkXMLParser::GetNativeErrorString(int error, SkString* str)
 
 }
 
-bool SkXMLParser::startElement(const char elem[])
-{
-    return this->onStartElement(elem);
+void SkXMLParser::startElement(const char elem[]) {
+    this->onStartElement(elem);
 }
 
-bool SkXMLParser::addAttribute(const char name[], const char value[])
-{
-    return this->onAddAttribute(name, value);
+void SkXMLParser::addAttribute(const char name[], const char value[]) {
+    this->onAddAttribute(name, value);
 }
 
-bool SkXMLParser::endElement(const char elem[])
-{
-    return this->onEndElement(elem);
+void SkXMLParser::endElement(const char elem[]) {
+    this->onEndElement(elem);
 }
 
-bool SkXMLParser::text(const char text[], int len)
-{
-    return this->onText(text, len);
+void SkXMLParser::text(const char text[], int len) {
+    this->onText(text, len);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool SkXMLParser::onStartElement(const char elem[]) {return false; }
-bool SkXMLParser::onAddAttribute(const char name[], const char value[]) {return false; }
-bool SkXMLParser::onEndElement(const char elem[]) { return false; }
-bool SkXMLParser::onText(const char text[], int len) {return false; }
+void SkXMLParser::onStartElement(const char elem[]) {}
+void SkXMLParser::onAddAttribute(const char name[], const char value[]) {}
+void SkXMLParser::onEndElement(const char elem[]) {}
+void SkXMLParser::onText(const char text[], int len) {}
