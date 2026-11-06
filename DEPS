@@ -9,7 +9,7 @@ vars = {
   # Three lines of non-changing comments so that
   # the commit queue can handle CLs rolling different
   # dependencies without interference from each other.
-  'infra_revision': 'd141403c992b4772958f825eda3c0faa5d25c20c',
+  'infra_revision': '69a6ff0ee615b01705bb7b0e14671e33a1cd3c74',
 
   # ninja CIPD package version.
   # https://chrome-infra-packages.appspot.com/p/infra/3pp/tools/ninja
