@@ -346,9 +346,10 @@ bool SkPngCodecBase::createColorTable(const SkImageInfo& dstInfo) {
         numColorsWithAlpha = std::min(numColorsWithAlpha, numColors);
     }
 
-    bool shouldApplyColorXformToColorTable = this->colorXform() && !this->xformOnDecode();
     if (alphas) {
-        bool premultiply = !shouldApplyColorXformToColorTable &&
+        // When colorXform() is active, applyColorXform() handles premultiplication (either on
+        // the palette table below or per-row when xformOnDecode() is true for 64-bit formats).
+        bool premultiply = !this->colorXform() &&
                            needs_premul(dstInfo.alphaType(), this->getEncodedInfo().alpha());
 
         // Choose which function to use to create the color table. If the final destination's
@@ -384,6 +385,7 @@ bool SkPngCodecBase::createColorTable(const SkImageInfo& dstInfo) {
         }
     }
 
+    bool shouldApplyColorXformToColorTable = this->colorXform() && !this->xformOnDecode();
     if (shouldApplyColorXformToColorTable) {
         this->applyColorXform(colorTable, colorTable, numColors);
     }

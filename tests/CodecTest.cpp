@@ -2364,6 +2364,42 @@ DEF_TEST(Codec_XRIncompleteDecode, r) {
 }
 #endif
 
+DEF_TEST(Codec_PngPaletteTrnsF16Premul, r) {
+    // images/index8.png is an 8-bit palette PNG with partial-alpha tRNS entries (e.g. pixel
+    // (300, 0) has alpha 99/255). Decoding to kRGBA_F16_SkColorType with kPremul_SkAlphaType
+    // runs xformOnDecode() per row and must not premultiply the palette entries twice.
+    std::unique_ptr<SkStream> stream = GetResourceAsStream("images/index8.png");
+    if (!stream) {
+        return;
+    }
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(stream));
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+
+    const SkImageInfo rgbaInfo = codec->getInfo()
+                                         .makeColorType(kRGBA_8888_SkColorType)
+                                         .makeAlphaType(kPremul_SkAlphaType)
+                                         .makeColorSpace(SkColorSpace::MakeSRGB());
+    const SkImageInfo f16Info = rgbaInfo.makeColorType(kRGBA_F16_SkColorType);
+
+    SkBitmap rgbaBm;
+    SkBitmap f16Bm;
+    rgbaBm.allocPixels(rgbaInfo);
+    f16Bm.allocPixels(f16Info);
+
+    REPORTER_ASSERT(r, codec->getPixels(rgbaBm.pixmap()) == SkCodec::kSuccess);
+    REPORTER_ASSERT(r, codec->getPixels(f16Bm.pixmap()) == SkCodec::kSuccess);
+
+    const SkColor4f rgbaColor = rgbaBm.getColor4f(300, 0);
+    const SkColor4f f16Color = f16Bm.getColor4f(300, 0);
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(rgbaColor.fR, f16Color.fR, 0.01f));
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(rgbaColor.fG, f16Color.fG, 0.01f));
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(rgbaColor.fB, f16Color.fB, 0.01f));
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(rgbaColor.fA, f16Color.fA, 0.01f));
+}
+
 DEF_TEST(Codec_gif_notseekable, r) {
     constexpr char path[] = "images/flightAnim.gif";
     sk_sp<SkData> data(GetResourceAsData(path));
