@@ -171,8 +171,10 @@ DEF_TEST(SwizzlerPalette_BGR101010x_XR, r) {
         if (!swizzler) {
             continue;
         }
-        const uint8_t packedByte = static_cast<uint8_t>(1u << (8 - 2 * bitsPerComponent));
-        const uint8_t srcBytes[2] = {bitsPerComponent == 8 ? uint8_t(0) : packedByte, 1};
+        const uint8_t firstByte = bitsPerComponent == 8
+                                          ? uint8_t(0)
+                                          : static_cast<uint8_t>(1u << (8 - 2 * bitsPerComponent));
+        const uint8_t srcBytes[2] = {firstByte, 1};
         uint32_t dstPixels[2] = {0x18060180u, 0x00000000u};
         swizzler->swizzle(dstPixels, srcBytes);
         REPORTER_ASSERT(r, dstPixels[0] == 0x00000000u);
