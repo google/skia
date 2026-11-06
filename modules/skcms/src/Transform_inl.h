@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google Inc.
+ * Copyright 2018 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -22,10 +22,12 @@ using U8  = V<uint8_t>;
     // GCC is kind of weird, not allowing vector = scalar directly.
     static constexpr F F0 = F() + 0.0f,
                        F1 = F() + 1.0f,
+                       F1023 = F() + 1023.0f,       // used for clamping to a 10-bit channel
                        FInfBits = F() + 0x7f800000; // equals 2139095040, the bit pattern of +Inf
 #else
     static constexpr F F0 = 0.0f,
                        F1 = 1.0f,
+                       F1023 = 1023.0f,       // used for clamping to a 10-bit channel
                        FInfBits = 0x7f800000; // equals 2139095040, the bit pattern of +Inf
 #endif
 
@@ -1346,17 +1348,17 @@ FINAL_STAGE(store_8888, NoCtx) {
 }
 
 FINAL_STAGE(store_101010x_XR, NoCtx) {
-    store(dst + 4*i, cast<U32>(to_fixed((r * 510) + 384)) <<  0
-                   | cast<U32>(to_fixed((g * 510) + 384)) << 10
-                   | cast<U32>(to_fixed((b * 510) + 384)) << 20);
+    store(dst + 4*i, cast<U32>(to_fixed(max_(F0, min_((r * 510) + 384, F1023)))) <<  0
+                   | cast<U32>(to_fixed(max_(F0, min_((g * 510) + 384, F1023)))) << 10
+                   | cast<U32>(to_fixed(max_(F0, min_((b * 510) + 384, F1023)))) << 20);
 }
 
 FINAL_STAGE(store_10101010_XR, NoCtx) {
     // Each channel is 16 bits, where the 6 low bits are padding.
-    store(dst + 8*i, cast<U64>(to_fixed((r * 510) + 384)) << ( 0+6)
-                   | cast<U64>(to_fixed((g * 510) + 384)) << (16+6)
-                   | cast<U64>(to_fixed((b * 510) + 384)) << (32+6)
-                   | cast<U64>(to_fixed((a * 510) + 384)) << (48+6));
+    store(dst + 8*i, cast<U64>(to_fixed(max_(F0, min_((r * 510) + 384, F1023)))) << ( 0+6)
+                   | cast<U64>(to_fixed(max_(F0, min_((g * 510) + 384, F1023)))) << (16+6)
+                   | cast<U64>(to_fixed(max_(F0, min_((b * 510) + 384, F1023)))) << (32+6)
+                   | cast<U64>(to_fixed(max_(F0, min_((a * 510) + 384, F1023)))) << (48+6));
 }
 
 FINAL_STAGE(store_1010102, NoCtx) {
