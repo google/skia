@@ -248,19 +248,18 @@ private:
                         SkASSERT(!fViewMatrix->hasPerspective());
                         float a=fViewMatrix->getScaleX(), b=fViewMatrix->getSkewX(),
                               c=fViewMatrix->getSkewY(),  d=fViewMatrix->getScaleY();
-                        float det = a*d - b*c;
-                        if (det > 0) {
-                            // outset = inverse(|a b|) * |.5|
-                            //                  |c d|    | 0|
-                            //
-                            //     == 1/det * | d -b| * |.5|
-                            //                |-c  a|   | 0|
-                            //
-                            //     == | d| * .5/det
-                            //        |-c|
-                            outset = SkVector{d, -c} * (.5f / det);
-                        } else {
-                            outset = {1, 0};
+                        // outset = inverse(|a b|) * |.5|
+                        //                  |c d|    | 0|
+                        //
+                        //     == 1/det * | d -b| * |.5|
+                        //                |-c  a|   | 0|
+                        //
+                        //     == | d| * .5/det
+                        //        |-c|
+                        outset = SkVector{d, -c} * sk_ieee_float_divide(0.5f, a*d - b*c);
+                        if (!SkIsFinite(outset.fX, outset.fY)) {
+                            // Don't outset any geometry if the matrix is not invertible.
+                            outset = {0, 0};
                         }
                     }
                     fEndingCapPts = {*fLastDegenerateStrokePt - outset,
