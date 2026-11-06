@@ -139,11 +139,12 @@ public:
     virtual void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const = 0;
 
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
-    // must write to an already-defined float2 stepLocalCoords variable. This will be automatically
-    // set to a varying for the fragment shader if the paint requires local coords. This SkSL has
-    // access to the variables declared by vertexAttributes(), instanceAttributes(), and uniforms().
-    // The 'devPosition' variable's z must store the PaintDepth normalized to a float from [0, 1],
-    // for each processed draw although the RenderStep can choose to upload it in any manner.
+    // must write to an already-defined float2 (or float3 if usesFloat3LocalCoords() is true)
+    // stepLocalCoords variable. This will be automatically set to a varying for the fragment shader
+    // if the paint requires local coords. This SkSL has access to the variables declared by
+    // vertexAttributes(), instanceAttributes(), and uniforms(). The 'devPosition' variable's z must
+    // store the PaintDepth normalized to a float from [0, 1], for each processed draw although the
+    // RenderStep can choose to upload it in any manner.
     //
     // NOTE: The above contract is mainly so that the entire SkSL program can be created by just str
     // concatenating struct definitions generated from the RenderStep and paint Combination
@@ -183,15 +184,16 @@ public:
     // and variant is a unique term describing instance's specific configuration.
     const char* name() const { return RenderStepName(fRenderStepID); }
 
-    bool requiresMSAA()        const { return SkToBool(fFlags & Flags::kRequiresMSAA);        }
-    bool performsShading()     const { return SkToBool(fFlags & Flags::kPerformsShading);     }
-    bool hasTextures()         const { return SkToBool(fFlags & Flags::kHasTextures);         }
-    bool emitsPrimitiveColor() const { return SkToBool(fFlags & Flags::kEmitsPrimitiveColor); }
-    bool outsetBoundsForAA()   const { return SkToBool(fFlags & Flags::kOutsetBoundsForAA);   }
-    bool useNonAAInnerFill()   const { return SkToBool(fFlags & Flags::kUseNonAAInnerFill);   }
-    bool appendsVertices()     const { return SkToBool(fFlags & Flags::kAppendVertices);      }
-    bool vsUsesStorage()       const { return SkToBool(fFlags & Flags::kVsUsesStorage);       }
-    bool fsUsesStorage()       const { return SkToBool(fFlags & Flags::kFsUsesStorage);       }
+    bool requiresMSAA()          const { return SkToBool(fFlags & Flags::kRequiresMSAA);        }
+    bool performsShading()       const { return SkToBool(fFlags & Flags::kPerformsShading);     }
+    bool hasTextures()           const { return SkToBool(fFlags & Flags::kHasTextures);         }
+    bool emitsPrimitiveColor()   const { return SkToBool(fFlags & Flags::kEmitsPrimitiveColor); }
+    bool outsetBoundsForAA()     const { return SkToBool(fFlags & Flags::kOutsetBoundsForAA);   }
+    bool useNonAAInnerFill()     const { return SkToBool(fFlags & Flags::kUseNonAAInnerFill);   }
+    bool appendsVertices()       const { return SkToBool(fFlags & Flags::kAppendVertices);      }
+    bool vsUsesStorage()         const { return SkToBool(fFlags & Flags::kVsUsesStorage);       }
+    bool fsUsesStorage()         const { return SkToBool(fFlags & Flags::kFsUsesStorage);       }
+    bool usesFloat3LocalCoords() const { return SkToBool(fFlags & Flags::kFloat3LocalCoords);   }
 
     SkEnumBitMask<PipelineStageFlags> storageBufferStages() const { return fStorageBufferStages; }
     SkEnumBitMask<RenderStateFlags>   getRenderStateFlags() const {
@@ -315,6 +317,7 @@ enum class Flags : unsigned {
     kUseNonAAInnerFill      = 1 << 15, // Opt into Device recording extra inner fill draws
     kIgnoreInverseFill      = 1 << 16, // Rasterization treats all shapes as noninverted for scissor
     kInverseFillsScissor    = 1 << 17, // Rasterization of inverse fills scissor geometrically
+    kFloat3LocalCoords      = 1 << 18, // stepLocalCoords is float3 (xy/z divided in FS)
 };
 SK_DECL_BITMASK_OPS_FRIENDS(Flags)
 

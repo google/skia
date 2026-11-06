@@ -589,7 +589,8 @@ std::string emit_varyings(const RenderStep* step,
     }
 
     if (emitLocalCoordsVarying) {
-        appendVarying({"localCoordsVar", SkSLType::kFloat2});
+        const auto type = step->usesFloat3LocalCoords() ? SkSLType::kFloat3 : SkSLType::kFloat2;
+        appendVarying({"localCoordsVar", type});
     }
 
     for (const LiftedExpression& expr : liftedExpressions) {
@@ -943,7 +944,8 @@ struct ShaderInfo::SharedGeneratorData {
             const int availableVaryings =
                     caps->maxVaryings() - kFixedVaryings - step->varyings().size();
 
-            bool canLiftCoords = !step->fragmentColorSkSLLocalCoordsVariable();
+            bool canLiftCoords = !step->fragmentColorSkSLLocalCoordsVariable() &&
+                                 !step->usesFloat3LocalCoords();
             fRootsInfo =
                     key.getRootNodes(caps, dict, rteDict, alloc, availableVaryings, canLiftCoords);
 
@@ -1382,9 +1384,14 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     // root nodes should--at most--be depending on the coordinate when "needsLocalCoords" is true.
     // If the PaintParamsKey violates that structure, this will produce SkSL compile errors.
     ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
-    args.fFragCoord = step->fragmentColorSkSLLocalCoordsVariable()
-                            ? step->fragmentColorSkSLLocalCoordsVariable()
-                            : "localCoordsVar";  // the varying added in emit_varyings()
+    if (step->fragmentColorSkSLLocalCoordsVariable()) {
+        args.fFragCoord = step->fragmentColorSkSLLocalCoordsVariable();
+    } else if (sharedData.fNeedsLocalCoords && step->usesFloat3LocalCoords()) {
+        mainBody += "float2 perspLocalCoords = localCoordsVar.xy / localCoordsVar.z;";
+        args.fFragCoord = "perspLocalCoords";
+    } else {
+        args.fFragCoord = "localCoordsVar";  // the varying added in emit_varyings()
+    }
 
     // Calculate the src color and stash its output variable in `args`
     args.fPriorStageOutput = srcColorRoot->invokeAndAssign(*this, args, &mainBody);
@@ -1599,7 +1606,8 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
     // Vertex shader function declaration
     std::string mainBody = "void main() {";
     // Create stepLocalCoords which render steps can write to.
-    mainBody += "float2 stepLocalCoords = float2(0);";
+    const char* type = step->usesFloat3LocalCoords() ? "float3" : "float2";
+    SkSL::String::appendf(&mainBody, "%s stepLocalCoords = %s(0);", type, type);
 
     // We define the SSBO index variable immediately if the VS is using storage buffers. This covers
     // both the "Step Uniforms" case and the "Lifted Uniforms Only" case.

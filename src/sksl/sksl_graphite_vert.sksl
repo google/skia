@@ -1139,7 +1139,7 @@ float4 coverage_mask_vertex_fn(float2 quadCoords,
                                out float2 textureCoords,
                                out half invert,
                                // Render Step
-                               out float2 stepLocalCoords) {
+                               out float3 stepLocalCoords) {
     // An atlas shape is an axis-aligned rectangle tessellated as a triangle strip.
     //
     // The bounds coordinates are in an intermediate space, pixel-aligned with the mask texture
@@ -1150,10 +1150,7 @@ float4 coverage_mask_vertex_fn(float2 quadCoords,
 
     // Local coordinates used for shading are derived from the final device coords and the inverse
     // of the original local-to-device matrix.
-    float3 localCoords = inverse(localToDevice) * drawCoords;
-    // TODO: Support float3 local coordinates if the matrix has perspective so that W is
-    // interpolated correctly to the fragment shader.
-    stepLocalCoords = localCoords.xy / localCoords.z;
+    stepLocalCoords = inverse(localToDevice) * drawCoords;
 
     // For an inverse fill, `textureCoords` will get clamped to `maskBounds` and the edge pixels
     // will always land on a 0-coverage border pixel assuming the atlas was prepared with 1px

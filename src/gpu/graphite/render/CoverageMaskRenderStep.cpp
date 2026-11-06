@@ -66,7 +66,8 @@ CoverageMaskRenderStep::CoverageMaskRenderStep(Layout layout)
                                              | Flags::kOutsetBoundsForAA
                                              | Flags::kInverseFillsScissor
                                              | Flags::kNoSelfIntersections
-                                             | Flags::kAppendInstances,
+                                             | Flags::kAppendInstances
+                                             | Flags::kFloat3LocalCoords,
                      /*uniforms=*/{{"maskToDeviceRemainder", SkSLType::kFloat3x3}},
                      PrimitiveType::kTriangleStrip,
                      /*stencilSettings=*/{},
@@ -101,7 +102,7 @@ CoverageMaskRenderStep::CoverageMaskRenderStep(Layout layout)
 
 std::string CoverageMaskRenderStep::vertexSkSL(const RootNodesInfo&) const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
-    // must write to an already-defined float2 stepLocalCoords variable.
+    // must write to an already-defined float3 stepLocalCoords variable.
     return "float4 devPosition = coverage_mask_vertex_fn("
                     "float2(sk_VertexID >> 1, sk_VertexID & 1), "
                     "maskToDeviceRemainder, drawBounds, maskBoundsIn, deviceOrigin, "
