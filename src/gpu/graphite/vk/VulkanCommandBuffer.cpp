@@ -428,6 +428,11 @@ std::optional<ImageStateUpdateInfo> get_state_update_info(const VulkanCaps& caps
         return std::nullopt;
     }
 
+    if (isSpecialQueue(newQueueFamilyIndex)) {
+        return ImageStateUpdateInfo{
+                newLayout, 0, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, newQueueFamilyIndex};
+    }
+
     return ImageStateUpdateInfo{
             newLayout,
             VkImageLayoutToSrcAccessMask(newLayout, usageFlags),
