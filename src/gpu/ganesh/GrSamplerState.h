@@ -105,7 +105,8 @@ public:
 
     constexpr bool operator==(GrSamplerState that) const {
         return fWrapModes[0] == that.fWrapModes[0] && fWrapModes[1] == that.fWrapModes[1] &&
-               fFilter == that.fFilter && fMipmapMode == that.fMipmapMode;
+               fFilter == that.fFilter && fMipmapMode == that.fMipmapMode &&
+               fMaxAniso == that.fMaxAniso;
     }
 
     constexpr bool operator!=(const GrSamplerState& that) const { return !(*this == that); }
@@ -117,7 +118,7 @@ public:
      */
     uint32_t asKey(bool anisoIsOrthogonal) const {
         constexpr int kNumWrapBits       = SkNextLog2(kWrapModeCount);
-        constexpr int kNumMaxAnisoBits   = SkNextLog2(kMaxMaxAniso);
+        constexpr int kNumMaxAnisoBits   = SkNextLog2(kMaxMaxAniso + 1);
         constexpr int kNumFilterBits     = SkNextLog2(kFilterCount);
         constexpr int kNumMipmapModeBits = SkNextLog2(kMipmapModeCount);
 

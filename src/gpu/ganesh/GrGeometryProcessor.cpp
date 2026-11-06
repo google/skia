@@ -51,14 +51,6 @@ void GrGeometryProcessor::getAttributeKey(skgpu::KeyBuilder* b) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static inline GrSamplerState::Filter clamp_filter(GrTextureType type,
-                                                  GrSamplerState::Filter requestedFilter) {
-    if (GrTextureTypeHasRestrictedSampling(type)) {
-        return std::min(requestedFilter, GrSamplerState::Filter::kLinear);
-    }
-    return requestedFilter;
-}
-
 GrGeometryProcessor::TextureSampler::TextureSampler(GrSamplerState samplerState,
                                                     const GrBackendFormat& backendFormat,
                                                     const skgpu::Swizzle& swizzle) {
@@ -68,10 +60,15 @@ GrGeometryProcessor::TextureSampler::TextureSampler(GrSamplerState samplerState,
 void GrGeometryProcessor::TextureSampler::reset(GrSamplerState samplerState,
                                                 const GrBackendFormat& backendFormat,
                                                 const skgpu::Swizzle& swizzle) {
-    fSamplerState = GrSamplerState(samplerState.wrapModeX(),
-                                   samplerState.wrapModeY(),
-                                   clamp_filter(backendFormat.textureType(), samplerState.filter()),
-                                   samplerState.mipmapMode());
+    if (GrTextureTypeHasRestrictedSampling(backendFormat.textureType())) {
+        // Rectangle and external textures only support clamp wrap mode and do not support
+        // mipmaps or anisotropic filtering.
+        fSamplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
+                                       samplerState.filter(),
+                                       GrSamplerState::MipmapMode::kNone);
+    } else {
+        fSamplerState = samplerState;
+    }
     fBackendFormat = backendFormat;
     fSwizzle = swizzle;
     fIsInitialized = true;
