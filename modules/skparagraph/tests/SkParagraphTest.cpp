@@ -12889,3 +12889,92 @@ DEF_TEST(SkParagraph_LetterSpacingStaysInsideLineWidth, reporter) {
     mixed->layout(1000);
     checkInside(mixed.get(), mixed->getMaxIntrinsicWidth());
 }
+
+// When an unresolved combining mark attaches to the non-initial codepoint of a multi-char
+// ligature, clusteredText must expand both the glyph range and text range to the whole ligature
+DEF_TEST(SkParagraph_LigatureWithUnresolvedMark, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    fontCollection->disableFontFallback();
+
+    auto buildAndLayout = [&](const char* text,
+                              std::vector<SkString> families,
+                              TextDirection dir = TextDirection::kLtr) {
+        ParagraphStyle paragraphStyle;
+        paragraphStyle.setTextDirection(dir);
+        TextStyle textStyle;
+        textStyle.setFontFamilies(std::move(families));
+        textStyle.setFontSize(20);
+        textStyle.setColor(SK_ColorBLACK);
+        paragraphStyle.setTextStyle(textStyle);
+
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        builder.pushStyle(textStyle);
+        builder.addText(text, strlen(text));
+        builder.pop();
+        auto paragraph = builder.Build();
+        paragraph->layout(1000);
+        return paragraph;
+    };
+
+    // Run-start LTR ligature + missing U+064E must keep the unresolved text range at [0, 4)
+    {
+        auto p = buildAndLayout("fi\xD9\x8E", {SkString("Roboto")});
+        auto* impl = static_cast<ParagraphImpl*>(p.get());
+        REPORTER_ASSERT(reporter, impl->runs().size() == 1);
+        if (impl->runs().size() == 1) {
+            REPORTER_ASSERT(reporter, impl->run(0).textRange() == TextRange(0, 4));
+        }
+    }
+
+    // LTR mid-run ligature + missing U+064E without fallback: cluster indexes stay inside run
+    {
+        auto p = buildAndLayout("afi\xD9\x8E", {SkString("Roboto")});
+        auto* impl = static_cast<ParagraphImpl*>(p.get());
+        REPORTER_ASSERT(reporter, !impl->runs().empty());
+        for (const auto& run : impl->runs()) {
+            REPORTER_ASSERT(reporter, run.size() > 0);
+            for (size_t i = 0; i <= run.size(); ++i) {
+                size_t ci = run.globalClusterIndex(i);
+                REPORTER_ASSERT(reporter, ci >= run.textRange().start && ci <= run.textRange().end);
+            }
+        }
+    }
+
+    // LTR mid-run ligature + U+064E resolved by secondary family must not drop 'f'
+    {
+        auto p = buildAndLayout("afi\xD9\x8E", {SkString("Roboto"), SkString("Noto Naskh Arabic")});
+        auto refFi = buildAndLayout("fi\xD9\x8E", {SkString("Noto Naskh Arabic")});
+        auto* impl = static_cast<ParagraphImpl*>(p.get());
+        REPORTER_ASSERT(reporter, p->unresolvedGlyphs() == 0);
+        REPORTER_ASSERT(reporter, impl->runs().size() == 2);
+        if (impl->runs().size() == 2) {
+            REPORTER_ASSERT(reporter, impl->run(0).textRange() == TextRange(0, 1));
+            REPORTER_ASSERT(reporter, impl->run(1).textRange() == TextRange(1, 5));
+            REPORTER_ASSERT(
+                    reporter,
+                    SkScalarNearlyEqual(
+                            impl->run(1).advance().fX, refFi->getMaxIntrinsicWidth(), EPSILON100));
+        }
+    }
+
+    // RTL lam-alef ligature + U+0657 missing in Katibeh must not duplicate alef in fallback
+    {
+        auto p = buildAndLayout("\xD8\xA8\xD9\x84\xD8\xA7\xD9\x97",
+                                {SkString("Katibeh"), SkString("Noto Naskh Arabic")},
+                                TextDirection::kRtl);
+        auto refLamAlef = buildAndLayout(
+                "\xD9\x84\xD8\xA7\xD9\x97", {SkString("Noto Naskh Arabic")}, TextDirection::kRtl);
+        auto* impl = static_cast<ParagraphImpl*>(p.get());
+        REPORTER_ASSERT(reporter, p->unresolvedGlyphs() == 0);
+        REPORTER_ASSERT(reporter, impl->runs().size() == 2);
+        if (impl->runs().size() == 2) {
+            REPORTER_ASSERT(reporter, impl->run(0).textRange() == TextRange(0, 2));
+            REPORTER_ASSERT(reporter, impl->run(1).textRange() == TextRange(2, 8));
+            REPORTER_ASSERT(reporter,
+                            SkScalarNearlyEqual(impl->run(1).advance().fX,
+                                                refLamAlef->getMaxIntrinsicWidth(),
+                                                EPSILON100));
+        }
+    }
+}

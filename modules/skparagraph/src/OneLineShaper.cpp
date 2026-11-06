@@ -765,6 +765,8 @@ bool OneLineShaper::shape() {
 
 // When we extend TextRange to the grapheme edges, we also extend glyphs range
 TextRange OneLineShaper::clusteredText(GlyphRange& glyphs) {
+    // Callers only pass non-empty unresolved glyph slices, so glyphs.end - 1 is in bounds
+    SkASSERT(glyphs.start < glyphs.end && glyphs.end <= fCurrentRun->size());
 
     enum class Dir { left, right };
     enum class Pos { inclusive, exclusive };
@@ -794,25 +796,40 @@ TextRange OneLineShaper::clusteredText(GlyphRange& glyphs) {
     };
 
     TextRange textRange(normalizeTextRange(glyphs));
-    textRange.start = findBaseChar(textRange.start, Dir::left);
-    textRange.end = findBaseChar(textRange.end, Dir::right);
+    for (size_t step = 0; step <= fCurrentRun->size(); ++step) {
+        textRange.start = findBaseChar(textRange.start, Dir::left);
+        textRange.end = findBaseChar(textRange.end, Dir::right);
 
-    // Correct the glyphRange in case we extended the text to the grapheme edges
-    // TODO: code it without if (as a part of LTR/RTL refactoring)
-    if (fCurrentRun->leftToRight()) {
-        while (glyphs.start > 0 && clusterIndex(glyphs.start) > textRange.start) {
-          glyphs.start--;
+        GlyphRange prevGlyphs = glyphs;
+        // Correct the glyphRange in case we extended the text to the grapheme edges
+        // TODO: code it without if (as a part of LTR/RTL refactoring)
+        if (fCurrentRun->leftToRight()) {
+            while (glyphs.start > 0 && (clusterIndex(glyphs.start) > textRange.start ||
+                                        clusterIndex(glyphs.start - 1) >= textRange.start)) {
+                glyphs.start--;
+            }
+            while (glyphs.end < fCurrentRun->size() && clusterIndex(glyphs.end) < textRange.end) {
+                glyphs.end++;
+            }
+        } else {
+            while (glyphs.start > 0 && clusterIndex(glyphs.start - 1) < textRange.end) {
+                glyphs.start--;
+            }
+            // In RTL, normalizeTextRange starts at clusterIndex(glyphs.end - 1), not glyphs.end
+            while (glyphs.end < fCurrentRun->size() &&
+                   (clusterIndex(glyphs.end - 1) > textRange.start ||
+                    clusterIndex(glyphs.end) >= textRange.start)) {
+                glyphs.end++;
+            }
         }
-        while (glyphs.end < fCurrentRun->size() && clusterIndex(glyphs.end) < textRange.end) {
-          glyphs.end++;
+        // Stop once the glyph range is closed under the expanded grapheme boundaries
+        if (glyphs == prevGlyphs) {
+            break;
         }
-    } else {
-        while (glyphs.start > 0 && clusterIndex(glyphs.start - 1) < textRange.end) {
-          glyphs.start--;
-        }
-        while (glyphs.end < fCurrentRun->size() && clusterIndex(glyphs.end) > textRange.start) {
-          glyphs.end++;
-        }
+        // Pulling in a multi-codepoint ligature widens the text range; re-close grapheme edges
+        TextRange glyphText = normalizeTextRange(glyphs);
+        textRange.start = std::min(textRange.start, glyphText.start);
+        textRange.end = std::max(textRange.end, glyphText.end);
     }
 
     return { textRange.start, textRange.end };
