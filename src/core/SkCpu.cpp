@@ -21,8 +21,11 @@
 
 #include "src/core/SkCpu.h"
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkFeatures.h"
 #include "include/private/SkOnce.h"
+
+#include <array>
 
 #if defined(SK_CPU_X86)
     #if defined(_MSC_VER)
@@ -47,9 +50,15 @@ namespace {
     #if defined(_MSC_VER)
         // https://learn.microsoft.com/en-us/cpp/intrinsics/cpuid-cpuidex
         // The output will be written to the input arrays.
-        void cpu_vendor(uint32_t abcd[4]) { __cpuid((int*)abcd, kVendorLeaf); }
-        void cpu_features(uint32_t abcd[4]) { __cpuid((int*)abcd, kFMSFLeaf); }
-        void cpu_flags(uint32_t abcd[4]) { __cpuidex((int*)abcd, kFlagsLeaf, kFlagsSubleaf); }
+        void cpu_vendor(SkSpan<uint32_t, 4> abcd) {
+            __cpuid(reinterpret_cast<int*>(abcd.data()), kVendorLeaf);
+        }
+        void cpu_features(SkSpan<uint32_t, 4> abcd) {
+            __cpuid(reinterpret_cast<int*>(abcd.data()), kFMSFLeaf);
+        }
+        void cpu_flags(SkSpan<uint32_t, 4> abcd) {
+            __cpuidex(reinterpret_cast<int*>(abcd.data()), kFlagsLeaf, kFlagsSubleaf);
+        }
 
         uint64_t xgetbv() {
             // https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html
@@ -63,13 +72,13 @@ namespace {
         #endif
         // https://www.felixcloutier.com/x86/cpuid
         // The output will be written to the input arrays.
-        void cpu_vendor(uint32_t abcd[4]) {
+        void cpu_vendor(SkSpan<uint32_t, 4> abcd) {
             __cpuid(kVendorLeaf, abcd[0], abcd[1], abcd[2], abcd[3]);
         }
-        void cpu_features(uint32_t abcd[4]) {
+        void cpu_features(SkSpan<uint32_t, 4> abcd) {
             __cpuid(kFMSFLeaf, abcd[0], abcd[1], abcd[2], abcd[3]);
         }
-        void cpu_flags(uint32_t abcd[4]) {
+        void cpu_flags(SkSpan<uint32_t, 4> abcd) {
             // __cpuid_count is just like __cpuid except it also takes a subleaf option (which
             // we set to 0, as that's where the info we care about is).
             __cpuid_count(kFlagsLeaf, kFlagsSubleaf, abcd[0], abcd[1], abcd[2], abcd[3]);
@@ -131,7 +140,7 @@ namespace {
 
     uint32_t read_cpu_features() {
         uint32_t features = 0;
-        uint32_t abcd[4] = {0,0,0,0};
+        std::array<uint32_t, 4> abcd = {};
 
         #define EAX abcd[0]
         #define EBX abcd[1]

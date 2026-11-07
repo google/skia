@@ -8,6 +8,7 @@
 #include "include/core/SkStrikeRef.h"
 
 #include "include/core/SkRect.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkGlyph.h"
@@ -72,11 +73,29 @@ void SkStrikeRef::getWidthsBounds(SkSpan<const SkGlyphID> glyphs,
 }
 
 void SkStrikeRef::getWidthsStrided(unsigned count,
+                                   SkSpan<const uint32_t> glyphs,
+                                   unsigned glyph_stride_32,
+                                   SkSpan<SkScalar> advances,
+                                   unsigned advance_stride_32) const {
+    SkASSERT(fStrike);
+    fStrike->getWidthsStrided(count, glyphs, glyph_stride_32, advances,
+                              advance_stride_32, fStrikeToSourceScale);
+}
+
+void SkStrikeRef::getWidthsStrided(unsigned count,
                                    const uint32_t* first_glyph,
                                    unsigned glyph_stride_32,
                                    SkScalar* first_advance,
                                    unsigned advance_stride_32) const {
-    SkASSERT(fStrike);
-    fStrike->getWidthsStrided(count, first_glyph, glyph_stride_32, first_advance,
-                              advance_stride_32, fStrikeToSourceScale);
+    if (count == 0) {
+        return;
+    }
+    const size_t glyphCount = std::max<size_t>(1, size_t(count) * glyph_stride_32);
+    const size_t advanceCount = std::max<size_t>(1, size_t(count) * advance_stride_32);
+    // TODO(crbug.com/582862856): Remove once callers migrate to the SkSpan overload.
+    this->getWidthsStrided(count,
+                           SK_UNSAFE_TODO(SkSpan(first_glyph, glyphCount)),
+                           glyph_stride_32,
+                           SK_UNSAFE_TODO(SkSpan(first_advance, advanceCount)),
+                           advance_stride_32);
 }

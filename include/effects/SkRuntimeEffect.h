@@ -222,6 +222,11 @@ public:
 
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<const SkData> uniforms) const;
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<const SkData> uniforms,
+                                         SkSpan<const sk_sp<SkColorFilter>> children) const;
+    // DEPRECATED: Prefer the SkSpan overloads, which bounds-check children. This pointer
+    // overload is kept for existing clients and forwards to the SkSpan overload above.
+    // PRECONDITIONS: children must point to at least childCount readable elements.
+    sk_sp<SkColorFilter> makeColorFilter(sk_sp<const SkData> uniforms,
                                          sk_sp<SkColorFilter> children[],
                                          size_t childCount) const;
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<const SkData> uniforms,

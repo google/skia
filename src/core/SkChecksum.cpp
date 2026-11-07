@@ -8,6 +8,7 @@
 
 #include "include/private/SkAssert.h"
 
+#include <array>
 #include <cstring>
 
 // wyhash, a fast and good hash function, from https://github.com/wangyi-fudan/wyhash
@@ -57,7 +58,10 @@ static inline uint64_t _wyr3(const uint8_t* p, size_t k) {
 }
 
 // wyhash main function
-static inline uint64_t wyhash(const void* key, size_t len, uint64_t seed, const uint64_t* secret) {
+static inline uint64_t wyhash(const void* key,
+                              size_t len,
+                              uint64_t seed,
+                              const std::array<uint64_t, 4>& secret) {
     const uint8_t* p = (const uint8_t*)key;
     seed ^= _wymix(seed ^ secret[0], secret[1]);
     uint64_t a, b;
@@ -98,7 +102,7 @@ static inline uint64_t wyhash(const void* key, size_t len, uint64_t seed, const 
 }
 
 // the default secret parameters
-static const uint64_t _wyp[4] = {
+static constexpr std::array<uint64_t, 4> _wyp = {
         0xa0761d6478bd642full, 0xe7037ed1a0b428dbull, 0x8ebc6af09c88c6e3ull, 0x589965cc75374cc3ull};
 
 namespace SkChecksum {

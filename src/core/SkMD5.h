@@ -8,6 +8,7 @@
 #ifndef SkMD5_DEFINED
 #define SkMD5_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTo.h"
@@ -22,7 +23,14 @@ public:
     SkMD5();
 
     /** Processes input, adding it to the digest.
-        Calling this after finish is undefined.  */
+        Calling this after finish is undefined. */
+    bool write(SkSpan<const uint8_t> input);
+
+    /** DEPRECATED: Prefer the SkSpan overload above. This pointer overload is kept for
+        SkWStream compatibility and existing clients, and forwards to the SkSpan overload.
+
+        PRECONDITIONS: buffer must point to at least size readable bytes (or size == 0).
+        Calling this after finish is undefined. */
     bool write(const void* buffer, size_t size) final;
 
     size_t bytesWritten() const final { return SkToSizeT(this->byteCount); }
@@ -31,13 +39,13 @@ public:
         SkString toHexString() const;
         SkString toLowercaseHexString() const;
         bool operator==(Digest const& other) const {
-            return 0 == memcmp(data, other.data, sizeof(data));
+            return data == other.data;
         }
         bool operator!=(Digest const& other) const {
             return !(*this == other);
         }
 
-        uint8_t data[16];
+        std::array<uint8_t, 16> data;
     };
 
     /** Computes and returns the digest. */
@@ -45,7 +53,7 @@ public:
 
 private:
     uint64_t byteCount;  // number of bytes, modulo 2^64
-    uint32_t state[4];   // state (ABCD)
+    std::array<uint32_t, 4> state;   // state (ABCD)
     std::array<uint8_t, 64> buffer;  // input buffer
 };
 

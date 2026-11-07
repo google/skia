@@ -14,22 +14,25 @@
 //SK_CPU_FAST_UNALIGNED_ACCESS allows 32 bit <=> 8 bit conversions without copies if SK_CPU_LENDIAN.
 
 #include "src/core/SkMD5.h"
-#include "src/core/SkUtils.h"
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkFeatures.h"
 #include "include/private/SkMalloc.h"
+#include "src/core/SkUtils.h"
+
+#include <array>
 
 /** MD5 basic transformation. Transforms state based on block. */
-static void transform(uint32_t state[4], const uint8_t block[64]);
+static void transform(SkSpan<uint32_t, 4> state, SkSpan<const uint8_t, 64> block);
 
 /** Encodes input into output (4 little endian 32 bit values). */
-static void encode(uint8_t output[16], const uint32_t input[4]);
+static void encode(SkSpan<uint8_t, 16> output, SkSpan<const uint32_t, 4> input);
 
 /** Encodes input into output (little endian 64 bit value). */
-static void encode(uint8_t output[8], uint64_t input);
+static void encode(SkSpan<uint8_t, 8> output, uint64_t input);
 
 /** Decodes input (4 little endian 32 bit values) into storage, if required. */
-static const uint32_t* decode(uint32_t storage[16], const uint8_t input[64]);
+static const uint32_t* decode(SkSpan<uint32_t, 16> storage, SkSpan<const uint8_t, 64> input);
 
 SkMD5::SkMD5() : byteCount(0) {
     // These are magic numbers from the specification.
@@ -40,22 +43,27 @@ SkMD5::SkMD5() : byteCount(0) {
 }
 
 bool SkMD5::write(const void* buf, size_t inputLength) {
-    const uint8_t* input = reinterpret_cast<const uint8_t*>(buf);
-    unsigned int bufferIndex = (unsigned int)(this->byteCount & 0x3F);
-    unsigned int bufferAvailable = 64 - bufferIndex;
+    // TODO(crbug.com/582862856): Remove once SkWStream::write and callers migrate to SkSpan.
+    return this->write(
+            SK_UNSAFE_TODO(SkSpan(static_cast<const uint8_t*>(buf), inputLength)));
+}
 
-    unsigned int inputIndex;
-    if (inputLength >= bufferAvailable) {
+bool SkMD5::write(SkSpan<const uint8_t> input) {
+    size_t bufferIndex = static_cast<size_t>(this->byteCount & 0x3F);
+    size_t bufferAvailable = 64 - bufferIndex;
+
+    size_t inputIndex;
+    if (input.size() >= bufferAvailable) {
         if (bufferIndex) {
-            sk_careful_memcpy(&this->buffer[bufferIndex], input, bufferAvailable);
-            transform(this->state, this->buffer.data());
+            sk_careful_memcpy(&this->buffer[bufferIndex], input.data(), bufferAvailable);
+            transform(this->state, this->buffer);
             inputIndex = bufferAvailable;
         } else {
             inputIndex = 0;
         }
 
-        for (; inputIndex + 63 < inputLength; inputIndex += 64) {
-            transform(this->state, &input[inputIndex]);
+        for (; inputIndex + 63 < input.size(); inputIndex += 64) {
+            transform(this->state, input.subspan(inputIndex).first<64>());
         }
 
         bufferIndex = 0;
@@ -63,31 +71,32 @@ bool SkMD5::write(const void* buf, size_t inputLength) {
         inputIndex = 0;
     }
 
-    sk_careful_memcpy(&this->buffer[bufferIndex], &input[inputIndex], inputLength - inputIndex);
+    SkSpan<const uint8_t> remaining = input.subspan(inputIndex);
+    sk_careful_memcpy(&this->buffer[bufferIndex], remaining.data(), remaining.size());
 
-    this->byteCount += inputLength;
+    this->byteCount += input.size();
     return true;
 }
 
 SkMD5::Digest SkMD5::finish() {
     SkMD5::Digest digest;
     // Get the number of bits before padding.
-    uint8_t bits[8];
+    std::array<uint8_t, 8> bits;
     encode(bits, this->byteCount << 3);
 
     // Pad out to 56 mod 64.
     unsigned int bufferIndex = (unsigned int)(this->byteCount & 0x3F);
     unsigned int paddingLength = (bufferIndex < 56) ? (56 - bufferIndex) : (120 - bufferIndex);
-    static const uint8_t PADDING[64] = {
+    static constexpr std::array<uint8_t, 64> PADDING = {
         0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     };
-    (void)this->write(PADDING, paddingLength);
+    (void)this->write(SkSpan(PADDING).first(paddingLength));
 
     // Append length (length before padding, will cause final update).
-    (void)this->write(bits, 8);
+    (void)this->write(bits);
 
     // Write out digest.
     encode(digest.data, this->state);
@@ -99,9 +108,10 @@ SkMD5::Digest SkMD5::finish() {
     return digest;
 }
 
-static SkString to_hex_string(const uint8_t* data, const char* hexDigits) {
-    SkString hexString(2 * sizeof(SkMD5::Digest::data));
-    for (size_t i = 0; i < sizeof(SkMD5::Digest::data); ++i) {
+static SkString to_hex_string(SkSpan<const uint8_t, 16> data, SkSpan<const char, 16> hexDigits) {
+    static_assert(data.size() == sizeof(SkMD5::Digest::data));
+    SkString hexString(2 * data.size());
+    for (size_t i = 0; i < data.size(); ++i) {
         uint8_t byte = data[i];
         hexString[2 * i + 0] = hexDigits[byte >> 4];
         hexString[2 * i + 1] = hexDigits[byte & 0xF];
@@ -146,10 +156,10 @@ static inline void operation(T operation, uint32_t& a, uint32_t b, uint32_t c, u
     a = b + rotate_left(a + operation(b, c, d) + x + t, s);
 }
 
-static void transform(uint32_t state[4], const uint8_t block[64]) {
+static void transform(SkSpan<uint32_t, 4> state, SkSpan<const uint8_t, 64> block) {
     uint32_t a = state[0], b = state[1], c = state[2], d = state[3];
 
-    uint32_t storage[16];
+    std::array<uint32_t, 16> storage;
     const uint32_t* X = decode(storage, block);
 
     // Round 1
@@ -231,13 +241,13 @@ static void transform(uint32_t state[4], const uint8_t block[64]) {
 
 #if defined(SK_MD5_CLEAR_DATA)
     // Clear sensitive information.
-    if (X == &storage) {
-        memset(storage, 0, sizeof(storage));
+    if (X == storage.data()) {
+        storage.fill(0);
     }
 #endif
 }
 
-static void encode(uint8_t output[16], const uint32_t input[4]) {
+static void encode(SkSpan<uint8_t, 16> output, SkSpan<const uint32_t, 4> input) {
     for (size_t i = 0, j = 0; i < 4; i++, j += 4) {
         output[j  ] = (uint8_t) (input[i]        & 0xff);
         output[j+1] = (uint8_t)((input[i] >>  8) & 0xff);
@@ -246,7 +256,7 @@ static void encode(uint8_t output[16], const uint32_t input[4]) {
     }
 }
 
-static void encode(uint8_t output[8], uint64_t input) {
+static void encode(SkSpan<uint8_t, 8> output, uint64_t input) {
     output[0] = (uint8_t) (input        & 0xff);
     output[1] = (uint8_t)((input >>  8) & 0xff);
     output[2] = (uint8_t)((input >> 16) & 0xff);
@@ -261,13 +271,13 @@ static inline bool is_aligned(const void *pointer, size_t byte_count) {
     return reinterpret_cast<uintptr_t>(pointer) % byte_count == 0;
 }
 
-static const uint32_t* decode(uint32_t storage[16], const uint8_t input[64]) {
+static const uint32_t* decode(SkSpan<uint32_t, 16> storage, SkSpan<const uint8_t, 64> input) {
 #if defined(SK_CPU_LENDIAN) && defined(SK_CPU_FAST_UNALIGNED_ACCESS)
-   return reinterpret_cast<const uint32_t*>(input);
+   return reinterpret_cast<const uint32_t*>(input.data());
 #else
 #if defined(SK_CPU_LENDIAN)
-    if (is_aligned(input, 4)) {
-        return reinterpret_cast<const uint32_t*>(input);
+    if (is_aligned(input.data(), 4)) {
+        return reinterpret_cast<const uint32_t*>(input.data());
     }
 #endif
     for (size_t i = 0, j = 0; j < 64; i++, j += 4) {
@@ -276,6 +286,6 @@ static const uint32_t* decode(uint32_t storage[16], const uint8_t input[64]) {
                      (((uint32_t)input[j+2]) << 16) |
                      (((uint32_t)input[j+3]) << 24);
     }
-    return storage;
+    return storage.data();
 #endif
 }

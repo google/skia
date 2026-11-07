@@ -73,7 +73,19 @@ public:
         @param paint      specifies stroking, SkPathEffect that affects the result; may be nullptr
         @return           number of intersections; may be zero
      */
-    int getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
+    int getIntercepts(SkSpan<const SkScalar, 2> bounds,
+                      SkScalar intervals[],
+                      const SkPaint* paint = nullptr) const;
+
+    /** DEPRECATED: Prefer the SkSpan overload above, which bounds-checks bounds.
+        This pointer overload is kept for existing clients and forwards to it.
+
+        PRECONDITIONS: bounds must point to at least 2 readable elements. As with the
+        overload above, intervals may be nullptr; otherwise it must have room for the
+        returned number of intersections.
+    */
+    int getIntercepts(const SkScalar bounds[2],
+                      SkScalar intervals[],
                       const SkPaint* paint = nullptr) const;
 
     /** Creates SkTextBlob with a single run.

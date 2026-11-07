@@ -878,7 +878,7 @@ size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory, size_t me
 namespace {
 int get_glyph_run_intercepts(const sktext::GlyphRun& glyphRun,
                              const SkPaint& paint,
-                             const SkScalar bounds[2],
+                             SkSpan<const SkScalar, 2> bounds,
                              SkScalar intervals[],
                              int* intervalCount) {
     SkScalar scale = SK_Scalar1;
@@ -930,7 +930,8 @@ int get_glyph_run_intercepts(const sktext::GlyphRun& glyphRun,
 }
 }  // namespace
 
-int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
+int SkTextBlob::getIntercepts(SkSpan<const SkScalar, 2> bounds,
+                              SkScalar intervals[],
                               const SkPaint* paint) const {
     std::optional<SkPaint> defaultPaint;
     if (paint == nullptr) {
@@ -951,6 +952,14 @@ int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
     }
 
     return intervalCount;
+}
+
+int SkTextBlob::getIntercepts(const SkScalar bounds[2],
+                              SkScalar intervals[],
+                              const SkPaint* paint) const {
+    // TODO(crbug.com/582862856): Remove once callers migrate to the SkSpan overload.
+    return this->getIntercepts(
+            SK_UNSAFE_TODO(SkSpan<const SkScalar, 2>(bounds, 2)), intervals, paint);
 }
 
 std::vector<SkScalar> SkFont::getIntercepts(SkSpan<const SkGlyphID> glyphs,

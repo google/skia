@@ -408,7 +408,7 @@ static sk_sp<SkDrawable> make_sksl_drawable(SkSLSource source) {
                     .effect;
             SkASSERT(effect);
 
-            paint.setColorFilter(effect->makeColorFilter(/*uniforms=*/nullptr, /*children=*/{}));
+            paint.setColorFilter(effect->makeColorFilter(/*uniforms=*/nullptr));
             break;
         }
 
