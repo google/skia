@@ -12899,3 +12899,181 @@ DEF_TEST(SkParagraph_LigatureWithUnresolvedMark, reporter) {
         }
     }
 }
+
+DEF_TEST(SkParagraph_EllipsisAfterHardLineBreak, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    auto build = [&](const char* text, size_t maxLines, const char* family = "Roboto",
+                     TextDirection dir = TextDirection::kLtr, SkScalar width = 1000) {
+        ParagraphStyle paragraphStyle;
+        paragraphStyle.turnHintingOff();
+        if (maxLines > 0) {
+            paragraphStyle.setMaxLines(maxLines);
+        }
+        paragraphStyle.setEllipsis(u"\u2026");
+        paragraphStyle.setTextDirection(dir);
+        TextStyle textStyle;
+        textStyle.setFontFamilies({SkString(family)});
+        textStyle.setFontSize(20);
+        paragraphStyle.setTextStyle(textStyle);
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(width);
+        // Painting runs the debug checks of the line geometry
+        SkCanvas canvas(SkIsFinite(width) ? SkScalarCeilToInt(width) : 1000, 1000);
+        paragraph->paint(&canvas, 0, 0);
+        return paragraph;
+    };
+    // Returns the index of the only line with the ellipsis, or -1 if there is none
+    auto ellipsisLine = [&](Paragraph* paragraph, size_t expectedLines) {
+        auto* impl = static_cast<ParagraphImpl*>(paragraph);
+        REPORTER_ASSERT(reporter, impl->lines().size() == expectedLines);
+        int found = -1;
+        for (size_t i = 0; i < impl->lines().size(); ++i) {
+            if (impl->lines()[i].ellipsis() != nullptr) {
+                REPORTER_ASSERT(reporter, found == -1);
+                found = SkToInt(i);
+            }
+        }
+        return found;
+    };
+    auto check = [&](const char* text, size_t maxLines, size_t expectedLines) {
+        return ellipsisLine(build(text, maxLines).get(), expectedLines);
+    };
+
+    // Nothing is hidden: a single final line break, or no line limit at all
+    REPORTER_ASSERT(reporter, check("AAA\n", 1, 1) == -1);
+    REPORTER_ASSERT(reporter, check("AAA\nBBB", 0, 2) == -1);
+    REPORTER_ASSERT(reporter, check("AAA\nBBB", 2, 2) == -1);
+    REPORTER_ASSERT(reporter,
+                    ellipsisLine(build("AAA\n", 1, "Roboto", TextDirection::kLtr,
+                                       SK_ScalarInfinity).get(), 1) == -1);
+#ifdef SK_IGNORE_ELLIPSIZE_TRUNCATED_LINES
+    REPORTER_ASSERT(reporter, check("AAA\n\n", 1, 1) == -1);
+    REPORTER_ASSERT(reporter, check("AAA\n   ", 1, 1) == -1);
+    REPORTER_ASSERT(reporter, check("AAA\nBBB", 1, 1) == -1);
+    REPORTER_ASSERT(reporter, check("AAA\n\nBBB", 2, 2) == -1);
+    REPORTER_ASSERT(reporter, check("\n\n", 1, 1) == -1);
+    REPORTER_ASSERT(reporter,
+                    ellipsisLine(build("AAA\nBBB", 1, "Roboto", TextDirection::kLtr,
+                                       SK_ScalarInfinity).get(), 1) == -1);
+#else
+    // Text after the last visible hard line break is hidden, even if it is blank
+    REPORTER_ASSERT(reporter, check("AAA\n\n", 1, 1) == 0);
+    REPORTER_ASSERT(reporter, check("AAA\n   ", 1, 1) == 0);
+    REPORTER_ASSERT(reporter, check("AAA\nBBB", 1, 1) == 0);
+    REPORTER_ASSERT(reporter, check("AAA\n\nBBB", 2, 2) == 1);
+    REPORTER_ASSERT(reporter, check("\n\n", 1, 1) == 0);
+    auto inf = build("AAA\nBBB", 1, "Roboto", TextDirection::kLtr, SK_ScalarInfinity);
+    REPORTER_ASSERT(reporter, inf->didExceedMaxLines());
+    REPORTER_ASSERT(reporter, ellipsisLine(inf.get(), 1) == 0);
+    REPORTER_ASSERT(reporter,
+                    ellipsisLine(build("\xD8\xA8\xD8\xAA\n\xD8\xA8", 1, "Katibeh",
+                                       TextDirection::kRtl).get(), 1) == 0);
+
+    // As on Android and the web, the spaces before the line break stay in front of the
+    // ellipsis while they fit; the line break itself never stays
+    auto plain = build("AAAAAA", 1);
+    SkScalar plainWidth = static_cast<ParagraphImpl*>(plain.get())->lines()[0].width();
+    auto unlimited = build("AAAAAA      \nB", 0);
+    auto& unlimitedLine = static_cast<ParagraphImpl*>(unlimited.get())->lines()[0];
+    SkScalar spacedWidth = unlimitedLine.width() + unlimitedLine.spacesWidth();
+    SkScalar spaceWidth = (spacedWidth - plainWidth) / 6;
+    REPORTER_ASSERT(reporter, spaceWidth > 0);
+    auto spaces = build("AAAAAA      \nB", 1);
+    REPORTER_ASSERT(reporter, ellipsisLine(spaces.get(), 1) == 0);
+    auto* impl = static_cast<ParagraphImpl*>(spaces.get());
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->lines()[0].widthWithoutEllipsis(),
+                                                  spacedWidth));
+    std::vector<LineMetrics> metrics;
+    spaces->getLineMetrics(metrics);
+    REPORTER_ASSERT(reporter, metrics[0].fEndExcludingWhitespaces == 12);
+    REPORTER_ASSERT(reporter, metrics[0].fEndIndex == 12);
+    REPORTER_ASSERT(reporter, impl->lines()[0].spacesWidth() == 0);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->widthWithTrailingSpaces(),
+                                                  impl->lines()[0].widthWithoutEllipsis()));
+    SkScalar ellipsisWidth = impl->lines()[0].ellipsis()->advance().fX;
+
+    // Spaces that do not fit with the ellipsis go one by one, before any glyph
+    SkScalar twoSpaces = plainWidth + 2.5f * spaceWidth + ellipsisWidth;
+    auto trimmed = build("AAAAAA      \nB", 1, "Roboto", TextDirection::kLtr, twoSpaces);
+    REPORTER_ASSERT(reporter, ellipsisLine(trimmed.get(), 1) == 0);
+    trimmed->getLineMetrics(metrics);
+    REPORTER_ASSERT(reporter, metrics[0].fEndIndex == 8, "%zu", metrics[0].fEndIndex);
+    REPORTER_ASSERT(reporter, static_cast<ParagraphImpl*>(trimmed.get())->lines()[0].width() <=
+                              twoSpaces);
+
+    // A blank line keeps its spaces as well, and gets the ellipsis alone if not one space fits
+    auto blank = build("   \nB", 1);
+    REPORTER_ASSERT(reporter, ellipsisLine(blank.get(), 1) == 0);
+    blank->getLineMetrics(metrics);
+    REPORTER_ASSERT(reporter, metrics[0].fEndIndex == 3, "%zu", metrics[0].fEndIndex);
+    auto lone = build("   \nB", 1, "Roboto", TextDirection::kLtr,
+                      ellipsisWidth + 0.5f * spaceWidth);
+    REPORTER_ASSERT(reporter, ellipsisLine(lone.get(), 1) == 0);
+    auto* loneImpl = static_cast<ParagraphImpl*>(lone.get());
+    REPORTER_ASSERT(reporter, loneImpl->lines()[0].widthWithoutEllipsis() == 0);
+
+    // A visible text that fits alone but not with the ellipsis loses its last clusters
+    SkScalar narrow = plainWidth + 1;
+    auto cut = build("AAAAAA\nB", 1, "Roboto", TextDirection::kLtr, narrow);
+    REPORTER_ASSERT(reporter, ellipsisLine(cut.get(), 1) == 0);
+    auto* cutImpl = static_cast<ParagraphImpl*>(cut.get());
+    REPORTER_ASSERT(reporter, cutImpl->lines()[0].widthWithoutEllipsis() < plainWidth);
+    REPORTER_ASSERT(reporter, cutImpl->lines()[0].width() <= narrow);
+    // A visible text that does not fit even one cluster with the ellipsis gets it alone
+    auto alone = build("W\nX", 1, "Roboto", TextDirection::kLtr, ellipsisWidth + 1);
+    REPORTER_ASSERT(reporter, ellipsisLine(alone.get(), 1) == 0);
+
+    // The CR of a CRLF line break is part of the line break, not a space before it
+    auto crlf = build("AAA  \r\nB", 1);
+    REPORTER_ASSERT(reporter, ellipsisLine(crlf.get(), 1) == 0);
+    crlf->getLineMetrics(metrics);
+    REPORTER_ASSERT(reporter, metrics[0].fEndIndex == 5, "%zu", metrics[0].fEndIndex);
+
+    // The ellipsis of an empty line takes the style of its line break, background included
+    TextStyle small;
+    small.setFontFamilies({SkString("Roboto")});
+    small.setFontSize(20);
+    TextStyle large = small;
+    large.setFontSize(40);
+    large.setBackgroundColor(SkPaint(SkColors::kRed));
+    ParagraphStyle paragraphStyle;
+    paragraphStyle.setMaxLines(2);
+    paragraphStyle.setEllipsis(u"\u2026");
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+    builder.pushStyle(small);
+    builder.addText("AAA\n");
+    builder.pushStyle(large);
+    builder.addText("\nBBB");
+    auto styled = builder.Build();
+    styled->layout(1000);
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(1000, 200);
+    SkCanvas canvas(bitmap);
+    canvas.clear(SK_ColorWHITE);
+    styled->paint(&canvas, 0, 0);
+    REPORTER_ASSERT(reporter, ellipsisLine(styled.get(), 2) == 1);
+    auto* styledImpl = static_cast<ParagraphImpl*>(styled.get());
+    REPORTER_ASSERT(reporter, styledImpl->lines()[1].ellipsis()->font().getSize() == 40);
+    std::vector<LineMetrics> styledMetrics;
+    styled->getLineMetrics(styledMetrics);
+    int lineTop = SkScalarCeilToInt(styledMetrics[1].fBaseline - styledMetrics[1].fAscent);
+    REPORTER_ASSERT(reporter, bitmap.getColor(2, lineTop + 2) == SK_ColorRED);
+    // A hit on the empty line stays on it, as on any empty line
+    auto hit = styled->getGlyphPositionAtCoordinate(1, styledMetrics[1].fBaseline);
+    REPORTER_ASSERT(reporter, hit.position == 4 && hit.affinity == Affinity::kDownstream);
+
+    // Same for an RTL empty line, on both sides of the ellipsis
+    auto rtl = build("\xD8\xA8\xD8\xAA\n\n\xD8\xA8", 2, "Katibeh", TextDirection::kRtl);
+    REPORTER_ASSERT(reporter, ellipsisLine(rtl.get(), 2) == 1);
+    rtl->getLineMetrics(metrics);
+    for (SkScalar dx : {1.0f, 999.0f, 1001.0f}) {
+        auto rtlHit = rtl->getGlyphPositionAtCoordinate(dx, metrics[1].fBaseline);
+        REPORTER_ASSERT(reporter, rtlHit.position == 3 && rtlHit.affinity == kDownstream,
+                        "%g: %d", dx, rtlHit.position);
+    }
+#endif
+}

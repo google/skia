@@ -179,18 +179,7 @@ TextLine::TextLine(ParagraphImpl* owner,
     auto& end = owner->cluster(fGhostClusterRange.end - 1);
     size_t numRuns = end.runIndex() - start.runIndex() + 1;
 
-    for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
-        auto b = fOwner->styles().begin() + index;
-        if (b->fStyle.hasBackground()) {
-            fHasBackground = true;
-        }
-        if (b->fStyle.getDecorationType() != TextDecoration::kNoDecoration) {
-            fHasDecorations = true;
-        }
-        if (b->fStyle.getShadowNumber() > 0) {
-            fHasShadows = true;
-        }
-    }
+    this->updateStyleFlags();
 
     // Get the logical order
 
@@ -631,6 +620,24 @@ void TextLine::shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar pre
     }
 }
 
+void TextLine::updateStyleFlags() {
+    fHasBackground = false;
+    fHasDecorations = false;
+    fHasShadows = false;
+    for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
+        auto b = fOwner->styles().begin() + index;
+        if (b->fStyle.hasBackground()) {
+            fHasBackground = true;
+        }
+        if (b->fStyle.getDecorationType() != TextDecoration::kNoDecoration) {
+            fHasDecorations = true;
+        }
+        if (b->fStyle.getShadowNumber() > 0) {
+            fHasShadows = true;
+        }
+    }
+}
+
 void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool) {
     // Replace some clusters with the ellipsis
     // Go through the clusters in the reverse logical order
@@ -638,7 +645,33 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
     SkScalar width = fAdvance.fX;
     RunIndex lastRun = EMPTY_RUN;
     std::unique_ptr<Run> ellipsisRun;
-    for (auto clusterIndex = fGhostClusterRange.end; clusterIndex > fGhostClusterRange.start; --clusterIndex) {
+    ClusterIndex lastIndex = fGhostClusterRange.end;
+#ifndef SK_IGNORE_ELLIPSIZE_TRUNCATED_LINES
+    // Like Android, Compose and Chrome, a hard-broken line keeps the spaces before its line
+    // break in front of the ellipsis and drops them one by one, before any glyph, when they do
+    // not fit. fAdvance does not count these spaces, and the line break never stays
+    bool hardBroken = fGhostClusterRange.width() > 0 &&
+                      fOwner->cluster(fGhostClusterRange.end - 1).isHardBreak();
+    if (hardBroken) {
+        lastIndex = fGhostClusterRange.end - 1;
+        // The CR of a CRLF line break is a cluster of its own, but it is part of the line break
+        if (lastIndex > fClusterRange.end &&
+            fOwner->text()[fOwner->cluster(lastIndex - 1).textRange().start] == '\r') {
+            --lastIndex;
+        }
+        for (auto clusterIndex = fClusterRange.end; clusterIndex < lastIndex; ++clusterIndex) {
+            width += fOwner->cluster(clusterIndex).width();
+        }
+        // The blocks came from the text without the trailing spaces: they miss the spaces kept
+        // here and, on an empty line, the line break whose style the ellipsis takes
+        auto& last =
+                fOwner->cluster(lastIndex > fGhostClusterRange.start ? lastIndex - 1 : lastIndex);
+        fBlockRange =
+                fOwner->findAllBlocks(TextRange(fTextExcludingSpaces.start, last.textRange().end));
+        this->updateStyleFlags();
+    }
+#endif
+    for (auto clusterIndex = lastIndex; clusterIndex > fGhostClusterRange.start; --clusterIndex) {
         auto& cluster = fOwner->cluster(clusterIndex - 1);
         // Shape the ellipsis if the run has changed
         if (lastRun != cluster.runIndex()) {
@@ -673,6 +706,32 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
         fTextExcludingSpaces.end = cluster.textRange().end;
         break;
     }
+
+#ifndef SK_IGNORE_ELLIPSIZE_TRUNCATED_LINES
+    if (hardBroken && !fEllipsis) {
+        // Not even one cluster fits with the ellipsis, or the line is empty: the ellipsis is
+        // alone, in the style of the first character of the line (the line break of an empty
+        // line), so the line still shows that text is hidden
+        auto& first = fOwner->cluster(fGhostClusterRange.start);
+        ellipsisRun = this->shapeEllipsis(ellipsis, &first);
+        if (ellipsisRun->advance().fX <= maxWidth) {
+            fAdvance.fX = 0;
+            fEllipsis = std::move(ellipsisRun);
+            fEllipsis->setOwner(fOwner);
+            fEllipsis->fClusterStart = first.textRange().start;
+            fClusterRange.end = fClusterRange.start;
+            fGhostClusterRange.end = fClusterRange.start;
+            fText.end = fText.start;
+            fTextIncludingNewlines.end = fTextIncludingNewlines.start;
+            fTextExcludingSpaces.end = fTextExcludingSpaces.start;
+        }
+    }
+    if (hardBroken && fEllipsis) {
+        // The kept spaces are now part of the line, so none of them count as its trailing
+        // spaces (spacesWidth, kMax rects)
+        fWidthWithSpaces = this->width();
+    }
+#endif
 
     if (!fEllipsis) {
         // Weird situation: ellipsis does not fit; no ellipsis then
@@ -1584,7 +1643,9 @@ void TextLine::getRectsForRange(TextRange textRange0,
 
 PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
 
-    if (SkScalarNearlyZero(this->width()) && SkScalarNearlyZero(this->spacesWidth())) {
+    // A line with only the ellipsis has no text runs to hit, whatever the text direction
+    if ((SkScalarNearlyZero(this->width()) && SkScalarNearlyZero(this->spacesWidth())) ||
+        (fEllipsis && fClusterRange.width() == 0)) {
         // TODO: this is one of the flutter changes that have to go away eventually
         //  Empty line is a special case in txtlib (but only when there are no spaces, too)
         auto utf16Index = fOwner->getUTF16Index(this->fTextExcludingSpaces.end);
