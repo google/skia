@@ -1995,6 +1995,16 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     return draw.toClip(geometry, style, nonMSAAClip, cs.shader());
 }
 
+int ClipStack::CountPendingElementDraws(SkSpan<const Element* const> elements) {
+    int undrawnCount = 0;
+    for (const Element* e : elements) {
+        if (!static_cast<const RawElement*>(e)->hasPendingDraw()) {
+            ++undrawnCount;
+        }
+    }
+    return undrawnCount;
+}
+
 std::pair<CompressedPaintersOrder, Layer*> ClipStack::updateClipStateForDraw(
         const Clip& clip,
         const ElementList& effectiveElements,
