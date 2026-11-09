@@ -11,12 +11,17 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
 #include "include/core/SkSurface.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkMask.h"
 
+#include <cstdint>
 #include <memory>
+#include <vector>
 
 static bool all_pixels_same_color(uint32_t* buffer, size_t len) {
     for (size_t i = 1; i < len; ++i) {
@@ -194,6 +199,175 @@ DEF_TEST(SkARGB32Blitter_MaskAndAntiHDrawTheSame, r) {
                                            return std::make_unique<SkARGB32_Blitter>(device, paint);
                                        });
             }
+        }
+    }
+}
+
+namespace {
+struct RecordedAntiSpan {
+    int x;
+    int y;
+    int width;
+    SkAlpha alpha;
+};
+
+class RecordingBlitter final : public SkBlitter {
+public:
+    void blitH(int x, int y, int width) override { fSpans.push_back({x, y, width, 0xFF}); }
+
+    void blitAntiH(int x, int y, const SkAlpha aa[], const int16_t runs[]) override {
+        int curX = x;
+        for (;;) {
+            int count = runs[0];
+            if (count <= 0) {
+                if (count < 0) {
+                    fSawNegativeRun = true;
+                }
+                break;
+            }
+            if (aa[0] != 0) {
+                fSpans.push_back({curX, y, count, aa[0]});
+            }
+            curX += count;
+            runs += count;
+            aa += count;
+        }
+    }
+
+    std::vector<RecordedAntiSpan> fSpans;
+    bool fSawNegativeRun = false;
+};
+}  // namespace
+
+DEF_TEST(ClipBlitter_BlitAntiH_LargeOffsetsAndGaps, r) {
+    auto seedTwoRuns = [](std::vector<int16_t>* runs,
+                          std::vector<SkAlpha>* aa,
+                          int run0,
+                          int run1,
+                          SkAlpha alpha) {
+        int total = run0 + run1;
+        runs->assign(total + 1, 0);
+        aa->assign(total, 0);
+        (*runs)[0] = SkToS16(run0);
+        (*aa)[0] = alpha;
+        (*runs)[run0] = SkToS16(run1);
+        (*aa)[run0] = alpha;
+        (*runs)[total] = 0;
+    };
+
+    // 1. Span starting > 32767 px left of region bounds.
+    {
+        SkRegion rgn;
+        rgn.op(SkIRect::MakeLTRB(10, 0, 15, 10), SkRegion::kUnion_Op);
+        rgn.op(SkIRect::MakeLTRB(20, 0, 25, 10), SkRegion::kUnion_Op);
+
+        RecordingBlitter rec;
+        SkRgnClipBlitter clipper;
+        clipper.init(&rec, &rgn);
+
+        std::vector<int16_t> runs;
+        std::vector<SkAlpha> aa;
+        seedTwoRuns(&runs, &aa, 25000, 25000, 0x80);
+        clipper.blitAntiH(-40000, 0, aa.data(), runs.data());
+
+        REPORTER_ASSERT(r, !rec.fSawNegativeRun);
+        REPORTER_ASSERT(r, rec.fSpans.size() == 2);
+        if (rec.fSpans.size() == 2) {
+            REPORTER_ASSERT(r,
+                            rec.fSpans[0].x == 10 && rec.fSpans[0].width == 5 &&
+                                    rec.fSpans[0].alpha == 0x80);
+            REPORTER_ASSERT(r,
+                            rec.fSpans[1].x == 20 && rec.fSpans[1].width == 5 &&
+                                    rec.fSpans[1].alpha == 0x80);
+        }
+    }
+
+    // 2. First active clip span on row y is > 32767 px right of bounds.fLeft.
+    {
+        SkRegion rgn;
+        rgn.op(SkIRect::MakeLTRB(0, 10, 5, 20), SkRegion::kUnion_Op);
+        rgn.op(SkIRect::MakeLTRB(40000, 0, 40006, 10), SkRegion::kUnion_Op);
+
+        RecordingBlitter rec;
+        SkRgnClipBlitter clipper;
+        clipper.init(&rec, &rgn);
+
+        std::vector<int16_t> runs;
+        std::vector<SkAlpha> aa;
+        seedTwoRuns(&runs, &aa, 25000, 15010, 0x99);
+        clipper.blitAntiH(0, 0, aa.data(), runs.data());
+
+        REPORTER_ASSERT(r, !rec.fSawNegativeRun);
+        REPORTER_ASSERT(r, rec.fSpans.size() == 1);
+        if (rec.fSpans.size() == 1) {
+            REPORTER_ASSERT(r,
+                            rec.fSpans[0].x == 40000 && rec.fSpans[0].width == 6 &&
+                                    rec.fSpans[0].alpha == 0x99);
+        }
+    }
+
+    // 3. Gap > 32767 px between two active clip spans on the same scanline.
+    {
+        SkRegion rgn;
+        rgn.op(SkIRect::MakeLTRB(2, 0, 5, 10), SkRegion::kUnion_Op);
+        rgn.op(SkIRect::MakeLTRB(40000, 0, 40004, 10), SkRegion::kUnion_Op);
+
+        RecordingBlitter rec;
+        SkRgnClipBlitter clipper;
+        clipper.init(&rec, &rgn);
+
+        std::vector<int16_t> runs;
+        std::vector<SkAlpha> aa;
+        seedTwoRuns(&runs, &aa, 25000, 15010, 0x77);
+        clipper.blitAntiH(0, 0, aa.data(), runs.data());
+
+        REPORTER_ASSERT(r, !rec.fSawNegativeRun);
+        REPORTER_ASSERT(r, rec.fSpans.size() == 2);
+        if (rec.fSpans.size() == 2) {
+            REPORTER_ASSERT(r,
+                            rec.fSpans[0].x == 2 && rec.fSpans[0].width == 3 &&
+                                    rec.fSpans[0].alpha == 0x77);
+            REPORTER_ASSERT(r,
+                            rec.fSpans[1].x == 40000 && rec.fSpans[1].width == 4 &&
+                                    rec.fSpans[1].alpha == 0x77);
+        }
+    }
+
+    // 4. SkRectClipBlitter left/right trimming and extreme coordinates (INT32_MIN / INT32_MAX).
+    {
+        RecordingBlitter rec;
+        SkRectClipBlitter rectClipper;
+        rectClipper.init(&rec, SkIRect::MakeLTRB(5, 0, 25, 10));
+
+        int16_t runs[31] = {};
+        SkAlpha aa[30] = {};
+        runs[0] = 10;
+        aa[0] = 0x20;
+        runs[10] = 10;
+        aa[10] = 0x40;
+        runs[20] = 10;
+        aa[20] = 0x60;
+        runs[30] = 0;
+
+        // Out-of-Y and extreme X rejects should not emit spans or mutate `runs`.
+        rectClipper.blitAntiH(INT32_MIN, 0, aa, runs);
+        rectClipper.blitAntiH(INT32_MAX, 0, aa, runs);
+        rectClipper.blitAntiH(0, INT32_MIN, aa, runs);
+        REPORTER_ASSERT(r, rec.fSpans.empty());
+        REPORTER_ASSERT(r, runs[0] == 10 && runs[10] == 10 && runs[20] == 10);
+
+        rectClipper.blitAntiH(0, 0, aa, runs);
+        REPORTER_ASSERT(r, rec.fSpans.size() == 3);
+        if (rec.fSpans.size() == 3) {
+            REPORTER_ASSERT(r,
+                            rec.fSpans[0].x == 5 && rec.fSpans[0].width == 5 &&
+                                    rec.fSpans[0].alpha == 0x20);
+            REPORTER_ASSERT(r,
+                            rec.fSpans[1].x == 10 && rec.fSpans[1].width == 10 &&
+                                    rec.fSpans[1].alpha == 0x40);
+            REPORTER_ASSERT(r,
+                            rec.fSpans[2].x == 20 && rec.fSpans[2].width == 5 &&
+                                    rec.fSpans[2].alpha == 0x60);
         }
     }
 }

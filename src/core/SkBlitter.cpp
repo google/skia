@@ -36,6 +36,7 @@
 #include "src/shaders/SkShaderBase.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <optional>
 
@@ -345,42 +346,63 @@ void SkRectClipBlitter::blitH(int left, int y, int width) {
     }
 }
 
-void SkRectClipBlitter::blitAntiH(int left, int y, const SkAlpha const_aa[],
+// Clips an anti-aliased scanline span to `clip`, advancing `*x`, `*aa`, and `*runs`
+// past any left overhang. If `trimRight` is true, also splits and 0-terminates
+// `*runs` at `clip.fRight`. Returns the clipped width, or 0 if completely clipped out.
+static int clip_anti_span(
+        int* x, int y, SkAlpha** aa, int16_t** runs, const SkIRect& clip, bool trimRight) {
+    if (y < clip.fTop || y >= clip.fBottom || *x >= clip.fRight) {
+        return 0;
+    }
+
+    int width = compute_anti_width(*runs);
+    if (width <= 0) {
+        return 0;
+    }
+
+    if (*x < clip.fLeft) {
+        // Incoming `*x` is not bounded by device tiling (e.g. float geometry saturating to
+        // SK_MinS32FitsInFloat via roundOut(), tile CTM shifts, or direct int32_t callers),
+        // and non-bitmap clips (e.g. SkAAClip::setPath or translated SkRegions) can also have
+        // extreme `clip.fLeft` values, so `clip.fLeft - *x` can overflow int32_t.
+        // TODO: Audit upstream scan converters/callers to bound incoming span coordinates so
+        // 64-bit promotion isn't needed here.
+        int64_t dx64 = static_cast<int64_t>(clip.fLeft) - *x;
+        if (dx64 >= width) {
+            return 0;
+        }
+        int dx = SkToInt(dx64);
+        SkAlphaRuns::BreakAt(*runs, *aa, dx);
+        *runs += dx;
+        *aa += dx;
+        *x = clip.fLeft;
+        width -= dx;
+    }
+
+    // clip.fLeft <= *x < clip.fRight and !clip.isEmpty(), so this fits in int32_t.
+    int maxWidth = clip.fRight - *x;
+    if (width > maxWidth) {
+        width = maxWidth;
+        if (trimRight) {
+            SkAlphaRuns::BreakAt(*runs, *aa, width);
+            (*runs)[width] = 0;
+        }
+    }
+    return width;
+}
+
+void SkRectClipBlitter::blitAntiH(int left,
+                                  int y,
+                                  const SkAlpha const_aa[],
                                   const int16_t const_runs[]) {
     SkAlpha* aa = const_cast<SkAlpha*>(const_aa);
     int16_t* runs = const_cast<int16_t*>(const_runs);
 
-    if (!y_in_rect(y, fClipRect) || left >= fClipRect.fRight) {
-        return;
+    int width = clip_anti_span(&left, y, &aa, &runs, fClipRect, /*trimRight=*/true);
+    if (width > 0) {
+        SkASSERT(runs[width] == 0 && compute_anti_width(runs) == width);
+        fBlitter->blitAntiH(left, y, aa, runs);
     }
-
-    int x0 = left;
-    int x1 = left + compute_anti_width(runs);
-
-    if (x1 <= fClipRect.fLeft) {
-        return;
-    }
-
-    SkASSERT(x0 < x1);
-    if (x0 < fClipRect.fLeft) {
-        int dx = fClipRect.fLeft - x0;
-        SkAlphaRuns::BreakAt((int16_t*)runs, (uint8_t*)aa, dx);
-        runs += dx;
-        aa += dx;
-        x0 = fClipRect.fLeft;
-    }
-
-    SkASSERT(x0 < x1 && runs[x1 - x0] == 0);
-    if (x1 > fClipRect.fRight) {
-        x1 = fClipRect.fRight;
-        SkAlphaRuns::BreakAt((int16_t*)runs, (uint8_t*)aa, x1 - x0);
-        ((int16_t*)runs)[x1 - x0] = 0;
-    }
-
-    SkASSERT(x0 < x1 && runs[x1 - x0] == 0);
-    SkASSERT(compute_anti_width(runs) == x1 - x0);
-
-    fBlitter->blitAntiH(x0, y, aa, runs);
 }
 
 void SkRectClipBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
@@ -472,7 +494,11 @@ void SkRgnClipBlitter::blitAntiH(int x, int y, const SkAlpha const_aa[],
     SkAlpha* aa = const_cast<SkAlpha*>(const_aa);
     int16_t* runs = const_cast<int16_t*>(const_runs);
 
-    int width = compute_anti_width(runs);
+    int width = clip_anti_span(&x, y, &aa, &runs, fRgn->getBounds(), /*trimRight=*/false);
+    if (width <= 0) {
+        return;
+    }
+
     SkRegion::Spanerator span(*fRgn, y, x, x + width);
     int left, right;
     SkDEBUGCODE(const SkIRect& bounds = fRgn->getBounds();)
@@ -483,28 +509,43 @@ void SkRgnClipBlitter::blitAntiH(int x, int y, const SkAlpha const_aa[],
         SkASSERT(left < right);
         SkASSERT(left >= bounds.fLeft && right <= bounds.fRight);
 
-        SkAlphaRuns::Break((int16_t*)runs, (uint8_t*)aa, left - x, right - left);
+        if (prevRite == x && left > x) {
+            // Advance directly to the first active clip span on this row rather than
+            // encoding a leading zero-alpha skip run (which would overflow int16_t
+            // when left - x > INT16_MAX, e.g. if bounds.fLeft is set by another row).
+            int dx = left - x;
+            SkAlphaRuns::BreakAt(runs, aa, dx);
+            runs += dx;
+            aa += dx;
+            x = left;
+            prevRite = left;
+        }
 
-        // now zero before left
+        // Break starting from `prevRite - x` (guaranteed to be a run boundary from
+        // the prior iteration, or 0 on the first), avoiding an O(spans^2) walk.
+        int offset = prevRite - x;
+        SkAlphaRuns::Break(runs + offset, aa + offset, left - prevRite, right - left);
+
+        // Zero any gap between the previous clip span and this one, chunking into
+        // INT16_MAX runs in case two spans on this scanline are > 32767 px apart.
         if (left > prevRite) {
-            int index = prevRite - x;
-            ((uint8_t*)aa)[index] = 0;   // skip runs after right
-            ((int16_t*)runs)[index] = SkToS16(left - prevRite);
+            int index = offset;
+            int gap = left - prevRite;
+            while (gap > INT16_MAX) {
+                aa[index] = 0;
+                runs[index] = INT16_MAX;
+                index += INT16_MAX;
+                gap -= INT16_MAX;
+            }
+            aa[index] = 0;
+            runs[index] = SkToS16(gap);
         }
 
         prevRite = right;
     }
 
     if (prevRite > x) {
-        ((int16_t*)runs)[prevRite - x] = 0;
-
-        if (x < 0) {
-            int skip = runs[0];
-            SkASSERT(skip >= -x);
-            aa += skip;
-            runs += skip;
-            x += skip;
-        }
+        runs[prevRite - x] = 0;
         fBlitter->blitAntiH(x, y, aa, runs);
     }
 }
