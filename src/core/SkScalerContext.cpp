@@ -704,6 +704,9 @@ void SkScalerContext::GenerateImageFromPath(
     }
 }
 
+// Rasterizes or path-renders origGlyph into its pre-allocated origGlyph.fImage buffer, applying
+// fMaskFilter if set by regenerating the unfiltered glyph, filtering it, and clipping or zeroing
+// origGlyph.fImage when consecutive loads diverge
 void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     SkASSERT(origGlyph.fAdvancesBoundsFormatAndInitialPathDone);
 
@@ -739,25 +742,16 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         unfilteredGlyph = &tmpGlyph;
     }
 
+    // Inspect unfilteredGlyph's reloaded path and format rather than origGlyph's initial load,
+    // since consecutive makeGlyph() loads may diverge in path availability, bounds, or format
     if (!fGenerateImageFromPath) {
         generateImage(*unfilteredGlyph, unfilteredGlyph->fImage);
     } else {
-        SkASSERT(origGlyph.setPathHasBeenCalled());
-        const SkPath* devPath = origGlyph.path();
-
-        if (!devPath) {
+        SkASSERT(unfilteredGlyph->setPathHasBeenCalled());
+        if (!unfilteredGlyph->path()) {
             generateImage(*unfilteredGlyph, unfilteredGlyph->fImage);
         } else {
-            SkMaskBuilder mask(static_cast<uint8_t*>(unfilteredGlyph->fImage),
-                               unfilteredGlyph->iRect(), unfilteredGlyph->rowBytes(),
-                               unfilteredGlyph->maskFormat());
-            SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
-            SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
-            const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
-            const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
-            const bool a8LCD = SkToBool(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag);
-            const bool hairline = origGlyph.pathIsHairline();
-            GenerateImageFromPath(mask, *devPath, fPreBlend, doBGR, doVert, a8LCD, hairline);
+            this->generateImageFromPath(*unfilteredGlyph, unfilteredGlyph->fImage);
         }
     }
 
@@ -791,18 +785,27 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             memcpy(srcMask.image(), unfilteredGlyph->fImage, imageSize);
         }
 
-        SkASSERT_RELEASE(srcMask.fFormat == origGlyph.fMaskFormat);
         SkMaskBuilder dstMask = SkMaskBuilder(static_cast<uint8_t*>(origGlyph.fImage),
                                               origGlyph.iRect(), origGlyph.rowBytes(),
                                               origGlyph.maskFormat());
         SkIRect origBounds = dstMask.fBounds;
 
-        // If the unfiltered and the filtered bounds diverged so far that they do not
-        // overlap, there is nothing valid to copy; leave origGlyph's image cleared
-        if (!SkIRect::Intersects(srcMask.fBounds, dstMask.fBounds)) {
+        // The clipping and row-copy below assumes matching 1-byte-per-pixel masks (kA8, k3D,
+        // or kSDF); if consecutive loads diverged in format, are not 1-byte-per-pixel, or do
+        // not overlap, clear origGlyph's image and bail out
+        const bool isBytePerPixelFormat = srcMask.fFormat == SkMask::kA8_Format ||
+                                          srcMask.fFormat == SkMask::k3D_Format ||
+                                          srcMask.fFormat == SkMask::kSDF_Format;
+        if (srcMask.fFormat != origGlyph.fMaskFormat || !isBytePerPixelFormat ||
+            !SkIRect::Intersects(srcMask.fBounds, dstMask.fBounds)) {
             sk_bzero(origGlyph.fImage, origGlyph.imageSize());
             return;
         }
+
+        // Capture full single-plane byte strides before fBounds is clipped to the intersection
+        const size_t srcPlaneBytes = srcMask.computeImageSize();
+        const size_t dstPlaneBytes = dstMask.computeImageSize();
+        SkASSERT(srcPlaneBytes > 0 && dstPlaneBytes > 0);
 
         // Find the intersection of src and dst while updating the fImages.
         if (srcMask.fBounds.fTop < dstMask.fBounds.fTop) {
@@ -850,20 +853,22 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         const uint8_t* src = srcMask.fImage;
         uint8_t* dst = dstMask.image();
 
-        if (SkMask::k3D_Format == srcMask.fFormat) {
-            // we have to copy 3 times as much
-            height *= 3;
-        }
-
-        // If not filling the full original glyph, clear it out first.
+        // Clear all planes (including k3D_Format's multiply and add planes) when clipping
         if (dstMask.fBounds != origBounds) {
-            sk_bzero(origGlyph.fImage, origGlyph.fHeight * origGlyph.rowBytes());
+            sk_bzero(origGlyph.fImage, origGlyph.imageSize());
         }
 
-        while (--height >= 0) {
-            memcpy(dst, src, width);
-            src += srcRB;
-            dst += dstRB;
+        // k3D_Format stores 3 full planes of computeImageSize() bytes each, so step each plane
+        // from its unclipped plane base rather than multiplying the clipped row count by 3
+        const int planes = (SkMask::k3D_Format == srcMask.fFormat) ? 3 : 1;
+        for (int plane = 0; plane < planes; ++plane) {
+            const uint8_t* planeSrc = src + plane * srcPlaneBytes;
+            uint8_t* planeDst = dst + plane * dstPlaneBytes;
+            for (int y = 0; y < height; ++y) {
+                memcpy(planeDst, planeSrc, width);
+                planeSrc += srcRB;
+                planeDst += dstRB;
+            }
         }
     }
 }
