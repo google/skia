@@ -691,9 +691,9 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
     return true;
 }
 
-void GrVkPrimaryCommandBuffer::forceSync(GrVkGpu* gpu) {
+bool GrVkPrimaryCommandBuffer::forceSync(GrVkGpu* gpu) {
     if (fSubmitFence == VK_NULL_HANDLE) {
-        return;
+        return true;
     }
     // On some drivers vkWaitForFences() can spuriously return VK_TIMEOUT when a signal handler
     // runs. Work around this by retrying on VK_TIMEOUT.
@@ -706,6 +706,7 @@ void GrVkPrimaryCommandBuffer::forceSync(GrVkGpu* gpu) {
         SkDebugf("vkWaitForFences() failed. Error: %d\n", result);
     }
     SkASSERT(VK_SUCCESS == result || VK_ERROR_DEVICE_LOST == result);
+    return result == VK_SUCCESS;
 }
 
 bool GrVkPrimaryCommandBuffer::finished(GrVkGpu* gpu) {
