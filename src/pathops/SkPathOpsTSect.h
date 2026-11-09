@@ -12,8 +12,6 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/partition_alloc/raw_ptr.h"
-#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsRect.h"
 #include "src/pathops/SkPathOpsTCurve.h"
@@ -84,9 +82,8 @@ private:
 };
 
 struct SkTSpanBounded {
-    // RAW_PTR_EXCLUSION: Performance: +8.6%, +13.3% on pathops_sect respectively.
-    RAW_PTR_EXCLUSION SkTSpan* fBounded;
-    RAW_PTR_EXCLUSION SkTSpanBounded* fNext;
+    SkTSpan* fBounded;
+    SkTSpanBounded* fNext;
 };
 
 class SkTSpan {
@@ -224,14 +221,12 @@ private:
     void validatePerpT(double oppT) const;
     void validatePerpPt(double t, const SkDPoint& ) const;
 
-    raw_ptr<SkTCurve> fPart;
+    SkTCurve* fPart;
     SkTCoincident fCoinStart;
     SkTCoincident fCoinEnd;
-    // RAW_PTR_EXCLUSION: Performance: +9.3% on pathops_join.
-    RAW_PTR_EXCLUSION SkTSpanBounded* fBounded;
-    raw_ptr<SkTSpan> fPrev;
-    // RAW_PTR_EXCLUSION: Performance: +4.0% on pathops_sect.
-    RAW_PTR_EXCLUSION SkTSpan* fNext;
+    SkTSpanBounded* fBounded;
+    SkTSpan* fPrev;
+    SkTSpan* fNext;
     SkDRect fBounds;
     double fStartT;
     double fEndT;
@@ -241,8 +236,8 @@ private:
     SkOpDebugBool fIsLinear;
     SkOpDebugBool fIsLine;
     SkOpDebugBool fDeleted;
-    SkDEBUGCODE(raw_ptr<SkOpGlobalState> fDebugGlobalState;)
-    SkDEBUGCODE(raw_ptr<SkTSect> fDebugSect;)
+    SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState;)
+    SkDEBUGCODE(SkTSect* fDebugSect;)
     PATH_OPS_DEBUG_T_SECT_CODE(int fID;)
     friend class SkTSect;
 };
@@ -357,19 +352,17 @@ private:
     void validate() const;
     void validateBounded() const;
 
-    // RAW_PTR_EXCLUSION: Performance: +2.5% on pathops_join.
-    RAW_PTR_EXCLUSION const SkTCurve& fCurve;
+    const SkTCurve& fCurve;
     SkSTArenaAlloc<1024> fHeap;
-    // RAW_PTR_EXCLUSION: Performance: +4.0% on pathops_sect.
-    RAW_PTR_EXCLUSION SkTSpan* fHead;
-    raw_ptr<SkTSpan> fCoincident;
-    raw_ptr<SkTSpan> fDeleted;
+    SkTSpan* fHead;
+    SkTSpan* fCoincident;
+    SkTSpan* fDeleted;
     int fActiveCount;
     bool fRemovedStartT;
     bool fRemovedEndT;
     bool fHung;
-    SkDEBUGCODE(raw_ptr<SkOpGlobalState> fDebugGlobalState;)
-    SkDEBUGCODE(raw_ptr<SkTSect> fOppSect;)
+    SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState;)
+    SkDEBUGCODE(SkTSect* fOppSect;)
     PATH_OPS_DEBUG_T_SECT_CODE(int fID;)
     PATH_OPS_DEBUG_T_SECT_CODE(int fDebugCount;)
 #if DEBUG_T_SECT

@@ -18,7 +18,6 @@
 #include "src/core/SkColorData.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkRectMemcpy.h"
-#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <array>
 #include <cstddef>
@@ -143,8 +142,7 @@ protected:
         SkASSERT(!fEnd || Mark(fPtr, bytesToWrite) <= fEnd);
     }
 
-    // RAW_PTR_EXCLUSION: Performance: +275% on rrects_1_aa (mock).
-    RAW_PTR_EXCLUSION void* fPtr = nullptr;
+    void* fPtr = nullptr;
     SkDEBUGCODE(mutable Mark fEnd = {};)
 };
 

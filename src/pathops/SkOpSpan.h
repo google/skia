@@ -11,7 +11,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMath.h"
-#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/pathops/SkPathOpsTypes.h"
 
 class SkOpAngle;
@@ -167,9 +166,8 @@ public:
     double fT;
     SkPoint fPt;   // cache of point value at this t
 protected:
-    // RAW_PTR_EXCLUSION: Performance: +8.3%, +10.9% on pathops_simplify_rects respectively.
-    RAW_PTR_EXCLUSION SkOpSpanBase* fSpan;  // contains winding data
-    RAW_PTR_EXCLUSION SkOpPtT* fNext;  // intersection on opposite curve or alias on this curve
+    SkOpSpanBase* fSpan;  // contains winding data
+    SkOpPtT* fNext;  // intersection on opposite curve or alias on this curve
     bool fDeleted;  // set if removed from span list
     bool fDuplicatePt;  // set if identical pt is somewhere in the next loop
     // below mutable since referrer is otherwise always const
@@ -405,13 +403,10 @@ private:
 
 protected:  // no direct access to internals to avoid treating a span base as a span
     SkOpPtT fPtT;  // list of points and t values associated with the start of this span
-    // RAW_PTR_EXCLUSION: Performance: +7.4%, +10.9%, +7.2%, +14.4% on pathops_simplify_rects
-    // respectively.
-    RAW_PTR_EXCLUSION SkOpSegment* fSegment;   // segment that contains this span
-    RAW_PTR_EXCLUSION SkOpSpanBase* fCoinEnd;  // linked list of coincident spans that end here
-                                               // (may point to itself)
-    RAW_PTR_EXCLUSION SkOpAngle* fFromAngle;   // points to next angle from span start to end
-    RAW_PTR_EXCLUSION SkOpSpan* fPrev;         // previous intersection point
+    SkOpSegment* fSegment;  // segment that contains this span
+    SkOpSpanBase* fCoinEnd;  // linked list of coincident spans that end here (may point to itself)
+    SkOpAngle* fFromAngle;  // points to next angle from span start to end
+    SkOpSpan* fPrev;  // previous intersection point
     int fSpanAdds;  // number of times intersections have been added to span
     bool fAligned;
     bool fChased;  // set after span has been added to chase array
@@ -568,11 +563,9 @@ public:
     }
 
 private:  // no direct access to internals to avoid treating a span base as a span
-    // RAW_PTR_EXCLUSION: Performance: +7.4%, +5.9%, +13.5% on pathops_simplify_rects respectively.
-    RAW_PTR_EXCLUSION SkOpSpan* fCoincident;  // linked list of spans coincident with this one
-                                              // (may point to itself)
-    RAW_PTR_EXCLUSION SkOpAngle* fToAngle;    // points to next angle from span start to end
-    RAW_PTR_EXCLUSION SkOpSpanBase* fNext;    // next intersection point
+    SkOpSpan* fCoincident;  // linked list of spans coincident with this one (may point to itself)
+    SkOpAngle* fToAngle;  // points to next angle from span start to end
+    SkOpSpanBase* fNext;  // next intersection point
     int fWindSum;  // accumulated from contours surrounding this one.
     int fOppSum;  // for binary operators: the opposite winding sum
     int fWindValue;  // 0 == canceled; 1 == normal; >1 == coincident

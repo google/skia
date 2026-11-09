@@ -10,7 +10,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMalloc.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/pathops/SkOpSpan.h"
 #include "src/pathops/SkPathOpsTypes.h"
 
@@ -27,8 +26,8 @@ public:
 
     // These return non-const pointers so that, as copies, they can be added
     // to a new span pair
-    SkOpPtT* coinPtTEndWritable() const { return const_cast<SkOpPtT*>(fCoinPtTEnd.get()); }
-    SkOpPtT* coinPtTStartWritable() const { return const_cast<SkOpPtT*>(fCoinPtTStart.get()); }
+    SkOpPtT* coinPtTEndWritable() const { return const_cast<SkOpPtT*>(fCoinPtTEnd); }
+    SkOpPtT* coinPtTStartWritable() const { return const_cast<SkOpPtT*>(fCoinPtTStart); }
 
     bool collapsed(const SkOpPtT* ) const;
     bool contains(const SkOpPtT* s, const SkOpPtT* e) const;
@@ -71,13 +70,13 @@ public:
 
     SkCoincidentSpans* next() { return fNext; }
     const SkCoincidentSpans* next() const { return fNext; }
-    raw_ptr<SkCoincidentSpans>* nextPtr() { return &fNext; }
+    SkCoincidentSpans** nextPtr() { return &fNext; }
     const SkOpPtT* oppPtTStart() const;
     const SkOpPtT* oppPtTEnd() const;
     // These return non-const pointers so that, as copies, they can be added
     // to a new span pair
-    SkOpPtT* oppPtTStartWritable() const { return const_cast<SkOpPtT*>(fOppPtTStart.get()); }
-    SkOpPtT* oppPtTEndWritable() const { return const_cast<SkOpPtT*>(fOppPtTEnd.get()); }
+    SkOpPtT* oppPtTStartWritable() const { return const_cast<SkOpPtT*>(fOppPtTStart); }
+    SkOpPtT* oppPtTEndWritable() const { return const_cast<SkOpPtT*>(fOppPtTEnd); }
     bool ordered(bool* result) const;
 
     void set(SkCoincidentSpans* next, const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
@@ -128,12 +127,12 @@ public:
     void setNext(SkCoincidentSpans* next) { fNext = next; }
 
 private:
-    raw_ptr<SkCoincidentSpans> fNext;
-    raw_ptr<const SkOpPtT> fCoinPtTStart;
-    raw_ptr<const SkOpPtT> fCoinPtTEnd;
-    raw_ptr<const SkOpPtT> fOppPtTStart;
-    raw_ptr<const SkOpPtT> fOppPtTEnd;
-    SkDEBUGCODE(raw_ptr<SkOpGlobalState> fGlobalState;)
+    SkCoincidentSpans* fNext;
+    const SkOpPtT* fCoinPtTStart;
+    const SkOpPtT* fCoinPtTEnd;
+    const SkOpPtT* fOppPtTStart;
+    const SkOpPtT* fOppPtTEnd;
+    SkDEBUGCODE(SkOpGlobalState* fGlobalState;)
 };
 
 class SkOpCoincidence {
@@ -283,22 +282,22 @@ private:
     void debugAddEndMovedSpans(SkPathOpsDebug::GlitchLog* ,
                                const SkOpPtT* ptT) const;
 #endif
-    void fixUp(raw_ptr<SkCoincidentSpans>* headPtr, SkOpPtT* deleted, const SkOpPtT* kept);
-    void markCollapsed(raw_ptr<SkCoincidentSpans>* headPtr, SkOpPtT* test);
+    void fixUp(SkCoincidentSpans** headPtr, SkOpPtT* deleted, const SkOpPtT* kept);
+    void markCollapsed(SkCoincidentSpans** headPtr, SkOpPtT* test);
     bool overlap(const SkOpPtT* coinStart1, const SkOpPtT* coinEnd1,
                  const SkOpPtT* coinStart2, const SkOpPtT* coinEnd2,
                  double* overS, double* overE) const;
-    bool release(raw_ptr<SkCoincidentSpans>* headPtr, SkCoincidentSpans*);
-    void release(raw_ptr<SkCoincidentSpans>* headPtr, const SkOpSegment*);
-    void releaseDeleted(raw_ptr<SkCoincidentSpans>* headPtr);
+    bool release(SkCoincidentSpans** headPtr, SkCoincidentSpans*);
+    void release(SkCoincidentSpans** headPtr, const SkOpSegment*);
+    void releaseDeleted(SkCoincidentSpans** headPtr);
     void restoreHead();
     // return coinPtT->segment()->t mapped from overS->fT <= t <= overE->fT
     static double TRange(const SkOpPtT* overS, double t, const SkOpSegment* coinPtT
                          SkDEBUGPARAMS(const SkOpPtT* overE));
 
-    raw_ptr<SkCoincidentSpans> fHead;
-    raw_ptr<SkCoincidentSpans> fTop;
-    raw_ptr<SkOpGlobalState> fGlobalState;
+    SkCoincidentSpans* fHead;
+    SkCoincidentSpans* fTop;
+    SkOpGlobalState* fGlobalState;
     bool fContinue;
     bool fSpanDeleted;
     bool fPtAllocated;

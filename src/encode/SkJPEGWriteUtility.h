@@ -10,7 +10,6 @@
 #define SkJpegUtility_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstdint>
 
@@ -32,7 +31,7 @@ void skjpeg_error_exit(j_common_ptr cinfo);
 struct SK_SPI skjpeg_destination_mgr : jpeg_destination_mgr {
     skjpeg_destination_mgr(SkWStream* stream);
 
-    const raw_ptr<SkWStream> fStream;
+    SkWStream* const fStream;
 
     enum {
         kBufferSize = 1024

@@ -15,7 +15,6 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
 #include "src/image/SkSurface_Base.h"
-#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstring>
 
@@ -70,7 +69,7 @@ public:
 
 private:
     SkBitmap fBitmap;
-    raw_ptr<skcpu::Recorder> fRecorder;
+    skcpu::Recorder* fRecorder;
     bool fWeOwnThePixels;
 };
 

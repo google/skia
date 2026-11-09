@@ -10,7 +10,6 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/pathops/SkPathOpsDebug.h"
 
 #include <cfloat>
@@ -179,16 +178,16 @@ public:
     }
 
 private:
-    raw_ptr<SkArenaAlloc> fAllocator;
-    raw_ptr<SkOpCoincidence> fCoincidence;
-    raw_ptr<SkOpContourHead> fContourHead;
+    SkArenaAlloc* fAllocator;
+    SkOpCoincidence* fCoincidence;
+    SkOpContourHead* fContourHead;
     int fNested;
     bool fAllocatedOpSpan;
     bool fWindingFailed;
     SkOpPhase fPhase;
 #ifdef SK_DEBUG
     const char* fDebugTestName;
-    raw_ptr<void> fDebugReporter;
+    void* fDebugReporter;
     int fAngleID;
     int fCoinID;
     int fContourID;

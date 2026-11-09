@@ -15,7 +15,6 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/pathops/SkOpSegment.h"
 #include "src/pathops/SkOpSpan.h"
 #include "src/pathops/SkPathOpsBounds.h"
@@ -382,10 +381,10 @@ public:
     SkOpSpan* undoneSpan();
 
 protected:
-    raw_ptr<SkOpGlobalState> fState;
+    SkOpGlobalState* fState;
     SkOpSegment fHead;
-    raw_ptr<SkOpSegment> fTail;
-    raw_ptr<SkOpContour> fNext;
+    SkOpSegment* fTail;
+    SkOpContour* fNext;
     SkPathOpsBounds fBounds;
     int fCcw;
     int fCount;

@@ -1157,7 +1157,7 @@ bool SkOpCoincidence::apply(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
 }
 
 // Please keep this in sync with debugRelease()
-bool SkOpCoincidence::release(raw_ptr<SkCoincidentSpans>* headPtr, SkCoincidentSpans* remove) {
+bool SkOpCoincidence::release(SkCoincidentSpans** headPtr, SkCoincidentSpans* remove)  {
     while (SkCoincidentSpans* coin = *headPtr) {
         if (coin == remove) {
             *headPtr = coin->next();
@@ -1168,7 +1168,7 @@ bool SkOpCoincidence::release(raw_ptr<SkCoincidentSpans>* headPtr, SkCoincidentS
     return false;
 }
 
-void SkOpCoincidence::releaseDeleted(raw_ptr<SkCoincidentSpans>* headPtr) {
+void SkOpCoincidence::releaseDeleted(SkCoincidentSpans** headPtr) {
     SkASSERT(headPtr == &fHead || headPtr == &fTop);
     while (SkCoincidentSpans* coin = *headPtr) {
         if (coin->coinPtTStart()->deleted()) {
@@ -1189,7 +1189,7 @@ void SkOpCoincidence::releaseDeleted() {
 }
 
 void SkOpCoincidence::restoreHead() {
-    raw_ptr<SkCoincidentSpans>* headPtr = &fHead;
+    SkCoincidentSpans** headPtr = &fHead;
     while (*headPtr) {
         headPtr = (*headPtr)->nextPtr();
     }
@@ -1282,9 +1282,7 @@ void SkOpCoincidence::fixUp(SkOpPtT* deleted, const SkOpPtT* kept) {
     }
 }
 
-void SkOpCoincidence::fixUp(raw_ptr<SkCoincidentSpans>* headPtr,
-                            SkOpPtT* deleted,
-                            const SkOpPtT* kept) {
+void SkOpCoincidence::fixUp(SkCoincidentSpans** headPtr, SkOpPtT* deleted, const SkOpPtT* kept) {
     while (SkCoincidentSpans* coin = *headPtr) {
         if (coin->coinPtTStart() == deleted) {
             if (coin->coinPtTEnd()->span() == kept->span()) {
@@ -1366,7 +1364,7 @@ bool SkOpCoincidence::mark(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
 }
 
 // Please keep in sync with debugMarkCollapsed()
-void SkOpCoincidence::markCollapsed(raw_ptr<SkCoincidentSpans>* headPtr, SkOpPtT* test) {
+void SkOpCoincidence::markCollapsed(SkCoincidentSpans** headPtr, SkOpPtT* test) {
     while (SkCoincidentSpans* coin = *headPtr) {
         if (coin->collapsed(test)) {
             if (zero_or_one(coin->coinPtTStart()->fT) && zero_or_one(coin->coinPtTEnd()->fT)) {
@@ -1419,7 +1417,7 @@ bool SkOpCoincidence::overlap(const SkOpPtT* coin1s, const SkOpPtT* coin1e,
     return *overS < *overE;
 }
 
-void SkOpCoincidence::release(raw_ptr<SkCoincidentSpans>* headPtr, const SkOpSegment* deleted) {
+void SkOpCoincidence::release(SkCoincidentSpans** headPtr, const SkOpSegment* deleted) {
     SkASSERT(headPtr == &fHead || headPtr == &fTop);
     while (SkCoincidentSpans* coin = *headPtr) {
         if (coin->coinPtTStart()->segment() == deleted
