@@ -318,7 +318,9 @@ public:
     enum ZeroInitialized {
         /**
          *  The memory passed to getPixels is zero initialized. The SkCodec
-         *  may take advantage of this by skipping writing zeroes.
+         *  may take advantage of this by skipping writing zeroes (except for
+         *  extended-range color types whose 0.0f encoding is non-zero bytes,
+         *  or when the destination holds a prior animation frame).
          */
         kYes_ZeroInitialized,
         /**
@@ -376,10 +378,12 @@ public:
          *  If fFrameIndex needs to be blended with a prior frame (as reported by
          *  getFrameInfo[fFrameIndex].fRequiredFrame), the client can set this to
          *  any non-kRestorePrevious frame in [fRequiredFrame, fFrameIndex) to
-         *  indicate that that frame is already in the dst. Options.fZeroInitialized
-         *  is ignored in this case.
+         *  indicate that that frame is already in the dst.
          *
          *  If set to kNoFrame, the codec will decode any necessary required frame(s) first.
+         *
+         *  Options.fZeroInitialized is ignored whenever fPriorFrame is not
+         *  kNoFrame, or after the codec decodes a required frame into dst.
          */
         int fPriorFrame;
 
@@ -510,13 +514,15 @@ public:
      *  first, or only initialize the remaining lines after the first call.
      *
      *  @param rowsDecoded Optional output variable returning the total number of
-     *      lines initialized. Only meaningful if this method returns kIncompleteInput.
-     *      Otherwise the implementation may not set it.
+     *      lines initialized. Always set when this method returns kIncompleteInput
+     *      or kErrorInInput; for other return values (such as kSuccess), some
+     *      implementations also set it while others leave it unmodified.
      *      Note that some implementations may have initialized this many rows, but
      *      not necessarily finished those rows (e.g. interlaced PNG). This may be
      *      useful for determining what rows the client needs to initialize.
      *  @return kSuccess if all lines requested in startIncrementalDecode have
-     *      been completely decoded. kIncompleteInput otherwise.
+     *      been completely decoded, kIncompleteInput if more data is needed, or
+     *      another error code on failure.
      */
     Result incrementalDecode(int* rowsDecoded = nullptr) {
         if (!fStartedIncrementalDecode) {
@@ -868,10 +874,10 @@ protected:
     virtual SkEncodedImageFormat onGetEncodedFormat() const = 0;
 
     /**
-     * @param rowsDecoded When the encoded image stream is incomplete, this function
-     *                    will return kIncompleteInput and rowsDecoded will be set to
-     *                    the number of scanlines that were successfully decoded.
-     *                    This will allow getPixels() to fill the uninitialized memory.
+     * @param rowsDecoded Set to the number of scanlines decoded when returning
+     *                    kIncompleteInput or kErrorInInput, so getPixels() can fill
+     *                    any remaining uninitialized memory (implementations may
+     *                    also set it on kSuccess).
      */
     virtual Result onGetPixels(const SkImageInfo& info,
                                void* pixels, size_t rowBytes, const Options&,
@@ -1093,8 +1099,9 @@ private:
     virtual int onGetScanlines(void* /*dst*/, int /*countLines*/, size_t /*rowBytes*/) { return 0; }
 
     /**
-     * On an incomplete decode, getPixels() and getScanlines() will call this function
-     * to fill any uinitialized memory.
+     * On an incomplete or corrupt decode, getPixels() and getScanlines() will call
+     * this function to fill any uninitialized memory (unless dst already holds a
+     * required prior frame or a pre-filled sub-rectangle frame).
      *
      * @param dstInfo        Contains the destination color type
      *                       Contains the destination alpha type
