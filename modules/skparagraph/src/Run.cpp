@@ -446,15 +446,6 @@ bool Cluster::isSoftBreak() const {
                                        SkUnicode::CodeUnitFlags::kSoftLineBreakBefore);
 }
 
-bool Cluster::isSoftHyphen() const {
-    // U+00AD has one valid UTF-8 form, so there is no need to decode the text.
-    if (fTextRange.width() != 2) {
-        return false;
-    }
-    const char* p = fOwner->text().begin() + fTextRange.start;
-    return static_cast<uint8_t>(p[0]) == 0xC2 && static_cast<uint8_t>(p[1]) == 0xAD;
-}
-
 bool Cluster::isGraphemeBreak() const {
     return fOwner->codeUnitHasProperty(fTextRange.end, SkUnicode::CodeUnitFlags::kGraphemeStart);
 }

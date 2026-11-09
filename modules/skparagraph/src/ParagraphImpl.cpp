@@ -354,7 +354,10 @@ Cluster::Cluster(ParagraphImpl* owner,
         , fEnd(end)
         , fWidth(width)
         , fHalfLetterSpacing(0.0)
-        , fIsIdeographic(false) {
+        , fIsIdeographic(false)
+        // U+00AD has one valid UTF-8 form, so there is no need to decode the text
+        , fIsSoftHyphen(text.size() == 2 && static_cast<uint8_t>(text[0]) == 0xC2 &&
+                        static_cast<uint8_t>(text[1]) == 0xAD) {
     size_t whiteSpacesBreakLen = 0;
     size_t intraWordBreakLen = 0;
 

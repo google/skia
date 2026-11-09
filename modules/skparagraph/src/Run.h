@@ -340,9 +340,12 @@ public:
     bool isIntraWordBreak() const { return fIsIntraWordBreak; }
     bool isHardBreak() const { return fIsHardBreak; }
     bool isIdeographic() const { return fIsIdeographic; }
+    // Cached in the constructor for performance: TextLine::justify asks this up to 3 times per
+    // cluster, and an out-of-line call that reads the text on every ask made justify layout
+    // noticeably slower in builds without LTO
+    bool isSoftHyphen() const { return fIsSoftHyphen; }
 
     bool isSoftBreak() const;
-    bool isSoftHyphen() const;
     bool isGraphemeBreak() const;
     bool canBreakLineAfter() const { return isHardBreak() || isSoftBreak(); }
     size_t startPos() const { return fStart; }
@@ -391,6 +394,7 @@ private:
     bool fIsIntraWordBreak;
     bool fIsHardBreak;
     bool fIsIdeographic;
+    bool fIsSoftHyphen;
 };
 
 class InternalLineMetrics {
