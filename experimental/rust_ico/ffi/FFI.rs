@@ -74,6 +74,8 @@ mod ffi {
     /// Information about a single image entry in the ICO directory.
     #[derive(Debug, Clone, Copy)]
     struct IcoEntry {
+        /// Position in the original directory, before sorting by payload offset.
+        pub directory_index: u32,
         /// Offset from start of file to the embedded image data.
         pub offset: u32,
         /// Size of the embedded image data in bytes.
@@ -117,6 +119,8 @@ mod ffi {
         fn image_count(self: &DirectoryResult) -> u32;
         /// Returns the entry at the given index. Panics if index >= image_count().
         fn get_entry(self: &DirectoryResult, index: u32) -> IcoEntry;
+        /// Returns the default representation in directory order, before sorting by offset.
+        fn default_entry(self: &DirectoryResult) -> IcoEntry;
 
         /// Create a new ICO image reader for a specific entry.
         /// `input` is the stream positioned at the embedded image data.
@@ -669,6 +673,7 @@ pub struct DirectoryResult {
     status: DirectoryParseResult,
     file_type: IcoFileType,
     entries: Vec<IcoEntry>,
+    default_entry: Option<IcoEntry>,
 }
 
 impl DirectoryResult {
@@ -677,6 +682,7 @@ impl DirectoryResult {
             status,
             file_type: IcoFileType::Icon,
             entries: Vec::new(),
+            default_entry: None,
         })
     }
 
@@ -685,6 +691,7 @@ impl DirectoryResult {
             status,
             file_type,
             entries: Vec::new(),
+            default_entry: None,
         })
     }
 
@@ -702,6 +709,10 @@ impl DirectoryResult {
 
     pub fn get_entry(&self, index: u32) -> IcoEntry {
         self.entries[index as usize]
+    }
+
+    pub fn default_entry(&self) -> IcoEntry {
+        self.default_entry.expect("successful ICO directory contains an entry")
     }
 }
 
@@ -810,6 +821,7 @@ fn parse_directory_from_data(data: &[u8]) -> Box<DirectoryResult> {
         };
 
         entries.push(IcoEntry {
+            directory_index: i as u32,
             offset,
             size,
             format,
@@ -821,6 +833,16 @@ fn parse_directory_from_data(data: &[u8]) -> Box<DirectoryResult> {
         });
     }
 
+    let default_entry = entries
+        .iter()
+        .enumerate()
+        .max_by_key(|(index, entry)| {
+            let width = if entry.width == 0 { 256 } else { u32::from(entry.width) };
+            let height = if entry.height == 0 { 256 } else { u32::from(entry.height) };
+            (width * height, entry.bit_count, std::cmp::Reverse(*index))
+        })
+        .map(|(_, entry)| *entry);
+
     // Sort entries by offset for proper sequential reading.
     // Note: C++ ICOImageDecoder sorts by size (largest first) for quality selection,
     // but SkIcoCodec sorts by offset. We follow SkIcoCodec's approach here.
@@ -830,6 +852,7 @@ fn parse_directory_from_data(data: &[u8]) -> Box<DirectoryResult> {
         status: DirectoryParseResult::Success,
         file_type,
         entries,
+        default_entry,
     })
 }
 

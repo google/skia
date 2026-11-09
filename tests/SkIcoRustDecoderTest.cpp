@@ -58,6 +58,145 @@ static std::unique_ptr<SkCodec> decode_ico(skiatest::Reporter* r, const char* pa
     return codec;
 }
 
+static uint32_t read_ico_u32(const uint8_t* ptr) {
+    return static_cast<uint32_t>(ptr[0]) | (static_cast<uint32_t>(ptr[1]) << 8) |
+           (static_cast<uint32_t>(ptr[2]) << 16) | (static_cast<uint32_t>(ptr[3]) << 24);
+}
+
+DEF_TEST(RustIcoCodec_default_image_dimensions, r) {
+    auto codec = decode_ico(r, "images/mixed-aspect.ico");
+    if (!codec) {
+        return;
+    }
+    const auto info = SkIcoRustDecoder::GetDefaultImageInfo(codec.get());
+    REPORTER_ASSERT(r, info);
+    if (!info) {
+        return;
+    }
+    REPORTER_ASSERT(r, codec->dimensions() == SkISize::Make(4, 4));
+    REPORTER_ASSERT(r, info->dimensions == SkISize::Make(4, 2));
+    REPORTER_ASSERT(r, !info->hotSpot);
+    REPORTER_ASSERT(r, info->hasCompatibleFrame);
+    REPORTER_ASSERT(r, !SkIcoRustDecoder::GetDefaultImageInfo(nullptr));
+
+    SkBitmap bitmap;
+    REPORTER_ASSERT(r, bitmap.tryAllocPixels(SkImageInfo::MakeN32Premul(4, 2)));
+    bitmap.eraseColor(SK_ColorMAGENTA);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(bitmap.pixmap()));
+    for (int y = 0; y < 2; ++y) {
+        for (int x = 0; x < 4; ++x) {
+            REPORTER_ASSERT(r, bitmap.getColor(x, y) == SK_ColorRED);
+        }
+    }
+}
+
+DEF_TEST(RustIcoCodec_default_directory_quality, r) {
+    sk_sp<SkData> data = GetResourceAsData("images/mixed-aspect.ico");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+    constexpr size_t kHeaderSize = 6;
+    constexpr size_t kEntrySize = 16;
+    constexpr size_t kBitDepthOffset = 6;
+    REPORTER_ASSERT(r, data->size() >= kHeaderSize + 2 * kEntrySize);
+    if (data->size() < kHeaderSize + 2 * kEntrySize) {
+        return;
+    }
+    const struct {
+        uint8_t firstWidth, firstHeight, firstDepth;
+        uint8_t secondWidth, secondHeight, secondDepth;
+        SkISize expected;
+    } cases[] = {
+            {4, 2, 8, 1, 4, 32, SkISize::Make(4, 2)},
+            {4, 2, 24, 1, 8, 32, SkISize::Make(1, 8)},
+            {0, 1, 32, 16, 16, 24, SkISize::Make(256, 1)},
+    };
+    for (const auto& test : cases) {
+        sk_sp<SkData> modified = SkData::MakeWithCopy(data->data(), data->size());
+        auto* first = static_cast<uint8_t*>(modified->writable_data()) + kHeaderSize;
+        auto* second = first + kEntrySize;
+        first[0] = test.firstWidth;
+        first[1] = test.firstHeight;
+        first[kBitDepthOffset] = test.firstDepth;
+        first[kBitDepthOffset + 1] = 0;
+        second[0] = test.secondWidth;
+        second[1] = test.secondHeight;
+        second[kBitDepthOffset] = test.secondDepth;
+        second[kBitDepthOffset + 1] = 0;
+        SkCodec::Result result;
+        auto codec = SkIcoRustDecoder::Decode(SkMemoryStream::Make(modified), &result);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+        REPORTER_ASSERT(r, codec);
+        if (!codec) {
+            continue;
+        }
+        const auto info = SkIcoRustDecoder::GetDefaultImageInfo(codec.get());
+        REPORTER_ASSERT(r, info);
+        if (info) {
+            REPORTER_ASSERT(r, info->dimensions == test.expected);
+        }
+    }
+}
+
+DEF_TEST(RustIcoCodec_default_image_partial_availability, r) {
+    sk_sp<SkData> original = GetResourceAsData("images/mixed-aspect.ico");
+    REPORTER_ASSERT(r, original);
+    if (!original) {
+        return;
+    }
+    constexpr size_t kSecondEntryOffset = 6 + 16;
+    constexpr size_t kPayloadOffset = 12;
+    REPORTER_ASSERT(r, original->size() >= kSecondEntryOffset + 16);
+    if (original->size() < kSecondEntryOffset + 16) {
+        return;
+    }
+    sk_sp<SkData> data = SkData::MakeWithCopy(original->data(), original->size());
+    auto* entry = static_cast<uint8_t*>(data->writable_data()) + kSecondEntryOffset;
+    // Prefer the second directory entry, whose payload fits a 1x8 output.
+    entry[1] = 8;
+    entry[6] = 32;
+    entry[7] = 0;
+    const size_t partialSize = read_ico_u32(entry + kPayloadOffset);
+    sk_sp<SkData> partial = SkData::MakeSubset(data.get(), 0, partialSize);
+    SkCodec::Result result;
+    auto partialCodec = SkIcoRustDecoder::Decode(SkMemoryStream::Make(partial), &result);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    REPORTER_ASSERT(r, partialCodec);
+    if (!partialCodec) {
+        return;
+    }
+    const auto partialInfo = SkIcoRustDecoder::GetDefaultImageInfo(partialCodec.get());
+    REPORTER_ASSERT(r, partialInfo);
+    if (!partialInfo) {
+        return;
+    }
+    REPORTER_ASSERT(r, partialInfo->dimensions == SkISize::Make(1, 8));
+    REPORTER_ASSERT(r, !partialInfo->hasCompatibleFrame);
+
+    auto completeCodec = SkIcoRustDecoder::Decode(SkMemoryStream::Make(data), &result);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    REPORTER_ASSERT(r, completeCodec);
+    if (!completeCodec) {
+        return;
+    }
+    const auto completeInfo = SkIcoRustDecoder::GetDefaultImageInfo(completeCodec.get());
+    REPORTER_ASSERT(r, completeInfo);
+    if (!completeInfo) {
+        return;
+    }
+    REPORTER_ASSERT(r, completeInfo->dimensions == partialInfo->dimensions);
+    REPORTER_ASSERT(r, completeInfo->hasCompatibleFrame);
+    SkBitmap bitmap;
+    REPORTER_ASSERT(r, bitmap.tryAllocPixels(SkImageInfo::MakeN32Premul(1, 8)));
+    bitmap.eraseColor(SK_ColorMAGENTA);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, completeCodec->getPixels(bitmap.pixmap()));
+    for (int y = 0; y < 8; ++y) {
+        REPORTER_ASSERT(r, bitmap.getColor(0, y) ==
+                                   (y < 4 ? SK_ColorBLUE : SK_ColorTRANSPARENT));
+    }
+}
+
 // Test decoding a valid ICO file with multiple BMP images.
 DEF_TEST(RustIcoCodec_decode_multi_bmp, r) {
     std::unique_ptr<SkCodec> codec = decode_ico(r, "images/color_wheel.ico");
@@ -383,9 +522,12 @@ DEF_TEST(RustIcoCodec_cursor_hotspots, r) {
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
     REPORTER_ASSERT(r, icoCodec);
 
-    SkIPoint hotSpot;
+    const SkIPoint kUnchangedHotSpot = SkIPoint::Make(-1, -1);
+    SkIPoint hotSpot = kUnchangedHotSpot;
     REPORTER_ASSERT(r, !SkIcoRustDecoder::GetHotSpot(nullptr, 0, &hotSpot));
+    REPORTER_ASSERT(r, hotSpot == kUnchangedHotSpot);
     REPORTER_ASSERT(r, !SkIcoRustDecoder::GetHotSpot(icoCodec.get(), 0, &hotSpot));
+    REPORTER_ASSERT(r, hotSpot == kUnchangedHotSpot);
 
     sk_sp<SkData> cursorData = GetResourceAsData("images/color_wheel.cur");
     REPORTER_ASSERT(r, cursorData);
@@ -416,8 +558,7 @@ DEF_TEST(RustIcoCodec_cursor_hotspots, r) {
     for (int frameIndex = 0; frameIndex < cursorCodec->getFrameCount(); ++frameIndex) {
         const int originalEntryIndex = static_cast<int>(entryCount) - frameIndex - 1;
         REPORTER_ASSERT(r, SkIcoRustDecoder::GetHotSpot(cursorCodec.get(), frameIndex, &hotSpot));
-        REPORTER_ASSERT(r, hotSpot.x() == originalEntryIndex + 1);
-        REPORTER_ASSERT(r, hotSpot.y() == originalEntryIndex + 6);
+        REPORTER_ASSERT(r, hotSpot == SkIPoint::Make(originalEntryIndex + 1, originalEntryIndex + 6));
         SkCodec::FrameInfo frameInfo;
         REPORTER_ASSERT(r, cursorCodec->getFrameInfo(frameIndex, &frameInfo));
         const size_t entryOffset = kDirectoryHeaderSize + originalEntryIndex * kDirectoryEntrySize;
@@ -426,16 +567,14 @@ DEF_TEST(RustIcoCodec_cursor_hotspots, r) {
         REPORTER_ASSERT(r, frameInfo.fFrameRect == SkIRect::MakeWH(width, height));
     }
 
+    hotSpot = kUnchangedHotSpot;
     REPORTER_ASSERT(r, !SkIcoRustDecoder::GetHotSpot(cursorCodec.get(), -1, &hotSpot));
-    REPORTER_ASSERT(r,
-                    !SkIcoRustDecoder::GetHotSpot(
-                            cursorCodec.get(), cursorCodec->getFrameCount(), &hotSpot));
+    REPORTER_ASSERT(r, hotSpot == kUnchangedHotSpot);
+    REPORTER_ASSERT(r, !SkIcoRustDecoder::GetHotSpot(
+                              cursorCodec.get(), cursorCodec->getFrameCount(), &hotSpot));
+    REPORTER_ASSERT(r, hotSpot == kUnchangedHotSpot);
     REPORTER_ASSERT(r, !SkIcoRustDecoder::GetHotSpot(cursorCodec.get(), 0, nullptr));
 
-    const auto readU32 = [](const uint8_t* ptr) {
-        return static_cast<uint32_t>(ptr[0]) | (static_cast<uint32_t>(ptr[1]) << 8) |
-               (static_cast<uint32_t>(ptr[2]) << 16) | (static_cast<uint32_t>(ptr[3]) << 24);
-    };
     const auto writeU32 = [](uint8_t* ptr, uint32_t value) {
         ptr[0] = static_cast<uint8_t>(value);
         ptr[1] = static_cast<uint8_t>(value >> 8);
@@ -443,7 +582,7 @@ DEF_TEST(RustIcoCodec_cursor_hotspots, r) {
         ptr[3] = static_cast<uint8_t>(value >> 24);
     };
     const uint8_t* firstEntry = bytes + kDirectoryHeaderSize;
-    const size_t firstPayloadEnd = readU32(firstEntry + 12) + readU32(firstEntry + 8);
+    const size_t firstPayloadEnd = read_ico_u32(firstEntry + 12) + read_ico_u32(firstEntry + 8);
     REPORTER_ASSERT(r, firstPayloadEnd <= cursorData->size());
     sk_sp<SkData> partialData = SkData::MakeSubset(cursorData.get(), 0, firstPayloadEnd);
     std::unique_ptr<SkCodec> partialCodec =
@@ -465,12 +604,34 @@ DEF_TEST(RustIcoCodec_cursor_hotspots, r) {
     REPORTER_ASSERT(r, SkIcoRustDecoder::GetHotSpot(completeAfterPartial.get(), 0, &hotSpot));
     REPORTER_ASSERT(r, hotSpot == SkIPoint::Make(5, 10));
 
+    sk_sp<SkData> zeroHotSpotData = SkData::MakeWithCopy(cursorData->data(), cursorData->size());
+    auto* zeroBytes = static_cast<uint8_t*>(zeroHotSpotData->writable_data());
+    std::memset(zeroBytes + kDirectoryHeaderSize +
+                        (entryCount - 1) * kDirectoryEntrySize + 4,
+                0, 4);
+    auto zeroHotSpotCodec =
+            SkIcoRustDecoder::Decode(SkMemoryStream::Make(zeroHotSpotData), &result);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    REPORTER_ASSERT(r, zeroHotSpotCodec);
+    if (!zeroHotSpotCodec) {
+        return;
+    }
+    REPORTER_ASSERT(r, SkIcoRustDecoder::GetHotSpot(zeroHotSpotCodec.get(), 0, &hotSpot));
+    REPORTER_ASSERT(r, hotSpot == SkIPoint::Make(0, 0));
+    const auto zeroInfo = SkIcoRustDecoder::GetDefaultImageInfo(zeroHotSpotCodec.get());
+    REPORTER_ASSERT(r, zeroInfo);
+    if (!zeroInfo) {
+        return;
+    }
+    REPORTER_ASSERT(r, zeroInfo->hotSpot.has_value());
+    REPORTER_ASSERT(r, zeroInfo->hotSpot == SkIPoint::Make(0, 0));
+
     // Build two equal-quality entries whose payload offsets are the reverse of
-    // their directory order. Stable sorting retains payload-offset order, and
+    // their directory order. Equal-quality frames retain directory order, and
     // each frame must retain the hotspot from its own directory record.
     const uint8_t* sourceEntry = bytes + kDirectoryHeaderSize;
-    const uint32_t sourcePayloadSize = readU32(sourceEntry + 8);
-    const uint32_t sourcePayloadOffset = readU32(sourceEntry + 12);
+    const uint32_t sourcePayloadSize = read_ico_u32(sourceEntry + 8);
+    const uint32_t sourcePayloadOffset = read_ico_u32(sourceEntry + 12);
     const size_t sourcePayloadEnd = static_cast<size_t>(sourcePayloadOffset) + sourcePayloadSize;
     REPORTER_ASSERT(r, sourcePayloadEnd <= cursorData->size());
     if (sourcePayloadEnd > cursorData->size()) {
@@ -508,16 +669,24 @@ DEF_TEST(RustIcoCodec_cursor_hotspots, r) {
     }
     REPORTER_ASSERT(r, equalQualityCodec->getFrameCount() == 2);
     REPORTER_ASSERT(r, SkIcoRustDecoder::GetHotSpot(equalQualityCodec.get(), 0, &hotSpot));
-    REPORTER_ASSERT(r, hotSpot == SkIPoint::Make(20, 21));
-    REPORTER_ASSERT(r, SkIcoRustDecoder::GetHotSpot(equalQualityCodec.get(), 1, &hotSpot));
     REPORTER_ASSERT(r, hotSpot == SkIPoint::Make(40, 41));
+    REPORTER_ASSERT(r, SkIcoRustDecoder::GetHotSpot(equalQualityCodec.get(), 1, &hotSpot));
+    REPORTER_ASSERT(r, hotSpot == SkIPoint::Make(20, 21));
+    const auto defaultInfo = SkIcoRustDecoder::GetDefaultImageInfo(equalQualityCodec.get());
+    REPORTER_ASSERT(r, defaultInfo);
+    if (!defaultInfo) {
+        return;
+    }
+    REPORTER_ASSERT(r, defaultInfo->hotSpot == SkIPoint::Make(40, 41));
+    REPORTER_ASSERT(r, defaultInfo->hasCompatibleFrame);
+    REPORTER_ASSERT(r, defaultInfo->dimensions == equalQualityCodec->dimensions());
 
     sk_sp<SkData> skippedEntryData = SkData::MakeWithCopy(cursorData->data(), cursorData->size());
     auto* skippedBytes = static_cast<uint8_t*>(skippedEntryData->writable_data());
     constexpr size_t kSkippedDirectoryIndex = 4;
     const uint8_t* skippedDirectoryEntry =
             skippedBytes + kDirectoryHeaderSize + kSkippedDirectoryIndex * kDirectoryEntrySize;
-    const size_t skippedPayloadOffset = readU32(skippedDirectoryEntry + 12);
+    const size_t skippedPayloadOffset = read_ico_u32(skippedDirectoryEntry + 12);
     REPORTER_ASSERT(r, skippedPayloadOffset + 4 <= skippedEntryData->size());
     if (skippedPayloadOffset + 4 > skippedEntryData->size()) {
         return;
@@ -544,8 +713,7 @@ DEF_TEST(RustIcoCodec_cursor_hotspots, r) {
     REPORTER_ASSERT(r, skippedEntryCodec->getFrameInfo(0, &fallbackFrameInfo));
     REPORTER_ASSERT(r, fallbackFrameInfo.fFrameRect == SkIRect::MakeWH(64, 64));
     for (int frameIndex = 0; frameIndex < skippedEntryCodec->getFrameCount(); ++frameIndex) {
-        REPORTER_ASSERT(
-                r, SkIcoRustDecoder::GetHotSpot(skippedEntryCodec.get(), frameIndex, &hotSpot));
+        REPORTER_ASSERT(r, SkIcoRustDecoder::GetHotSpot(skippedEntryCodec.get(), frameIndex, &hotSpot));
         REPORTER_ASSERT(r, hotSpot == kExpectedHotSpots[frameIndex]);
     }
 }

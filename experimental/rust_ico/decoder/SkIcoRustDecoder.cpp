@@ -36,4 +36,14 @@ bool GetHotSpot(const SkCodec* codec, int frameIndex, SkIPoint* hotSpot) {
     return static_cast<const SkIcoRustCodec*>(codec)->getHotSpot(frameIndex, hotSpot);
 }
 
+std::optional<DefaultImageInfo> GetDefaultImageInfo(const SkCodec* codec) {
+    if (!codec) {
+        return std::nullopt;
+    }
+    const auto* ico = static_cast<const SkIcoRustCodec*>(codec);
+    return DefaultImageInfo{ico->defaultDimensions(),
+                            ico->getDefaultHotSpot(),
+                            ico->defaultImageIsAvailable()};
+}
+
 }  // namespace SkIcoRustDecoder

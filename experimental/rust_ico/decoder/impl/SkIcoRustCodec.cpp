@@ -134,6 +134,12 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(std::unique_ptr<SkStream
     }
 
     const uint32_t numImages = directoryResult->image_count();
+    const rust_ico::IcoEntry defaultEntry = directoryResult->default_entry();
+    const SkISize defaultDimensions = SkISize::Make(
+            defaultEntry.width == 0 ? 256 : defaultEntry.width,
+            defaultEntry.height == 0 ? 256 : defaultEntry.height);
+    const SkIPoint defaultHotSpot =
+            SkIPoint::Make(defaultEntry.hotspot_x, defaultEntry.hotspot_y);
 
     // Determine a stable canvas that contains every directory entry (a width or
     // height byte of 0 means 256 per the ICO spec). Unlike legacy SkIcoCodec,
@@ -177,6 +183,7 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(std::unique_ptr<SkStream
         SkISize reportedFrameSize;
         SkIPoint hotSpot;
         uint16_t bitCount;
+        uint32_t directoryIndex;
     };
     std::vector<CodecEntry> entries;
     entries.reserve(numImages);
@@ -271,6 +278,7 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(std::unique_ptr<SkStream
                     directorySize,
                     hotSpot,
                     entry.bit_count,
+                    entry.directory_index,
             });
         }
     }
@@ -309,7 +317,13 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(std::unique_ptr<SkStream
                          const SkISize bDims = b.codec->dimensions();
                          const int64_t aArea = aDims.area();
                          const int64_t bArea = bDims.area();
-                         return aArea != bArea ? aArea > bArea : a.bitCount > b.bitCount;
+                         if (aArea != bArea) {
+                             return aArea > bArea;
+                         }
+                         if (a.bitCount != b.bitCount) {
+                             return a.bitCount > b.bitCount;
+                         }
+                         return a.directoryIndex < b.directoryIndex;
                      });
 
     if (!fitsReportedFrame(entries.front()) && hasIncompleteEntry) {
@@ -346,18 +360,23 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(std::unique_ptr<SkStream
     // incomplete-input case returned above so clients can retry with more data.
     *result = kSuccess;
     return std::unique_ptr<SkCodec>(new SkIcoRustCodec(
-            std::move(maxInfo), std::move(stream), std::move(embeddedImages), isCursor));
+            std::move(maxInfo), std::move(stream), std::move(embeddedImages), isCursor,
+            defaultDimensions, defaultHotSpot));
 }
 
 SkIcoRustCodec::SkIcoRustCodec(SkEncodedInfo&& info,
                                std::unique_ptr<SkStream> stream,
                                std::vector<EmbeddedImage> embeddedImages,
-                               bool isCursor)
+                               bool isCursor,
+                               SkISize defaultDimensions,
+                               SkIPoint defaultHotSpot)
         // The source skcms_PixelFormat will not be used. The embedded
         // codec's will be used instead.
         : INHERITED(std::move(info), skcms_PixelFormat(), std::move(stream))
         , fEmbeddedImages(std::move(embeddedImages))
         , fIsCursor(isCursor)
+        , fDefaultDimensions(defaultDimensions)
+        , fDefaultHotSpot(defaultHotSpot)
         , fCurrCodec(nullptr) {
     fFrameHolder.setScreenSize(this->dimensions().width(), this->dimensions().height());
     for (int i = 0; i < SkToInt(fEmbeddedImages.size()); ++i) {
@@ -374,6 +393,17 @@ bool SkIcoRustCodec::getHotSpot(int frameIndex, SkIPoint* hotSpot) const {
     }
     *hotSpot = fEmbeddedImages[frameIndex].fHotSpot;
     return true;
+}
+
+std::optional<SkIPoint> SkIcoRustCodec::getDefaultHotSpot() const {
+    if (!fIsCursor) {
+        return std::nullopt;
+    }
+    return fDefaultHotSpot;
+}
+
+bool SkIcoRustCodec::defaultImageIsAvailable() const {
+    return this->chooseFallbackCodec(fDefaultDimensions) >= 0;
 }
 
 SkIcoRustCodec::Frame::Frame(int index, const SkImageInfo& info, SkEncodedInfo::Alpha alpha)
@@ -420,7 +450,7 @@ SkISize SkIcoRustCodec::onGetScaledDimensions(float desiredScale) const {
                                              : this->dimensions();
 }
 
-int SkIcoRustCodec::chooseCodec(const SkISize& requestedSize, int startIndex) {
+int SkIcoRustCodec::chooseCodec(const SkISize& requestedSize, int startIndex) const {
     SkASSERT_RELEASE(startIndex >= 0);
 
     for (int i = startIndex; i < SkToInt(fEmbeddedImages.size()); i++) {
@@ -435,12 +465,24 @@ int SkIcoRustCodec::chooseCodec(const SkISize& requestedSize, int startIndex) {
     return -1;
 }
 
+int SkIcoRustCodec::chooseFallbackCodec(const SkISize& requestedSize) const {
+    for (int i = 0; i < SkToInt(fEmbeddedImages.size()); ++i) {
+        const EmbeddedImage& image = fEmbeddedImages[i];
+        const SkISize dimensions = image.fCodec->dimensions();
+        if (dimensions_fit_within(dimensions, image.fReportedFrameSize) &&
+            dimensions_fit_within(dimensions, requestedSize)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 /*
  * Any embedded entry's dimensions are a valid decode size. ICO entries are
  * alternative representations, selected by the requested destination size.
  */
 bool SkIcoRustCodec::onDimensionsSupported(const SkISize& dim) {
-    return this->chooseCodec(dim, 0) >= 0;
+    return dim == fDefaultDimensions || this->chooseCodec(dim, 0) >= 0;
 }
 
 /*
@@ -472,11 +514,8 @@ SkCodec::Result SkIcoRustCodec::selectAndDecode(const SkISize& dims, const Optio
     }
 
     int index = this->chooseCodec(dims, 0);
-    if (index < 0 && dims == this->dimensions()) {
-        const EmbeddedImage& fallback = fEmbeddedImages.front();
-        if (dimensions_fit_within(fallback.fCodec->dimensions(), fallback.fReportedFrameSize)) {
-            index = 0;
-        }
+    if (index < 0 && (dims == this->dimensions() || dims == fDefaultDimensions)) {
+        index = this->chooseFallbackCodec(dims);
     }
     if (index < 0) {
         return kInvalidScale;
