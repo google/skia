@@ -24,7 +24,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chrome-internal.googlesource.com/chrome/agents-internal": {
 		Id:      "chrome-internal.googlesource.com/chrome/agents-internal",
-		Version: "f85c3dd9f2827b62dc37a70251148a4211b5aa21",
+		Version: "4fd2920b271aa4f58f5294b2d24e2a21612dd40a",
 		Path:    "_agents/chromium-internal",
 	},
 	"chromium.googlesource.com/angle/angle": {

@@ -117,7 +117,7 @@ deps = {
   '_agents/chromium-shared': 'https://chromium.googlesource.com/chromium/agents/@81620e25d42f1393c299897a78a465f4a75b82da',
 
   '_agents/chromium-internal': {
-    'url': 'https://chrome-internal.googlesource.com/chrome/agents-internal/@f85c3dd9f2827b62dc37a70251148a4211b5aa21',
+    'url': 'https://chrome-internal.googlesource.com/chrome/agents-internal/@4fd2920b271aa4f58f5294b2d24e2a21612dd40a',
     'condition': 'checkout_agents_internal',
   },
 }
