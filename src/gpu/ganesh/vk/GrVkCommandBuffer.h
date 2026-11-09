@@ -331,7 +331,9 @@ public:
                        skia_private::TArray<GrVkSemaphore::Resource*>& waitSemaphores,
                        const GrSubmitInfo&);
 
-    void forceSync(GrVkGpu* gpu);
+    // Blocks until the last submission of this command buffer has finished executing. Returns
+    // false if the wait did not succeed (e.g. VK_ERROR_DEVICE_LOST).
+    bool forceSync(GrVkGpu* gpu);
 
     bool finished(GrVkGpu* gpu);
 
