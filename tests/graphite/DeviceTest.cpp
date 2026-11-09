@@ -9,11 +9,15 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkVertices.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
+
+#include "src/gpu/graphite/DrawListBase.h"
+#include "src/gpu/graphite/Renderer.h"
 
 namespace skgpu::graphite {
 
@@ -79,6 +83,68 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(DeviceTestVertexTransparency, reporter, conte
     SkColor expected = 0xFF807F00;
     REPORTER_ASSERT(
             reporter, color == expected, "Wrong color, expected %08x, found %08x", expected, color);
+}
+
+// Tests that large clip stacks flush appropriately when handleable and safely skip draws when a
+// single draw's effective clip elements exceed DrawListBase::kMaxRenderSteps.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(DeviceTestClipRenderStepLimits,
+                                   reporter,
+                                   context,
+                                   CtsEnforcement::kNextRelease) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    SkImageInfo ii = SkImageInfo::Make(SkISize::Make(64, 64),
+                                       SkColorType::kRGBA_8888_SkColorType,
+                                       SkAlphaType::kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), ii);
+    SkCanvas* canvas = surface->getCanvas();
+
+    SkPaint paint;
+    paint.setColor(SK_ColorGREEN);
+
+    auto makeClipTriangle = [](int index) {
+        float shift = index * 0.01f;
+        SkPathBuilder builder;
+        builder.moveTo(shift, 0.f);
+        builder.lineTo(64.f, 8.f + shift * 0.5f);
+        builder.lineTo(8.f, 64.f - shift);
+        builder.close();
+        return builder.detach();
+    };
+
+    // 1. Handleable case: accumulate clips and draws that fit within a single pass individually
+    //    but require flushing across multiple batches when total render steps approach
+    //    DrawListBase::kMaxRenderSteps, while also issuing multiple draws under the same clip stack
+    //    to exercise already-drawn clip tracking (`undrawnClipElements < clipElements.size()`).
+    for (int batch = 0; batch < 10; ++batch) {
+        canvas->save();
+        for (int subBatch = 0; subBatch < 2; ++subBatch) {
+            for (int i = 0; i < 150; ++i) {
+                canvas->clipPath(makeClipTriangle(batch * 1000 + subBatch * 150 + i),
+                                 SkClipOp::kIntersect,
+                                 /*doAntiAlias=*/false);
+            }
+            canvas->drawRect(SkRect::MakeWH(64, 64), paint);
+            canvas->drawRect(SkRect::MakeWH(64, 64), paint);
+        }
+        canvas->restore();
+    }
+
+    // 2. Pathological case: a single draw with more effective clip elements than can fit in one
+    //    DrawList even after flushing. This should be skipped without asserting or overflowing.
+    constexpr int kPathologicalClipCount =
+            DrawListBase::kMaxRenderSteps / Renderer::kMaxRenderSteps + 10;
+    canvas->save();
+    for (int i = 0; i < kPathologicalClipCount; ++i) {
+        canvas->clipPath(makeClipTriangle(20000 + i), SkClipOp::kIntersect, /*doAntiAlias=*/false);
+    }
+    canvas->drawRect(SkRect::MakeWH(64, 64), paint);
+    canvas->restore();
+
+    // 3. Subsequent normal draw after restoring the pathological clip stack should still succeed.
+    canvas->drawRect(SkRect::MakeWH(64, 64), paint);
+
+    std::unique_ptr<Recording> recording = recorder->snap();
+    REPORTER_ASSERT(reporter, recording != nullptr);
 }
 
 }  // namespace skgpu::graphite
