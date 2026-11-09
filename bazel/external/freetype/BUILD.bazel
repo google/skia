@@ -25,15 +25,6 @@ FREETYPE_PUBLIC_DEFINES = [
             "FT_CONFIG_MODULES_H=<no-type1-ftmodule.h>",
             "FT_CONFIG_OPTIONS_H=<no-type1-ftoption.h>",
         ],
-        "@platforms//os:windows": [
-            # On Windows, the shell doesn't like the angle brackets, so we need
-            # to escape them, and we need to escape them twice (meaning that we
-            # also escape the escape character, '^') so that they make it
-            # through from Bazel to the trampoline script and from the
-            # trampoline script to Clang.
-            "FT_CONFIG_MODULES_H=^^^<android-ftmodule.h^^^>",
-            "FT_CONFIG_OPTIONS_H=^^^<android-ftoption.h^^^>",
-        ],
         "//conditions:default": [
             "FT_CONFIG_MODULES_H=<android-ftmodule.h>",
             "FT_CONFIG_OPTIONS_H=<android-ftoption.h>",

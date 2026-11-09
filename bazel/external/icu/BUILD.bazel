@@ -580,6 +580,7 @@ ICU_HDRS = [
     "source/i18n/zonemeta.h",
     "source/i18n/zrule.h",
     "source/i18n/ztrans.h",
+    "source/stubdata/stubdata.h",
     # We expect this to be copied in via the repository_rule that checks out icu
     "SkLoadICU.h",
 ]

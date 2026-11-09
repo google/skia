@@ -354,14 +354,23 @@ def _make_default_flags(clang_toolchain):
         flag_groups = [
             flag_group(
                 flags = [
+                    "-fuse-ld=lld",
+                    "-Wno-msvc-not-found",
                     "/MT",  # clang in GCC mode implies the static C runtime (/MT) by default
                     "/link",
                     "/subsystem:console",  # Make a console window and look for main()
+                    # Standard C++ libraries are included here but feature libraries should be in
+                    # linkopts per target.
                     "libcpmt.lib",  # Standard C++ library
                     "libcmt.lib",  # static core C runtime
                     "libvcruntime.lib",  # Visual C++
                     "libucrt.lib",  # Universal C Runtime
                     "kernel32.lib",  # Win32 base API
+                    "user32.lib",  # Desktop Windowing and Input
+                    "gdi32.lib",  # Graphics Device Interface
+                    "dbghelp.lib",  # Debug & Symbol Engine
+                    "ole32.lib",  # COM (Component Object Model) Core
+                    "advapi32.lib",  # Advanced Windows Base API
                     "ntdll.lib",  # native NT system services.
                     "/LIBPATH:" + full_msvc_lib + "/x64",
                     "/LIBPATH:" + full_win_sdk_lib + "/ucrt/x64",

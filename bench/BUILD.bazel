@@ -115,7 +115,6 @@ skia_filegroup(
         "MorphologyBench.cpp",
         "MutexBench.cpp",
         "PDFBench.cpp",
-        "ParagraphBench.cpp",
         "PatchBench.cpp",
         "PathBench.cpp",
         "PathIterBench.cpp",
@@ -190,6 +189,10 @@ skia_cc_binary(
     ],
     data = [
         "//resources",
+    ],
+    linkopts = [
+        "dwrite.lib",  # DirectWrite Typography
+        "opengl32.lib",  # OpenGL Runtime & WGL Extensions
     ],
     deps = [
         "//:bmp_decode_codec",
