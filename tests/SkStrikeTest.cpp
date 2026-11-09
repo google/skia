@@ -38,7 +38,9 @@
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/core/SkZip.h"
+#include "src/effects/SkEmbossMaskFilter.h"
 #include "src/text/StrikeForGPU.h"
+#include "src/text/gpu/SDFMaskFilter.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -52,6 +54,7 @@
 #include <functional>
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <tuple>
 #include <vector>
 
@@ -389,3 +392,370 @@ DEF_TEST(SkScalerContext_GetImageNonDeterministicBounds, reporter) {
     }
 }
 
+namespace {
+// Creates a synthetic typeface whose first and subsequent glyph metric queries return
+// caller-specified bounds, mask formats, and optional outline paths, while generateImage() fills
+// raster glyph buffers with 0xAA
+sk_sp<SkTypeface> make_sequenced_typeface(SkRect firstBounds,
+                                          SkMask::Format firstFormat,
+                                          SkRect secondBounds,
+                                          SkMask::Format secondFormat,
+                                          std::optional<SkPath> firstPath = std::nullopt,
+                                          std::optional<SkPath> secondPath = std::nullopt) {
+    class SequencedTypeface final : public TestEmptyTypeface {
+    public:
+        SequencedTypeface(SkRect firstBounds,
+                          SkMask::Format firstFormat,
+                          SkRect secondBounds,
+                          SkMask::Format secondFormat,
+                          std::optional<SkPath> firstPath,
+                          std::optional<SkPath> secondPath)
+                : fFirstBounds(firstBounds)
+                , fFirstFormat(firstFormat)
+                , fSecondBounds(secondBounds)
+                , fSecondFormat(secondFormat)
+                , fFirstPath(std::move(firstPath))
+                , fSecondPath(std::move(secondPath)) {}
+
+    protected:
+        std::unique_ptr<SkScalerContext> onCreateScalerContext(
+                const SkScalerContextEffects& effects, const SkDescriptor* desc) const override {
+            class ScalerContext final : public SkScalerContext {
+            public:
+                ScalerContext(SequencedTypeface& tf,
+                              const SkScalerContextEffects& effects,
+                              const SkDescriptor* desc)
+                        : SkScalerContext(tf, effects, desc), fTypeface(tf) {}
+
+            protected:
+                GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) override {
+                    const bool isFirst = (fMetricsCallCount++ == 0);
+                    GlyphMetrics mx(isFirst ? fTypeface.fFirstFormat : fTypeface.fSecondFormat);
+                    const std::optional<SkPath>& path =
+                            isFirst ? fTypeface.fFirstPath : fTypeface.fSecondPath;
+                    if (path.has_value()) {
+                        mx.generatedPath = GeneratedPath{*path, false};
+                    } else {
+                        // Force the raster getImage() path instead of drawing from a glyph path
+                        mx.neverRequestPath = true;
+                    }
+                    mx.bounds = isFirst ? fTypeface.fFirstBounds : fTypeface.fSecondBounds;
+                    return mx;
+                }
+
+                void generateImage(const SkGlyph& glyph, void* imageBuffer) override {
+                    memset(imageBuffer, 0xAA, glyph.rowBytes() * glyph.height());
+                }
+
+                std::optional<GeneratedPath> generatePath(const SkGlyph&) override {
+                    return std::nullopt;
+                }
+
+                void generateFontMetrics(SkFontMetrics*) override {}
+
+            private:
+                const SequencedTypeface& fTypeface;
+                int fMetricsCallCount = 0;
+            };
+
+            return std::make_unique<ScalerContext>(
+                    *const_cast<SequencedTypeface*>(this), effects, desc);
+        }
+
+    private:
+        const SkRect fFirstBounds;
+        const SkMask::Format fFirstFormat;
+        const SkRect fSecondBounds;
+        const SkMask::Format fSecondFormat;
+        const std::optional<SkPath> fFirstPath;
+        const std::optional<SkPath> fSecondPath;
+    };
+
+    return sk_make_sp<SequencedTypeface>(firstBounds,
+                                         firstFormat,
+                                         secondBounds,
+                                         secondFormat,
+                                         std::move(firstPath),
+                                         std::move(secondPath));
+}
+}  // namespace
+
+// Verifies that getImage() zeroes the destination buffer instead of overflowing 1-bit rows
+// or aborting when consecutive glyph loads diverge in bounds or mask format under a mask filter
+DEF_TEST(SkScalerContext_GetImageMaskFormatMismatchAndSubByte, reporter) {
+    // 1-bit kBW_Format with a no-op blur (sigma 0.1) and wider second-load bounds: a byte-per-pixel
+    // fallback copy would write 64 bytes per row into 8-byte (64-bit) destination rows
+    {
+        sk_sp<SkTypeface> tf = make_sequenced_typeface(SkRect::MakeWH(64, 10),
+                                                       SkMask::kBW_Format,
+                                                       SkRect::MakeWH(72, 20),
+                                                       SkMask::kBW_Format);
+        SkFont font(tf, 16.0f);
+        font.setEdging(SkFont::Edging::kAlias);
+        SkPaint paint;
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 0.1f));
+
+        SkStrikeSpec strikeSpec =
+                SkStrikeSpec::MakeMask(font,
+                                       paint,
+                                       SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                                       SkScalerContextFlags::kNone,
+                                       SkMatrix::I());
+        std::unique_ptr<SkScalerContext> context = strikeSpec.createScalerContext();
+
+        char storage[1024];
+        memset(storage, 0x5A, sizeof(storage));
+        SkArenaAlloc alloc(storage, sizeof(storage), 1024);
+        SkGlyph glyph = context->makeGlyph(SkPackedGlyphID((SkGlyphID)1), &alloc);
+        REPORTER_ASSERT(reporter, glyph.maskFormat() == SkMask::kBW_Format);
+        REPORTER_ASSERT(reporter, glyph.imageSize() > 0 && glyph.imageSize() == 80);
+        REPORTER_ASSERT(reporter, glyph.setImage(&alloc, context.get()));
+
+        const uint8_t* bytes = static_cast<const uint8_t*>(glyph.image());
+        for (size_t i = 0; i < glyph.imageSize(); ++i) {
+            REPORTER_ASSERT(reporter, bytes[i] == 0);
+        }
+    }
+
+    // filterMask() succeeds on initial kA8 bounds (setting origGlyph to k3D_Format), then rejects
+    // the second load's kBW_Format glyph, leaving srcMask.fFormat != origGlyph.fMaskFormat
+    {
+        SkEmbossMaskFilter::Light light{{1.0f, 1.0f, 1.0f}, 0, 128, 16};
+        sk_sp<SkTypeface> tf = make_sequenced_typeface(SkRect::MakeWH(10, 10),
+                                                       SkMask::kA8_Format,
+                                                       SkRect::MakeWH(10, 10),
+                                                       SkMask::kBW_Format);
+        SkFont font(tf, 16.0f);
+        SkPaint paint;
+        paint.setMaskFilter(SkEmbossMaskFilter::Make(1.0f, light));
+
+        SkStrikeSpec strikeSpec =
+                SkStrikeSpec::MakeMask(font,
+                                       paint,
+                                       SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                                       SkScalerContextFlags::kNone,
+                                       SkMatrix::I());
+        std::unique_ptr<SkScalerContext> context = strikeSpec.createScalerContext();
+
+        char storage[1024];
+        memset(storage, 0x5A, sizeof(storage));
+        SkArenaAlloc alloc(storage, sizeof(storage), 1024);
+        SkGlyph glyph = context->makeGlyph(SkPackedGlyphID((SkGlyphID)1), &alloc);
+        REPORTER_ASSERT(reporter, glyph.maskFormat() == SkMask::k3D_Format);
+        REPORTER_ASSERT(reporter, glyph.imageSize() > 0 && glyph.imageSize() == 300);
+        REPORTER_ASSERT(reporter, glyph.setImage(&alloc, context.get()));
+
+        const uint8_t* bytes = static_cast<const uint8_t*>(glyph.image());
+        for (size_t i = 0; i < glyph.imageSize(); ++i) {
+            REPORTER_ASSERT(reporter, bytes[i] == 0);
+        }
+    }
+}
+
+// Verifies that clipped mask-filtered glyphs zero all 3 k3D planes and step by per-plane strides,
+// while still copying overlapping 1-byte-per-pixel kSDF masks
+DEF_TEST(SkScalerContext_GetImageClipped3DAndSDF, reporter) {
+    {
+        SkEmbossMaskFilter::Light light{{1.0f, 1.0f, 1.0f}, 0, 128, 16};
+        sk_sp<SkTypeface> tf = make_sequenced_typeface(SkRect::MakeWH(10, 10),
+                                                       SkMask::kA8_Format,
+                                                       SkRect::MakeWH(10, 6),
+                                                       SkMask::kA8_Format);
+        SkFont font(tf, 16.0f);
+        SkPaint paint;
+        paint.setMaskFilter(SkEmbossMaskFilter::Make(1.0f, light));
+
+        SkStrikeSpec strikeSpec =
+                SkStrikeSpec::MakeMask(font,
+                                       paint,
+                                       SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                                       SkScalerContextFlags::kNone,
+                                       SkMatrix::I());
+        std::unique_ptr<SkScalerContext> context = strikeSpec.createScalerContext();
+
+        char storage[1024];
+        memset(storage, 0x5A, sizeof(storage));
+        SkArenaAlloc alloc(storage, sizeof(storage), 1024);
+        SkGlyph glyph = context->makeGlyph(SkPackedGlyphID((SkGlyphID)1), &alloc);
+        REPORTER_ASSERT(reporter, glyph.maskFormat() == SkMask::k3D_Format);
+        REPORTER_ASSERT(reporter, glyph.imageSize() == 300);
+        REPORTER_ASSERT(reporter, glyph.setImage(&alloc, context.get()));
+
+        const uint8_t* bytes = static_cast<const uint8_t*>(glyph.image());
+        for (int plane = 0; plane < 3; ++plane) {
+            const uint8_t* planeBytes = bytes + plane * 100;
+            // Rows 6..9 lie outside the 10x6 second-load bounds and must be zero in all 3 planes
+            for (int i = 60; i < 100; ++i) {
+                REPORTER_ASSERT(reporter, planeBytes[i] == 0);
+            }
+        }
+        // Alpha plane (0) carries 0xAA and multiply plane (1) carries ambient >= 128 in rows 0..5
+        for (int i = 0; i < 60; ++i) {
+            REPORTER_ASSERT(reporter, bytes[i] == 0xAA);
+            REPORTER_ASSERT(reporter, bytes[100 + i] >= 128);
+        }
+    }
+
+#if !defined(SK_DISABLE_SDF_TEXT)
+    {
+        sk_sp<SkTypeface> tf = make_sequenced_typeface(SkRect::MakeWH(10, 10),
+                                                       SkMask::kA8_Format,
+                                                       SkRect::MakeWH(8, 10),
+                                                       SkMask::kA8_Format);
+        SkFont font(tf, 16.0f);
+        SkPaint paint;
+        paint.setMaskFilter(sktext::gpu::SDFMaskFilter::Make());
+
+        SkStrikeSpec strikeSpec =
+                SkStrikeSpec::MakeMask(font,
+                                       paint,
+                                       SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                                       SkScalerContextFlags::kNone,
+                                       SkMatrix::I());
+        std::unique_ptr<SkScalerContext> context = strikeSpec.createScalerContext();
+
+        char storage[2048];
+        memset(storage, 0x5A, sizeof(storage));
+        SkArenaAlloc alloc(storage, sizeof(storage), 2048);
+        SkGlyph glyph = context->makeGlyph(SkPackedGlyphID((SkGlyphID)1), &alloc);
+        REPORTER_ASSERT(reporter, glyph.maskFormat() == SkMask::kSDF_Format);
+        REPORTER_ASSERT(reporter, glyph.width() == 18 && glyph.height() == 18);
+        REPORTER_ASSERT(reporter, glyph.setImage(&alloc, context.get()));
+
+        const uint8_t* bytes = static_cast<const uint8_t*>(glyph.image());
+        bool hasNonZeroOverlap = false;
+        for (int y = 0; y < 18; ++y) {
+            for (int x = 0; x < 16; ++x) {
+                hasNonZeroOverlap |= (bytes[y * 18 + x] != 0);
+            }
+            for (int x = 16; x < 18; ++x) {
+                REPORTER_ASSERT(reporter, bytes[y * 18 + x] == 0);
+            }
+        }
+        REPORTER_ASSERT(reporter, hasNonZeroOverlap);
+    }
+#endif
+}
+
+// Verifies that path-rendered mask-filtered glyphs inspect and rasterize the reloaded unfiltered
+// glyph's path and format rather than stale state from the initial glyph load
+DEF_TEST(SkScalerContext_GetImageFromPathDivergence, reporter) {
+    // Load 1 returns a stroked kA8 outline path while Load 2 diverges to a non-outline kARGB32
+    // raster glyph; getImage() must fall back to generateImage() so blur extracts kARGB32 alpha
+    // instead of passing kARGB32 to GenerateImageFromPath
+    {
+        sk_sp<SkTypeface> tf = make_sequenced_typeface(SkRect::MakeWH(10, 10),
+                                                       SkMask::kA8_Format,
+                                                       SkRect::MakeWH(10, 10),
+                                                       SkMask::kARGB32_Format,
+                                                       SkPath::Rect(SkRect::MakeWH(10, 10)),
+                                                       std::nullopt);
+        SkFont font(tf, 16.0f);
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(1.0f);
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 1.0f));
+
+        SkStrikeSpec strikeSpec =
+                SkStrikeSpec::MakeMask(font,
+                                       paint,
+                                       SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                                       SkScalerContextFlags::kNone,
+                                       SkMatrix::I());
+        std::unique_ptr<SkScalerContext> context = strikeSpec.createScalerContext();
+
+        char storage[2048];
+        memset(storage, 0x5A, sizeof(storage));
+        SkArenaAlloc alloc(storage, sizeof(storage), 2048);
+        SkGlyph glyph = context->makeGlyph(SkPackedGlyphID((SkGlyphID)1), &alloc);
+        REPORTER_ASSERT(reporter, glyph.maskFormat() == SkMask::kA8_Format);
+        REPORTER_ASSERT(reporter, glyph.imageSize() > 0);
+        REPORTER_ASSERT(reporter, glyph.setImage(&alloc, context.get()));
+
+        const uint8_t* bytes = static_cast<const uint8_t*>(glyph.image());
+        bool hasNonZero = false;
+        for (size_t i = 0; i < glyph.imageSize(); ++i) {
+            hasNonZero |= (bytes[i] != 0);
+        }
+        REPORTER_ASSERT(reporter, hasNonZero);
+    }
+
+    // Reverse divergence: Load 1 is a non-outline kARGB32 glyph rejected by SkEmbossMaskFilter
+    // while Load 2 returns a kA8 outline path; getImage() must not assert on origGlyph.fMaskFormat
+    // and must zero origGlyph when emboss produces k3D against origGlyph's kARGB32
+    {
+        SkEmbossMaskFilter::Light light{{1.0f, 1.0f, 1.0f}, 0, 128, 16};
+        sk_sp<SkTypeface> tf = make_sequenced_typeface(SkRect::MakeWH(10, 10),
+                                                       SkMask::kARGB32_Format,
+                                                       SkRect::MakeWH(10, 10),
+                                                       SkMask::kA8_Format,
+                                                       std::nullopt,
+                                                       SkPath::Rect(SkRect::MakeWH(10, 10)));
+        SkFont font(tf, 16.0f);
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(1.0f);
+        paint.setMaskFilter(SkEmbossMaskFilter::Make(1.0f, light));
+
+        SkStrikeSpec strikeSpec =
+                SkStrikeSpec::MakeMask(font,
+                                       paint,
+                                       SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                                       SkScalerContextFlags::kNone,
+                                       SkMatrix::I());
+        std::unique_ptr<SkScalerContext> context = strikeSpec.createScalerContext();
+
+        char storage[2048];
+        memset(storage, 0x5A, sizeof(storage));
+        SkArenaAlloc alloc(storage, sizeof(storage), 2048);
+        SkGlyph glyph = context->makeGlyph(SkPackedGlyphID((SkGlyphID)1), &alloc);
+        REPORTER_ASSERT(reporter, glyph.maskFormat() == SkMask::kARGB32_Format);
+        REPORTER_ASSERT(reporter, glyph.imageSize() > 0);
+        REPORTER_ASSERT(reporter, glyph.setImage(&alloc, context.get()));
+
+        const uint8_t* bytes = static_cast<const uint8_t*>(glyph.image());
+        for (size_t i = 0; i < glyph.imageSize(); ++i) {
+            REPORTER_ASSERT(reporter, bytes[i] == 0);
+        }
+    }
+
+    // Load 1 returns a hollow 20x20 stroked frame while Load 2 shifts to a 2x2 inner stroked rect
+    // inside the hollow center; rasterizing Load 1's stale path into Load 2's [7..13, 7..13] mask
+    // would produce an all-zero image instead of the blurred inner rect
+    {
+        sk_sp<SkTypeface> tf = make_sequenced_typeface(SkRect::MakeWH(20, 20),
+                                                       SkMask::kA8_Format,
+                                                       SkRect::MakeXYWH(9, 9, 2, 2),
+                                                       SkMask::kA8_Format,
+                                                       SkPath::Rect(SkRect::MakeWH(20, 20)),
+                                                       SkPath::Rect(SkRect::MakeXYWH(9, 9, 2, 2)));
+        SkFont font(tf, 16.0f);
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(2.0f);
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 0.5f));
+
+        SkStrikeSpec strikeSpec =
+                SkStrikeSpec::MakeMask(font,
+                                       paint,
+                                       SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                                       SkScalerContextFlags::kNone,
+                                       SkMatrix::I());
+        std::unique_ptr<SkScalerContext> context = strikeSpec.createScalerContext();
+
+        char storage[4096];
+        memset(storage, 0x5A, sizeof(storage));
+        SkArenaAlloc alloc(storage, sizeof(storage), 4096);
+        SkGlyph glyph = context->makeGlyph(SkPackedGlyphID((SkGlyphID)1), &alloc);
+        REPORTER_ASSERT(reporter, glyph.maskFormat() == SkMask::kA8_Format);
+        REPORTER_ASSERT(reporter, glyph.imageSize() > 0);
+        REPORTER_ASSERT(reporter, glyph.setImage(&alloc, context.get()));
+
+        const uint8_t* bytes = static_cast<const uint8_t*>(glyph.image());
+        bool hasNonZero = false;
+        for (size_t i = 0; i < glyph.imageSize(); ++i) {
+            hasNonZero |= (bytes[i] != 0);
+        }
+        REPORTER_ASSERT(reporter, hasNonZero);
+    }
+}
