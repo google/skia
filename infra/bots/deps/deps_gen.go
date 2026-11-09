@@ -174,7 +174,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"skia.googlesource.com/buildbot": {
 		Id:      "skia.googlesource.com/buildbot",
-		Version: "69a6ff0ee615b01705bb7b0e14671e33a1cd3c74",
+		Version: "88b63f6b7b4d1e218a88a3c6a17188794ce7059a",
 		Path:    "infra/skia-infra",
 	},
 	"skia.googlesource.com/external/github.com/FRIGN/libgrapheme": {
@@ -249,7 +249,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"skia/tools/sk": {
 		Id:      "skia/tools/sk",
-		Version: "git_revision:69a6ff0ee615b01705bb7b0e14671e33a1cd3c74",
+		Version: "git_revision:88b63f6b7b4d1e218a88a3c6a17188794ce7059a",
 		Path:    "bin",
 	},
 	"swiftshader.googlesource.com/SwiftShader": {
