@@ -359,7 +359,7 @@ static void testCubicValidT(skiatest::Reporter* reporter, std::string name,
     {
         skiatest::ReporterContext subsubtest(reporter, "SkCubics Binary Search Implementation");
         std::array<double, 3> roots = {0, 0, 0};
-        int rootCount = SkCubics::BinarySearchRootsValidT(A, B, C, D, roots.data());
+        int rootCount = SkCubics::BinarySearchRootsValidT(A, B, C, D, roots);
         REPORTER_ASSERT(reporter, expectedRoots.size() == size_t(rootCount),
                         "Wrong number of roots returned %zu != %d", expectedRoots.size(),
                         rootCount);

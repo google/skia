@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkGeometry.h"
 #include "src/core/SkQuadClipper.h"
 
-#include <cstring>
+#include "include/core/SkSpan.h"
+#include "src/core/SkGeometry.h"
+
+#include <algorithm>
 #include <utility>
 
 SkQuadClipper::SkQuadClipper() {
@@ -41,7 +43,7 @@ static bool chopMonoQuadAt(SkScalar c0, SkScalar c1, SkScalar c2,
     return false;
 }
 
-static bool chopMonoQuadAtY(SkPoint pts[3], SkScalar y, SkScalar* t) {
+static bool chopMonoQuadAtY(SkSpan<const SkPoint, 3> pts, SkScalar y, SkScalar* t) {
     return chopMonoQuadAt(pts[0].fY, pts[1].fY, pts[2].fY, y, t);
 }
 
@@ -51,7 +53,7 @@ static bool chopMonoQuadAtY(SkPoint pts[3], SkScalar y, SkScalar* t) {
  communicate that to setQuadratic, and then avoid having to flip it back
  here (only to have setQuadratic do the flip again)
  */
-bool SkQuadClipper::clipQuad(const SkPoint srcPts[3], SkPoint dst[3]) {
+bool SkQuadClipper::clipQuad(SkSpan<const SkPoint, 3> srcPts, SkSpan<SkPoint, 3> dst) {
     bool reverse;
 
     // we need the data to be monotonically increasing in Y
@@ -61,7 +63,8 @@ bool SkQuadClipper::clipQuad(const SkPoint srcPts[3], SkPoint dst[3]) {
         dst[2] = srcPts[0];
         reverse = true;
     } else {
-        memcpy(dst, srcPts, 3 * sizeof(SkPoint));
+        static_assert(srcPts.size() == dst.size());
+        std::copy_n(srcPts.data(), srcPts.size(), dst.data());
         reverse = false;
     }
 
@@ -79,7 +82,7 @@ bool SkQuadClipper::clipQuad(const SkPoint srcPts[3], SkPoint dst[3]) {
     if (dst[0].fY < ctop) {
         if (chopMonoQuadAtY(dst, ctop, &t)) {
             // take the 2nd chopped quad
-            SkChopQuadAt(dst, tmp, t);
+            SkChopQuadAt(dst.data(), tmp, t);
             dst[0] = tmp[2];
             dst[1] = tmp[3];
         } else {
@@ -96,7 +99,7 @@ bool SkQuadClipper::clipQuad(const SkPoint srcPts[3], SkPoint dst[3]) {
     // are we partially below
     if (dst[2].fY > cbot) {
         if (chopMonoQuadAtY(dst, cbot, &t)) {
-            SkChopQuadAt(dst, tmp, t);
+            SkChopQuadAt(dst.data(), tmp, t);
             dst[1] = tmp[1];
             dst[2] = tmp[2];
         } else {

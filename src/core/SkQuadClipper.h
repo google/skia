@@ -13,6 +13,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkDebug.h"
 
 /** This class is initialized with a clip rectangle, and then can be fed quads,
@@ -27,7 +28,7 @@ public:
 
     void setClip(const SkIRect& clip);
 
-    bool clipQuad(const SkPoint src[3], SkPoint dst[3]);
+    bool clipQuad(SkSpan<const SkPoint, 3> src, SkSpan<SkPoint, 3> dst);
 
 private:
     SkRect      fClip;

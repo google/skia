@@ -11,6 +11,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 
 struct SkPoint;
@@ -27,9 +28,9 @@ public:
 
     void setClip(const SkIRect& clip);
 
-    [[nodiscard]] bool clipCubic(const SkPoint src[4], SkPoint dst[4]);
+    [[nodiscard]] bool clipCubic(SkSpan<const SkPoint, 4> src, SkSpan<SkPoint, 4> dst);
 
-    [[nodiscard]] static bool ChopMonoAtY(const SkPoint pts[4], SkScalar y, SkScalar* t);
+    [[nodiscard]] static bool ChopMonoAtY(SkSpan<const SkPoint, 4> pts, SkScalar y, SkScalar* t);
 private:
     SkRect      fClip;
 };

@@ -18,6 +18,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/SkTArray.h"
 
@@ -244,7 +245,13 @@ public:
         @param pts  control point and endpoint of added quad.
         @return     reference to SkPathBuilder
     */
-    SkPathBuilder& quadTo(const SkPoint pts[2]) { return this->quadTo(pts[0], pts[1]); }
+    SkPathBuilder& quadTo(SkSpan<const SkPoint, 2> pts) { return this->quadTo(pts[0], pts[1]); }
+
+    // DEPRECATED: use the SkSpan overload.
+    // TODO(crbug.com/582862856): Remove once clients migrate to the SkSpan overload.
+    SkPathBuilder& quadTo(const SkPoint pts[2]) {
+        return this->quadTo(SK_UNSAFE_TODO(SkSpan<const SkPoint, 2>(pts, 2)));
+    }
 
     /** Adds conic from last point towards pt1, to pt2, weighted by w.
         If SkPathBuilder is empty, or last SkPath::Verb is kClose_Verb, last point is set to (0, 0)
@@ -316,8 +323,14 @@ public:
         @param w   weight of added conic
         @return    reference to SkPathBuilder
     */
-    SkPathBuilder& conicTo(const SkPoint pts[2], SkScalar w) {
+    SkPathBuilder& conicTo(SkSpan<const SkPoint, 2> pts, SkScalar w) {
         return this->conicTo(pts[0], pts[1], w);
+    }
+
+    // DEPRECATED: use the SkSpan overload.
+    // TODO(crbug.com/582862856): Remove once clients migrate to the SkSpan overload.
+    SkPathBuilder& conicTo(const SkPoint pts[2], SkScalar w) {
+        return this->conicTo(SK_UNSAFE_TODO(SkSpan<const SkPoint, 2>(pts, 2)), w);
     }
 
     /** Adds cubic from last point towards SkPoint p1, then towards SkPoint p2, ending at
@@ -366,8 +379,14 @@ public:
         @param pts  first and second control SkPoints of cubic, and end SkPoint.
         @return     reference to SkPathBuilder
     */
-    SkPathBuilder& cubicTo(const SkPoint pts[3]) {
+    SkPathBuilder& cubicTo(SkSpan<const SkPoint, 3> pts) {
         return this->cubicTo(pts[0], pts[1], pts[2]);
+    }
+
+    // DEPRECATED: use the SkSpan overload.
+    // TODO(crbug.com/582862856): Remove once clients migrate to the SkSpan overload.
+    SkPathBuilder& cubicTo(const SkPoint pts[3]) {
+        return this->cubicTo(SK_UNSAFE_TODO(SkSpan<const SkPoint, 3>(pts, 3)));
     }
 
     /** Appends kClose_Verb to SkPathBuilder. A closed contour connects the first and last SkPoint

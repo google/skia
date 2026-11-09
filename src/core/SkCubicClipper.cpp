@@ -8,9 +8,10 @@
 #include "src/core/SkCubicClipper.h"
 
 #include "include/core/SkPoint.h"
+#include "include/core/SkSpan.h"
 #include "src/core/SkGeometry.h"
 
-#include <cstring>
+#include <algorithm>
 #include <utility>
 
 SkCubicClipper::SkCubicClipper() {
@@ -23,7 +24,7 @@ void SkCubicClipper::setClip(const SkIRect& clip) {
 }
 
 
-bool SkCubicClipper::ChopMonoAtY(const SkPoint pts[4], SkScalar y, SkScalar* t) {
+bool SkCubicClipper::ChopMonoAtY(SkSpan<const SkPoint, 4> pts, SkScalar y, SkScalar* t) {
     SkScalar ycrv[4];
     ycrv[0] = pts[0].fY - y;
     ycrv[1] = pts[1].fY - y;
@@ -105,8 +106,7 @@ bool SkCubicClipper::ChopMonoAtY(const SkPoint pts[4], SkScalar y, SkScalar* t) 
 #endif  // BISECTION
 }
 
-
-bool SkCubicClipper::clipCubic(const SkPoint srcPts[4], SkPoint dst[4]) {
+bool SkCubicClipper::clipCubic(SkSpan<const SkPoint, 4> srcPts, SkSpan<SkPoint, 4> dst) {
     bool reverse;
 
     // we need the data to be monotonically descending in Y
@@ -117,7 +117,8 @@ bool SkCubicClipper::clipCubic(const SkPoint srcPts[4], SkPoint dst[4]) {
         dst[3] = srcPts[0];
         reverse = true;
     } else {
-        memcpy(dst, srcPts, 4 * sizeof(SkPoint));
+        static_assert(srcPts.size() == dst.size());
+        std::copy_n(srcPts.data(), srcPts.size(), dst.data());
         reverse = false;
     }
 
@@ -133,7 +134,7 @@ bool SkCubicClipper::clipCubic(const SkPoint srcPts[4], SkPoint dst[4]) {
 
     // are we partially above
     if (dst[0].fY < ctop && ChopMonoAtY(dst, ctop, &t)) {
-        SkChopCubicAt(dst, tmp, t);
+        SkChopCubicAt(dst.data(), tmp, t);
         dst[0] = tmp[3];
         dst[1] = tmp[4];
         dst[2] = tmp[5];
@@ -141,7 +142,7 @@ bool SkCubicClipper::clipCubic(const SkPoint srcPts[4], SkPoint dst[4]) {
 
     // are we partially below
     if (dst[3].fY > cbot && ChopMonoAtY(dst, cbot, &t)) {
-        SkChopCubicAt(dst, tmp, t);
+        SkChopCubicAt(dst.data(), tmp, t);
         dst[1] = tmp[1];
         dst[2] = tmp[2];
         dst[3] = tmp[3];

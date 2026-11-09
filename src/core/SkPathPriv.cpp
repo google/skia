@@ -921,7 +921,7 @@ static SkScalar eval_cubic_pts(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c
     return poly_eval(A, B, C, D, t);
 }
 
-template <size_t N> static void find_minmax(const SkPoint pts[],
+template <size_t N> static void find_minmax(SkSpan<const SkPoint, N> pts,
                                             SkScalar* minPtr, SkScalar* maxPtr) {
     SkScalar min, max;
     min = max = pts[0].fX;
@@ -941,7 +941,10 @@ static bool checkOnCurve(SkScalar x, SkScalar y, const SkPoint& start, const SkP
     }
 }
 
-static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurveCount) {
+static int winding_mono_cubic(SkSpan<const SkPoint, 4> pts,
+                              SkScalar x,
+                              SkScalar y,
+                              int* onCurveCount) {
     SkScalar y0 = pts[0].fY;
     SkScalar y3 = pts[3].fY;
 
@@ -964,7 +967,7 @@ static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y, int* 
 
     // quickreject or quickaccept
     SkScalar min, max;
-    find_minmax<4>(pts, &min, &max);
+    find_minmax(pts, &min, &max);
     if (x < min) {
         return 0;
     }
@@ -992,7 +995,8 @@ static int winding_cubic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, int*
     int n = SkChopCubicAtYExtrema(pts.data(), dst.data());
     int w = 0;
     for (int i = 0; i <= n; ++i) {
-        w += winding_mono_cubic(&dst[i * 3], x, y, onCurveCount);
+        w += winding_mono_cubic(SkSpan(dst).subspan(i * 3).first<4>(),
+                                x, y, onCurveCount);
     }
     return w;
 }
@@ -1215,7 +1219,7 @@ static void tangent_cubic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y,
     std::array<SkPoint, 10> dst;
     int n = SkChopCubicAtYExtrema(pts.data(), dst.data());
     for (int i = 0; i <= n; ++i) {
-        SkPoint* c = &dst[i * 3];
+        SkSpan<const SkPoint, 4> c = SkSpan(dst).subspan(i * 3).first<4>();
         SkScalar t;
         if (!SkCubicClipper::ChopMonoAtY(c, y, &t)) {
             continue;
@@ -1225,7 +1229,7 @@ static void tangent_cubic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y,
             continue;
         }
         SkVector tangent;
-        SkEvalCubicAt(c, t, nullptr, &tangent, nullptr);
+        SkEvalCubicAt(c.data(), t, nullptr, &tangent, nullptr);
         tangents->push_back(tangent);
     }
 }

@@ -295,8 +295,9 @@ private:
                           SkVector* normalBC, SkVector* unitNormalBC);
     void setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt, SkVector* tangent) const;
     static bool SlightAngle(SkQuadConstruct* );
-    ResultType strokeCloseEnough(const SkPoint stroke[3], const SkPoint ray[2],
-                                 SkQuadConstruct*  STROKER_DEBUG_PARAMS(int depth) ) const;
+    ResultType strokeCloseEnough(SkSpan<const SkPoint, 3> stroke,
+                                 SkSpan<const SkPoint, 2> ray,
+                                 SkQuadConstruct* STROKER_DEBUG_PARAMS(int depth)) const;
     ResultType tangentsMeet(const SkPoint cubic[4], SkQuadConstruct* );
 
     void    finishContour(bool close, bool isLine);
@@ -869,7 +870,6 @@ void SkPathStroker::conicQuadEnds(const SkConic& conic, SkQuadConstruct* quadPts
     }
 }
 
-
 // Given a cubic and t, return the point on curve, its perpendicular, and the perpendicular tangent.
 void SkPathStroker::cubicPerpRay(const SkPoint cubic[4], SkScalar t, SkPoint* tPt, SkPoint* onPt,
         SkVector* tangent) const {
@@ -996,7 +996,9 @@ SkPathStroker::ResultType SkPathStroker::tangentsMeet(const SkPoint cubic[4],
 }
 
 // Intersect the line with the quad and return the t values on the quad where the line crosses.
-static int intersect_quad_ray(const SkPoint line[2], const SkPoint quad[3], SkScalar roots[2]) {
+static int intersect_quad_ray(SkSpan<const SkPoint, 2> line,
+                              SkSpan<const SkPoint, 3> quad,
+                              SkSpan<SkScalar, 2> roots) {
     SkVector vec = line[1] - line[0];
     std::array<SkScalar, 3> r;
     for (int n = 0; n < 3; ++n) {
@@ -1007,7 +1009,7 @@ static int intersect_quad_ray(const SkPoint line[2], const SkPoint quad[3], SkSc
     SkScalar C = r[0];
     A += C - 2 * B;  // A = a - 2*b + c
     B -= C;  // B = -(b - c)
-    return SkFindUnitQuadRoots(A, 2 * B, C, roots);
+    return SkFindUnitQuadRoots(A, 2 * B, C, roots.data());
 }
 
 // Return true if the point is close to the bounds of the quad. This is used as a quick reject.
@@ -1052,9 +1054,11 @@ static bool sharp_angle(const SkPoint quad[3]) {
     return dot > 0;
 }
 
-SkPathStroker::ResultType SkPathStroker::strokeCloseEnough(const SkPoint stroke[3],
-        const SkPoint ray[2], SkQuadConstruct* quadPts  STROKER_DEBUG_PARAMS(int depth)) const {
-    SkPoint strokeMid = SkEvalQuadAt(stroke, SK_ScalarHalf);
+SkPathStroker::ResultType SkPathStroker::strokeCloseEnough(
+        SkSpan<const SkPoint, 3> stroke,
+        SkSpan<const SkPoint, 2> ray,
+        SkQuadConstruct* quadPts STROKER_DEBUG_PARAMS(int depth)) const {
+    SkPoint strokeMid = SkEvalQuadAt(stroke.data(), SK_ScalarHalf);
     // measure the distance from the curve to the quad-stroke midpoint, compare to radius
     if (points_within_dist(ray[0], strokeMid, fInvResScale)) {  // if the difference is small
         if (sharp_angle(quadPts->fQuad)) {
@@ -1070,20 +1074,20 @@ SkPathStroker::ResultType SkPathStroker::strokeCloseEnough(const SkPoint stroke[
     }
     // measure the distance to quad's bounds (quick reject)
         // an alternative : look for point in triangle
-    if (!ptInQuadBounds(stroke, ray[0])) {  // if far, subdivide
+    if (!ptInQuadBounds(stroke.data(), ray[0])) {  // if far, subdivide
         return STROKER_RESULT(kSplit_ResultType, depth, quadPts,
                 "!pt_in_quad_bounds(stroke=(%g,%g %g,%g %g,%g), ray[0]=%g,%g)",
                 stroke[0].fX, stroke[0].fY, stroke[1].fX, stroke[1].fY, stroke[2].fX, stroke[2].fY,
                 ray[0].fX, ray[0].fY);
     }
     // measure the curve ray distance to the quad-stroke
-    SkScalar roots[2];
+    std::array<SkScalar, 2> roots;
     int rootCount = intersect_quad_ray(ray, stroke, roots);
     if (rootCount != 1) {
         return STROKER_RESULT(kSplit_ResultType, depth, quadPts,
                 "rootCount=%d != 1", rootCount);
     }
-    SkPoint quadPt = SkEvalQuadAt(stroke, roots[0]);
+    SkPoint quadPt = SkEvalQuadAt(stroke.data(), roots[0]);
     SkScalar error = fInvResScale * (SK_Scalar1 - SkScalarAbs(roots[0] - 0.5f) * 2);
     if (points_within_dist(ray[0], quadPt, error)) {  // if the difference is small, we're done
         if (sharp_angle(quadPts->fQuad)) {

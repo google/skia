@@ -49,8 +49,7 @@ public:
      * 0-7 are the first curve (representing the interval [0, t]), and
      * indices 6-13 are the second curve (representing [t, 1]).
      */
-    static void Subdivide(const double curve[8], double t,
-                          double twoCurves[14]);
+    static void Subdivide(SkSpan<const double, 8> curve, double t, SkSpan<double, 14> twoCurves);
 
     /**
      * Converts the provided Bézier curve into the the equivalent cubic

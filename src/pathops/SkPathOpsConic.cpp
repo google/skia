@@ -6,7 +6,9 @@
  */
 #include "src/pathops/SkPathOpsConic.h"
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkFloatingPoint.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkPathOpsCubic.h"
@@ -14,14 +16,13 @@
 #include "src/pathops/SkPathOpsRect.h"
 #include "src/pathops/SkPathOpsTypes.h"
 
+#include <array>
 #include <cmath>
 
 struct SkDLine;
 
 // cribbed from the float version in SkGeometry.cpp
-static void conic_deriv_coeff(const double src[],
-                              SkScalar w,
-                              double coeff[3]) {
+static void conic_deriv_coeff(SkSpan<const double, 5> src, SkScalar w, SkSpan<double, 3> coeff) {
     const double P20 = src[4] - src[0];
     const double P10 = src[2] - src[0];
     const double wP10 = w * P10;
@@ -31,14 +32,16 @@ static void conic_deriv_coeff(const double src[],
 }
 
 static double conic_eval_tan(const double coord[], SkScalar w, double t) {
-    double coeff[3];
-    conic_deriv_coeff(coord, w, coeff);
+    std::array<double, 3> coeff;
+    // TODO(crbug.com/582862856): Spanify conic_eval_tan's parameter.
+    conic_deriv_coeff(SK_UNSAFE_TODO(SkSpan<const double, 5>(coord, 5)), w, coeff);
     return t * (t * coeff[0] + coeff[1]) + coeff[2];
 }
 
 int SkDConic::FindExtrema(const double src[], SkScalar w, double t[1]) {
-    double coeff[3];
-    conic_deriv_coeff(src, w, coeff);
+    std::array<double, 3> coeff;
+    // TODO(crbug.com/582862856): Spanify FindExtrema's parameter.
+    conic_deriv_coeff(SK_UNSAFE_TODO(SkSpan<const double, 5>(src, 5)), w, coeff);
 
     double tValues[2];
     int roots = SkDQuad::RootsValidT(coeff[0], coeff[1], coeff[2], tValues);

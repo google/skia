@@ -56,8 +56,9 @@ std::array<double, 2> SkBezierCubic::EvalAt(const double curve[8], double t) {
 
 // Perform subdivision using De Casteljau's algorithm, that is, repeated linear
 // interpolation between adjacent points.
-void SkBezierCubic::Subdivide(const double curve[8], double t,
-                              double twoCurves[14]) {
+void SkBezierCubic::Subdivide(SkSpan<const double, 8> curve,
+                              double t,
+                              SkSpan<double, 14> twoCurves) {
     SkASSERT(0.0 <= t && t <= 1.0);
     // We split the curve "in" into two curves "alpha" and "beta"
     const auto in_X = [&curve](size_t n) { return curve[2*n]; };
