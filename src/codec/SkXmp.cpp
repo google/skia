@@ -10,6 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkGainmapInfo.h"
 #include "include/utils/SkParse.h"
@@ -20,8 +21,8 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // XMP parsing helper functions
@@ -270,9 +271,9 @@ static bool get_attr_float3(const SkDOM* dom,
 
 static void find_uri_namespaces(const SkDOM& dom,
                                 const SkDOM::Node* node,
-                                size_t count,
-                                const char* uris[],
-                                const char* outNamespaces[]) {
+                                SkSpan<const char* const> uris,
+                                SkSpan<const char*> outNamespaces) {
+    SkASSERT(uris.size() == outNamespaces.size());
     // Search all attributes for xmlns:NAMESPACEi="URIi".
     for (const auto* attr = dom.getFirstAttr(node); attr; attr = dom.getNextAttr(node, attr)) {
         const char* attrName = dom.getAttrName(node, attr);
@@ -288,7 +289,7 @@ static void find_uri_namespaces(const SkDOM& dom,
             continue;
         }
         // Search for a requested URI that matches.
-        for (size_t i = 0; i < count; ++i) {
+        for (size_t i = 0; i < uris.size(); ++i) {
             if (strcmp(attrValue, uris[i]) != 0) {
                 continue;
             }
@@ -300,9 +301,9 @@ static void find_uri_namespaces(const SkDOM& dom,
 // See SkXmp::findUriNamespaces. This function has the same behavior, but only searches
 // a single SkDOM.
 static const SkDOM::Node* find_uri_namespaces(const SkDOM& dom,
-                                              size_t count,
-                                              const char* uris[],
-                                              const char* outNamespaces[]) {
+                                              SkSpan<const char* const> uris,
+                                              SkSpan<const char*> outNamespaces) {
+    SkASSERT(uris.size() == outNamespaces.size());
     const SkDOM::Node* root = dom.getRootNode();
     if (!root) {
         return nullptr;
@@ -318,26 +319,26 @@ static const SkDOM::Node* find_uri_namespaces(const SkDOM& dom,
     const char* kRdf = "rdf:RDF";
     for (const auto* rdf = dom.getFirstChild(root, kRdf); rdf;
          rdf = dom.getNextSibling(rdf, kRdf)) {
-        std::vector<const char*> rdfNamespaces(count, nullptr);
-        find_uri_namespaces(dom, rdf, count, uris, rdfNamespaces.data());
+        std::vector<const char*> rdfNamespaces(uris.size(), nullptr);
+        find_uri_namespaces(dom, rdf, uris, rdfNamespaces);
 
         // Iterate the children with name rdf::Description.
         const char* kDesc = "rdf:Description";
         for (const auto* desc = dom.getFirstChild(rdf, kDesc); desc;
              desc = dom.getNextSibling(desc, kDesc)) {
             std::vector<const char*> descNamespaces = rdfNamespaces;
-            find_uri_namespaces(dom, desc, count, uris, descNamespaces.data());
+            find_uri_namespaces(dom, desc, uris, descNamespaces);
 
             // If we have a match for all the requested URIs, return.
             bool foundAllUris = true;
-            for (size_t i = 0; i < count; ++i) {
-                if (!descNamespaces[i]) {
+            for (const char* ns : descNamespaces) {
+                if (!ns) {
                     foundAllUris = false;
                     break;
                 }
             }
             if (foundAllUris) {
-                for (size_t i = 0; i < count; ++i) {
+                for (size_t i = 0; i < outNamespaces.size(); ++i) {
                     outNamespaces[i] = descNamespaces[i];
                 }
                 return desc;
@@ -363,9 +364,8 @@ public:
     bool parseDom(sk_sp<SkData> xmpData, bool extended);
 
 private:
-    bool findUriNamespaces(size_t count,
-                           const char* uris[],
-                           const char* outNamespaces[],
+    bool findUriNamespaces(SkSpan<const char* const> uris,
+                           SkSpan<const char*> outNamespaces,
                            const SkDOM** outDom,
                            const SkDOM::Node** outNode) const;
 
@@ -376,7 +376,7 @@ private:
 const char* SkXmpImpl::getExtendedXmpGuid() const {
     const char* namespaces[1] = {nullptr};
     const char* uris[1] = {"http://ns.adobe.com/xmp/note/"};
-    const auto* extendedNode = find_uri_namespaces(fStandardDOM, 1, uris, namespaces);
+    const auto* extendedNode = find_uri_namespaces(fStandardDOM, uris, namespaces);
     if (!extendedNode) {
         return nullptr;
     }
@@ -385,9 +385,8 @@ const char* SkXmpImpl::getExtendedXmpGuid() const {
     return get_attr(&fStandardDOM, extendedNode, xmpNotePrefix, "HasExtendedXMP");
 }
 
-bool SkXmpImpl::findUriNamespaces(size_t count,
-                                  const char* uris[],
-                                  const char* outNamespaces[],
+bool SkXmpImpl::findUriNamespaces(SkSpan<const char* const> uris,
+                                  SkSpan<const char*> outNamespaces,
                                   const SkDOM** outDom,
                                   const SkDOM::Node** outNode) const {
     // See XMP Specification Part 3: Storage in files, Section 1.1.3.1: Extended XMP in JPEG:
@@ -395,12 +394,12 @@ bool SkXmpImpl::findUriNamespaces(size_t count,
     // containing all of the XMP for the JPEG file, and remove the xmpNote:HasExtendedXMP property.
     // This code does not do that. Instead, it maintains the two separate trees and searches them
     // sequentially.
-    *outNode = find_uri_namespaces(fStandardDOM, count, uris, outNamespaces);
+    *outNode = find_uri_namespaces(fStandardDOM, uris, outNamespaces);
     if (*outNode) {
         *outDom = &fStandardDOM;
         return true;
     }
-    *outNode = find_uri_namespaces(fExtendedDOM, count, uris, outNamespaces);
+    *outNode = find_uri_namespaces(fExtendedDOM, uris, outNamespaces);
     if (*outNode) {
         *outDom = &fExtendedDOM;
         return true;
@@ -416,7 +415,7 @@ bool SkXmpImpl::getContainerGainmapLocation(size_t* outOffset, size_t* outSize) 
                            "http://ns.google.com/photos/1.0/container/item/"};
     const SkDOM* dom = nullptr;
     const SkDOM::Node* node = nullptr;
-    if (!findUriNamespaces(2, uris, namespaces, &dom, &node)) {
+    if (!findUriNamespaces(uris, namespaces, &dom, &node)) {
         return false;
     }
     const char* containerPrefix = get_namespace_prefix(namespaces[0]);
@@ -523,7 +522,7 @@ bool SkXmpImpl::getGainmapInfoApple(float exifHdrHeadroom, SkGainmapInfo* info) 
                            "http://ns.apple.com/HDRGainMap/1.0/"};
     const SkDOM* dom = nullptr;
     const SkDOM::Node* node = nullptr;
-    if (!findUriNamespaces(2, uris, namespaces, &dom, &node)) {
+    if (!findUriNamespaces(uris, namespaces, &dom, &node)) {
         return false;
     }
     const char* adpiPrefix = get_namespace_prefix(namespaces[0]);
@@ -574,7 +573,7 @@ bool SkXmpImpl::getGainmapInfoAdobe(SkGainmapInfo* outGainmapInfo) const {
     const char* uris[1] = {"http://ns.adobe.com/hdr-gain-map/1.0/"};
     const SkDOM* dom = nullptr;
     const SkDOM::Node* node = nullptr;
-    if (!findUriNamespaces(1, uris, namespaces, &dom, &node)) {
+    if (!findUriNamespaces(uris, namespaces, &dom, &node)) {
         return false;
     }
     const char* hdrgmPrefix = get_namespace_prefix(namespaces[0]);

@@ -9,7 +9,9 @@
 #define ManagedBackendTexture_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkYUVAInfo.h"
+
 #ifdef SK_GANESH
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
@@ -102,7 +104,8 @@ public:
      * standard ReleaseProc. Like releaseContext(), it must be balanced by a ReleaseProc call for
      * proper ref counting.
      */
-    static void* MakeYUVAReleaseContext(const sk_sp<ManagedBackendTexture>[SkYUVAInfo::kMaxPlanes]);
+    static void* MakeYUVAReleaseContext(
+            SkSpan<const sk_sp<ManagedBackendTexture>, SkYUVAInfo::kMaxPlanes>);
 
     const GrBackendTexture& texture() { return fTexture; }
 
@@ -198,7 +201,8 @@ public:
      * used with the standard ReleaseProc. Like releaseContext(), it must be balanced by a
      * ReleaseProc call for proper ref counting.
      */
-    static void* MakeYUVAReleaseContext(const sk_sp<ManagedGraphiteTexture>[SkYUVAInfo::kMaxPlanes]);
+    static void* MakeYUVAReleaseContext(
+            SkSpan<const sk_sp<ManagedGraphiteTexture>, SkYUVAInfo::kMaxPlanes>);
 
     const skgpu::graphite::BackendTexture& texture() { return fTexture; }
 

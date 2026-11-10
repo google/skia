@@ -1570,7 +1570,7 @@ void MetalCodeGenerator::assembleMatrixFromExpressions(const AnyConstructor& cto
     int argPosition = 0;
     auto args = ctor.argumentSpan();
 
-    static constexpr char kSwizzle[] = "xyzw";
+    static constexpr std::string_view kSwizzle = "xyzw";
     const char* separator = "";
     for (int c = 0; c < columns; ++c) {
         fExtraFunctions.printf("%s%s%d(", separator, matrixType.c_str(), rows);
@@ -1593,6 +1593,7 @@ void MetalCodeGenerator::assembleMatrixFromExpressions(const AnyConstructor& cto
                     case Type::TypeKind::kVector: {
                         fExtraFunctions.printf("x%zu.", argIndex);
                         do {
+                            SkASSERT(argPosition < (int)kSwizzle.size());
                             fExtraFunctions.write8(kSwizzle[argPosition]);
                             ++r;
                             ++argPosition;
@@ -1602,6 +1603,7 @@ void MetalCodeGenerator::assembleMatrixFromExpressions(const AnyConstructor& cto
                     case Type::TypeKind::kMatrix: {
                         fExtraFunctions.printf("x%zu[%d].", argIndex, argPosition / argType.rows());
                         do {
+                            SkASSERT(argPosition < (int)kSwizzle.size());
                             fExtraFunctions.write8(kSwizzle[argPosition]);
                             ++r;
                             ++argPosition;

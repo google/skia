@@ -8,10 +8,12 @@
 #ifndef SkYUVMath_DEFINED
 #define SkYUVMath_DEFINED
 
+#include "include/core/SkSpan.h"
+
 enum SkYUVColorSpace : int;
 
-void SkColorMatrix_RGB2YUV(SkYUVColorSpace, float m[20]);
-void SkColorMatrix_YUV2RGB(SkYUVColorSpace, float m[20]);
+void SkColorMatrix_RGB2YUV(SkYUVColorSpace, SkSpan<float, 20> m);
+void SkColorMatrix_YUV2RGB(SkYUVColorSpace, SkSpan<float, 20> m);
 
 // Used to create the pre-compiled tables in SkYUVMath.cpp
 void SkColorMatrix_DumpYUVMatrixTables();

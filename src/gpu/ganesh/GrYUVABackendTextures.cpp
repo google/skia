@@ -9,6 +9,8 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkDebug.h"
 #include "src/core/SkYUVAInfoLocation.h"
 
@@ -84,7 +86,7 @@ SkYUVAInfo::YUVALocations GrYUVABackendTextureInfo::toYUVALocations() const {
 
 GrYUVABackendTextures::GrYUVABackendTextures(
         const SkYUVAInfo& yuvaInfo,
-        const GrBackendTexture textures[SkYUVAInfo::kMaxPlanes],
+        SkSpan<const GrBackendTexture, SkYUVAInfo::kMaxPlanes> textures,
         GrSurfaceOrigin textureOrigin)
         : fYUVAInfo(yuvaInfo), fTextureOrigin(textureOrigin) {
     if (!fYUVAInfo.isValid()) {
@@ -104,6 +106,19 @@ GrYUVABackendTextures::GrYUVABackendTextures(
         fTextures[i] = textures[i];
     }
 }
+
+GrYUVABackendTextures::GrYUVABackendTextures(
+        const SkYUVAInfo& yuvaInfo,
+        const GrBackendTexture textures[SkYUVAInfo::kMaxPlanes],
+        GrSurfaceOrigin textureOrigin)
+        : GrYUVABackendTextures(
+                  yuvaInfo,
+                  // TODO(crbug.com/582862856): Remove this pointer overload once clients
+                  // migrate to the SkSpan overload. The caller guarantees textures points
+                  // to at least kMaxPlanes elements.
+                  SK_UNSAFE_TODO(SkSpan<const GrBackendTexture, SkYUVAInfo::kMaxPlanes>(
+                          textures, SkYUVAInfo::kMaxPlanes)),
+                  textureOrigin) {}
 
 SkYUVAInfo::YUVALocations GrYUVABackendTextures::toYUVALocations() const {
     uint32_t channelFlags[] = {fTextures[0].getBackendFormat().channelMask(),

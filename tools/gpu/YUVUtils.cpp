@@ -11,6 +11,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/core/SkColorPriv.h"
@@ -39,7 +40,7 @@
 
 namespace {
 
-static SkPMColor convert_yuva_to_rgba(const float mtx[20], uint8_t yuva[4]) {
+static SkPMColor convert_yuva_to_rgba(SkSpan<const float, 20> mtx, SkSpan<uint8_t, 4> yuva) {
     uint8_t y = yuva[0];
     uint8_t u = yuva[1];
     uint8_t v = yuva[2];
@@ -118,7 +119,7 @@ protected:
                     }
 
                     // Making premul here.
-                    *fFlattened.getAddr32(x, y) = convert_yuva_to_rgba(mtx, yuva.data());
+                    *fFlattened.getAddr32(x, y) = convert_yuva_to_rgba(mtx, yuva);
                 }
             }
         }
@@ -338,7 +339,7 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
             }
             if (auto direct = rContext->asDirectContext()) {
                 std::array<sk_sp<sk_gpu_test::ManagedBackendTexture>, SkYUVAInfo::kMaxPlanes> mbets;
-                GrBackendTexture textures[SkYUVAInfo::kMaxPlanes];
+                std::array<GrBackendTexture, SkYUVAInfo::kMaxPlanes> textures;
                 for (int i = 0; i < fPixmaps.numPlanes(); ++i) {
                     mbets[i] = sk_gpu_test::ManagedBackendTexture::MakeFromPixmap(
                             direct,
@@ -359,7 +360,7 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
                     return false;
                 }
                 void* planeRelContext =
-                        sk_gpu_test::ManagedBackendTexture::MakeYUVAReleaseContext(mbets.data());
+                        sk_gpu_test::ManagedBackendTexture::MakeYUVAReleaseContext(mbets);
                 fYUVImage[idx] = SkImages::TextureFromYUVATextures(
                         direct,
                         yuvaTextures,
@@ -413,8 +414,8 @@ bool LazyYUVImage::ensureYUVImage(Recorder* recorder, Type type) {
                 return false;
             }
 
-            sk_sp<sk_gpu_test::ManagedGraphiteTexture> mbets[SkYUVAInfo::kMaxPlanes];
-            BackendTexture textures[SkYUVAInfo::kMaxPlanes];
+            std::array<sk_sp<sk_gpu_test::ManagedGraphiteTexture>, SkYUVAInfo::kMaxPlanes> mbets;
+            std::array<BackendTexture, SkYUVAInfo::kMaxPlanes> textures;
             for (int i = 0; i < fPixmaps.numPlanes(); ++i) {
                 // MakeFromPixmap will handle generating the upper mipmap levels if necessary.
                 mbets[i] = sk_gpu_test::ManagedGraphiteTexture::MakeFromPixmap(

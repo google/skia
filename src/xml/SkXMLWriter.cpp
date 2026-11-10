@@ -7,7 +7,12 @@
 
 #include "src/xml/SkXMLWriter.h"
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
+
+#include <algorithm>
+#include <array>
+#include <string_view>
 
 SkXMLWriter::SkXMLWriter(bool doEscapeMarkup) : fDoEscapeMarkup(doEscapeMarkup)
 {}
@@ -84,45 +89,40 @@ void SkXMLWriter::startElement(const char name[]) {
     this->startElementLen(name, strlen(name));
 }
 
-static const char* escape_char(char c, char storage[2]) {
-    static const char* gEscapeChars[] = {
+static const char* escape_char(char c, SkSpan<char, 2> storage) {
+    static constexpr auto kEscapeChars = std::to_array<const char*>({
         "<&lt;",
         ">&gt;",
         //"\"&quot;",
         //"'&apos;",
         "&&amp;"
-    };
+    });
 
-    const char** array = gEscapeChars;
-    for (unsigned i = 0; i < std::size(gEscapeChars); i++) {
-        if (array[i][0] == c) {
-            return &array[i][1];
+    for (const char* esc : kEscapeChars) {
+        if (esc[0] == c) {
+            return esc + 1;
         }
     }
     storage[0] = c;
     storage[1] = 0;
-    return storage;
+    return storage.data();
 }
 
-static size_t escape_markup(char dst[], const char src[], size_t length) {
-    size_t      extra = 0;
-    const char* stop = src + length;
+static size_t escape_markup(SkSpan<char> dst, std::string_view src) {
+    size_t extra = 0;
 
-    while (src < stop) {
+    for (char c : src) {
         char        orig[2];
-        const char* seq = escape_char(*src, orig);
+        const char* seq = escape_char(c, orig);
         size_t      seqSize = strlen(seq);
 
-        if (dst) {
-            memcpy(dst, seq, seqSize);
-            dst += seqSize;
+        if (dst.data() != nullptr) {
+            std::copy_n(seq, seqSize, dst.first(seqSize).begin());
+            dst = dst.subspan(seqSize);
         }
 
         // now record the extra size needed
         extra += seqSize - 1;   // minus one to subtract the original char
-
-        // bump to the next src char
-        src += 1;
     }
     return extra;
 }
@@ -131,10 +131,10 @@ void SkXMLWriter::addAttributeLen(const char name[], const char value[], size_t 
     SkString valueStr;
 
     if (fDoEscapeMarkup) {
-        size_t   extra = escape_markup(nullptr, value, length);
+        size_t extra = escape_markup({}, std::string_view(value, length));
         if (extra) {
             valueStr.resize(length + extra);
-            (void)escape_markup(valueStr.data(), value, length);
+            (void)escape_markup(valueStr, std::string_view(value, length));
             value = valueStr.c_str();
             length += extra;
         }

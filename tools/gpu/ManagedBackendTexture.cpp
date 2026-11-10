@@ -9,6 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkSpan.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/RefCntedCallback.h"
 #ifdef SK_GANESH
@@ -19,7 +20,9 @@
 #include "src/gpu/graphite/Caps.h"
 #endif
 
+#include <algorithm>
 #include <array>
+#include <iterator>
 
 using Mipmapped = skgpu::Mipmapped;
 using Protected = skgpu::Protected;
@@ -59,11 +62,10 @@ void* ManagedBackendTexture::releaseContext(GrGpuFinishedProc wrappedProc,
 }
 
 void* ManagedBackendTexture::MakeYUVAReleaseContext(
-        const sk_sp<ManagedBackendTexture> mbets[SkYUVAInfo::kMaxPlanes]) {
+        SkSpan<const sk_sp<ManagedBackendTexture>, SkYUVAInfo::kMaxPlanes> mbets) {
     auto context = new Context;
-    for (int i = 0; i < SkYUVAInfo::kMaxPlanes; ++i) {
-        context->fMBETs[i] = mbets[i];
-    }
+    SkASSERT(mbets.size() == std::size(context->fMBETs));
+    std::copy(mbets.begin(), mbets.end(), std::begin(context->fMBETs));
     return context;
 }
 
@@ -139,7 +141,8 @@ namespace {
 struct MBETContext {
     MBETContext(const sk_sp<sk_gpu_test::ManagedGraphiteTexture>& tex)
             : fMBETs{tex, nullptr, nullptr, nullptr} {}
-    MBETContext(const sk_sp<sk_gpu_test::ManagedGraphiteTexture> mbets[SkYUVAInfo::kMaxPlanes])
+    MBETContext(
+            SkSpan<const sk_sp<sk_gpu_test::ManagedGraphiteTexture>, SkYUVAInfo::kMaxPlanes> mbets)
             : fMBETs{mbets[0], mbets[1], mbets[2], mbets[3]} {}
     sk_sp<sk_gpu_test::ManagedGraphiteTexture> fMBETs[SkYUVAInfo::kMaxPlanes];
 };
@@ -170,7 +173,7 @@ void* ManagedGraphiteTexture::releaseContext() const {
 }
 
 void* ManagedGraphiteTexture::MakeYUVAReleaseContext(
-        const sk_sp<ManagedGraphiteTexture> mbets[SkYUVAInfo::kMaxPlanes]) {
+        SkSpan<const sk_sp<ManagedGraphiteTexture>, SkYUVAInfo::kMaxPlanes> mbets) {
     return new MBETContext(mbets);
 }
 

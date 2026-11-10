@@ -9,6 +9,7 @@
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkOnlyStackAllocatable.h"
@@ -755,7 +756,7 @@ constexpr float YCgCo_16bit_limited_yuv_to_rgb[] = {
 //           |  3x3   tg |
 //           |        tb |
 //           | 0 0 0  1  |
-static void colormatrix_to_matrix44(const float src[20], SkM44* dst) {
+static void colormatrix_to_matrix44(SkSpan<const float, 20> src, SkM44* dst) {
     *dst = SkM44(src[ 0], src[ 1], src[ 2], src[ 4],
                  src[ 5], src[ 6], src[ 7], src[ 9],
                  src[10], src[11], src[12], src[14],
@@ -764,7 +765,7 @@ static void colormatrix_to_matrix44(const float src[20], SkM44* dst) {
 
 // input: ignore the bottom row
 // output: inject identity row/column for alpha
-static void matrix44_to_colormatrix(const SkM44& src, float dst[20]) {
+static void matrix44_to_colormatrix(const SkM44& src, SkSpan<float, 20> dst) {
     dst[0] = src.rc(0,0);
     dst[1] = src.rc(0,1);
     dst[2] = src.rc(0,2);
@@ -787,9 +788,9 @@ static void matrix44_to_colormatrix(const SkM44& src, float dst[20]) {
     dst[18] = 1;
 }
 
-static void scale3(float m[], float s) {
-    for (int i = 0; i < 3; ++i) {
-        m[i] *= s;
+static void scale3(SkSpan<float, 3> m, float s) {
+    for (float& v : m) {
+        v *= s;
     }
 }
 
@@ -892,7 +893,7 @@ static constexpr auto kColorSpaceInfo = std::to_array<ColorSpaceInfo>({
 static_assert(std::size(kColorSpaceInfo) == kIdentity_SkYUVColorSpace);
 }  // namespace
 
-static void make_rgb_to_yuv_matrix_ycbcr(float mx[20],
+static void make_rgb_to_yuv_matrix_ycbcr(SkSpan<float, 20> mx,
                                          MatrixCoefficients mc,
                                          int bits,
                                          Range range) {
@@ -947,13 +948,14 @@ static void make_rgb_to_yuv_matrix_ycbcr(float mx[20],
         1-Kr, -Kg,  -Kb,  0, addUV,
            0,   0,    0,  1,     0,
     };
-    memcpy(mx, m, sizeof(m));
-    scale3(mx +  0,      scaleY );
-    scale3(mx +  5, Cr * scaleUV);
-    scale3(mx + 10, Cb * scaleUV);
+    static_assert(std::size(m) == mx.size());
+    std::copy(std::begin(m), std::end(m), mx.begin());
+    scale3(mx.subspan<0, 3>(), scaleY);
+    scale3(mx.subspan<5, 3>(), Cr * scaleUV);
+    scale3(mx.subspan<10, 3>(), Cb * scaleUV);
 }
 
-static void make_rgb_to_yuv_matrix_ydzdx(float mx[20], int bits, Range range) {
+static void make_rgb_to_yuv_matrix_ydzdx(SkSpan<float, 20> mx, int bits, Range range) {
     SkASSERT(bits >= 8);
     const int shift = bits - 8;
     const float denom = static_cast<float>((1 << bits) - 1);
@@ -975,13 +977,14 @@ static void make_rgb_to_yuv_matrix_ydzdx(float mx[20], int bits, Range range) {
           0.5f, -0.991902f / 2.0f,             0.0f, 0.0f, addUV,  // DZ or DX
           0.0f,              0.0f,             0.0f, 1.0f,  0.0f,
     };
-    memcpy(mx, m, sizeof(m));
-    scale3(mx +  0, scaleY );
-    scale3(mx +  5, scaleUV);
-    scale3(mx + 10, scaleUV);
+    static_assert(std::size(m) == mx.size());
+    std::copy(std::begin(m), std::end(m), mx.begin());
+    scale3(mx.subspan<0, 3>(), scaleY);
+    scale3(mx.subspan<5, 3>(), scaleUV);
+    scale3(mx.subspan<10, 3>(), scaleUV);
 }
 
-static void make_rgb_to_yuv_matrix_gbr(float mx[20], int bits, Range range) {
+static void make_rgb_to_yuv_matrix_gbr(SkSpan<float, 20> mx, int bits, Range range) {
     SkASSERT(bits >= 8);
     const int shift = bits - 8;
     const float denom = static_cast<float>((1 << bits) - 1);
@@ -1000,13 +1003,14 @@ static void make_rgb_to_yuv_matrix_gbr(float mx[20], int bits, Range range) {
           1.0f, 0.0f, 0.0f, 0.0f,  addY, // R
           0.0f, 0.0f, 0.0f, 1.0f,  0.0f,
     };
-    memcpy(mx, m, sizeof(m));
-    scale3(mx +  0, scaleY);
-    scale3(mx +  5, scaleY);
-    scale3(mx + 10, scaleY);
+    static_assert(std::size(m) == mx.size());
+    std::copy(std::begin(m), std::end(m), mx.begin());
+    scale3(mx.subspan<0, 3>(), scaleY);
+    scale3(mx.subspan<5, 3>(), scaleY);
+    scale3(mx.subspan<10, 3>(), scaleY);
 }
 
-static void make_rgb_to_yuv_matrix_ycgco(float mx[20], int bits, Range range) {
+static void make_rgb_to_yuv_matrix_ycgco(SkSpan<float, 20> mx, int bits, Range range) {
     SkASSERT(bits >= 8);
     const int shift = bits - 8;
     const float denom = static_cast<float>((1 << bits) - 1);
@@ -1025,13 +1029,17 @@ static void make_rgb_to_yuv_matrix_ycgco(float mx[20], int bits, Range range) {
            0.5f,  0.0f,  -0.5f,   0.0f,  chroma05,
            0.0f,  0.0f,   0.0f,   1.0f,  0.0f,
     };
-    memcpy(mx, m, sizeof(m));
-    scale3(mx +  0, scaleY);
-    scale3(mx +  5, scaleY);
-    scale3(mx + 10, scaleY);
+    static_assert(std::size(m) == mx.size());
+    std::copy(std::begin(m), std::end(m), mx.begin());
+    scale3(mx.subspan<0, 3>(), scaleY);
+    scale3(mx.subspan<5, 3>(), scaleY);
+    scale3(mx.subspan<10, 3>(), scaleY);
 }
 
-static void make_rgb_to_yuv_matrix(float mx[20], MatrixCoefficients mc, int bits, Range range) {
+static void make_rgb_to_yuv_matrix(SkSpan<float, 20> mx,
+                                   MatrixCoefficients mc,
+                                   int bits,
+                                   Range range) {
     switch (mc) {
         case MatrixCoefficients::kRec601:
         case MatrixCoefficients::kRec709:
@@ -1056,7 +1064,7 @@ static const ColorSpaceInfo* get_color_space_info(SkYUVColorSpace cs) {
     return &kColorSpaceInfo[cs];
 }
 
-static void make_rgb_to_yuv_matrix(float mx[20], const ColorSpaceInfo& info) {
+static void make_rgb_to_yuv_matrix(SkSpan<float, 20> mx, const ColorSpaceInfo& info) {
     make_rgb_to_yuv_matrix(mx, info.matrix_coefficients, info.bit_depth, info.range);
 }
 
@@ -1131,35 +1139,35 @@ static PrecomputedMatrices get_precomputed_matrices(SkYUVColorSpace cs) {
     }
 }
 
-static void set_identity(float m[20]) {
-    std::fill_n(m, 20, 0.0f);
+static void set_identity(SkSpan<float, 20> m) {
+    std::fill(m.begin(), m.end(), 0.0f);
     m[0] = m[6] = m[12] = m[18] = 1;
 }
 
-void SkColorMatrix_RGB2YUV(SkYUVColorSpace cs, float m[20]) {
+void SkColorMatrix_RGB2YUV(SkYUVColorSpace cs, SkSpan<float, 20> m) {
     const ColorSpaceInfo* info = get_color_space_info(cs);
     if (!info) {
         set_identity(m);
         return;
     }
     if (const float* table = get_precomputed_matrices(cs).rgb_to_yuv) {
-        std::copy_n(table, 20, m);
+        std::copy_n(table, m.size(), m.begin());
         return;
     }
     make_rgb_to_yuv_matrix(m, *info);
 }
 
-void SkColorMatrix_YUV2RGB(SkYUVColorSpace cs, float m[20]) {
+void SkColorMatrix_YUV2RGB(SkYUVColorSpace cs, SkSpan<float, 20> m) {
     const ColorSpaceInfo* info = get_color_space_info(cs);
     if (!info) {
         set_identity(m);
         return;
     }
     if (const float* table = get_precomputed_matrices(cs).yuv_to_rgb) {
-        std::copy_n(table, 20, m);
+        std::copy_n(table, m.size(), m.begin());
         return;
     }
-    float rgb2yuv[20];
+    std::array<float, 20> rgb2yuv;
     make_rgb_to_yuv_matrix(rgb2yuv, *info);
     SkM44 m44, im44;
     colormatrix_to_matrix44(rgb2yuv, &m44);
@@ -1172,8 +1180,11 @@ bool SkYUVColorSpaceIsLimitedRange(SkYUVColorSpace cs) {
     return info && info->range == Range::kLimited;
 }
 
-static void dump(
-        const float m[20], const char* name, int bits, const char* range_name, bool rgb2yuv) {
+static void dump(SkSpan<const float, 20> m,
+                 const char* name,
+                 int bits,
+                 const char* range_name,
+                 bool rgb2yuv) {
     const char* dirname = rgb2yuv ? "rgb_to_yuv" : "yuv_to_rgb";
     SkDebugf("constexpr float %s_%dbit_%s_%s[] = {\n", name, bits, range_name, dirname);
     SkDebugf("#if defined(SK_YUV_COLOR_SPACE_HIGH_PRECISION)\n");

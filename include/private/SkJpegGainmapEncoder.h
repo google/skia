@@ -8,6 +8,7 @@
 #ifndef SkJpegGainmapEncoder_DEFINED
 #define SkJpegGainmapEncoder_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/encode/SkJpegEncoder.h"
 
 class SkPixmap;
@@ -40,8 +41,17 @@ public:
                             const SkGainmapInfo& gainmapInfo);
 
     /**
-     *  Write a Multi Picture Format containing the |imageCount| images specified by |images|.
+     *  Write a Multi Picture Format containing the images specified by |images|.
      */
+    static bool MakeMPF(SkWStream* dst, SkSpan<const SkData* const> images);
+
+    /**
+     *  DEPRECATED: Prefer the SkSpan overload above, which bounds-checks images.
+     *  This pointer overload is kept for existing clients and forwards to it.
+     *
+     *  PRECONDITIONS: images must point to at least imageCount readable elements.
+     */
+    // TODO(crbug.com/582862856): Remove once clients migrate to the SkSpan overload.
     static bool MakeMPF(SkWStream* dst, const SkData** images, size_t imageCount);
 };
 

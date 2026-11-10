@@ -9,9 +9,11 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/encode/SkEncoder.h"
 #include "include/encode/SkJpegEncoder.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkGainmapInfo.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegConstants.h"
@@ -323,7 +325,7 @@ bool SkJpegGainmapEncoder::EncodeHDRGM(SkWStream* dst,
             baseData.get(),
             gainmapData.get(),
     };
-    return MakeMPF(dst, images, 2);
+    return MakeMPF(dst, images);
 }
 
 // Compute the offset into |image| at which the MP segment should be inserted. Return 0 on failure.
@@ -348,6 +350,13 @@ static size_t mp_segment_offset(const SkData* image) {
 }
 
 bool SkJpegGainmapEncoder::MakeMPF(SkWStream* dst, const SkData** images, size_t imageCount) {
+    // TODO(crbug.com/582862856): Remove this pointer overload once clients migrate to the
+    // SkSpan overload. The caller guarantees images points to at least imageCount elements.
+    return MakeMPF(dst, SK_UNSAFE_TODO(SkSpan<const SkData* const>(images, imageCount)));
+}
+
+bool SkJpegGainmapEncoder::MakeMPF(SkWStream* dst, SkSpan<const SkData* const> images) {
+    const size_t imageCount = images.size();
     if (imageCount < 1) {
         return true;
     }
