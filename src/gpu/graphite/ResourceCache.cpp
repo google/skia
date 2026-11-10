@@ -9,6 +9,7 @@
 
 #include "include/private/SingleOwner.h"
 #include "include/private/SkAttributes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkNoDestructor.h"
 #include "src/core/SkRandom.h"
 #include "src/core/SkTMultiMap.h"
@@ -305,6 +306,7 @@ bool ResourceCache::returnResource(Resource* resource) {
         // If we get here, we know the usage ref count is 0, so the only way for that to increase
         // again is if the Resource triggers the initial usage ref in the callback.
         struct TakeRefContext {
+            SK_ONLY_STACK_ALLOCATABLE;
             Resource* resource;
             SkDEBUGCODE(bool takeRefActuallyCalled = false;)
         } ctx = {resource};
@@ -814,18 +816,17 @@ void ResourceCache::validate() const {
     }
 
     struct Stats {
-        int fShareable;
-        int fScratch;
-        size_t fBudgetedBytes;
-        size_t fPurgeableBytes;
+        SK_ONLY_STACK_ALLOCATABLE;
+        int fShareable = 0;
+        int fScratch = 0;
+        size_t fBudgetedBytes = 0;
+        size_t fPurgeableBytes = 0;
         const ResourceMap* fResourceMap;
         const PurgeableQueue* fPurgeableQueue;
 
-        Stats(const ResourceCache* cache) {
-            SK_UNSAFE_TODO(memset(this, 0, sizeof(*this)));
-            fResourceMap = &cache->fResourceMap;
-            fPurgeableQueue = &cache->fPurgeableQueue;
-        }
+        Stats(const ResourceCache* cache)
+                : fResourceMap(&cache->fResourceMap)
+                , fPurgeableQueue(&cache->fPurgeableQueue) {}
 
         void update(Resource* resource) {
             const GraphiteResourceKey& key = resource->key();

@@ -11,6 +11,7 @@
 #include "src/gpu/graphite/CommandBuffer.h"
 
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/draw/DrawPass.h"
 #include "src/gpu/graphite/vk/VulkanComputePipeline.h"
@@ -111,6 +112,7 @@ private:
     void syncDescriptorSets();
 
     struct PushConstantInfo {
+        SK_ONLY_STACK_ALLOCATABLE;
         uint32_t fOffset;
         uint32_t fSize;
         VkShaderStageFlagBits fShaderStageFlagBits;

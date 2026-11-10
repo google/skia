@@ -45,8 +45,8 @@ public:
                bool useGammaCorrectDistanceTable,
                SkPixelGeometry pixelGeometry,
                Recorder* recorder)
-        : fSubRun(subRun)
-        , fSupportDataKeepAlive(std::move(supportDataKeepAlive))
+        : fSupportDataKeepAlive(std::move(supportDataKeepAlive))
+        , fSubRun(subRun)
         , fBounds(maskBounds)
         , fMaskToDevice(maskToDevice)
         , fStartGlyphIndex(startGlyphIndex)
@@ -87,9 +87,10 @@ public:
     }
 
 private:
+    // Keep the TextBlob or Slug alive until we're done with the Geometry (declared before fSubRun
+    // so it outlives fSubRun on destruction).
+    sk_sp<SkRefCnt>                 fSupportDataKeepAlive;
     const sktext::gpu::AtlasSubRun* fSubRun;
-    // Keep the TextBlob or Slug alive until we're done with the Geometry.
-    sk_sp<SkRefCnt> fSupportDataKeepAlive;
 
     Rect fBounds;  // bounds of the data stored in the SubRun
     SkM44 fMaskToDevice;

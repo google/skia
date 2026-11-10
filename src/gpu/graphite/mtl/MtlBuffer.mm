@@ -81,6 +81,7 @@ void MtlBuffer::onUnmap() {
 }
 
 void MtlBuffer::freeGpuData() {
+    fMapPtr = nullptr;
     fBuffer.reset();
 }
 

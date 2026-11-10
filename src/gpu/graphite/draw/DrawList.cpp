@@ -291,8 +291,8 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
 
 void DrawList::reset(LoadOp op, SkColor4f clearColor) {
     SK_SCOPED_DISABLE_PARTITION_ALLOC_SAFETY_CHECKS;
-    fDraws.reset();
     fSortKeys.clear();
+    fDraws.reset();
     DrawListBase::reset(op, clearColor);
 }
 

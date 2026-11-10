@@ -234,22 +234,22 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(DynamicVerticesPaddingTest,
         return;
     }
     DrawPassCommands::List commandList;
-    std::unique_ptr<DrawWriter> dw = std::make_unique<DrawWriter>(&commandList, bufferMgr);
+    DrawWriter dw(&commandList, bufferMgr);
 
     auto vertsNewPipeline = [&]() {
-        dw->newPipelineState(/*type=*/{}, kStride, kStride, RenderStateFlags::kAppendVertices,
-                             BarrierType::kNone);
+        dw.newPipelineState(/*type=*/{}, kStride, kStride, RenderStateFlags::kAppendVertices,
+                            BarrierType::kNone);
         return;
     };
 
     constexpr uint32_t V = UINT32_MAX;
     auto vertAppend = [&](uint32_t count) -> BindBufferInfo {
-        DrawWriter::Vertices vdw{*dw};
+        DrawWriter::Vertices vdw{dw};
         auto a = vdw.append(count);
         for (uint32_t i = 0; i < count; ++i) {
             a << V;
         }
-        return dw->getLastAppendedBuffer();
+        return dw.getLastAppendedBuffer();
     };
 
     BindBufferInfo lastBBI;
@@ -271,10 +271,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(DynamicVerticesPaddingTest,
     bindBuffers.push_back(lastBBI);
     vertsNewPipeline();
     if (checkAndAdvance(vertAppend(2), true))  { return; }
-    dw->newDynamicState();
+    dw.newDynamicState();
     if (checkAndAdvance(vertAppend(3), false)) { return; }
     if (checkAndAdvance(vertAppend(1), true))  { return; }
-    dw->newDynamicState();
+    dw.newDynamicState();
     if (checkAndAdvance(vertAppend(1), true))  { return; }
     vertsNewPipeline();
     if (checkAndAdvance(vertAppend(1), false)) { return; }
@@ -285,7 +285,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(DynamicVerticesPaddingTest,
     if (checkAndAdvance(vertAppend(2), true))  { return; }
     if (checkAndAdvance(vertAppend(3), false)) { return; }
     if (checkAndAdvance(vertAppend(2), true))  { return; }
-    dw->flush();
+    dw.flush();
 
     constexpr uint32_t P = 0;
     constexpr uint32_t kExpectedBufferCount = 4;

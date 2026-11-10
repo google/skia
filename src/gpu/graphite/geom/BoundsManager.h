@@ -296,18 +296,17 @@ private:
     const int     fMaxBruteForceN;
     const int     fMaxGridSize;
 
-    // fBruteForceManager must be declared before fCurrentManager so that fBruteForceManager
-    // outlives fCurrentManager on destruction (since fCurrentManager can point to
-    // fBruteForceManager).
+    // fBruteForceManager and fGridManager must be declared before fCurrentManager so that they
+    // outlive fCurrentManager on destruction (since fCurrentManager points to one of them).
     BruteForceBoundsManager                  fBruteForceManager;
-
-    BoundsManager* fCurrentManager;
 
     // The grid manager starts out null and is created the first time we exceed fMaxBruteForceN.
     // However, even if we reset back to the brute force manager, we keep the grid around under the
     // assumption that the owning Device will have similar frame-to-frame draw counts and will need
     // to upgrade to the grid manager again.
     std::unique_ptr<GridBoundsManager>       fGridManager;
+
+    BoundsManager*                           fCurrentManager;
 
     void updateCurrentManagerIfNeeded() {
         if (fCurrentManager == fGridManager.get() ||

@@ -103,6 +103,9 @@ void GlobalCache::deleteResources() {
     for (int i = 0; i < kNumDynamicSamplers; ++i) {
         fDynamicSamplers[i] = nullptr;
     }
+#if defined(GPU_TEST_UTILS)
+    fStaticVertexBuffer = nullptr;
+#endif
 
     fGraphicsPipelineCache.reset();
     fComputePipelineCache.reset();

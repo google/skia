@@ -16,6 +16,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkAttributes.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/graphite/Caps.h"
@@ -127,10 +128,12 @@ sk_sp<TextureProxy> ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
     maskKey = GenerateClipMaskKey(stackRecordID, elementList, maskDeviceBounds,
                                   /*includeBounds=*/true, &keyBounds, &usesPathKey);
 
-    const struct ClipDrawContext {
+    struct ClipDrawContext {
+        SK_ONLY_STACK_ALLOCATABLE;
         const ClipStack::ElementList* fElementList;
         SkIRect fMaskDeviceBounds;
-    } context = {elementList, maskDeviceBounds};
+    };
+    const ClipDrawContext context = {elementList, maskDeviceBounds};
     sk_sp<TextureProxy> proxy = fRecorder->priv().proxyCache()->findOrCreateCachedProxy(
             fRecorder, maskKey, &context,
             [](const void* ctx) {

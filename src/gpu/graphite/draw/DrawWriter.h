@@ -12,6 +12,7 @@
 #include "include/private/SkContainers.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkEnumBitMask.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
@@ -71,6 +72,8 @@ class List;
  */
 class DrawWriter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     // NOTE: This constructor creates a writer that defaults 0 vertex and instance stride, so
     // 'newPipelineState()' must be called once the pipeline properties are known before it's used.
     DrawWriter(DrawPassCommands::List*, DrawBufferManager*);
@@ -386,6 +389,8 @@ private:
 // template-specific API to accumulate vertex/instance data.
 class DrawWriter::Appender {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     Appender(DrawWriter& w, SkEnumBitMask<RenderStateFlags> renderState)
             : fDrawer(w) {
         SkASSERT(w.fAppendStride > 0);

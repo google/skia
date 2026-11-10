@@ -9,6 +9,7 @@
 
 #include "include/core/SkMesh.h"
 #include "include/private/SkAttributes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkMeshPriv.h"
 #include "src/gpu/BlendFormula.h"
 #include "src/gpu/graphite/ContextUtils.h"
@@ -926,6 +927,8 @@ static constexpr skgpu::BlendInfo gBlendTable[kSkBlendModeCount] = {
 }  // anonymous namespace
 
 struct ShaderInfo::SharedGeneratorData {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SharedGeneratorData(const Caps* caps,
                         const ShaderCodeDictionary* dict,
                         const RuntimeEffectDictionary* rteDict,

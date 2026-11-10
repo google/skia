@@ -9,6 +9,7 @@
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkAttributes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/sksl/codegen/SkSLCodeGenTypes.h"
 #include "src/sksl/spirv.h"
 
@@ -283,6 +284,8 @@ TransformationState SpirvMultisampleTransformer::transformOpImageRead(SpvId resu
 // modify input attachment load when multisampled.
 class SpirvTransformer {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SpirvTransformer(const SpirvBlob& spirvIn,
                      const SPIRVTransformOptions& options,
                      SpirvBlob* spirvOut)

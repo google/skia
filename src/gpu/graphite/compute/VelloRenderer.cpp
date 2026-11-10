@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkLog.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkTraceEvent.h"
@@ -115,6 +116,8 @@ vello_cpp::Stroke to_stroke(const SkStrokeRec& style) {
 
 class PathIter : public vello_cpp::PathIterator {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     PathIter(const SkPath& path, const Transform& t)
             : fIterate(path), fIter(fIterate.begin()), fTransform(t) {}
 

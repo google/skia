@@ -15,6 +15,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/SkAttributes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
@@ -459,6 +460,8 @@ private:
 #ifdef SK_DEBUG
 class UniformExpectationsValidator {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     UniformExpectationsValidator(PipelineDataGatherer* gatherer,
                                  SkSpan<const Uniform> expectedUniforms,
                                  bool isSubstruct = false)

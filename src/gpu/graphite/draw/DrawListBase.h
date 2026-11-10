@@ -12,6 +12,7 @@
 #include "include/private/SkAttributes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkEnumBitMask.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkBlockAllocator.h"
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/graphite/ContextUtils.h"
@@ -271,6 +272,8 @@ protected:
     // TextureDataBlocks to that representation as needed.
     class TextureTracker {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         TextureTracker(TextureDataCache* textureCache) : fTextureCache(textureCache) {}
 
         bool setCurrentTextureBindings(TextureDataCache::Index bindingIndex) {

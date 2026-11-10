@@ -12,6 +12,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkLog.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/Token.h"
 #include "src/gpu/graphite/DebugUtils.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
@@ -32,6 +33,7 @@ class Task : public SkRefCnt {
 public:
     // Holds a render target and translation to use in the task's work, if necessary.
     struct ReplayTargetData {
+        SK_ONLY_STACK_ALLOCATABLE;
         const Texture* fTarget;
         SkIVector fTranslation;
         SkIRect fClip;

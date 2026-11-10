@@ -42,6 +42,8 @@ enum class RootBlockType : int32_t {
 };
 
 struct RootNodesInfo {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     const ShaderNode* fSrcColor = nullptr;
     const ShaderNode* fFinalBlend = nullptr;
     const ShaderNode* fClip = nullptr;
