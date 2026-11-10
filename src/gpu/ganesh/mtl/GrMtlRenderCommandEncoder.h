@@ -267,8 +267,7 @@ private:
     NSUInteger fCurrentFragmentOffset[2 + GrMtlUniformHandler::kUniformBindingCount];
     __weak id<MTLTexture> fCurrentTexture[kMaxTextures];
     GrMtlSampler* fCurrentSampler[kMaxSamplers] = {};
-    MTLScissorRect fCurrentScissorRect = {
-            ~static_cast<NSUInteger>(0), ~static_cast<NSUInteger>(0), 0, 0};
+    MTLScissorRect fCurrentScissorRect = { 0, 0, 0, 0 };
     MTLTriangleFillMode fCurrentTriangleFillMode = (MTLTriangleFillMode)-1;
 };
 
