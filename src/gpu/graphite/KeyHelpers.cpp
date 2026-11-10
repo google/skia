@@ -1359,59 +1359,6 @@ void ColorSpaceTransformBlock::AddBlock(const KeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
-#if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
-
-namespace {
-
-void add_analytic_clip_data(const KeyContext& keyContext,
-                            const NonMSAAClipBlock::NonMSAAClipData& data) {
-    BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kAnalyticClip)
-    keyContext.pipelineDataGatherer()->write(data.fRect);
-    keyContext.pipelineDataGatherer()->write(data.fRadiusPlusHalf);
-    keyContext.pipelineDataGatherer()->writeHalf(data.fEdgeSelect);
-}
-
-void add_analytic_and_atlas_clip_data(const KeyContext& keyContext,
-                                      const NonMSAAClipBlock::NonMSAAClipData& data) {
-    BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kAnalyticAndAtlasClip)
-    keyContext.pipelineDataGatherer()->write(data.fRect);
-    keyContext.pipelineDataGatherer()->write(data.fRadiusPlusHalf);
-    keyContext.pipelineDataGatherer()->writeHalf(data.fEdgeSelect);
-    keyContext.pipelineDataGatherer()->write(data.fTexCoordOffset);
-    keyContext.pipelineDataGatherer()->write(data.fMaskBounds);
-    if (data.fAtlasTexture) {
-        keyContext.pipelineDataGatherer()->write(
-                SkSize::Make(1.f/data.fAtlasTexture->dimensions().width(),
-                             1.f/data.fAtlasTexture->dimensions().height()));
-    } else {
-        keyContext.pipelineDataGatherer()->write(SkSize::Make(0, 0));
-    }
-}
-
-}  // anonymous namespace
-
-void NonMSAAClipBlock::AddBlock(const KeyContext& keyContext, const NonMSAAClipData& data) {
-    if (data.fAtlasTexture) {
-        add_analytic_and_atlas_clip_data(keyContext, data);
-        keyContext.paintParamsKeyBuilder()->beginBlock(BuiltInCodeSnippetID::kAnalyticAndAtlasClip);
-
-        const Caps* caps = keyContext.caps();
-        ImmutableSamplerInfo info =
-                caps->getImmutableSamplerInfo(data.fAtlasTexture->textureInfo());
-        SamplerDesc samplerDesc {SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone),
-                                 {SkTileMode::kClamp, SkTileMode::kClamp},
-                                 info};
-        keyContext.pipelineDataGatherer()->add(data.fAtlasTexture, samplerDesc);
-
-        keyContext.paintParamsKeyBuilder()->endBlock();
-    } else {
-        add_analytic_clip_data(keyContext, data);
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kAnalyticClip);
-    }
-}
-
-#else
-
 namespace {
 
 void add_analytic_clip_data(const KeyContext& keyContext, const AnalyticClip& clip) {
@@ -1472,8 +1419,6 @@ void AddAnalyticClip(const KeyContext& keyContext, const NonMSAAClip& clip) {
         keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kAnalyticClip);
     }
 }
-
-#endif // SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER
 
 //--------------------------------------------------------------------------------------------------
 

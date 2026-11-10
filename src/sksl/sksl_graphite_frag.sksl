@@ -155,47 +155,6 @@ $pure half4 sk_csxform_gamut(half4 color, half3x3 gamut) {
 
 // ------------------------------------------------------------------------------------------------
 
-$pure half4 sk_analytic_clip_legacy(float2 coords,
-                                    float4 rect,
-                                    float2 radiusPlusHalf,
-                                    half4 edgeSelect) {
-    // Negative x indicates inverse fill
-    float2 radius = float2(abs(radiusPlusHalf.x));
-    float2 dxy0 = edgeSelect.LT*((rect.LT + radius) - coords);
-    float2 dxy1 = edgeSelect.RB*(coords - (rect.RB - radius));
-    float2 dxy = max(max(dxy0, dxy1), 0.0);
-    // Use more complex length calculation to manage precision issues
-    half circleCornerAlpha = half(saturate(radius.x*(1.0 - length(dxy*radiusPlusHalf.y))));
-
-    half4 rectEdgeAlphas = saturate(half4(coords - rect.LT, rect.RB - coords));
-    rectEdgeAlphas = mix(rectEdgeAlphas, half4(1), edgeSelect);
-
-    half alpha = circleCornerAlpha * rectEdgeAlphas.x * rectEdgeAlphas.y *
-                 rectEdgeAlphas.z * rectEdgeAlphas.w;
-    // Check for inverse fill
-    alpha = radiusPlusHalf.x < 0 ? (1-alpha) : alpha;
-
-    return half4(alpha);
-}
-
-$pure half4 sk_analytic_and_atlas_clip_legacy(float2 coords,
-                                              float4 rect,
-                                              float2 radiusPlusHalf,
-                                              half4 edgeSelect,
-                                              float2 texCoordOffset,
-                                              float4 maskBounds,
-                                              float2 invAtlasSize,
-                                              sampler2D atlasSampler) {
-    half4 analyticClip = sk_analytic_clip_legacy(coords, rect, radiusPlusHalf, edgeSelect);
-
-    float2 texCoord = coords + texCoordOffset;
-    float2 clampedTexCoord = clamp(texCoord, maskBounds.LT, maskBounds.RB);
-
-    half atlasClip = sample(atlasSampler, clampedTexCoord * invAtlasSize).r;
-
-    return analyticClip * atlasClip;
-}
-
 /**
  * `xform` is the 2x2 inverse of the original clip's local-to-device matrix (limited to it being
  * affine). Any translation from that transform should be pre-applied to `rect`. `rect` and `radii`

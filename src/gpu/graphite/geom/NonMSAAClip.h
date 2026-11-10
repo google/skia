@@ -8,12 +8,8 @@
 #ifndef skgpu_graphite_geom_NonMSAAClip_DEFINED
 #define skgpu_graphite_geom_NonMSAAClip_DEFINED
 
-#if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
-#include "src/gpu/graphite/geom/Rect.h"
-#else
 #include "include/core/SkM44.h"
 #include "include/core/SkRect.h"
-#endif
 
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -25,31 +21,6 @@ namespace skgpu::graphite {
  * transformation.
  */
 struct AnalyticClip {
-#if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
-    // Indicate which edges are adjacent to circular corners.
-    enum EdgeFlags {
-        kLeft_EdgeFlag   = 0b0001,
-        kTop_EdgeFlag    = 0b0010,
-        kRight_EdgeFlag  = 0b0100,
-        kBottom_EdgeFlag = 0b1000,
-
-        kNone_EdgeFlag   = 0b0000,
-        kAll_EdgeFlag    = 0b1111,
-    };
-    // These defaults will produce no clip
-    Rect     fBounds = { 0, 0, 0, 0 }; // Bounds of clip
-    float    fRadius = 0;              // Circular radius, if any
-    uint32_t fEdgeFlags = kNone_EdgeFlag;
-    bool     fInverted = true;
-
-    bool isEmpty() const { return fBounds.isEmptyNegativeOrNaN(); }
-    SkRect edgeSelectRect() const {
-        return { fEdgeFlags & kLeft_EdgeFlag   ? 1.f : 0.f,
-                 fEdgeFlags & kTop_EdgeFlag    ? 1.f : 0.f,
-                 fEdgeFlags & kRight_EdgeFlag  ? 1.f : 0.f,
-                 fEdgeFlags & kBottom_EdgeFlag ? 1.f : 0.f };
-    }
-#else
     // These defaults will produce no clip
     SkRect fBounds = { 0, 0, 0, 0 }; // Bounds of clip
     SkV4   fRadii = {0.f, 0.f, 0.f, 0.f};
@@ -60,7 +31,6 @@ struct AnalyticClip {
 
     // When this is true, the shader will always evaluate to full coverage
     bool isEmpty() const { return fBounds.isEmpty() && !fInverted; }
-#endif
 };
 
 /**

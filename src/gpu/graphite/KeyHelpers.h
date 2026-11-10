@@ -318,40 +318,8 @@ struct ColorSpaceTransformBlock {
     static void AddBlock(const KeyContext&, const ColorSpaceTransformData&);
 };
 
-#if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
-struct NonMSAAClipBlock {
-    struct NonMSAAClipData {
-        NonMSAAClipData(SkRect rect,
-                        SkPoint radiusPlusHalf,
-                        SkRect edgeSelect,
-                        SkPoint texCoordOffset,
-                        SkRect maskBounds,
-                        sk_sp<TextureProxy> atlasTexture)
-                : fRect(rect)
-                , fRadiusPlusHalf(radiusPlusHalf)
-                , fEdgeSelect(edgeSelect)
-                , fTexCoordOffset(texCoordOffset)
-                , fMaskBounds(maskBounds)
-                , fAtlasTexture(std::move(atlasTexture)){}
-        // analytic clip
-        SkRect  fRect;            // bounds, outset by 0.5
-        SkPoint fRadiusPlusHalf;  // abs() of .x is radius+0.5, if < 0 indicates inverse fill
-                                  // .y is 1/(radius+0.5)
-        SkRect  fEdgeSelect;      // 1 indicates a rounded corner on that side (LTRB), 0 otherwise
-
-        // atlas clip
-        SkPoint fTexCoordOffset;  // translation from local coords to unnormalized texel coords
-        SkRect  fMaskBounds;      // bounds of mask area, in unnormalized texel coords
-
-        sk_sp<TextureProxy> fAtlasTexture;
-    };
-
-    static void AddBlock(const KeyContext&, const NonMSAAClipData&);
-};
-#else
 // Adds either just AnalyticClip or kAnalyticAndAtlasClip block depending on the state of the clip.
 void AddAnalyticClip(const KeyContext&, const NonMSAAClip&);
-#endif
 
 /**
  * Adds a block that references the primitive color produced by the RenderStep and accounts for
