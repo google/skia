@@ -221,7 +221,7 @@ SkGradientBaseShader::SkGradientBaseShader(const SkGradient& desc, const SkMatri
     size_t storageSize =
             fColorCount * (sizeof(SkColor4f) + (pos.size() > 0 ? sizeof(SkScalar) : 0));
     fColors = reinterpret_cast<SkColor4f*>(fStorage.reset(storageSize));
-    fPositions = pos.size() > 0 ? reinterpret_cast<float*>(fColors + fColorCount) : nullptr;
+    fPositions = pos.size() > 0 ? SkTAfter<float>(fColors.get(), fColorCount) : nullptr;
 
     // Now copy over the colors, adding the duplicates at t=0 and t=1 as needed
     SkColor4f* colorPtr = fColors;

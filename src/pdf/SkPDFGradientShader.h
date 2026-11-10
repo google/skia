@@ -53,8 +53,8 @@ inline bool operator==(const SkShaderBase::GradientInfo& u, const SkShaderBase::
         && u.fRadius[1]     == v.fRadius[1]
         && u.fTileMode      == v.fTileMode
         && u.fPremulInterp  == v.fPremulInterp
-        && SkPackedArrayEqual(u.fColors, v.fColors, u.fColorCount)
-        && SkPackedArrayEqual(u.fColorOffsets, v.fColorOffsets, u.fColorCount);
+        && SkPackedArrayEqual(u.fColors.get(), v.fColors.get(), u.fColorCount)
+        && SkPackedArrayEqual(u.fColorOffsets.get(), v.fColorOffsets.get(), u.fColorCount);
 }
 
 inline bool operator==(const Key& u, const Key& v) {

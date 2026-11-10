@@ -10,6 +10,7 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkTypes.h"
 #include "src/codec/SkSampler.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstdint>
 
@@ -62,15 +63,15 @@ private:
 
     int onSetSampleX(int) override;
 
-    SkMasks*        fMasks;           // unowned
-    const RowProc   fRowProc;
+    raw_ptr<SkMasks> fMasks;          // unowned
+    const RowProc    fRowProc;
 
     // FIXME: Can this class share more with SkSwizzler? These variables are all the same.
-    const int       fSubsetWidth;     // Width of the subset of source before any sampling.
-    int             fDstWidth;        // Width of dst, which may differ with sampling.
-    int             fSampleX;
-    int             fSrcOffset;
-    int             fX0;
+    const int        fSubsetWidth;    // Width of the subset of source before any sampling.
+    int              fDstWidth;       // Width of dst, which may differ with sampling.
+    int              fSampleX;
+    int              fSrcOffset;
+    int              fX0;
 };
 
 #endif

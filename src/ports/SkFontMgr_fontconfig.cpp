@@ -33,6 +33,7 @@
 #include "src/core/SkTHash.h"
 #include "src/core/SkTSort.h"
 #include "src/core/SkTypefaceCache.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/ports/SkTypeface_proxy.h"
 
 #include <array>
@@ -642,7 +643,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
         SkAutoFcPattern fPattern;  // The substituted request, without FC_CHARSET.
         // A font with the best score on the elements ranked above FC_CHARSET, or null if no
         // font is found.
-        FcPattern* fBestRanked = nullptr;
+        raw_ptr<FcPattern> fBestRanked;
         THashMap<int, sk_sp<SkTypeface>> fTypefaces;  // Coverage class to result.
 
         ~FallbackSet() {
@@ -660,7 +661,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
         TArray<FcPattern*> fFonts;  // System fonts, then application fonts, as in FcFontMatch.
         struct CharSet {
             int fFont;
-            FcCharSet* fCharSet;
+            raw_ptr<FcCharSet> fCharSet;
         };
         TArray<CharSet> fCharSets;  // Each FC_CHARSET value of each font.
         THashMap<uint32_t, std::array<int, 256>> fPageClasses;  // Page to class of each char.

@@ -249,8 +249,7 @@ SkIcoCodec::SkIcoCodec(SkEncodedInfo&& info,
         // The source skcms_PixelFormat will not be used. The embedded
         // codec's will be used instead.
         : INHERITED(std::move(info), skcms_PixelFormat(), std::move(stream))
-        , fEmbeddedCodecs(std::move(codecs))
-        , fCurrCodec(nullptr) {}
+        , fEmbeddedCodecs(std::move(codecs)) {}
 
 /*
  * Chooses the best dimensions given the desired scale

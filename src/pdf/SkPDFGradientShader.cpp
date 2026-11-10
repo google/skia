@@ -368,8 +368,9 @@ static std::unique_ptr<SkPDFDict> gradientStitchCode(const SkShaderBase::Gradien
 
     // normalize color stops
     int colorCount = info.fColorCount;
-    std::vector<SkColor4f> colors(info.fColors, info.fColors + colorCount);
-    std::vector<SkScalar> colorOffsets(info.fColorOffsets, info.fColorOffsets + colorCount);
+    std::vector<SkColor4f> colors(info.fColors.get(), info.fColors.get() + colorCount);
+    std::vector<SkScalar> colorOffsets(info.fColorOffsets.get(),
+                                       info.fColorOffsets.get() + colorCount);
 
     int i = 1;
     while (i < colorCount - 1) {
@@ -1066,7 +1067,7 @@ static SkPDFGradientShader::Key make_key(const SkShader* shader,
     as_SB(shader)->asGradient(&key.fInfo);
     if (key.fInfo.fPremulInterp) {
         bool changedByPremul = false;
-        for (auto&& c : SkSpan(key.fInfo.fColors, key.fInfo.fColorCount)) {
+        for (auto&& c : SkSpan(key.fInfo.fColors.get(), key.fInfo.fColorCount)) {
             if (c.fA != 1.0f) {
                 changedByPremul = true;
             }

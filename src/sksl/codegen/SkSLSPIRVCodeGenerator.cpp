@@ -3551,7 +3551,7 @@ public:
     }
 
     SpvId load(SPIRVBlob& out) override {
-        return fGen.writeOpLoad(fType, fPrecision, fPointer, out);
+        return fGen->writeOpLoad(fType, fPrecision, fPointer, out);
     }
 
     void store(SpvId value, SPIRVBlob& out) override {
@@ -3561,14 +3561,14 @@ public:
             // *unknown* elements of our store cache. (e.g. if the store cache holds `%50 = myVec4`,
             // and we store `%60 = myVec4.z`, this invalidates the cached value for %50.) To avoid
             // relying on stale data, reset the store cache entirely when this happens.
-            fGen.fStoreCache.reset();
+            fGen->fStoreCache.reset();
         }
 
-        fGen.writeOpStore(fStorageClass, fPointer, value, out);
+        fGen->writeOpStore(fStorageClass, fPointer, value, out);
     }
 
 private:
-    SPIRVCodeGenerator& fGen;
+    const raw_ref<SPIRVCodeGenerator> fGen;
     const SpvId fPointer;
     const bool fIsMemoryObject;
     const SpvId fType;
@@ -3606,16 +3606,16 @@ public:
     }
 
     SpvId load(SPIRVBlob& out) override {
-        SpvId base = fGen.nextId(fBaseType);
-        fGen.writeInstruction(SpvOpLoad, fGen.getType(*fBaseType), base, fVecPointer, out);
-        SpvId result = fGen.nextId(fBaseType);
-        fGen.writeOpCode(SpvOpVectorShuffle, 5 + (int32_t) fComponents.size(), out);
-        fGen.writeWord(fGen.getType(*fSwizzleType), out);
-        fGen.writeWord(result, out);
-        fGen.writeWord(base, out);
-        fGen.writeWord(base, out);
+        SpvId base = fGen->nextId(fBaseType);
+        fGen->writeInstruction(SpvOpLoad, fGen->getType(*fBaseType), base, fVecPointer, out);
+        SpvId result = fGen->nextId(fBaseType);
+        fGen->writeOpCode(SpvOpVectorShuffle, 5 + (int32_t) fComponents.size(), out);
+        fGen->writeWord(fGen->getType(*fSwizzleType), out);
+        fGen->writeWord(result, out);
+        fGen->writeWord(base, out);
+        fGen->writeWord(base, out);
         for (int component : fComponents) {
-            fGen.writeWord(component, out);
+            fGen->writeWord(component, out);
         }
         return result;
     }
@@ -3631,14 +3631,14 @@ public:
         // we end up with the virtual vector (L.x, L.y, L.z, R.x, R.y, R.z). Then we want
         // our result vector to look like (R.x, L.y, R.y), so we need to select indices
         // (3, 1, 4).
-        SpvId base = fGen.nextId(fBaseType);
-        fGen.writeInstruction(SpvOpLoad, fGen.getType(*fBaseType), base, fVecPointer, out);
-        SpvId shuffle = fGen.nextId(fBaseType);
-        fGen.writeOpCode(SpvOpVectorShuffle, 5 + fBaseType->columns(), out);
-        fGen.writeWord(fGen.getType(*fBaseType), out);
-        fGen.writeWord(shuffle, out);
-        fGen.writeWord(base, out);
-        fGen.writeWord(value, out);
+        SpvId base = fGen->nextId(fBaseType);
+        fGen->writeInstruction(SpvOpLoad, fGen->getType(*fBaseType), base, fVecPointer, out);
+        SpvId shuffle = fGen->nextId(fBaseType);
+        fGen->writeOpCode(SpvOpVectorShuffle, 5 + fBaseType->columns(), out);
+        fGen->writeWord(fGen->getType(*fBaseType), out);
+        fGen->writeWord(shuffle, out);
+        fGen->writeWord(base, out);
+        fGen->writeWord(value, out);
         for (int i = 0; i < fBaseType->columns(); i++) {
             // current offset into the virtual vector, defaults to pulling the unmodified
             // value from the left side
@@ -3653,13 +3653,13 @@ public:
                     break;
                 }
             }
-            fGen.writeWord(offset, out);
+            fGen->writeWord(offset, out);
         }
-        fGen.writeOpStore(fStorageClass, fVecPointer, shuffle, out);
+        fGen->writeOpStore(fStorageClass, fVecPointer, shuffle, out);
     }
 
 private:
-    SPIRVCodeGenerator& fGen;
+    const raw_ref<SPIRVCodeGenerator> fGen;
     const SpvId fVecPointer;
     ComponentArray fComponents;
     raw_ptr<const Type> fBaseType;

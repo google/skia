@@ -321,6 +321,7 @@ skia_cc_library(
         # icos can be either PNG or BMP
         ":bmp_decode",
         ":png_decode",
+        "//src/partition_alloc:raw_ptr",
     ],
 )
 
@@ -478,6 +479,7 @@ skia_cc_library(
         "//modules/skcms",
         "//src/core",
         "//src/core:core_priv",
+        "//src/partition_alloc:raw_ptr",
         "@libpng",
     ],
 )

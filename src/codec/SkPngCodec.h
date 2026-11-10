@@ -17,6 +17,7 @@
 #include "include/core/SkSpan.h"
 #include "include/private/SkGainmapInfo.h"
 #include "src/codec/SkPngCodecBase.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 class SkPngChunkReader;
 class SkPngCompositeChunkReader;
@@ -42,11 +43,11 @@ protected:
         voidp(void* ptr) : fPtr(ptr) {}
 
         template <typename T>
-        operator T*() const { return (T*)fPtr; }
+        operator T*() const { return static_cast<T*>(fPtr.get()); }
 
         explicit operator bool() const { return fPtr != nullptr; }
 
-        void* fPtr;
+        raw_ptr<void> fPtr;
     };
 
     SkPngCodec(SkEncodedInfo&&,
@@ -61,8 +62,8 @@ protected:
             override;
     bool onRewind() override;
 
-    voidp png_ptr() { return fPng_ptr; }
-    voidp info_ptr() { return fInfo_ptr; }
+    const voidp& png_ptr() const { return fPng_ptr; }
+    const voidp& info_ptr() const { return fInfo_ptr; }
 
     /**
      *  Pass available input to libpng to process it.

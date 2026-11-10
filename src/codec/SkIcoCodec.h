@@ -12,6 +12,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <memory>
@@ -103,7 +104,7 @@ private:
 
     // fCurrCodec is owned by this class, but should not be an
     // std::unique_ptr.  It will be deleted by the destructor of fEmbeddedCodecs.
-    SkCodec* fCurrCodec;
+    raw_ptr<SkCodec> fCurrCodec;
 
     using INHERITED = SkCodec;
 };

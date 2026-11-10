@@ -26,6 +26,7 @@
 #include "src/codec/SkJpegCodec.h"
 #include "src/core/SkStreamPriv.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <algorithm>
 #include <cmath>
@@ -481,7 +482,7 @@ public:
     }
 
 private:
-    SkRawStream* fStream;
+    raw_ptr<SkRawStream> fStream;
 };
 
 class SkDngImage {

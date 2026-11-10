@@ -20,6 +20,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkColorData.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/shaders/SkShaderBase.h"
 
 #include <cstddef>
@@ -112,9 +113,9 @@ public:
         return fColors[i].toSkColor();
     }
 
-    SkSpan<const SkColor4f> colors() const { return {fColors, fColorCount}; }
+    SkSpan<const SkColor4f> colors() const { return {fColors.get(), fColorCount}; }
     SkSpan<const float> positions() const {
-        return {fPositions, fPositions ? fColorCount : 0};
+        return {fPositions.get(), fPositions ? fColorCount : 0};
     }
 
     bool firstStopIsImplicit() const { return fFirstStopIsImplicit; }
@@ -138,11 +139,11 @@ private:
             (sizeof(SkColor4f) + sizeof(SkScalar)) * kInlineStopCount;
     skia_private::AutoSTMalloc<kInlineStorageSize, uint8_t> fStorage;
 
-    SkColor4f* fColors;               // points into fStorage
-    SkScalar* fPositions;             // points into fStorage, or nullptr
-    sk_sp<SkColorSpace> fColorSpace;  // color space of gradient stops
+    raw_ptr<SkColor4f, AllowPtrArithmetic> fColors;    // points into fStorage
+    raw_ptr<SkScalar, AllowPtrArithmetic> fPositions;  // points into fStorage, or nullptr
+    sk_sp<SkColorSpace> fColorSpace;                   // color space of gradient stops
     Interpolation fInterpolation;
-    size_t fColorCount;               // length of fColors (and fPositions, if not nullptr)
+    size_t fColorCount;                                // length of fColors (and fPositions, if not nullptr)
     bool fFirstStopIsImplicit;
     bool fLastStopIsImplicit;
 

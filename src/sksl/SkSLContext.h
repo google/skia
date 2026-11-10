@@ -29,7 +29,8 @@ public:
     ~Context();
 
     // The Context holds a reference to all of the built-in types.
-    const BuiltinTypes& fTypes;
+    // RAW_PTR_EXCLUSION: Points to the BuiltinTypes::Get() singleton, which is never freed.
+    RAW_PTR_EXCLUSION const BuiltinTypes& fTypes;
 
     // The Context holds a pointer to the configuration of the program being compiled.
     raw_ptr<ProgramConfig, DanglingUntriaged> fConfig = nullptr;

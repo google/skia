@@ -182,7 +182,7 @@ public:
     void pushCloneIndirect(SlotRange range, int dynamicStackID, int offsetFromStackTop);
 
 private:
-    Generator* fGenerator;
+    raw_ptr<Generator> fGenerator;
     int fStackID = 0;
     int fParentStackID = 0;
 };
@@ -503,7 +503,7 @@ private:
     std::optional<AutoStack> fTraceMask;
     raw_ptr<const FunctionDefinition> fCurrentFunction = nullptr;
     SlotRange fCurrentFunctionResult;
-    AutoContinueMask* fCurrentContinueMask = nullptr;
+    raw_ptr<AutoContinueMask> fCurrentContinueMask;
     int fCurrentBreakTarget = -1;
     int fCurrentStack = 0;
     int fNextStackID = 0;
@@ -621,7 +621,7 @@ public:
     void enable() {
         SkASSERT(!fContinueMaskStack.has_value());
 
-        fContinueMaskStack.emplace(fGenerator);
+        fContinueMaskStack.emplace(fGenerator.get());
         fPreviousContinueMask = fGenerator->fCurrentContinueMask;
         fGenerator->fCurrentContinueMask = this;
     }
@@ -659,8 +659,8 @@ public:
 
 private:
     std::optional<AutoStack> fContinueMaskStack;
-    Generator* fGenerator = nullptr;
-    AutoContinueMask* fPreviousContinueMask = nullptr;
+    raw_ptr<Generator> fGenerator;
+    raw_ptr<AutoContinueMask> fPreviousContinueMask;
 };
 
 class AutoLoopTarget {
@@ -763,7 +763,7 @@ public:
         if (!fDedicatedStack.has_value()) {
             // Push the scratch expression onto a dedicated stack.
             fGenerator = gen;
-            fDedicatedStack.emplace(fGenerator);
+            fDedicatedStack.emplace(fGenerator.get());
             fDedicatedStack->enter();
             if (!fGenerator->pushExpression(*fExpression)) {
                 return unsupported();
@@ -788,7 +788,7 @@ public:
     }
 
 private:
-    Generator* fGenerator = nullptr;
+    raw_ptr<Generator> fGenerator;
     raw_ptr<const Expression> fExpression = nullptr;
     std::optional<AutoStack> fDedicatedStack;
     int fNumSlots = 0;
@@ -1060,7 +1060,7 @@ public:
         SkASSERT(!fDedicatedStack.has_value());
         SkASSERT(!fGenerator);
         fGenerator = gen;
-        fDedicatedStack.emplace(fGenerator);
+        fDedicatedStack.emplace(fGenerator.get());
 
         if (!fParent->swizzle().empty()) {
             SkDEBUGFAIL("an indexed-swizzle should have been handled by RewriteIndexedSwizzle");
@@ -1118,7 +1118,7 @@ public:
     }
 
 private:
-    Generator* fGenerator = nullptr;
+    raw_ptr<Generator> fGenerator;
     std::unique_ptr<LValue> fParent;
     std::optional<AutoStack> fDedicatedStack;
     raw_ptr<const IndexExpression> fIndexExpr = nullptr;

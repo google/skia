@@ -254,6 +254,7 @@ skia_cc_library(
         ":freetype_support",
         "//:core",
         "//src/core:core_priv",
+        "//src/partition_alloc:raw_ptr",
     ],
 )
 
@@ -371,6 +372,7 @@ skia_cc_library(
         "//:core",
         "//bazel/external/fontconfig",
         "//src/core:core_priv",
+        "//src/partition_alloc:raw_ptr",
     ],
 )
 
