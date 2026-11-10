@@ -159,8 +159,11 @@ crate.spec(
     rev = "5d0418d0eff747c829d52738c092581312f775c9",
 )
 crate.spec(
+    # Pin upstream PR44 (opt-in exact reciprocal quantization and box-average
+    # bottom-edge padding) on top of 0.7 until a new crate version is released.
+    git = "https://github.com/telecos/jpeg-encoder.git",
     package = "jpeg-encoder",
-    version = "=0.6.0",
+    rev = "ca0823eaffee3c09322b960d94965037e6fa574a",
 )
 crate.spec(
     # Pin a specific revision to enable rapid iteration with SkJpegRustCodec rather than

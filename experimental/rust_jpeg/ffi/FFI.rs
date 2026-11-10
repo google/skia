@@ -1895,6 +1895,8 @@ pub fn encode_jpeg(
 
     let mut buf: Vec<u8> = Vec::new();
     let mut encoder = jpeg_encoder::Encoder::new(&mut buf, quality);
+    encoder.set_chroma_subsampling_method(jpeg_encoder::ChromaSubsamplingMethod::Average);
+    encoder.set_exact_quantization(true);
     encoder.set_optimized_huffman_tables(true);
 
     match encoder.encode(&rgb_data, w16, h16, jpeg_color) {
@@ -2468,6 +2470,39 @@ mod tests {
             .unwrap();
 
         assert!(output.len() < default_output.len());
+    }
+
+    #[test]
+    fn test_encode_jpeg_uses_average_subsampling_and_exact_quantization() {
+        let row = [0u8, 0, 0, 246, 255, 255, 255, 255];
+        let mut pixels = Vec::with_capacity(8 * 8);
+        for _ in 0..8 {
+            pixels.extend_from_slice(&row);
+        }
+
+        let mut encoded = Vec::new();
+        assert_eq!(
+            encode_jpeg(
+                &pixels,
+                8,
+                8,
+                8,
+                JpegEncodeColor::Grayscale,
+                JpegEncodeAlpha::Ignore,
+                85,
+                &mut encoded,
+            ),
+            EncodingResult::Success
+        );
+
+        let options =
+            zune_core::options::DecoderOptions::default().jpeg_set_out_colorspace(ZuneColorSpace::Luma);
+        let mut decoder = zune_jpeg::JpegDecoder::new_with_options(
+            zune_core::bytestream::ZCursor::new(&encoded),
+            options,
+        );
+        let decoded = decoder.decode().unwrap();
+        assert_eq!(&decoded[..8], &[0, 1, 0, 246, 254, 255, 255, 255]);
     }
 
     #[test]
