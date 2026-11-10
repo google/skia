@@ -17,6 +17,12 @@
     async function dm(argv) {
       const exit = Promise.withResolvers();
 
+      // A wasm trap (e.g. failed SkASSERT) on a pthread shows up as an uncaught error on the main
+      // thread, instead of going through the onExit/onAbort handlers.
+      window.addEventListener("error", (e) => {
+        exit.reject(new Error("uncaught: " + (e.error?.message ?? e.message)));
+      });
+
       Module = await createModule({
         noInitialRun: true,
         arguments: argv,
@@ -82,6 +88,22 @@
         console.error(e);
       }
     }
+
+    window.getWebGLInfo = function () {
+      const gl = new OffscreenCanvas(1, 1).getContext("webgl2");
+      if (!gl) {
+        return { error: "could not create webgl2 context" };
+      }
+
+      const info = { version: gl.getParameter(gl.VERSION) };
+      const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+      if (dbg) {
+        info.vendor = gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL);
+        info.renderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
+      }
+
+      return info;
+    };
 
     window.run = async function (argv = []) {
       console.log("calling wasm dm with args: " + JSON.stringify(argv));

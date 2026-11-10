@@ -58,9 +58,13 @@ func newChromeContext(
 	stepCtx := td.StartStep(ctx, td.Props("create chrome devtools context").Infra())
 	defer td.EndStep(stepCtx)
 
+	chromeStderr := td.NewLogStream(ctx, "chrome stderr", td.SeverityInfo)
 	execOpts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.ExecPath(chromeBin),
 		chromedp.NoSandbox, // req'd for modern Ubuntus where we don't have sudo/root
+		chromedp.Flag("enable-logging", "stderr"),
+		chromedp.Flag("log-level", "1"), // WARNING+
+		chromedp.CombinedOutput(chromeStderr),
 	)
 	chromeCtx, cancelChrome := chromedp.NewExecAllocator(ctx, execOpts...)
 
