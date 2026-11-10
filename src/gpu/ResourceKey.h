@@ -10,6 +10,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkAlign.h"
 #include "include/private/SkAlignedStorage.h"
@@ -18,6 +19,7 @@
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <limits>
@@ -408,8 +410,7 @@ public:
     uint32_t hash() const { return fHash; }
 
     bool operator==(const FixedSizeKey& that) const {
-        return fHash == that.fHash &&
-               0 == memcmp(fPackedData, that.fPackedData, sizeof(fPackedData));
+        return fHash == that.fHash && fPackedData == that.fPackedData;
     }
 
     class Builder {
@@ -418,7 +419,8 @@ public:
 
         void finish() {
             SkASSERT(fKey);
-            fKey->fHash = ResourceKeyHash(fKey->fPackedData, sizeof(fKey->fPackedData));
+            fKey->fHash = ResourceKeyHash(fKey->fPackedData.data(),
+                                          SkSpan(fKey->fPackedData).size_bytes());
             fKey = nullptr;
         }
 
@@ -438,7 +440,7 @@ public:
 
 private:
     uint32_t fHash = 0;
-    uint32_t fPackedData[SizeInUInt32] = {};
+    std::array<uint32_t, SizeInUInt32> fPackedData = {};
 };
 
 } // namespace skgpu

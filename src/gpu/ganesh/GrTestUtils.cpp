@@ -124,7 +124,7 @@ const SkMatrix& TestMatrixRectStaysRect(SkRandom* random) {
 const SkMatrix& TestMatrixInvertible(SkRandom* random) { return test_matrix(random, true, false); }
 const SkMatrix& TestMatrixPerspective(SkRandom* random) { return test_matrix(random, false, true); }
 
-void TestWrapModes(SkRandom* random, GrSamplerState::WrapMode wrapModes[2]) {
+void TestWrapModes(SkRandom* random, SkSpan<GrSamplerState::WrapMode, 2> wrapModes) {
     static constexpr auto kWrapModes = std::to_array<GrSamplerState::WrapMode>({
             GrSamplerState::WrapMode::kClamp,
             GrSamplerState::WrapMode::kRepeat,

@@ -10,6 +10,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkYUVAInfo.h"
 #include "src/core/SkYUVAInfoLocation.h" // IWYU pragma: keep
@@ -38,14 +39,14 @@ public:
     const char* name() const override { return "YUVtoRGBEffect"; }
 
 private:
-    GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs[4],
+    GrYUVtoRGBEffect(SkSpan<std::unique_ptr<GrFragmentProcessor>, SkYUVAInfo::kMaxPlanes> planeFPs,
                      int numPlanes,
                      const SkYUVAInfo::YUVALocations&,
-                     const bool snap[2],
+                     SkSpan<const bool, 2> snap,
                      bool packedYUYV,
                      const SkMatrix& packedPlaneMatrix,
                      const SkRect& packedSubset,
-                     const GrSamplerState::WrapMode packedWrapModes[2],
+                     SkSpan<const GrSamplerState::WrapMode, 2> packedWrapModes,
                      SkYUVColorSpace yuvColorSpace);
 
     GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src);

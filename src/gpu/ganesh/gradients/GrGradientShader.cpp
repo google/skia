@@ -26,6 +26,7 @@
 #include "include/private/SkMath.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
@@ -401,13 +402,14 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_colorizer(int intervalC
 
 // Converts an input array of {colors, positions} into an array of {scales, biases, thresholds}.
 // The length of the result array may differ from the input due to hard-stops or empty intervals.
-int build_intervals(int inputLength,
-                    const SkPMColor4f* inColors,
-                    const SkScalar* inPositions,
-                    int outputLength,
-                    SkPMColor4f* outScales,
-                    SkPMColor4f* outBiases,
-                    SkScalar* outThresholds) {
+static int build_intervals(int inputLength,
+                           const SkPMColor4f* inColors,
+                           const SkScalar* inPositions,
+                           SkSpan<SkPMColor4f> outScales,
+                           SkSpan<SkPMColor4f> outBiases,
+                           SkSpan<SkScalar> outThresholds) {
+    SkASSERT(outScales.size() == outThresholds.size() &&
+             outBiases.size() == outThresholds.size());
     // Depending on how the positions resolve into hard stops or regular stops, the number of
     // intervals specified by the number of colors/positions can change. For instance, a plain
     // 3 color gradient is two intervals, but a 4 color gradient with a hard stop is also
@@ -415,7 +417,7 @@ int build_intervals(int inputLength,
     // stops has 16 colors.
     int intervalCount = 0;
     for (int i = 0; i < inputLength - 1; i++) {
-        if (intervalCount >= outputLength) {
+        if (SkToSizeT(intervalCount) >= outThresholds.size()) {
             // Already reached our output limit, and haven't run out of color stops. This gradient
             // cannot be represented without more intervals.
             return 0;
@@ -436,8 +438,8 @@ int build_intervals(int inputLength,
         Vec4 scale = (c1 - c0) / dt;
         Vec4 bias = c0 - t0 * scale;
 
-        scale.store(outScales + intervalCount);
-        bias.store(outBiases + intervalCount);
+        scale.store(outScales[intervalCount].vec());
+        bias.store(outBiases[intervalCount].vec());
         outThresholds[intervalCount] = t1;
         intervalCount++;
     }
@@ -451,11 +453,10 @@ static std::unique_ptr<GrFragmentProcessor> make_unrolled_binary_colorizer(
         return nullptr;
     }
 
-    SkPMColor4f scales[kMaxUnrolledIntervalCount];
-    SkPMColor4f biases[kMaxUnrolledIntervalCount];
-    SkScalar thresholds[kMaxUnrolledIntervalCount] = {};
-    int intervalCount = build_intervals(count, colors, positions,
-                                        kMaxUnrolledIntervalCount, scales, biases, thresholds);
+    std::array<SkPMColor4f, kMaxUnrolledIntervalCount> scales;
+    std::array<SkPMColor4f, kMaxUnrolledIntervalCount> biases;
+    std::array<SkScalar, kMaxUnrolledIntervalCount> thresholds = {};
+    int intervalCount = build_intervals(count, colors, positions, scales, biases, thresholds);
     if (intervalCount <= 0) {
         return nullptr;
     }
@@ -463,7 +464,8 @@ static std::unique_ptr<GrFragmentProcessor> make_unrolled_binary_colorizer(
     SkRect thresholds1_7  = {thresholds[0], thresholds[1], thresholds[2], thresholds[3]},
            thresholds9_13 = {thresholds[4], thresholds[5], thresholds[6], 0.0};
 
-    return make_unrolled_colorizer(intervalCount, scales, biases, thresholds1_7, thresholds9_13);
+    return make_unrolled_colorizer(
+            intervalCount, scales.data(), biases.data(), thresholds1_7, thresholds9_13);
 }
 
 static std::unique_ptr<GrFragmentProcessor> make_looping_binary_colorizer(const SkPMColor4f* colors,
@@ -474,11 +476,10 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_binary_colorizer(const 
         return nullptr;
     }
 
-    SkPMColor4f scales[kMaxLoopingIntervalCount];
-    SkPMColor4f biases[kMaxLoopingIntervalCount];
+    std::array<SkPMColor4f, kMaxLoopingIntervalCount> scales;
+    std::array<SkPMColor4f, kMaxLoopingIntervalCount> biases;
     std::array<SkScalar, kMaxLoopingIntervalCount> thresholds = {};
-    int intervalCount = build_intervals(
-            count, colors, positions, kMaxLoopingIntervalCount, scales, biases, thresholds.data());
+    int intervalCount = build_intervals(count, colors, positions, scales, biases, thresholds);
     if (intervalCount <= 0) {
         return nullptr;
     }
@@ -494,7 +495,7 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_binary_colorizer(const 
         biases[intervalCount] = biases[intervalCount - 1];
     }
 
-    return make_looping_colorizer(intervalCount, scales, biases, thresholds.data());
+    return make_looping_colorizer(intervalCount, scales.data(), biases.data(), thresholds.data());
 }
 
 // Many-stop analytic colorizer. The gradient's premul colors and stop offsets

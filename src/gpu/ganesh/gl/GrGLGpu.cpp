@@ -508,15 +508,15 @@ GrGLGpu::~GrGLGpu() {
         this->deleteFramebuffer(fStencilClearFBOID);
     }
 
-    for (size_t i = 0; i < std::size(fCopyPrograms); ++i) {
-        if (0 != fCopyPrograms[i].fProgram) {
-            GL_CALL(DeleteProgram(fCopyPrograms[i].fProgram));
+    for (auto& prog : fCopyPrograms) {
+        if (prog.fProgram) {
+            GL_CALL(DeleteProgram(prog.fProgram));
         }
     }
 
-    for (size_t i = 0; i < std::size(fMipmapPrograms); ++i) {
-        if (0 != fMipmapPrograms[i].fProgram) {
-            GL_CALL(DeleteProgram(fMipmapPrograms[i].fProgram));
+    for (auto& prog : fMipmapPrograms) {
+        if (prog.fProgram) {
+            GL_CALL(DeleteProgram(prog.fProgram));
         }
     }
 
@@ -540,14 +540,14 @@ void GrGLGpu::disconnect(DisconnectType type) {
         if (fStencilClearFBOID) {
             this->deleteFramebuffer(fStencilClearFBOID);
         }
-        for (size_t i = 0; i < std::size(fCopyPrograms); ++i) {
-            if (fCopyPrograms[i].fProgram) {
-                GL_CALL(DeleteProgram(fCopyPrograms[i].fProgram));
+        for (auto& prog : fCopyPrograms) {
+            if (prog.fProgram) {
+                GL_CALL(DeleteProgram(prog.fProgram));
             }
         }
-        for (size_t i = 0; i < std::size(fMipmapPrograms); ++i) {
-            if (fMipmapPrograms[i].fProgram) {
-                GL_CALL(DeleteProgram(fMipmapPrograms[i].fProgram));
+        for (auto& prog : fMipmapPrograms) {
+            if (prog.fProgram) {
+                GL_CALL(DeleteProgram(prog.fProgram));
             }
         }
 
@@ -572,12 +572,12 @@ void GrGLGpu::disconnect(DisconnectType type) {
     fTempDstFBOID = 0;
     fStencilClearFBOID = 0;
     fCopyProgramArrayBuffer.reset();
-    for (size_t i = 0; i < std::size(fCopyPrograms); ++i) {
-        fCopyPrograms[i].fProgram = 0;
+    for (auto& prog : fCopyPrograms) {
+        prog.fProgram = 0;
     }
     fMipmapProgramArrayBuffer.reset();
-    for (size_t i = 0; i < std::size(fMipmapPrograms); ++i) {
-        fMipmapPrograms[i].fProgram = 0;
+    for (auto& prog : fMipmapPrograms) {
+        prog.fProgram = 0;
     }
 
     fFinishCallbacks.callAll(/* doDelete */ DisconnectType::kCleanup == type);

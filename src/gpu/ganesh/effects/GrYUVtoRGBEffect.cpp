@@ -11,6 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkSLSampleUsage.h"
@@ -33,6 +34,7 @@
 #include <cmath>
 #include <cstdint>
 #include <string>
+#include <type_traits>
 #include <utility>
 
 struct GrShaderCaps;
@@ -253,7 +255,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const GrYUVATextureP
         }
     }
     std::unique_ptr<GrFragmentProcessor> fp(
-            new GrYUVtoRGBEffect(planeFPs.data(),
+            new GrYUVtoRGBEffect(planeFPs,
                                  numPlanes,
                                  yuvaProxies.yuvaLocations(),
                                  snap,
@@ -270,15 +272,16 @@ static SkAlphaType alpha_type(const SkYUVAInfo::YUVALocations locations) {
                                                                : kOpaque_SkAlphaType;
 }
 
-GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs[4],
-                                   int numPlanes,
-                                   const SkYUVAInfo::YUVALocations& locations,
-                                   const bool snap[2],
-                                   bool packedYUYV,
-                                   const SkMatrix& packedPlaneMatrix,
-                                   const SkRect& packedSubset,
-                                   const GrSamplerState::WrapMode packedWrapModes[2],
-                                   SkYUVColorSpace yuvColorSpace)
+GrYUVtoRGBEffect::GrYUVtoRGBEffect(
+        SkSpan<std::unique_ptr<GrFragmentProcessor>, SkYUVAInfo::kMaxPlanes> planeFPs,
+        int numPlanes,
+        const SkYUVAInfo::YUVALocations& locations,
+        SkSpan<const bool, 2> snap,
+        bool packedYUYV,
+        const SkMatrix& packedPlaneMatrix,
+        const SkRect& packedSubset,
+        SkSpan<const GrSamplerState::WrapMode, 2> packedWrapModes,
+        SkYUVColorSpace yuvColorSpace)
         : GrFragmentProcessor(kGrYUVtoRGBEffect_ClassID,
                               ModulateForClampedSamplerOptFlags(alpha_type(locations)))
         , fLocations(locations)
@@ -286,8 +289,10 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs
         , fPackedYUYV(packedYUYV)
         , fPackedPlaneMatrix(packedPlaneMatrix)
         , fPackedSubset(packedSubset) {
-    std::copy_n(snap, 2, fSnap);
-    std::copy_n(packedWrapModes, 2, fPackedWrapModes);
+    static_assert(decltype(snap)::extent == std::extent_v<decltype(fSnap)>);
+    static_assert(decltype(packedWrapModes)::extent == std::extent_v<decltype(fPackedWrapModes)>);
+    std::copy(snap.begin(), snap.end(), std::begin(fSnap));
+    std::copy(packedWrapModes.begin(), packedWrapModes.end(), std::begin(fPackedWrapModes));
 
     if (fSnap[0] || fSnap[1] || fPackedYUYV) {
         // Need this so that we can access coords in SKSL to perform snapping or the

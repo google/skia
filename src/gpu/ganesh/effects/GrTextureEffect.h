@@ -12,6 +12,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkSpan.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
@@ -31,7 +32,7 @@ struct GrShaderCaps;
 
 class GrTextureEffect : public GrFragmentProcessor {
 public:
-    inline static constexpr float kDefaultBorder[4] = {0};
+    inline static constexpr std::array<float, 4> kDefaultBorder{};
 
 #if defined(SK_LEGACY_LINEAR_INSET)
     inline static constexpr float kInsetEpsilon = 0.0001f;
@@ -53,10 +54,13 @@ public:
      * Make from a full GrSamplerState. Caps are required to determine support for kClampToBorder.
      * This will be emulated in the shader if there is no hardware support.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView, SkAlphaType,
-                                                     const SkMatrix&, GrSamplerState,
-                                                     const GrCaps& caps,
-                                                     const float border[4] = kDefaultBorder);
+    static std::unique_ptr<GrFragmentProcessor> Make(
+            GrSurfaceProxyView,
+            SkAlphaType,
+            const SkMatrix&,
+            GrSamplerState,
+            const GrCaps& caps,
+            SkSpan<const float, 4> border = kDefaultBorder);
 
     /**
      * Makes a texture effect that samples a subset of a texture. The wrap modes of the
@@ -70,14 +74,15 @@ public:
      * alwaysUseShaderTileMode is true then MakeSubset won't attempt to use HW wrap modes if the
      * subset contains the entire texture.
      */
-    static std::unique_ptr<GrFragmentProcessor> MakeSubset(GrSurfaceProxyView,
-                                                           SkAlphaType,
-                                                           const SkMatrix&,
-                                                           GrSamplerState,
-                                                           const SkRect& subset,
-                                                           const GrCaps& caps,
-                                                           const float border[4] = kDefaultBorder,
-                                                           bool alwaysUseShaderTileMode = false);
+    static std::unique_ptr<GrFragmentProcessor> MakeSubset(
+            GrSurfaceProxyView,
+            SkAlphaType,
+            const SkMatrix&,
+            GrSamplerState,
+            const SkRect& subset,
+            const GrCaps& caps,
+            SkSpan<const float, 4> border = kDefaultBorder,
+            bool alwaysUseShaderTileMode = false);
 
     /**
      * The same as above but also takes a 'domain' that specifies any known limit on the post-
@@ -85,14 +90,15 @@ public:
      * knowledge of how this effect will be nested into a paint, the local coords used with the
      * draw, etc. It is only used to attempt to optimize away the shader subset calculations.
      */
-    static std::unique_ptr<GrFragmentProcessor> MakeSubset(GrSurfaceProxyView,
-                                                           SkAlphaType,
-                                                           const SkMatrix&,
-                                                           GrSamplerState,
-                                                           const SkRect& subset,
-                                                           const SkRect& domain,
-                                                           const GrCaps& caps,
-                                                           const float border[4] = kDefaultBorder);
+    static std::unique_ptr<GrFragmentProcessor> MakeSubset(
+            GrSurfaceProxyView,
+            SkAlphaType,
+            const SkMatrix&,
+            GrSamplerState,
+            const SkRect& subset,
+            const SkRect& domain,
+            const GrCaps& caps,
+            SkSpan<const float, 4> border = kDefaultBorder);
 
     /**
      * Like MakeSubset() but always uses kLinear filtering. MakeSubset() uses the subset rect
@@ -114,7 +120,7 @@ public:
             const SkRect* domain,
             SkVector inset,
             const GrCaps& caps,
-            const float border[4] = kDefaultBorder);
+            SkSpan<const float, 4> border = kDefaultBorder);
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 

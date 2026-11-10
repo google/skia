@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrTypes.h"
@@ -28,6 +29,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <type_traits>
 #include <utility>
 
 enum SkAlphaType : int;
@@ -42,13 +44,13 @@ struct GrTextureEffect::Sampling {
     ShaderMode fShaderModes[2] = {ShaderMode::kNone, ShaderMode::kNone};
     SkRect fShaderSubset = {0, 0, 0, 0};
     SkRect fShaderClamp  = {0, 0, 0, 0};
-    float fBorder[4] = {0, 0, 0, 0};
+    std::array<float, 4> fBorder = {};
     Sampling(Filter filter, MipmapMode mm) : fHWSampler(filter, mm) {}
     Sampling(const GrSurfaceProxy& proxy,
              GrSamplerState wrap,
              const SkRect&,
              const SkRect*,
-             const float border[4],
+             SkSpan<const float, 4> border,
              bool alwaysUseShaderTileMode,
              const GrCaps&,
              SkVector linearFilterInset = {0.5f, 0.5f});
@@ -59,7 +61,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                                     GrSamplerState sampler,
                                     const SkRect& subset,
                                     const SkRect* domain,
-                                    const float border[4],
+                                    SkSpan<const float, 4> border,
                                     bool alwaysUseShaderTileMode,
                                     const GrCaps& caps,
                                     SkVector linearFilterInset) {
@@ -197,7 +199,8 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                      x.fShaderSubset.fB, y.fShaderSubset.fB};
     fShaderClamp = {x.fShaderClamp.fA, y.fShaderClamp.fA,
                     x.fShaderClamp.fB, y.fShaderClamp.fB};
-    std::copy_n(border, 4, fBorder);
+    static_assert(decltype(border)::extent == std::tuple_size_v<decltype(fBorder)>);
+    std::copy(border.begin(), border.end(), fBorder.begin());
 }
 
 bool GrTextureEffect::Sampling::hasBorderAlpha() const {
@@ -228,7 +231,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView vi
                                                            const SkMatrix& matrix,
                                                            GrSamplerState sampler,
                                                            const GrCaps& caps,
-                                                           const float border[4]) {
+                                                           SkSpan<const float, 4> border) {
     Sampling sampling(*view.proxy(),
                       sampler,
                       SkRect::Make(view.proxy()->dimensions()),
@@ -248,7 +251,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  GrSamplerState sampler,
                                                                  const SkRect& subset,
                                                                  const GrCaps& caps,
-                                                                 const float border[4],
+                                                                 SkSpan<const float, 4> border,
                                                                  bool alwaysUseShaderTileMode) {
     Sampling sampling(*view.proxy(),
                       sampler,
@@ -270,7 +273,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  const SkRect& subset,
                                                                  const SkRect& domain,
                                                                  const GrCaps& caps,
-                                                                 const float border[4]) {
+                                                                 SkSpan<const float, 4> border) {
     Sampling sampling(*view.proxy(), sampler, subset, &domain, border, false, caps);
     std::unique_ptr<GrFragmentProcessor> te(new GrTextureEffect(std::move(view),
                                                                 alphaType,
@@ -288,7 +291,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeCustomLinearFilterInse
         const SkRect* domain,
         SkVector inset,
         const GrCaps& caps,
-        const float border[4]) {
+        SkSpan<const float, 4> border) {
     GrSamplerState sampler(wx, wy, Filter::kLinear);
     Sampling sampling(*view.proxy(), sampler, subset, domain, border, false, caps, inset);
     std::unique_ptr<GrFragmentProcessor> te(new GrTextureEffect(std::move(view),
@@ -830,7 +833,9 @@ GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view,
     SkASSERT(fShaderModes[0] != ShaderMode::kNone || (fSubset.fLeft == 0 && fSubset.fRight == 0));
     SkASSERT(fShaderModes[1] != ShaderMode::kNone || (fSubset.fTop == 0 && fSubset.fBottom == 0));
     this->setUsesSampleCoordsDirectly();
-    std::copy_n(sampling.fBorder, 4, fBorder);
+    static_assert(std::tuple_size_v<decltype(sampling.fBorder)> ==
+                  std::extent_v<decltype(fBorder)>);
+    std::copy(sampling.fBorder.begin(), sampling.fBorder.end(), std::begin(fBorder));
 }
 
 GrTextureEffect::GrTextureEffect(const GrTextureEffect& src)

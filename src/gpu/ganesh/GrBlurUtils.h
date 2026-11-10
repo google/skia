@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "src/gpu/SkBackingFit.h"
 
 #include <memory>
@@ -57,10 +58,10 @@ bool ComputeBlurredRRectParams(const SkRRect& srcRRect,
                                SkScalar xformedSigma,
                                SkRRect* rrectToDraw,
                                SkISize* widthHeight,
-                               SkScalar rectXs[kBlurRRectMaxDivisions],
-                               SkScalar rectYs[kBlurRRectMaxDivisions],
-                               SkScalar texXs[kBlurRRectMaxDivisions],
-                               SkScalar texYs[kBlurRRectMaxDivisions]);
+                               SkSpan<SkScalar, kBlurRRectMaxDivisions> rectXs,
+                               SkSpan<SkScalar, kBlurRRectMaxDivisions> rectYs,
+                               SkSpan<SkScalar, kBlurRRectMaxDivisions> texXs,
+                               SkSpan<SkScalar, kBlurRRectMaxDivisions> texYs);
 
 /**
  * Draw a shape handling the mask filter if present.

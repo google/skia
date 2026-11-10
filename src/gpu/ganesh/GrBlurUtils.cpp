@@ -1482,10 +1482,10 @@ bool ComputeBlurredRRectParams(const SkRRect& srcRRect,
                                SkScalar xformedSigma,
                                SkRRect* rrectToDraw,
                                SkISize* widthHeight,
-                               SkScalar rectXs[kBlurRRectMaxDivisions],
-                               SkScalar rectYs[kBlurRRectMaxDivisions],
-                               SkScalar texXs[kBlurRRectMaxDivisions],
-                               SkScalar texYs[kBlurRRectMaxDivisions]) {
+                               SkSpan<SkScalar, kBlurRRectMaxDivisions> rectXs,
+                               SkSpan<SkScalar, kBlurRRectMaxDivisions> rectYs,
+                               SkSpan<SkScalar, kBlurRRectMaxDivisions> texXs,
+                               SkSpan<SkScalar, kBlurRRectMaxDivisions> texYs) {
     unsigned int devBlurRadius = 3 * SkScalarCeilToInt(xformedSigma - 1 / 6.0f);
     SkScalar srcBlurRadius = 3.0f * sigma;
 
