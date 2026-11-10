@@ -12811,6 +12811,133 @@ DEF_TEST(SkParagraph_GlyphOffsetsOnlyWhenNeeded, reporter) {
     REPORTER_ASSERT(reporter, movedUpOrDown);
 }
 
+// Letter spacing is part of the cluster widths that line breaking and intrinsic widths add up,
+// so a left aligned line must draw and report its glyphs inside that width, even when only the
+// start of the line is letter spaced
+DEF_TEST(SkParagraph_LetterSpacingStaysInsideLineWidth, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    fontCollection->disableFontFallback();
+
+    TextStyle plain;
+    plain.setFontFamilies({SkString("Roboto"), SkString("Noto Naskh Arabic")});
+    plain.setFontSize(14);
+    plain.setColor(SK_ColorBLACK);
+    TextStyle spaced = plain;
+    spaced.setLetterSpacing(30);
+    TextStyle tight = plain;
+    tight.setLetterSpacing(-4);
+
+    using Segments = std::vector<std::pair<const TextStyle*, const char*>>;
+    auto build = [&](size_t maxLines, const Segments& segments, int count,
+                     TextDirection direction = TextDirection::kLtr) {
+        ParagraphStyle paragraphStyle;
+        paragraphStyle.setTextStyle(plain);
+        paragraphStyle.setMaxLines(maxLines);
+        paragraphStyle.setTextDirection(direction);
+        // Right or centered lines replace the shift with the alignment offset
+        paragraphStyle.setTextAlign(TextAlign::kLeft);
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        for (int i = 0; i < count; ++i) {
+            for (auto& [style, text] : segments) {
+                builder.pushStyle(*style);
+                builder.addText(text);
+                builder.pop();
+            }
+        }
+        return builder.Build();
+    };
+
+    auto checkInside = [&](Paragraph* paragraph, SkScalar width, bool checkBoxes = true) {
+        const SkScalar epsilon = 0.01f;
+        SkScalar drawnLeft = 0;
+        SkScalar drawnRight = 0;
+        paragraph->visit([&](int, const Paragraph::VisitorInfo* info) {
+            if (!info) {
+                return;
+            }
+            std::vector<SkScalar> advances(SkToSizeT(info->count));
+            info->font.getWidths({info->glyphs, SkToSizeT(info->count)}, advances);
+            for (int i = 0; i < info->count; ++i) {
+                SkScalar x = info->origin.fX + info->positions[i].fX;
+                drawnLeft = std::min(drawnLeft, x);
+                drawnRight = std::max(drawnRight, x + advances[i]);
+            }
+        });
+        REPORTER_ASSERT(reporter, drawnLeft >= -epsilon, "%f", drawnLeft);
+        REPORTER_ASSERT(reporter, drawnRight <= width + epsilon, "%f > %f", drawnRight, width);
+        if (!checkBoxes) {
+            return;
+        }
+        auto boxes = paragraph->getRectsForRange(
+                0, 1000, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        REPORTER_ASSERT(reporter, !boxes.empty());
+        for (auto& box : boxes) {
+            REPORTER_ASSERT(reporter, box.rect.fLeft >= -epsilon, "%f", box.rect.fLeft);
+            REPORTER_ASSERT(reporter, box.rect.fRight <= width + epsilon,
+                            "%f > %f", box.rect.fRight, width);
+        }
+    };
+
+    // Lines end with plain text after letter spaced text; maxLines makes Flutter clip the text
+    // at the max intrinsic width
+    auto clipped = build(3, {{&spaced, "-1 12345"}, {&plain, "67890\n"}}, 5);
+    clipped->layout(1000);
+    REPORTER_ASSERT(reporter, clipped->didExceedMaxLines());
+    checkInside(clipped.get(), clipped->getMaxIntrinsicWidth());
+    checkInside(clipped.get(), clipped->getLongestLine());
+
+    // A letter spaced start followed by a long plain word that wraps at the paragraph width
+    auto wrapped = build(std::numeric_limits<size_t>::max(),
+                         {{&spaced, "12345"},
+                          {&plain, "678901234567890123456789012345678901234567890"}}, 1);
+    wrapped->layout(300);
+    REPORTER_ASSERT(reporter, wrapped->lineNumber() > 1);
+    checkInside(wrapped.get(), 300);
+
+    // The line ends with negative letter spacing, which must not move the line left; the last
+    // glyph still draws its whole advance, 4 px past its tight cell
+    auto negative = build(1, {{&spaced, "12345"}, {&tight, "67890"}}, 1);
+    negative->layout(1000);
+    checkInside(negative.get(), negative->getMaxIntrinsicWidth() + 4);
+
+    // The line ends with a cursive script, which gets no letter spacing
+    auto cursive = build(1, {{&spaced, "12345 \u0645\u0631\u062D\u0628\u0627"}}, 1);
+    cursive->layout(1000);
+    checkInside(cursive.get(), cursive->getMaxIntrinsicWidth());
+
+    // Glyphs of right to left runs are laid out left to right too, each with its spacing on the
+    // right, so the visually rightmost cluster decides whether the shift fits
+    const char* spacedHebrew = "\u05D0\u05D1\u05D2\u05D3\u05D4";
+    const char* plainHebrew = "\u05D5\u05D6\u05D7\u05D8\u05D9";
+    auto drawnLeft = [](Paragraph* paragraph) {
+        SkScalar left = SK_ScalarMax;
+        paragraph->visit([&](int, const Paragraph::VisitorInfo* info) {
+            if (info) {
+                left = std::min(left, info->origin.fX + info->positions[0].fX);
+            }
+        });
+        return left;
+    };
+
+    // Right to left text with a letter spaced logical start: that start is the visually
+    // rightmost cluster, so the line fits with the shift and keeps it. Only the ink is checked:
+    // the box of a right to left cluster includes its spacing even at the visual line end
+    auto rtl = build(1, {{&spaced, spacedHebrew}, {&plain, plainHebrew}}, 1,
+                     TextDirection::kRtl);
+    rtl->layout(1000);
+    checkInside(rtl.get(), rtl->getMaxIntrinsicWidth(), /*checkBoxes=*/false);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(drawnLeft(rtl.get()), 15), "%f",
+                    drawnLeft(rtl.get()));
+
+    // A right to left run at the end of a left to right line, letter spaced only at its logical
+    // end: its visually rightmost cluster is plain
+    auto mixed = build(1, {{&spaced, "12345"}, {&plain, plainHebrew}, {&spaced, spacedHebrew}},
+                       1);
+    mixed->layout(1000);
+    checkInside(mixed.get(), mixed->getMaxIntrinsicWidth());
+}
+
 // When an unresolved combining mark attaches to the non-initial codepoint of a multi-char
 // ligature, clusteredText must expand both the glyph range and text range to the whole ligature
 DEF_TEST(SkParagraph_LigatureWithUnresolvedMark, reporter) {
