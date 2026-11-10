@@ -15,7 +15,6 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkTLazy.h"
-#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -27,8 +26,8 @@ enum SkBlurStyle : int;
     ((localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__))
 
 struct MaskValue {
-    SkMask                                   fMask;
-    raw_ptr<SkCachedData, DanglingUntriaged> fData;
+    SkMask          fMask;
+    SkCachedData*   fData;
 };
 
 namespace {

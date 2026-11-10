@@ -18,7 +18,6 @@
 #include "src/core/SkDevice.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkRasterClipStack.h"
-#include "src/partition_alloc/raw_ptr.h"
 
 class SkBlender;
 class SkImage;
@@ -158,8 +157,8 @@ private:
                     const SkPaint&,
                     sk_sp<SkMipmap>);
 
-    raw_ptr<void, DanglingUntriaged> fRasterHandle = nullptr;
-    raw_ptr<skcpu::Recorder> fRecorder = nullptr;
+    void* fRasterHandle = nullptr;
+    skcpu::Recorder* fRecorder = nullptr;
     SkBitmap fBitmap;
     SkRasterClipStack fRCStack;
     skcpu::GlyphRunListPainter fGlyphPainter;

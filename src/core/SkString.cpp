@@ -15,7 +15,6 @@
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkUTF.h"
 #include "src/core/SkUtils.h"
-#include "src/partition_alloc/raw_ptr.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -28,8 +27,8 @@
 static const size_t kBufferSize = 1024;
 
 struct StringBuffer {
-    raw_ptr<char> fText;
-    int           fLength;
+    char*  fText;
+    int    fLength;
 };
 
 template <int SIZE>

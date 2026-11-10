@@ -24,7 +24,6 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstdint>
@@ -258,7 +257,7 @@ private:
     uint8_t* fData;                    // Points to either fInternal or fExternal.
     size_t fCapacity;                  // Number of bytes we can write to fData.
     size_t fUsed;                      // Number of bytes written.
-    raw_ptr<void> fExternal;           // Unmanaged memory block.
+    void* fExternal;                   // Unmanaged memory block.
     skia_private::AutoTMalloc<uint8_t> fInternal;  // Managed memory block.
 };
 

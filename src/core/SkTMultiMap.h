@@ -9,7 +9,6 @@
 #define SkTMultiMap_DEFINED
 
 #include "src/core/SkTDynamicHash.h"
-#include "src/partition_alloc/raw_ptr.h"
 
 /** A set that contains pointers to instances of T. Instances can be looked up with key Key.
  * Multiple (possibly same) values can have the same key.
@@ -23,8 +22,8 @@ class SkTMultiMap {
 
         static const Key& GetKey(const ValueList& e) { return HashTraits::GetKey(*e.fValue); }
         static uint32_t Hash(const Key& key) { return HashTraits::Hash(key); }
-        raw_ptr<T, DanglingUntriaged> fValue;
-        raw_ptr<ValueList> fNext;
+        T* fValue;
+        ValueList* fNext;
 
         // TODO(b/407062399): Debugging information holding count of elements in ValueList.
         // Only maintained in the head of the linked list to view in LLDB dumps.

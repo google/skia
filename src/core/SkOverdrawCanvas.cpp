@@ -30,7 +30,6 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkZip.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/text/GlyphRun.h"
 
 class SkBitmap;
@@ -96,7 +95,7 @@ public:
     }
 
 private:
-    const raw_ptr<SkCanvas> fOverdrawCanvas;
+    SkCanvas* const fOverdrawCanvas;
     skcpu::GlyphRunListPainter fPainter;
 };
 }  // namespace

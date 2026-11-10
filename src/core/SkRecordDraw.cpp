@@ -36,7 +36,6 @@
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecords.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
-#include "src/partition_alloc/raw_ptr.h"
 #include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/utils/SkPatchUtils.h"
 
@@ -572,10 +571,10 @@ private:
     const SkRect fCullRect;
 
     // Conservative identity-space bounds for each op in the SkRecord.
-    raw_ptr<Bounds, AllowPtrArithmetic> fBounds;
+    Bounds* fBounds;
 
     // Parallel array to fBounds, holding metadata for each bounds rect.
-    raw_ptr<SkBBoxHierarchy::Metadata, AllowPtrArithmetic> fMeta;
+    SkBBoxHierarchy::Metadata* fMeta;
 
     // We walk fCurrentOp through the SkRecord,
     // as we go using updateCTM() to maintain the exact CTM (fCTM).

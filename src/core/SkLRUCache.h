@@ -11,7 +11,6 @@
 #include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkTInternalLList.h"
-#include "src/partition_alloc/raw_ptr.h"
 
 struct SkNoOpPurge {
     template <typename K, typename V>
@@ -138,7 +137,7 @@ private:
     int                                         fMaxCount;
     skia_private::THashTable<Entry*, K, Traits> fMap;
     SkTInternalLList<Entry>                     fLRU;
-    raw_ptr<void>                               fContext;
+    void*                                       fContext;
 };
 
 #endif

@@ -15,7 +15,6 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -226,7 +225,7 @@ public:
 
 private:
     int fCount;
-    raw_ptr<SkFlattenable::Factory, DanglingUntriaged> fArray;
+    SkFlattenable::Factory* fArray;
 };
 
 #endif
