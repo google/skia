@@ -169,3 +169,74 @@ DEF_TEST(ICC_WriteCustomGamutHDR, r) {
         REPORTER_ASSERT(r, SkColorSpace::Equals(src.get(), roundTrip.get()));
     }
 }
+
+DEF_TEST(ICC_WriteB2AOutputAndMatrixCurves, r) {
+    auto approx_equal = [](float x, float y) { return std::abs(x - y) < 1e-3f; };
+
+    skcms_ICCProfile profile;
+    skcms_Init(&profile);
+    skcms_SetTransferFunction(&profile, &SkNamedTransferFn::kSRGB);
+    skcms_SetXYZD50(&profile, &SkNamedGamut::kSRGB);
+    profile.has_B2A = true;
+    profile.B2A.input_channels = 3;
+    profile.B2A.matrix_channels = 3;
+    for (int i = 0; i < 3; ++i) {
+        profile.B2A.input_curves[i].parametric = SkNamedTransferFn::kSRGB;
+        profile.B2A.matrix_curves[i].parametric = SkNamedTransferFn::kLinear;
+        profile.B2A.output_curves[i].parametric = SkNamedTransferFn::k2Dot2;
+        profile.B2A.matrix.vals[i][i] = 1.f;
+    }
+
+    // 1. B2A with M-curves + matrix but no CLUT / A-curves (output_channels == 0).
+    {
+        sk_sp<SkData> encoded = SkWriteICCProfile(&profile, "b2a-matrix-only");
+        REPORTER_ASSERT(r, encoded);
+
+        skcms_ICCProfile parsed;
+        REPORTER_ASSERT(r, skcms_Parse(encoded->data(), encoded->size(), &parsed));
+        REPORTER_ASSERT(r, parsed.has_B2A);
+        REPORTER_ASSERT(r, parsed.B2A.input_channels == 3);
+        REPORTER_ASSERT(r, parsed.B2A.matrix_channels == 3);
+        REPORTER_ASSERT(r, parsed.B2A.output_channels == 0);
+        for (int i = 0; i < 3; ++i) {
+            REPORTER_ASSERT(r,
+                            approx_equal(parsed.B2A.input_curves[i].parametric.g,
+                                         SkNamedTransferFn::kSRGB.g));
+            REPORTER_ASSERT(r,
+                            approx_equal(parsed.B2A.matrix_curves[i].parametric.g,
+                                         SkNamedTransferFn::kLinear.g));
+        }
+    }
+
+    // 2. B2A with B-curves, M-curves + matrix, CLUT, and distinct A-curves (output_curves).
+    {
+        constexpr size_t kGridBytes = 2 * 2 * 2 * 3 * sizeof(uint16_t);
+        std::array<uint8_t, kGridBytes> grid_16 = {};
+        profile.B2A.output_channels = 3;
+        profile.B2A.grid_points[0] = 2;
+        profile.B2A.grid_points[1] = 2;
+        profile.B2A.grid_points[2] = 2;
+        profile.B2A.grid_16 = grid_16.data();
+
+        sk_sp<SkData> encoded = SkWriteICCProfile(&profile, "b2a-full");
+        REPORTER_ASSERT(r, encoded);
+
+        skcms_ICCProfile parsed;
+        REPORTER_ASSERT(r, skcms_Parse(encoded->data(), encoded->size(), &parsed));
+        REPORTER_ASSERT(r, parsed.has_B2A);
+        REPORTER_ASSERT(r, parsed.B2A.input_channels == 3);
+        REPORTER_ASSERT(r, parsed.B2A.matrix_channels == 3);
+        REPORTER_ASSERT(r, parsed.B2A.output_channels == 3);
+        for (int i = 0; i < 3; ++i) {
+            REPORTER_ASSERT(r,
+                            approx_equal(parsed.B2A.input_curves[i].parametric.g,
+                                         SkNamedTransferFn::kSRGB.g));
+            REPORTER_ASSERT(r,
+                            approx_equal(parsed.B2A.matrix_curves[i].parametric.g,
+                                         SkNamedTransferFn::kLinear.g));
+            REPORTER_ASSERT(r,
+                            approx_equal(parsed.B2A.output_curves[i].parametric.g,
+                                         SkNamedTransferFn::k2Dot2.g));
+        }
+    }
+}

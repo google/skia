@@ -517,7 +517,7 @@ sk_sp<SkData> write_mAB_or_mBA_tag(uint32_t type,
         m_curves_offset = offset;
         for (size_t i = 0; i < kNumChannels; ++i) {
             m_curves_data[i] = write_trc_tag(m_curves[i]);
-            SkASSERT(a_curves_data[i]);
+            SkASSERT(m_curves_data[i]);
             offset += m_curves_data[i]->size();
         }
     }
@@ -630,7 +630,7 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_ICCProfile* profile, const char* des
         SkASSERT(b2a.input_channels == kNumChannels);
         auto b2a_data = write_mAB_or_mBA_tag(kTAG_mBAType,
                                              b2a.input_curves,
-                                             b2a.output_channels ? b2a.input_curves : nullptr,
+                                             b2a.output_channels ? b2a.output_curves : nullptr,
                                              b2a.output_channels ? b2a.grid_points : nullptr,
                                              b2a.output_channels ? b2a.grid_16 : nullptr,
                                              b2a.matrix_channels ? b2a.matrix_curves : nullptr,
