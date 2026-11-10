@@ -188,4 +188,17 @@
 // Usage: return SK_UNSAFE_TODO(Func(input, end));
 #define SK_UNSAFE_TODO(...) SK_UNSAFE_BUFFERS(__VA_ARGS__)
 
+// Annotates a non-static, non-const C++ member function to indicate that
+// calling it reinitializes the object (e.g. `reset()`). This informs static
+// analysis tools, such as Clang's use-after-move checker, that the object is in
+// a well-defined state again after being moved from.
+//
+// See also:
+//    https://clang.llvm.org/docs/AttributeReference.html#reinitializes
+#if __has_cpp_attribute(clang::reinitializes)
+#  define SK_CLANG_REINITIALIZES [[clang::reinitializes]]
+#else
+#  define SK_CLANG_REINITIALIZES
+#endif
+
 #endif // SkAttributes_DEFINED
