@@ -305,10 +305,14 @@ float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
 }
 
 
+// See https://crbug.com/492744328 for how this was determined.
+static const uint32_t kMaxTableEntries = 1 << 24; // 16,777,216
+
 static float eval_curve(const skcms_Curve* curve, float x) {
     if (curve->table_entries == 0) {
         return skcms_TransferFunction_eval(&curve->parametric, x);
     }
+    assert(curve->table_entries <= kMaxTableEntries);
 
     float ix = fmaxf_(0, fminf_(x, 1)) * static_cast<float>(curve->table_entries - 1);
     int   lo = (int)                   ix        ,
@@ -332,6 +336,9 @@ static float eval_curve(const skcms_Curve* curve, float x) {
 }
 
 float skcms_MaxRoundtripError(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf) {
+    if (curve->table_entries == 1 || curve->table_entries > kMaxTableEntries) {
+        return INFINITY_;
+    }
     uint32_t N = curve->table_entries > 256 ? curve->table_entries : 256;
     const float dx = 1.0f / static_cast<float>(N - 1);
     float err = 0;
@@ -657,9 +664,6 @@ typedef struct {
     uint8_t value_count   [4];
     uint8_t variable      [1/*variable*/];  // value_count, 8.8 if 1, uint16 (n*65535) if > 1
 } curv_Layout;
-
-// See https://crbug.com/492744328 for how this was determined.
-static const uint32_t kMaxTableEntries = 1 << 24; // 16,777,216
 
 static bool read_curve_curv(const uint8_t* buf, uint32_t size,
                             skcms_Curve* curve, uint32_t* curve_size) {
