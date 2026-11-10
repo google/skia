@@ -7,38 +7,12 @@
 
 #include "src/xml/SkDOM.h"
 
-#include <memory>
-
 #include "include/core/SkStream.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTDArray.h"
 #include "include/private/SkTo.h"
 #include "src/partition_alloc/raw_ptr.h"
 #include "src/xml/SkXMLParser.h"
-#include "src/xml/SkXMLWriter.h"
-
-bool SkXMLParser::parse(const SkDOM& dom, const SkDOMNode* node) {
-    const char* elemName = dom.getName(node);
-
-    this->startElement(elemName);
-
-    SkDOM::AttrIter iter(dom, node);
-    const char*     name, *value;
-
-    while ((name = iter.next(&value)) != nullptr) {
-        this->addAttribute(name, value);
-    }
-
-    if ((node = dom.getFirstChild(node)) != nullptr) {
-        do {
-            if (!this->parse(dom, node)) {
-                return false;
-            }
-        } while ((node = dom.getNextSibling(node)) != nullptr);
-    }
-    this->endElement(elemName);
-    return true;
-}
-
-/////////////////////////////////////////////////////////////////////////
 
 struct SkDOMAttr {
     const char* fName;
@@ -295,58 +269,6 @@ const SkDOM::Node* SkDOM::build(SkStream& docStream, int* errorOnLineNumber) {
         *errorOnLineNumber = -1;    // success
     }
     fRoot = parser.getRoot();
-    return fRoot;
-}
-
-///////////////////////////////////////////////////////////////////////////
-
-static void walk_dom(const SkDOM& dom, const SkDOM::Node* node, SkXMLParser* parser) {
-    const char* elem = dom.getName(node);
-    if (dom.getType(node) == SkDOM::kText_Type) {
-        SkASSERT(dom.countChildren(node) == 0);
-        parser->text(elem, SkToInt(strlen(elem)));
-        return;
-    }
-
-    parser->startElement(elem);
-
-    SkDOM::AttrIter iter(dom, node);
-    const char*     name;
-    const char*     value;
-    while ((name = iter.next(&value)) != nullptr)
-        parser->addAttribute(name, value);
-
-    node = dom.getFirstChild(node, nullptr);
-    while (node)
-    {
-        walk_dom(dom, node, parser);
-        node = dom.getNextSibling(node, nullptr);
-    }
-
-    parser->endElement(elem);
-}
-
-const SkDOM::Node* SkDOM::copy(const SkDOM& dom, const SkDOM::Node* node) {
-    SkDOMParser parser(&fAlloc);
-
-    walk_dom(dom, node, &parser);
-
-    fRoot = parser.getRoot();
-    return fRoot;
-}
-
-SkXMLParser* SkDOM::beginParsing() {
-    SkASSERT(!fParser);
-    fParser = std::make_unique<SkDOMParser>(&fAlloc);
-
-    return fParser.get();
-}
-
-const SkDOM::Node* SkDOM::finishParsing() {
-    SkASSERT(fParser);
-    fRoot = fParser->getRoot();
-    fParser.reset();
-
     return fRoot;
 }
 

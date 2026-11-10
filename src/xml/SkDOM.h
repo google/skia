@@ -12,16 +12,13 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkOnlyStackAllocatable.h"
-#include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/partition_alloc/raw_ptr.h"
 
 struct SkDOMAttr;
 struct SkDOMNode;
 
-class SkDOMParser;
 class SkStream;
-class SkXMLParser;
 
 class SkDOM : public SkNoncopyable {
 public:
@@ -37,12 +34,8 @@ public:
      *  root node, and, if present, sets errorOnLineNumber to -1 (no error).
      */
     const Node* build(SkStream&, int* errorOnLineNumber = nullptr);
-    const Node* copy(const SkDOM& dom, const Node* node);
 
     const Node* getRootNode() const;
-
-    SkXMLParser* beginParsing();
-    const Node* finishParsing();
 
     enum Type {
         kElement_Type,
@@ -94,7 +87,6 @@ public:
 private:
     SkArenaAllocWithReset        fAlloc;
     raw_ptr<Node, DanglingUntriaged> fRoot;
-    std::unique_ptr<SkDOMParser> fParser;
 
     using INHERITED = SkNoncopyable;
 };

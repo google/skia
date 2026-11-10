@@ -14,7 +14,6 @@
 #include "src/xml/SkDOM.h"
 
 class SkWStream;
-class SkXMLParser;
 
 class SkXMLWriter {
 public:
@@ -85,19 +84,5 @@ private:
     const raw_ref<SkWStream> fStream;
     const uint32_t  fFlags;
 };
-
-class SkXMLParserWriter : public SkXMLWriter {
-public:
-    SkXMLParserWriter(SkXMLParser*);
-    ~SkXMLParserWriter() override;
-protected:
-    void onStartElementLen(const char elem[], size_t length) override;
-    void onEndElement() override;
-    void onAddAttributeLen(const char name[], const char value[], size_t length) override;
-    void onAddText(const char text[], size_t length) override;
-private:
-    const raw_ref<SkXMLParser> fParser;
-};
-
 
 #endif

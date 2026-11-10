@@ -11,12 +11,9 @@
 #define SkXMLParser_DEFINED
 
 #include "include/core/SkString.h"
-#include "src/partition_alloc/raw_ptr.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 class SkStream;
-
-class SkDOM;
-struct SkDOMNode;
 
 class SkXMLParserError {
 public:
@@ -53,6 +50,8 @@ private:
 };
 
 class SkXMLParser {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 public:
     explicit SkXMLParser(SkXMLParserError* parserError = nullptr);
     virtual ~SkXMLParser();
@@ -61,7 +60,6 @@ public:
     */
     bool parse(const char doc[], size_t len);
     bool parse(SkStream& docStream);
-    bool parse(const SkDOM&, const SkDOMNode*);
 
     static void GetNativeErrorString(int nativeErrorCode, SkString* str);
 
@@ -72,19 +70,10 @@ protected:
     virtual void onEndElement(const char elem[]);
     virtual void onText(const char text[], int len);
 
-public:
-    // public for ported implementation, not meant for clients to call
-    void startElement(const char elem[]);
-    void addAttribute(const char name[], const char value[]);
-    void endElement(const char elem[]);
-    void text(const char text[], int len);
-    raw_ptr<void> fParser;
-
-protected:
-    raw_ptr<SkXMLParserError> fError;
+    SkXMLParserError* fError;
 
 private:
-    void reportError(void* parser);
+    struct ParsingContext;
 };
 
 #endif

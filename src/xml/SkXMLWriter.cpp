@@ -8,7 +8,6 @@
 #include "src/xml/SkXMLWriter.h"
 
 #include "include/core/SkStream.h"
-#include "include/private/SkTo.h"
 
 SkXMLWriter::SkXMLWriter(bool doEscapeMarkup) : fDoEscapeMarkup(doEscapeMarkup)
 {}
@@ -265,39 +264,4 @@ void SkXMLStreamWriter::tab(int level) {
             fStream->writeText("\t");
         }
     }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "src/xml/SkXMLParser.h"
-
-SkXMLParserWriter::SkXMLParserWriter(SkXMLParser* parser)
-    : SkXMLWriter(false), fParser(*parser)
-{
-}
-
-SkXMLParserWriter::~SkXMLParserWriter() {
-    this->flush();
-}
-
-void SkXMLParserWriter::onAddAttributeLen(const char name[], const char value[], size_t length) {
-    SkASSERT(fElems.empty() || (!fElems.back()->fHasChildren && !fElems.back()->fHasText));
-    SkString str(value, length);
-    fParser->addAttribute(name, str.c_str());
-}
-
-void SkXMLParserWriter::onAddText(const char text[], size_t length) {
-    fParser->text(text, SkToInt(length));
-}
-
-void SkXMLParserWriter::onEndElement() {
-    Elem* elem = this->getEnd();
-    fParser->endElement(elem->fName.c_str());
-    this->doEnd(elem);
-}
-
-void SkXMLParserWriter::onStartElementLen(const char name[], size_t length) {
-    (void)this->doStart(name, length);
-    SkString str(name, length);
-    fParser->startElement(str.c_str());
 }
