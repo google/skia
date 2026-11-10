@@ -7,12 +7,15 @@
 
 #include "src/xml/SkDOM.h"
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTo.h"
 #include "src/partition_alloc/raw_ptr.h"
 #include "src/xml/SkXMLParser.h"
+
+#include <string_view>
 
 struct SkDOMAttr {
     const char* fName;
@@ -37,71 +40,29 @@ struct SkDOMNode {
     }
 };
 
-static char* dupstr(SkArenaAlloc* chunk, const char src[], size_t srcLen) {
-    SkASSERT(chunk && src);
-    char* dst = chunk->makeArrayDefault<char>(srcLen + 1);
-    memcpy(dst, src, srcLen);
-    dst[srcLen] = '\0';
+static char* dupstr(SkArenaAlloc* chunk, std::string_view src) {
+    SkASSERT(chunk);
+    char* dst = chunk->makeArrayDefault<char>(src.size() + 1);
+    sk_careful_memcpy(dst, src.data(), src.size());
+    dst[src.size()] = '\0';
     return dst;
 }
 
 class SkDOMParser : public SkXMLParser {
 public:
-    SkDOMParser(SkArenaAllocWithReset* chunk) : SkXMLParser(&fParserError), fAlloc(chunk) {
+    explicit SkDOMParser(SkArenaAllocWithReset* chunk)
+            : SkXMLParser(&fParserError), fAlloc(chunk), fRoot(nullptr) {
         fAlloc->reset();
-        fRoot = nullptr;
-        fLevel = 0;
-        fNeedToFlush = true;
     }
     SkDOM::Node* getRoot() const { return fRoot; }
     SkXMLParserError fParserError;
 
 protected:
-    void flushAttributes() {
-        SkASSERT(fLevel > 0);
-
-        int attrCount = fAttrs.size();
-
-        SkDOMAttr* attrs = fAlloc->makeArrayDefault<SkDOMAttr>(attrCount);
-        SkDOM::Node* node = fAlloc->make<SkDOM::Node>();
-
-        node->fName = fElemName;
-        node->fFirstChild = nullptr;
-        node->fAttrCount = SkToU16(attrCount);
-        node->fAttrs = attrs;
-        node->fType = fElemType;
-
-        if (fRoot == nullptr) {
-            node->fNextSibling = nullptr;
-            fRoot = node;
-        } else { // this adds siblings in reverse order. gets corrected in onEndElement()
-            SkDOM::Node* parent = fParentStack.back();
-            SkASSERT(fRoot && parent);
-            node->fNextSibling = parent->fFirstChild;
-            parent->fFirstChild = node;
-        }
-        *fParentStack.append() = node;
-
-        sk_careful_memcpy(node->attrs(), fAttrs.begin(), attrCount * sizeof(SkDOM::Attr));
-        fAttrs.reset();
+    void onStartElement(std::string_view elem, SkSpan<const Attribute> attributes) override {
+        fParentStack.push_back(this->appendNode(elem, attributes, SkDOM::kElement_Type));
     }
 
-    void onStartElement(const char elem[]) override {
-        this->startCommon(elem, strlen(elem), SkDOM::kElement_Type);
-    }
-
-    void onAddAttribute(const char name[], const char value[]) override {
-        SkDOM::Attr* attr = fAttrs.append();
-        attr->fName = dupstr(fAlloc, name, strlen(name));
-        attr->fValue = dupstr(fAlloc, value, strlen(value));
-    }
-
-    void onEndElement(const char elem[]) override {
-        if (fNeedToFlush)
-            this->flushAttributes();
-        fNeedToFlush = false;
-        --fLevel;
-
+    void onEndElement(std::string_view elem) override {
         SkDOM::Node* parent = fParentStack.back();
         fParentStack.pop_back();
 
@@ -116,32 +77,44 @@ protected:
         parent->fFirstChild = prev;
     }
 
-    void onText(const char text[], int len) override {
-        this->startCommon(text, len, SkDOM::kText_Type);
-        this->SkDOMParser::onEndElement(fElemName);
+    void onText(std::string_view text) override {
+        this->appendNode(text, /*attributes=*/{}, SkDOM::kText_Type);
     }
 
 private:
-    void startCommon(const char elem[], size_t elemSize, SkDOM::Type type) {
-        if (fLevel > 0 && fNeedToFlush) {
-            this->flushAttributes();
+    SkDOM::Node* appendNode(std::string_view name,
+                            SkSpan<const Attribute> attributes,
+                            SkDOM::Type type) {
+        SkDOMAttr* attrs = attributes.empty()
+                                   ? nullptr
+                                   : fAlloc->makeArrayDefault<SkDOMAttr>(attributes.size());
+        for (size_t i = 0; i < attributes.size(); ++i) {
+            attrs[i].fName = dupstr(fAlloc, attributes[i].fName);
+            attrs[i].fValue = dupstr(fAlloc, attributes[i].fValue);
         }
-        fNeedToFlush = true;
-        fElemName = dupstr(fAlloc, elem, elemSize);
-        fElemType = type;
-        ++fLevel;
+
+        SkDOM::Node* node = fAlloc->make<SkDOM::Node>();
+        node->fName = dupstr(fAlloc, name);
+        node->fFirstChild = nullptr;
+        node->fAttrCount = SkToU16(attributes.size());
+        node->fAttrs = attrs;
+        node->fType = SkToU8(type);
+
+        if (fRoot == nullptr) {
+            node->fNextSibling = nullptr;
+            fRoot = node;
+        } else {  // This adds siblings in reverse order; gets corrected in onEndElement().
+            SkDOM::Node* parent = fParentStack.back();
+            SkASSERT(fRoot && parent);
+            node->fNextSibling = parent->fFirstChild;
+            parent->fFirstChild = node;
+        }
+        return node;
     }
 
     SkTDArray<SkDOM::Node*> fParentStack;
     raw_ptr<SkArenaAllocWithReset> fAlloc;
     raw_ptr<SkDOM::Node, DanglingUntriaged> fRoot;
-    bool                    fNeedToFlush;
-
-    // state needed for flushAttributes()
-    SkTDArray<SkDOM::Attr>  fAttrs;
-    raw_ptr<char, DanglingUntriaged> fElemName;
-    SkDOM::Type             fElemType;
-    int                     fLevel;
 };
 
 /////////////////////////////////////////////////////////////////////////

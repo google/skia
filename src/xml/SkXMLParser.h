@@ -10,8 +10,11 @@
 #ifndef SkXMLParser_DEFINED
 #define SkXMLParser_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/private/SkOnlyStackAllocatable.h"
+
+#include <string_view>
 
 class SkStream;
 
@@ -53,6 +56,11 @@ class SkXMLParser {
     SK_ONLY_STACK_ALLOCATABLE;
 
 public:
+    struct Attribute {
+        std::string_view fName;
+        std::string_view fValue;
+    };
+
     explicit SkXMLParser(SkXMLParserError* parserError = nullptr);
     virtual ~SkXMLParser();
 
@@ -64,11 +72,12 @@ public:
     static void GetNativeErrorString(int nativeErrorCode, SkString* str);
 
 protected:
-    // override in subclasses
-    virtual void onStartElement(const char elem[]);
-    virtual void onAddAttribute(const char name[], const char value[]);
-    virtual void onEndElement(const char elem[]);
-    virtual void onText(const char text[], int len);
+    // Override in subclasses. The std::string_view and SkSpan<const Attribute>
+    // arguments are only valid for the duration of the callback and are not
+    // guaranteed to be null-terminated.
+    virtual void onStartElement(std::string_view elem, SkSpan<const Attribute> attributes);
+    virtual void onEndElement(std::string_view elem);
+    virtual void onText(std::string_view text);
 
     SkXMLParserError* fError;
 
