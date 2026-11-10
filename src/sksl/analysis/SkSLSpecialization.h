@@ -79,7 +79,7 @@ struct SpecializedCallKey {
                fParentSpecializationIndex == other.fParentSpecializationIndex;
     }
 
-    const FunctionCall* fStablePointer = nullptr;
+    uintptr_t fStablePointer = 0;
     SpecializationIndex fParentSpecializationIndex = Analysis::kUnspecialized;
 };
 

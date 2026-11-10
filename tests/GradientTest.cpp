@@ -121,6 +121,8 @@ struct GradRec {
         REPORTER_ASSERT(reporter,
                         !memcmp(info->fColorOffsets, fPos, fColorCount * sizeof(SkScalar)));
         REPORTER_ASSERT(reporter, fTileMode == (SkTileMode)info->fTileMode);
+        info->fColors = nullptr;
+        info->fColorOffsets = nullptr;
     }
 };
 

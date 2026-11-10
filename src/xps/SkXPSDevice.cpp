@@ -981,6 +981,8 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
         HR(this->createXpsSolidColorBrush(colorShader->color(), alpha, brush));
         return S_OK;
     } else if (shaderBase->asGradient() != SkShaderBase::GradientType::kNone) {
+        AutoTArray<SkColor4f> colors;
+        AutoTArray<SkScalar> colorOffsets;
         SkShaderBase::GradientInfo info;
         SkShaderBase::GradientType gradientType = shaderBase->asGradient(&info);
         if (info.fColorCount == 0) {
@@ -990,8 +992,8 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
         }
 
         SkMatrix localMatrix;
-        AutoTArray<SkColor4f> colors(info.fColorCount);
-        AutoTArray<SkScalar> colorOffsets(info.fColorCount);
+        colors.reset(info.fColorCount);
+        colorOffsets.reset(info.fColorCount);
         info.fColors = colors.get();
         info.fColorOffsets = colorOffsets.get();
         shaderBase->asGradient(&info, &localMatrix);

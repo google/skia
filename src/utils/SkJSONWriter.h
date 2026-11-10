@@ -14,6 +14,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkUTF.h"
 #include "src/partition_alloc/raw_ptr.h"
 
@@ -57,12 +58,9 @@ public:
      *  Construct a JSON writer that will serialize all the generated JSON to 'stream'.
      */
     SkJSONWriter(SkWStream* stream, SkSerialProcs serialProcs, Mode mode = Mode::kFast)
-            : fBlock(new char[kBlockSize])
-            , fWrite(fBlock)
-            , fBlockEnd(fBlock + kBlockSize)
+            : fBlock(kBlockSize)
             , fStream(stream)
             , fMode(mode)
-            , fState(State::kStart)
             , fSerialProcs(serialProcs) {
         fScopeStack.push_back(Scope::kNone);
         fNewlineStack.push_back(true);
@@ -70,7 +68,6 @@ public:
 
     ~SkJSONWriter() {
         this->flush();
-        delete[] fBlock;
         SkASSERT(fScopeStack.size() == 1);
         SkASSERT(fNewlineStack.size() == 1);
     }
@@ -79,9 +76,9 @@ public:
      *  Force all buffered output to be flushed to the underlying stream.
      */
     void flush() {
-        if (fWrite != fBlock) {
-            fStream->write(fBlock, fWrite - fBlock);
-            fWrite = fBlock;
+        if (fWrite > 0) {
+            fStream->write(fBlock.get(), fWrite);
+            fWrite = 0;
         }
     }
 
@@ -368,7 +365,7 @@ private:
     }
 
     void write(const char* buf, size_t length) {
-        if (static_cast<size_t>(fBlockEnd - fWrite) < length) {
+        if (kBlockSize - fWrite < length) {
             // Don't worry about splitting writes that overflow our block.
             this->flush();
         }
@@ -376,7 +373,7 @@ private:
             // Send particularly large writes straight through to the stream (unbuffered).
             fStream->write(buf, length);
         } else {
-            memcpy(fWrite, buf, length);
+            memcpy(fBlock.get() + fWrite, buf, length);
             fWrite += length;
         }
     }
@@ -410,13 +407,12 @@ private:
         }
     }
 
-    char* fBlock;
-    char* fWrite;
-    char* fBlockEnd;
+    skia_private::AutoTMalloc<char> fBlock;
+    size_t fWrite = 0;
 
     raw_ptr<SkWStream> fStream;
     Mode fMode;
-    State fState;
+    State fState = State::kStart;
     skia_private::STArray<16, Scope, true> fScopeStack;
     skia_private::STArray<16, bool, true> fNewlineStack;
 

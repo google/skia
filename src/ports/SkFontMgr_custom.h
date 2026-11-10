@@ -13,6 +13,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "src/ports/SkTypeface_FreeType.h"
 
@@ -112,6 +113,8 @@ public:
     typedef skia_private::TArray<sk_sp<SkFontStyleSet_Custom>> Families;
     class SystemFontLoader {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         virtual ~SystemFontLoader() { }
         virtual void loadSystemFonts(const SkFontScanner*, Families*) const = 0;
     };

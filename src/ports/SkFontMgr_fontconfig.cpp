@@ -687,6 +687,8 @@ public:
     }
 
     ~SkFontMgr_fontconfig() override {
+        fFallbackSets.reset();
+        fCoverage = {};
         // Hold the lock while unrefing the config.
         FCLocker lock;
         fFC.reset();
@@ -930,7 +932,8 @@ protected:
             // ranked font wins only if FcFontMatch gives a font without the character.
             TArray<FcPattern*>& fonts = fCoverage.fClasses[classId];
             FcFontSet classSet = {fonts.size(), fonts.size(), fonts.data()};
-            FcFontSet bestSet = {1, 1, &(*set)->fBestRanked};
+            FcPattern* bestRanked = (*set)->fBestRanked;
+            FcFontSet bestSet = {1, 1, &bestRanked};
             FcFontSet* sets[] = {&classSet, &bestSet};
             SkAutoFcPattern pattern(FcPatternDuplicate((*set)->fPattern));
             SkAutoFcCharSet charSet;

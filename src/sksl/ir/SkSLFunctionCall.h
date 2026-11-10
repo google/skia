@@ -37,11 +37,11 @@ public:
                  const Type* type,
                  const FunctionDeclaration* function,
                  ExpressionArray arguments,
-                 const FunctionCall* stablePointer)
+                 uintptr_t stablePointer = 0)
             : INHERITED(pos, kIRNodeKind, type)
             , fFunction(*function)
             , fArguments(std::move(arguments))
-            , fStablePointer(stablePointer ? stablePointer : this) {}
+            , fStablePointer(stablePointer ? stablePointer : reinterpret_cast<uintptr_t>(this)) {}
 
     // Resolves generic types, performs type conversion on arguments, determines return type, and
     // chooses a unique stable ID. Reports errors via the ErrorReporter.
@@ -78,7 +78,7 @@ public:
         return fArguments;
     }
 
-    const FunctionCall* stablePointer() const {
+    uintptr_t stablePointer() const {
         return fStablePointer;
     }
 
@@ -93,7 +93,7 @@ private:
 
     // The stable pointer uniquely identifies this FunctionCall across an entire SkSL program.
     // This allows us to clone() a FunctionCall but still find that call in a hash-map.
-    const FunctionCall* fStablePointer = nullptr;
+    uintptr_t fStablePointer = 0;
 
     using INHERITED = Expression;
 };

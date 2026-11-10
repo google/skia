@@ -21,6 +21,7 @@
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
@@ -85,6 +86,8 @@ static int sk_read_user_chunk(png_structp png_ptr, png_unknown_chunkp chunk) {
 
 class AutoCleanPng : public SkNoncopyable {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     /*
      *  This class does not take ownership of stream or reader, but if codecPtr
      *  is non-NULL, and decodeBounds succeeds, it will have created a new
@@ -457,9 +460,8 @@ private:
 
     void allRowsCallback(png_bytep row, int rowNum) {
         SkASSERT(rowNum == fRowsWrittenToOutput);
+        this->applyXformRow(SkTAddOffset<void>(fDst, fRowsWrittenToOutput * fRowBytes), row);
         fRowsWrittenToOutput++;
-        this->applyXformRow(fDst, row);
-        fDst = SkTAddOffset<void>(fDst, fRowBytes);
     }
 
     Result setRange(int firstRow, int lastRow, void* dst, size_t rowBytes) override {
@@ -502,8 +504,7 @@ private:
 
         // If there is no swizzler, all rows are needed.
         if (!this->swizzler() || this->swizzler()->rowNeeded(rowNum - fFirstRow)) {
-            this->applyXformRow(fDst, row);
-            fDst = SkTAddOffset<void>(fDst, fRowBytes);
+            this->applyXformRow(SkTAddOffset<void>(fDst, fRowsWrittenToOutput * fRowBytes), row);
             fRowsWrittenToOutput++;
         }
 

@@ -1315,8 +1315,7 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
         }
     }
 
-    return std::make_unique<FunctionCall>(pos, returnType, &function, std::move(arguments),
-                                          /*stablePointer=*/nullptr);
+    return std::make_unique<FunctionCall>(pos, returnType, &function, std::move(arguments));
 }
 
 }  // namespace SkSL

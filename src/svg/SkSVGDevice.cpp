@@ -448,6 +448,8 @@ void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader
                                                           Resources* resources) {
     SkASSERT(shader);
 
+    AutoSTArray<16, SkColor4f> grColors;
+    AutoSTArray<16, SkScalar> grOffsets;
     SkShaderBase::GradientInfo grInfo;
     const auto gradient_type = as_SB(shader)->asGradient(&grInfo);
 
@@ -457,8 +459,8 @@ void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader
         return;
     }
 
-    AutoSTArray<16, SkColor4f> grColors(grInfo.fColorCount);
-    AutoSTArray<16, SkScalar> grOffsets(grInfo.fColorCount);
+    grColors.reset(grInfo.fColorCount);
+    grOffsets.reset(grInfo.fColorCount);
     grInfo.fColors = grColors.get();
     grInfo.fColorOffsets = grOffsets.get();
 

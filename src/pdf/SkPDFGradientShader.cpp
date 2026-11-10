@@ -970,9 +970,9 @@ static bool has_alpha(const SkShader* shader, const SkPDFGradientShader::Key& ke
 static SkPDFGradientShader::Key clone_key(const SkPDFGradientShader::Key& k) {
     SkPDFGradientShader::Key clone = {
         k.fType,
-        k.fInfo,  // change pointers later.
         std::unique_ptr<SkColor4f[]>(new SkColor4f[k.fInfo.fColorCount]),
         std::unique_ptr<SkScalar[]>(new SkScalar[k.fInfo.fColorCount]),
+        k.fInfo,  // change pointers later.
         k.fCanvasTransform,
         k.fShaderTransform,
         k.fBBox, 0};
@@ -1050,9 +1050,9 @@ static SkPDFGradientShader::Key make_key(const SkShader* shader,
                                          const SkIRect& bbox) {
     SkPDFGradientShader::Key key = {
          SkShaderBase::GradientType::kNone,
+         nullptr,
+         nullptr,
          {0, nullptr, nullptr, {{0, 0}, {0, 0}}, {0, 0}, SkTileMode::kClamp, 0},
-         nullptr,
-         nullptr,
          canvasTransform,
          SkPDFUtils::GetShaderLocalMatrix(shader),
          bbox, 0};

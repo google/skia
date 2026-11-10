@@ -131,6 +131,13 @@ public:
     void setCachedBitmap(SkBitmap b) const { fColorsAndOffsetsBitmap = b; }
 
 private:
+    // Reserve inline space for up to 4 stops. Declared before fColors and fPositions so that
+    // fStorage outlives them on destruction.
+    inline static constexpr size_t kInlineStopCount = 4;
+    inline static constexpr size_t kInlineStorageSize =
+            (sizeof(SkColor4f) + sizeof(SkScalar)) * kInlineStopCount;
+    skia_private::AutoSTMalloc<kInlineStorageSize, uint8_t> fStorage;
+
     SkColor4f* fColors;               // points into fStorage
     SkScalar* fPositions;             // points into fStorage, or nullptr
     sk_sp<SkColorSpace> fColorSpace;  // color space of gradient stops
@@ -144,12 +151,6 @@ private:
     // id and easily regenerated if purged.
     // TODO(b/293160919) remove this field when we can store bitmaps in the cache by id.
     mutable SkBitmap fColorsAndOffsetsBitmap;
-
-    // Reserve inline space for up to 4 stops.
-    inline static constexpr size_t kInlineStopCount = 4;
-    inline static constexpr size_t kInlineStorageSize =
-            (sizeof(SkColor4f) + sizeof(SkScalar)) * kInlineStopCount;
-    skia_private::AutoSTMalloc<kInlineStorageSize, uint8_t> fStorage;
 
     bool fColorsAreOpaque;
 };

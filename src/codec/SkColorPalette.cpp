@@ -8,18 +8,13 @@
 
 #include "include/private/SkMalloc.h"
 
-#include <cstring>
-
-SkColorPalette::SkColorPalette(const SkPMColor colors[], int count) {
+SkColorPalette::SkColorPalette(const SkPMColor colors[], int count)
+        : fColors(count)
+        , fCount(count) {
     SkASSERT(0 == count || colors);
     SkASSERT(count >= 0 && count <= 256);
 
-    fCount = count;
-    fColors = reinterpret_cast<SkPMColor*>(sk_malloc_throw(count * sizeof(SkPMColor)));
-
-    memcpy(fColors, colors, count * sizeof(SkPMColor));
+    sk_careful_memcpy(fColors.get(), colors, count * sizeof(SkPMColor));
 }
 
-SkColorPalette::~SkColorPalette() {
-    sk_free(fColors);
-}
+SkColorPalette::~SkColorPalette() = default;

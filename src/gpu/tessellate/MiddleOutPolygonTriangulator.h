@@ -51,6 +51,8 @@ namespace skgpu::tess {
 // pushes each vertex in linear order (perhaps while parsing a path), then rather than relying on
 // recursion, we manipulate an O(log N) stack to determine the correct middle-out triangulation.
 class MiddleOutPolygonTriangulator {
+    SK_ONLY_STACK_ALLOCATABLE;
+
 private:
     // Internal representation of how we store vertices on our stack.
     struct StackVertex {
