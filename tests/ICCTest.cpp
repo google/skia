@@ -150,3 +150,22 @@ DEF_TEST(HDR_ICC, r) {
         }
     }
 }
+
+DEF_TEST(ICC_WriteCustomGamutHDR, r) {
+    for (const auto& fn : {SkNamedTransferFn::kPQ, SkNamedTransferFn::kHLG}) {
+        sk_sp<SkColorSpace> src = SkColorSpace::MakeRGB(fn, SkNamedGamut::kAdobeRGB);
+        REPORTER_ASSERT(r, src);
+
+        sk_sp<SkData> encoded = SkWriteICCProfile(src.get(), /*hdrMetadata=*/nullptr);
+        REPORTER_ASSERT(r, encoded);
+
+        skcms_ICCProfile parsed;
+        REPORTER_ASSERT(r, skcms_Parse(encoded->data(), encoded->size(), &parsed));
+        REPORTER_ASSERT(r, parsed.has_CICP);
+        REPORTER_ASSERT(r, parsed.CICP.color_primaries == 2);
+
+        sk_sp<SkColorSpace> roundTrip = SkColorSpace::Make(parsed);
+        REPORTER_ASSERT(r, roundTrip);
+        REPORTER_ASSERT(r, SkColorSpace::Equals(src.get(), roundTrip.get()));
+    }
+}
