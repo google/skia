@@ -95,6 +95,13 @@ enable_expensive_dchecks = false
 partition_alloc_is_debug = false
 partition_alloc_dcheck_always_on = false
 
+# Skia's Release builds set `is_debug = false` while leaving `is_official_build = false`
+# (which in Skia controls system third-party dependencies and tracing). Treat `!is_debug`
+# as official for PartitionAlloc so Perf builds are closer to the Skia behavior in Chrome.
+# Not tweaking this causes large regressions (up to +55%) on some benchmarks
+# (see crbug.com/40836910).
+partition_alloc_is_official_build_default = !is_debug
+
 # On Android, malloc interception is fragile as we use wrapped symbols.
 # the 'GrAHardwareBuffer_ImportAsSurface' test crashes on Pixel 4 (Adreno 640)
 # because Qualcomm's proprietary gralloc module
