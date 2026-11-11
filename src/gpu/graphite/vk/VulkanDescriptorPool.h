@@ -32,6 +32,9 @@ public:
 
     VkDescriptorPool descPool() { return fDescPool; }
 
+    // Intentially leak the descriptor pool, done for Imagination drivers.
+    void markLeaked() { fDescPool = VK_NULL_HANDLE; }
+
     const VkDescriptorSetLayout* descSetLayout() {
         SkASSERT(fDescSetLayout != VK_NULL_HANDLE);
         return &fDescSetLayout;

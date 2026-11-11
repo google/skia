@@ -589,6 +589,12 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const GrContextOptions& context
         fReuseScratchBuffers = false;
     }
 
+    // On Imagination (PowerVR) drivers, when vkAllocateDescriptorSets fails with host or device
+    // OOM, the descriptor pool cannot be destroyed safely (crbug.com/549311485).
+    if (properties.vendorID == skgpu::kImagination_VkVendor) {
+        fMustLeakDescriptorPoolOnError = true;
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
