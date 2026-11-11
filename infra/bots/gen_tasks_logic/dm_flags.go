@@ -1702,8 +1702,6 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "gm", ALL, "wacky_yuv_formats_limited")
 		skip(ALL, "gm", ALL, "wacky_yuv_formats_limited_cs")
 		skip(ALL, "test", ALL, "FlushFinishedProcTest")
-		skip(ALL, "test", ALL, "ES2BlendWithNoTexture")
-		skip(ALL, "test", ALL, "WritePixelsNonTextureMSAA_Gpu")
 	}
 
 	if b.GPU("PowerVRGX6250") {

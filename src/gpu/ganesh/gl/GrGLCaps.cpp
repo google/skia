@@ -555,7 +555,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                                     kNoFormatConversion_BlitFramebufferFlag |
                                     kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
         }
-    } // No WebGL 1.0 support for BlitFramebuffer
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        if (version >= GR_GL_VER(2, 0)) {
+            // WebGL 2.0 inherits same blit limitations as GLES 3.0.
+            fBlitFramebufferFlags = kNoFormatConversionForMSAASrc_BlitFramebufferFlag |
+                                    kNoMSAADst_BlitFramebufferFlag |
+                                    kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
+        } // No WebGL 1.0 support for BlitFramebuffer
+    }
 
     this->initBlendEqationSupport(ctxInfo);
 
