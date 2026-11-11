@@ -209,8 +209,8 @@ public:
     const T& operator *() const { return *fObj; }
 
 private:
-    const T*         fObj;
     std::optional<T> fLazy;
+    const T*         fObj;
 };
 
 #endif

@@ -128,10 +128,11 @@ void GrOpFlushState::reset() {
     fVertexPool.reset();
     fIndexPool.reset();
     fDrawIndirectPool.reset();
-    fArena.reset();
+    // The lists point into fArena, so clear them first.
     fASAPUploads.reset();
     fInlineUploads.reset();
     fDraws.reset();
+    fArena.reset();
     fBaseDrawToken = skgpu::Token::InvalidToken();
     fDeferredUploadFailed = false;
     // Advance the tokens at the end of every flush, even one that executed no draws, so that work

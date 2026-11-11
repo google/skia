@@ -10,6 +10,7 @@
 #include "include/private/SkMacros.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkMath.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkBuffer.h"
@@ -66,6 +67,8 @@ constexpr int kRunArrayStackCount = 256;
 // Measurement:  for the `region_union_16` benchmark, this is 6% faster.
 class RunArray {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     RunArray() { fPtr = fStack; }
     #ifdef SK_DEBUG
     int count() const { return fCount; }
@@ -89,6 +92,7 @@ public:
             fCount = count;
         }
     }
+
 private:
     SkRegionPriv::RunType fStack[kRunArrayStackCount];
     AutoTMalloc<SkRegionPriv::RunType> fMalloc;
@@ -709,6 +713,8 @@ static void assert_valid_pair(int left, int rite)
 #endif
 
 struct spanRec {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     const SkRegionPriv::RunType*    fA_runs;
     const SkRegionPriv::RunType*    fB_runs;
     int                         fA_left, fA_rite, fB_left, fB_rite;
@@ -875,6 +881,8 @@ static_assert(3 == SkRegion::kXOR_Op,        "");
 
 class RgnOper {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     RgnOper(int top, RunArray* array, SkRegion::Op op)
         : fMin(gOpMinMax[op].fMin)
         , fMax(gOpMinMax[op].fMax)

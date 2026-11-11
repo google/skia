@@ -49,11 +49,12 @@ static sk_sp<SkSL::DebugTracePriv> make_trace(skiatest::Reporter* r,
 
         if (main) {
             // Compile our program.
-            SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
-            SkRasterPipeline pipeline(&alloc);
             std::unique_ptr<SkSL::RP::Program> rasterProg = SkSL::MakeRasterPipelineProgram(
                     *program, *main->definition(), debugTrace.get(), /*writeTraceOps=*/true);
             REPORTER_ASSERT(r, rasterProg);
+            // Declared after rasterProg: the stage contexts point into it.
+            SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
+            SkRasterPipeline pipeline(&alloc);
 
             if (rasterProg) {
                 // Append the SkSL program to the raster pipeline, and run it at xy=(0.5, 0.5).

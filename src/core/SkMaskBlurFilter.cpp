@@ -9,6 +9,7 @@
 
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
@@ -94,6 +95,8 @@ public:
 public:
     class Scan {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         Scan(uint64_t weight, int noChangeCount,
              uint32_t* buffer0, uint32_t* buffer0End,
              uint32_t* buffer1, uint32_t* buffer1End,

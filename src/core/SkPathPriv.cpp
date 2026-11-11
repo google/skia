@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkPathTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkCubicClipper.h"
@@ -745,6 +746,8 @@ static SkPathFirstDirection crossToDir(SkScalar cross) {
 
 class ContourIter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     ContourIter(SkSpan<const SkPoint>, SkSpan<const SkPathVerb>, SkSpan<const float> conicWeights);
 
     bool done() const { return fDone; }

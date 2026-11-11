@@ -1744,7 +1744,7 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkPixmap& device,
                                                  const SkPaint& paint,
                                                  SkShaderBase::Context* shaderContext)
         : SkShaderBlitter(device, paint, shaderContext) {
-    fBuffer = (SkPMColor*)sk_malloc_throw(device.width() * (sizeof(SkPMColor)));
+    fBuffer.reset(device.width());
 
     SkASSERT(paint.isSrcOver());
 
@@ -1761,9 +1761,7 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkPixmap& device,
             SkToBool(shaderContext->getFlags() & SkShaderBase::kOpaqueAlpha_Flag);
 }
 
-SkARGB32_Shader_Blitter::~SkARGB32_Shader_Blitter() {
-    sk_free(fBuffer);
-}
+SkARGB32_Shader_Blitter::~SkARGB32_Shader_Blitter() = default;
 
 void SkARGB32_Shader_Blitter::blitH(int x, int y, int width) {
     SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());

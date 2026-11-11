@@ -131,13 +131,14 @@ void SkCachedData::inMutexUnlock() {
     SkASSERT(fIsLocked);
     fIsLocked = false;
 
+    const bool hadData = fData != nullptr;
+    this->setData(nullptr);  // signal that we're in an unlocked state before unlocking
     if (auto* dm = std::get_if<DiscardableStorage>(&fStorage)) {
-        if (fData) {  // did the previous lock succeed?
+        if (hadData) {  // did the previous lock succeed?
             (*dm)->unlock();
         }
     }
     // else MallocStorage: nothing to do/check
-    this->setData(nullptr);  // signal that we're in an unlocked state
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

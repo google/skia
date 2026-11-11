@@ -14,6 +14,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkCPUTypes.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkBlitter.h"
 #include "src/shaders/SkShaderBase.h"
@@ -108,9 +109,9 @@ public:
     void blitMask(const SkMask&, const SkIRect&) override;
 
 private:
-    SkPMColor*          fBuffer;
-    SkBlitRow::Proc32   fProc32;
-    SkBlitRow::Proc32   fProc32Blend;
+    skia_private::AutoTMalloc<SkPMColor> fBuffer;
+    SkBlitRow::Proc32 fProc32;
+    SkBlitRow::Proc32 fProc32Blend;
     bool fShadeDirectlyIntoDevice;
 };
 

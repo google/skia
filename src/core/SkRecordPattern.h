@@ -8,6 +8,7 @@
 #ifndef SkRecordPattern_DEFINED
 #define SkRecordPattern_DEFINED
 
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTLogic.h"
 #include "src/core/SkRecord.h"
 
@@ -20,6 +21,8 @@ namespace SkRecords {
 template <typename T>
 class Is {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     Is() : fPtr(nullptr) {}
 
     typedef T type;
@@ -43,6 +46,8 @@ private:
 // Matches any command that draws, and stores its paint.
 class IsDraw {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     IsDraw() : fPaint(nullptr) {}
 
     SkPaint* get() { return fPaint; }
@@ -77,6 +82,8 @@ private:
 // Matches any command that draws *once* (logically), and stores its paint.
 class IsSingleDraw {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     IsSingleDraw() : fPaint(nullptr) {}
 
     SkPaint* get() { return fPaint; }
@@ -158,6 +165,8 @@ public:
 template <typename First, typename... Rest>
 class Pattern<First, Rest...> {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     // If this pattern matches the SkRecord starting from i,
     // return the index just past the end of the pattern, otherwise return 0.
     SK_ALWAYS_INLINE int match(SkRecord* record, int i) {

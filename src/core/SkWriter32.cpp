@@ -66,6 +66,7 @@ void SkWriter32::growToAtLeast(size_t size) {
     const bool wasExternal = (fExternal != nullptr) && (fData == fExternal);
 
     fCapacity = 4096 + std::max(size, fCapacity + (fCapacity / 2));
+    fData = nullptr;  // fInternal.realloc() may free the block fData points into.
     fInternal.realloc(fCapacity);
     fData = fInternal.get();
 

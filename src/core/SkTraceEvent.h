@@ -10,6 +10,7 @@
 #ifndef SkTraceEvent_DEFINED
 #define SkTraceEvent_DEFINED
 
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/utils/SkEventTracer.h"
 #include "src/core/SkTraceEventCommon.h" // IWYU pragma: export
 #include "src/core/SkUtils.h"
@@ -365,6 +366,8 @@ AddTraceEvent(
 // Used by TRACE_EVENTx macros. Do not use directly.
 class TRACE_EVENT_API_CLASS_EXPORT ScopedTracer {
  public:
+  SK_ONLY_STACK_ALLOCATABLE;
+
   // Note: members of data_ intentionally left uninitialized. See Initialize.
   ScopedTracer() : p_data_(nullptr) {}
 

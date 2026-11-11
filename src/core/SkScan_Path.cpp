@@ -18,6 +18,7 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkMath.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkSafe32.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkEdge.h"
@@ -314,6 +315,8 @@ static void walk_simple_edges(SkEdge* prevHead, SkBlitter* blitter, int start_y,
 //
 class InverseBlitter : public SkBlitter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     void setBlitter(SkBlitter* blitter, const SkIRect& clip) {
         fBlitter = blitter;
         fFirstX = clip.fLeft;

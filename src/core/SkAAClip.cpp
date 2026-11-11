@@ -131,6 +131,8 @@ private:
 
 class Iter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     Iter() = default;
 
     Iter(int y, const uint8_t* data, const YOffset* start, const YOffset* end)
@@ -251,6 +253,8 @@ struct SkAAClip::RunHead {
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkAAClip::Builder {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     class Blitter;
 
     SkIRect fBounds;
@@ -693,6 +697,8 @@ void SkAAClip::Builder::operateY(const SkAAClip& A, const SkAAClip& B, SkClipOp 
 }
 
 class SkAAClip::Builder::Blitter final : public SkBlitter {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     int fLastY;
 
     /*
@@ -1661,9 +1667,7 @@ static void expandToRuns(const uint8_t* SK_RESTRICT data, int initialCount, int 
     runs[0] = 0;    // sentinel
 }
 
-SkAAClipBlitter::~SkAAClipBlitter() {
-    sk_free(fScanlineScratch);
-}
+SkAAClipBlitter::~SkAAClipBlitter() = default;
 
 void SkAAClipBlitter::ensureRunsAndAA() {
     if (nullptr == fScanlineScratch) {
@@ -1671,9 +1675,9 @@ void SkAAClipBlitter::ensureRunsAndAA() {
         int count = fAAClipBounds.width() + 1;
         // we use this either for fRuns + fAA, or a scaline of a mask
         // which may be as deep as 32bits
-        fScanlineScratch = sk_malloc_throw(count * sizeof(SkPMColor));
-        fRuns = (int16_t*)fScanlineScratch;
-        fAA = (SkAlpha*)(fRuns + count);
+        fScanlineScratch.reset(sk_malloc_throw(count * sizeof(SkPMColor)));
+        fRuns = static_cast<int16_t*>(fScanlineScratch.get());
+        fAA = reinterpret_cast<SkAlpha*>(fRuns + count);
     }
 }
 
@@ -1960,7 +1964,7 @@ void SkAAClipBlitter::blitMask(const SkMask& origMask, const SkIRect& clip) {
     rowMask.bounds().fLeft = clip.fLeft;
     rowMask.bounds().fRight = clip.fRight;
     rowMask.rowBytes() = mask->fRowBytes; // doesn't matter, since our height==1
-    rowMask.image() = (uint8_t*)fScanlineScratch;
+    rowMask.image() = static_cast<uint8_t*>(fScanlineScratch.get());
 
     int y = clip.fTop;
     const int stopY = y + clip.height();

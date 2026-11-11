@@ -10,6 +10,7 @@
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 
 /**
@@ -192,6 +193,8 @@ public:
 
     class Iter {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         enum IterStart {
             kHead_IterStart,
             kTail_IterStart

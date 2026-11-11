@@ -16,6 +16,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkCPUTypes.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
 
@@ -186,6 +187,8 @@ public:
 */
 class SkRectClipBlitter final : public SkBlitter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     void init(SkBlitter* blitter, const SkIRect& clipRect) {
         SkASSERT(!clipRect.isEmpty());
         fBlitter = blitter;
@@ -219,6 +222,8 @@ private:
 */
 class SkRgnClipBlitter final : public SkBlitter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     void init(SkBlitter* blitter, const SkRegion* clipRgn) {
         SkASSERT(clipRgn && !clipRgn->isEmpty());
         fBlitter = blitter;
@@ -249,6 +254,8 @@ private:
 #ifdef SK_DEBUG
 class SkRectClipCheckBlitter final : public SkBlitter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     void init(SkBlitter* blitter, const SkIRect& clipRect) {
         SkASSERT(blitter);
         SkASSERT(!clipRect.isEmpty());
@@ -286,6 +293,8 @@ private:
 */
 class SkBlitterClipper {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkBlitter*  apply(SkBlitter* blitter, const SkRegion* clip,
                       const SkIRect* bounds = nullptr);
 

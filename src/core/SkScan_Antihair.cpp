@@ -14,6 +14,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkMath.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkBlitter.h"
@@ -73,6 +74,8 @@ static void call_hline_blitter(SkBlitter* blitter, int x, int y, int count,
 // implementation based on the line's slope.
 class SkAntiHairBlitter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkAntiHairBlitter() : fBlitter(nullptr) {}
     virtual ~SkAntiHairBlitter() {}
 

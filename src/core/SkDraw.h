@@ -17,6 +17,7 @@
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkDrawTypes.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkZip.h"
@@ -105,6 +106,8 @@ public:
  */
 class Draw : public BitmapDevicePainter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     Draw();
 
     void drawPaint(const SkPaint&) const;

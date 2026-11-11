@@ -11,6 +11,7 @@
 #include "include/core/SkM44.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 #include <algorithm>
 #include <array>
@@ -1060,6 +1061,8 @@ static void make_rgb_to_yuv_matrix(float mx[20], const ColorSpaceInfo& info) {
 }
 
 struct PrecomputedMatrices {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     const float* rgb_to_yuv = nullptr;
     const float* yuv_to_rgb = nullptr;
 };

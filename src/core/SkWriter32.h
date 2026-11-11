@@ -254,11 +254,11 @@ public:
 private:
     void growToAtLeast(size_t size);
 
+    skia_private::AutoTMalloc<uint8_t> fInternal;  // Managed memory block.
     uint8_t* fData;                    // Points to either fInternal or fExternal.
     size_t fCapacity;                  // Number of bytes we can write to fData.
     size_t fUsed;                      // Number of bytes written.
     void* fExternal;                   // Unmanaged memory block.
-    skia_private::AutoTMalloc<uint8_t> fInternal;  // Managed memory block.
 };
 
 /**

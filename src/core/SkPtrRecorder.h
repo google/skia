@@ -11,6 +11,7 @@
 
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTDArray.h"
 
 #include <cstdint>
@@ -64,6 +65,8 @@ public:
      */
     class Iter {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         Iter(const SkPtrSet& set)
             : fSet(set)
             , fIndex(0) {}

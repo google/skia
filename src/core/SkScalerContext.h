@@ -243,6 +243,8 @@ SK_END_REQUIRE_DENSE
 
 // TODO: rename SkScalerContextEffects -> SkStrikeEffects
 struct SkScalerContextEffects {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkScalerContextEffects() : fPathEffect(nullptr), fMaskFilter(nullptr) {}
     SkScalerContextEffects(SkPathEffect* pe, SkMaskFilter* mf)
             : fPathEffect(pe), fMaskFilter(mf) {}

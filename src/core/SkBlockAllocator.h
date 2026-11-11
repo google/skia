@@ -168,6 +168,8 @@ public:
     // Tuple representing a range of bytes, marking the unaligned start, the first aligned point
     // after any padding, and the upper limit depending on requested size.
     struct ByteRange {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         Block* fBlock;         // Owning block
         int    fStart;         // Inclusive byte lower limit of byte range
         int    fAlignedOffset; // >= start, matching alignment requirement (i.e. first real byte)

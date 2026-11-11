@@ -9,6 +9,7 @@
 #define SkTHash_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkMathPriv.h"
 
@@ -252,6 +253,8 @@ public:
     template <typename SlotVal>
     class Iter {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         using TTable = THashTable<T, K, Traits>;
 
         Iter(const TTable* table, int slot) : fTable(table), fSlot(slot) {}

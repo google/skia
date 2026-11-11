@@ -18,6 +18,7 @@
 #include "include/private/SkFixed.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMath.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkSafe32.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkFDot6.h"
@@ -214,6 +215,8 @@ void SkScan::HairLineRgn(SkSpan<const SkPoint> src, const SkRegion* clip, SkBlit
 }
 
 struct DrawingParameters {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     const SkRegion* clip;
     const SkRect* insetClip;
     const SkRect* outsetClip;

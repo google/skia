@@ -12,6 +12,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkCanvasPriv.h"
@@ -385,6 +386,8 @@ void SkPicture::playback(SkCanvas* canvas, AbortCallback* callback) const {
 }
 
 struct NestedApproxOpCounter {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     int fCount = 0;
     int fDepth = 0;
     const SkSnapshotArray* fDrawablePicts;

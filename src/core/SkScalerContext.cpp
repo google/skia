@@ -1337,7 +1337,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
         rec->setContrast(0);
     }
 
-    new (effects) SkScalerContextEffects{paint};
+    *effects = SkScalerContextEffects{paint};
 }
 
 SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingPaint(

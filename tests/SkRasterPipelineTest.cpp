@@ -2576,9 +2576,6 @@ DEF_TEST(SkRasterPipeline_ExchangeSrc, r) {
 DEF_TEST(SkRasterPipeline_BranchIfAllLanesActive, r) {
     const int N = SkOpts::raster_pipeline_highp_stride;
 
-    SkRasterPipelineContexts::BranchIfAllLanesActiveCtx ctx;
-    ctx.offset = 2;
-
     // The branch should be taken when lane masks are all-on.
     {
         alignas(64) int32_t first [SkRasterPipelineContexts::kMaxStride_highp];
@@ -2588,6 +2585,9 @@ DEF_TEST(SkRasterPipeline_BranchIfAllLanesActive, r) {
 
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
+        // Declared after alloc: ctx.tail points into it.
+        SkRasterPipelineContexts::BranchIfAllLanesActiveCtx ctx;
+        ctx.offset = 2;
         SkRasterPipelineContexts::InitLaneMasksCtx initLaneMasksCtx;
         p.append(SkRasterPipelineOp::init_lane_masks, &initLaneMasksCtx);
         p.append(SkRasterPipelineOp::branch_if_all_lanes_active, &ctx);
@@ -2613,6 +2613,9 @@ DEF_TEST(SkRasterPipeline_BranchIfAllLanesActive, r) {
 
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
+        // Declared after alloc: ctx.tail points into it.
+        SkRasterPipelineContexts::BranchIfAllLanesActiveCtx ctx;
+        ctx.offset = 2;
         p.append(SkRasterPipelineOp::load_src, kNoLanesActive);
         p.append(SkRasterPipelineOp::branch_if_all_lanes_active, &ctx);
         p.append(SkRasterPipelineOp::store_src_a, first);
@@ -2640,6 +2643,9 @@ DEF_TEST(SkRasterPipeline_BranchIfAllLanesActive, r) {
 
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
+        // Declared after alloc: ctx.tail points into it.
+        SkRasterPipelineContexts::BranchIfAllLanesActiveCtx ctx;
+        ctx.offset = 2;
         p.append(SkRasterPipelineOp::load_src, oneLaneInactive);
         p.append(SkRasterPipelineOp::branch_if_all_lanes_active, &ctx);
         p.append(SkRasterPipelineOp::store_src_a, first);

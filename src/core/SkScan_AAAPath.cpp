@@ -14,6 +14,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkMath.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkAlphaRuns.h"
@@ -99,6 +100,8 @@ static void safely_add_alpha(SkAlpha* alpha, SkAlpha delta) {
 
 class AdditiveBlitter : public SkBlitter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     ~AdditiveBlitter() override {}
 
     virtual SkBlitter* getRealBlitter(bool forceRealBlitter = false) = 0;

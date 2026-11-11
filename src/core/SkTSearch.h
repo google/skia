@@ -11,6 +11,7 @@
 #define SkTSearch_DEFINED
 
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 #include <cstddef>
 
@@ -111,6 +112,8 @@ int SkStrLCSearch(const char*const* base, int count, const char target[],
 */
 class [[nodiscard]] SkAutoAsciiToLC {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkAutoAsciiToLC(const char str[], size_t len = (size_t)-1);
     ~SkAutoAsciiToLC();
 

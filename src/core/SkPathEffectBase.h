@@ -13,6 +13,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSpan.h"
+#include "include/private/SkTemplates.h"
 
 #include <optional>
 
@@ -30,17 +31,12 @@ public:
     */
     class PointData {
     public:
-        PointData()
-            : fFlags(0)
-            , fPoints(nullptr)
-            , fNumPoints(0) {
+        PointData() {
             fSize.set(SK_Scalar1, SK_Scalar1);
             // 'asPoints' needs to initialize/fill-in 'fClipRect' if it sets
             // the kUseClip flag
         }
-        ~PointData() {
-            delete [] fPoints;
-        }
+        ~PointData() = default;
 
         // TODO: consider using passed-in flags to limit the work asPoints does.
         // For example, a kNoPath flag could indicate don't bother generating
@@ -53,17 +49,17 @@ public:
             kUseClip_PointFlag            = 0x04,   // apply 'fClipRect' before drawing the points
         };
 
-        uint32_t           fFlags;      // flags that impact the drawing of the points
-        SkPoint*           fPoints;     // the center point of each generated point
-        int                fNumPoints;  // number of points in fPoints
-        SkVector           fSize;       // the size to draw the points
-        SkRect             fClipRect;   // clip required to draw the points (if kUseClip is set)
-        SkPath             fPath;       // 'stamp' to be used at each point (if kUsePath is set)
+        skia_private::AutoTMalloc<SkPoint> fPoints;  // the center point of each generated point
+        uint32_t fFlags = 0;  // flags that impact the drawing of the points
+        int fNumPoints = 0;  // number of points in fPoints
+        SkVector fSize;  // the size to draw the points
+        SkRect fClipRect;  // clip required to draw the points (if kUseClip is set)
+        SkPath fPath;  // 'stamp' to be used at each point (if kUsePath is set)
 
-        SkPath             fFirst;      // If not empty, contains geometry for first point
-        SkPath             fLast;       // If not empty, contains geometry for last point
+        SkPath fFirst;  // If not empty, contains geometry for first point
+        SkPath fLast;  // If not empty, contains geometry for last point
 
-        SkSpan<SkPoint> points() { return {fPoints, (size_t)fNumPoints}; }
+        SkSpan<SkPoint> points() { return {fPoints.get(), (size_t)fNumPoints}; }
     };
 
     /**

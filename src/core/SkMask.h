@@ -10,6 +10,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorPriv.h"
@@ -134,6 +135,7 @@ struct SkMask {
 };
 
 template <> struct SkMask::AlphaIter<SkMask::kBW_Format> {
+    SK_ONLY_STACK_ALLOCATABLE;
     AlphaIter(const uint8_t* ptr, int offset) : fPtr(ptr), fOffset(7 - offset) {}
     AlphaIter(const AlphaIter& that) : fPtr(that.fPtr), fOffset(that.fOffset) {}
     AlphaIter& operator++() {
@@ -167,6 +169,7 @@ template <> struct SkMask::AlphaIter<SkMask::kBW_Format> {
 };
 
 template <> struct SkMask::AlphaIter<SkMask::kA8_Format> {
+    SK_ONLY_STACK_ALLOCATABLE;
     AlphaIter(const uint8_t* ptr) : fPtr(ptr) {}
     AlphaIter(const AlphaIter& that) : fPtr(that.fPtr) {}
     AlphaIter& operator++() { ++fPtr; return *this; }
@@ -181,6 +184,7 @@ template <> struct SkMask::AlphaIter<SkMask::kA8_Format> {
 };
 
 template <> struct SkMask::AlphaIter<SkMask::kARGB32_Format> {
+    SK_ONLY_STACK_ALLOCATABLE;
     AlphaIter(const uint32_t* ptr) : fPtr(ptr) {}
     AlphaIter(const AlphaIter& that) : fPtr(that.fPtr) {}
     AlphaIter& operator++() { ++fPtr; return *this; }
@@ -195,6 +199,7 @@ template <> struct SkMask::AlphaIter<SkMask::kARGB32_Format> {
 };
 
 template <> struct SkMask::AlphaIter<SkMask::kLCD16_Format> {
+    SK_ONLY_STACK_ALLOCATABLE;
     AlphaIter(const uint16_t* ptr) : fPtr(ptr) {}
     AlphaIter(const AlphaIter& that) : fPtr(that.fPtr) {}
     AlphaIter& operator++() { ++fPtr; return *this; }

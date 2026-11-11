@@ -10,6 +10,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
@@ -355,6 +356,8 @@ static unsigned char pack_distance_field_val(float dist) {
 // the DFData working grid, its edge flags, and the padded 8-bit source copy
 class DFScratch {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     static size_t ComputeTotalSize(int w, int h, size_t* gridCountOut = nullptr) {
         if (w <= 0 || h <= 0) {
             return 0;

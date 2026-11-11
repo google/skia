@@ -284,7 +284,7 @@ bool SkDashImpl::onAsPoints(PointData* results, const SkPath& src, const SkStrok
             }
         }
 
-        results->fPoints = new SkPoint[results->fNumPoints];
+        results->fPoints.reset(results->fNumPoints);
 
         SkScalar    distance = 0;
         int         curPt = 0;

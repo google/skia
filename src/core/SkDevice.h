@@ -78,6 +78,8 @@ class SubRunControl;
 }
 
 struct SkStrikeDeviceInfo {
+    SK_ONLY_STACK_ALLOCATABLE;
+
     const SkSurfaceProps fSurfaceProps;
     const SkScalerContextFlags fScalerContextFlags;
     // This is a pointer so this can be compiled without SK_GPU_SUPPORT.
@@ -297,6 +299,8 @@ public:
     virtual sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&);
 
     struct CreateInfo {
+        SK_ONLY_STACK_ALLOCATABLE;
+
         CreateInfo(const SkImageInfo& info,
                    SkPixelGeometry geo,
                    SkRasterHandleAllocator* allocator)

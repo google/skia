@@ -13,6 +13,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 #include <optional>
 
@@ -24,6 +25,8 @@ struct SkRect;
  */
 class SkEdgeClipper {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     explicit SkEdgeClipper(bool canCullToTheRight) : fCanCullToTheRight(canCullToTheRight) {}
 
     bool clipLine(SkPoint p0, SkPoint p1, const SkRect& clip);

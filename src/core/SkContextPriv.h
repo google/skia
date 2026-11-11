@@ -11,6 +11,7 @@
 #include "include/core/SkContext.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkGPUContext.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkSharedState.h"
 
 #include <memory>
@@ -22,6 +23,8 @@ class SkContext;
     data members or virtual methods.*/
 class SkContextPrivConst {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     const SkSharedState* sharedState() const { return fConstContext->fSharedState.get(); }
 
 protected:

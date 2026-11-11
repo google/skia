@@ -12,6 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkCPUTypes.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTo.h"
 
 #include <cstdint>
@@ -23,6 +24,8 @@
 
 class SkAlphaRuns {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     int16_t*    fRuns;
     uint8_t*     fAlpha;
 

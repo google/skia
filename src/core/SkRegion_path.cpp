@@ -17,6 +17,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkMath.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTo.h"
@@ -47,6 +48,8 @@ static bool sk_memeq32(const int32_t* SK_RESTRICT a, const int32_t* SK_RESTRICT 
 
 class SkRgnBuilder : public SkBlitter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkRgnBuilder();
     ~SkRgnBuilder() override;
 
