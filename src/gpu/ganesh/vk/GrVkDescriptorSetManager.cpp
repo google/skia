@@ -364,7 +364,15 @@ bool GrVkDescriptorSetManager::DescriptorPoolManager::getNewDescriptorSet(GrVkGp
     GR_VK_CALL_RESULT(gpu, result, AllocateDescriptorSets(gpu->device(),
                                                           &dsAllocateInfo,
                                                           ds));
-    return result == VK_SUCCESS;
+    if (result != VK_SUCCESS) {
+        if (gpu->vkCaps().mustLeakDescriptorPoolOnError() &&
+            (result == VK_ERROR_OUT_OF_HOST_MEMORY || result == VK_ERROR_OUT_OF_DEVICE_MEMORY)) {
+            fPool->markLeaked();
+            fPool.reset();
+        }
+        return false;
+    }
+    return true;
 }
 
 void GrVkDescriptorSetManager::DescriptorPoolManager::freeGPUResources(GrVkGpu* gpu) {

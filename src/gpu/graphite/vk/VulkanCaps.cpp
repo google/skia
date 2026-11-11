@@ -744,6 +744,12 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const PhysicalDevicePropertie
         fMSAARenderToSingleSampledSupport = false;
     }
 
+    // On Imagination (PowerVR) drivers, when vkAllocateDescriptorSets fails with host or device
+    // OOM, the descriptor pool cannot be destroyed safely (crbug.com/549311485).
+    if (isImagination) {
+        fMustLeakDescriptorPoolOnError = true;
+    }
+
 #if defined(SK_BUILD_FOR_ANDROID)
     // Dawn doesn't use SPIR-V maximal reconvergence on Android Imagination GPUs (Pixel 10),
     // crbug.com/379673383. Follow suit; compute shaders force reconvergence with barriers instead.

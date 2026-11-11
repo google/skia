@@ -29,6 +29,9 @@ public:
 
     VkDescriptorPool descPool() const { return fDescPool; }
 
+    // Intentially leak the descriptor pool, done for Imagination drivers.
+    void markLeaked() { fDescPool = VK_NULL_HANDLE; }
+
     // Returns whether or not this descriptor pool could be used, assuming it gets fully reset and
     // not in use by another draw, to support the requested type and count.
     bool isCompatible(VkDescriptorType type, uint32_t count) const;
