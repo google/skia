@@ -33,8 +33,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
-#include <array>
 #include <string.h>
+#include <array>
 
 static const float kSize   = 80;
 static const float kInset  = 10;
@@ -128,15 +128,16 @@ protected:
                 SkBlendMode::kSrcIn,
                 SkBlendMode::kDstIn,
         });
-        struct {
-            const sk_sp<SkShader>& fShader1;
-            const sk_sp<SkShader>& fShader2;
-        } shaders[] = {
-            { nullptr, nullptr },
-            { nullptr, fGr2 },
-            { fGr1, nullptr },
-            { fGr1, fGr2 },
+        struct ShaderPair {
+            sk_sp<SkShader> fShader1;
+            sk_sp<SkShader> fShader2;
         };
+        const auto shaders = std::to_array<ShaderPair>({
+                ShaderPair{ nullptr, nullptr },
+                ShaderPair{ nullptr, fGr2 },
+                ShaderPair{ fGr1, nullptr },
+                ShaderPair{ fGr1, fGr2 },
+        });
 
         SkScalar gridStep = kSize + 2 * kInset;
         for (size_t i = 0; i < std::size(modes); ++i) {

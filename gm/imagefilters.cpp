@@ -20,6 +20,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkColorMatrix.h"
@@ -130,16 +131,16 @@ DEF_SIMPLE_GM(fast_slow_blurimagefilter, canvas, 620, 260) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count) {
+static void draw_set(SkCanvas* canvas, SkSpan<const sk_sp<SkImageFilter>> filters) {
     const SkRect r = SkRect::MakeXYWH(30, 30, 200, 200);
     const SkScalar offset = 250;
     SkScalar dx = 0, dy = 0;
 
-    for (int i = 0; i < count; ++i) {
+    for (const sk_sp<SkImageFilter>& filter : filters) {
         canvas->save();
         SkRRect rr = SkRRect::MakeRectXY(r.makeOffset(dx, dy), 20, 20);
         canvas->clipRRect(rr, true);
-        canvas->saveLayer(SkCanvas::SaveLayerRec(&rr.getBounds(), nullptr, filters[i].get(), 0));
+        canvas->saveLayer(SkCanvas::SaveLayerRec(&rr.getBounds(), nullptr, filter.get(), 0));
         canvas->drawColor(0x40FFFFFF);
         canvas->restore();
         canvas->restore();
@@ -191,7 +192,7 @@ protected:
             canvas->translate(xform.fTx, xform.fTy);
             canvas->scale(xform.fSx, xform.fSy);
             canvas->drawImage(image, 0, 0, sampling, nullptr);
-            draw_set(canvas, filters, std::size(filters));
+            draw_set(canvas, filters);
             canvas->restore();
         }
     }

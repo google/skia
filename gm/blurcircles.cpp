@@ -85,26 +85,28 @@ DEF_SIMPLE_GM(blurcircles_xform, canvas, 1280, 1020) {
     static constexpr std::array<float, 3> kSigmas = {1.f, 2.5f, 5.f};
     static constexpr float kSectionHeight = kLabelHeight + kSigmas.size() * kCellSize;
 
-    const SkMatrix matrices[] = {
-        SkMatrix(),
-        SkMatrix::Scale(2.f, 2.f),
-        SkMatrix::RotateDeg(30.f),
-        SkMatrix::Scale(3.f, 1.f),
-        SkMatrix::Scale(0.5f, 3.f),
-        SkMatrix::RotateDeg(30.f) * SkMatrix::Scale(3.f, 1.f),  // Non-uniform scale, then rotate.
-        // Rotate, then non-uniform scale. A circle is unchanged by the rotation, so this should
-        // look the same as Scale(3, 1).
-        SkMatrix::Scale(3.f, 1.f) * SkMatrix::RotateDeg(30.f),
-        SkMatrix::Skew(1.f, 0.f),
-    };
+    const auto matrices = std::to_array<SkMatrix>({
+            SkMatrix(),
+            SkMatrix::Scale(2.f, 2.f),
+            SkMatrix::RotateDeg(30.f),
+            SkMatrix::Scale(3.f, 1.f),
+            SkMatrix::Scale(0.5f, 3.f),
+            // Non-uniform scale, then rotate.
+            SkMatrix::RotateDeg(30.f) * SkMatrix::Scale(3.f, 1.f),
+            // Rotate, then non-uniform scale. A circle is unchanged by the rotation, so this should
+            // look the same as Scale(3, 1).
+            SkMatrix::Scale(3.f, 1.f) * SkMatrix::RotateDeg(30.f),
+            SkMatrix::Skew(1.f, 0.f),
+    });
 
-    static constexpr struct {
+    struct Section {
         bool fRespectCTM;
         const char* fLabel;
-    } kSections[] = {
-        {true,  "respectCTM = true"},
-        {false, "respectCTM = false"},
     };
+    static constexpr auto kSections = std::to_array<Section>({
+            Section{true,  "respectCTM = true"},
+            Section{false, "respectCTM = false"},
+    });
 
     SkFont font = ToolUtils::DefaultPortableFont();
     font.setSize(16.f);

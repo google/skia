@@ -22,6 +22,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
@@ -152,13 +153,13 @@ private:
 
                 canvas->save();
                 canvas->scale(scales[s], scales[s]);
-                this->drawProcs(canvas, r, paint, false, procs, std::size(procs));
+                this->drawProcs(canvas, r, paint, false, procs);
                 canvas->translate(r.width() * 4/3, 0);
-                this->drawProcs(canvas, r, paintWithRadial, false, procs, std::size(procs));
+                this->drawProcs(canvas, r, paintWithRadial, false, procs);
                 canvas->translate(r.width() * 4/3, 0);
-                this->drawProcs(canvas, r, paint, true, procs, std::size(procs));
+                this->drawProcs(canvas, r, paint, true, procs);
                 canvas->translate(r.width() * 4/3, 0);
-                this->drawProcs(canvas, r, paintWithRadial, true, procs, std::size(procs));
+                this->drawProcs(canvas, r, paintWithRadial, true, procs);
                 canvas->restore();
 
                 canvas->translate(0, std::size(procs) * r.height() * 4/3 * scales[s]);
@@ -168,17 +169,20 @@ private:
         }
     }
 
-    void drawProcs(SkCanvas* canvas, const SkRect& r, const SkPaint& paint,
-                   bool doClip, const Proc procs[], size_t procsCount) {
+    void drawProcs(SkCanvas* canvas,
+                   const SkRect& r,
+                   const SkPaint& paint,
+                   bool doClip,
+                   SkSpan<const Proc> procs) {
         SkAutoCanvasRestore acr(canvas, true);
-        for (size_t i = 0; i < procsCount; ++i) {
+        for (Proc proc : procs) {
             if (doClip) {
                 SkRect clipRect(r);
                 clipRect.inset(STROKE_WIDTH/2, STROKE_WIDTH/2);
                 canvas->save();
                 canvas->clipRect(r);
             }
-            procs[i](canvas, r, paint);
+            proc(canvas, r, paint);
             if (doClip) {
                 canvas->restore();
             }

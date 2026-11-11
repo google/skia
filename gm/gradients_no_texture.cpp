@@ -15,6 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
@@ -22,9 +23,9 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTo.h"
 
+#include <string.h>
 #include <array>
 #include <cstdint>
-#include <string.h>
 
 using namespace skiagm;
 
@@ -163,12 +164,14 @@ struct ColorPos {
         delete[] fPos;
     }
 
-    void construct(const SkColor colors[], const float pos[], int count) {
+    void construct(SkSpan<const SkColor> colors, SkSpan<const float> pos) {
+        SkASSERT_RELEASE(pos.empty() || pos.size() == colors.size());
+        const size_t count = colors.size();
         fColors = new SkColor4f[count];
-        std::transform(colors, colors + count, fColors, SkColor4f::FromColor);
-        if (pos) {
+        std::transform(colors.begin(), colors.end(), fColors, SkColor4f::FromColor);
+        if (!pos.empty()) {
             fPos = new float[count];
-            std::copy(pos, pos + count, fPos);
+            std::copy_n(pos.begin(), count, fPos);
             fPos[0] = 0;
             fPos[count - 1] = 1;
         }
@@ -192,11 +195,11 @@ background-image: -webkit-linear-gradient(left, #22d1cd 1%, #22d1cd 0.9510157507
 height: 30px;
 #endif
 
-    const SkColor colors[] = {
+    static constexpr auto colors = std::to_array<SkColor>({
         0xFF22d1cd, 0xFF22d1cd, 0xFFdf4b37, 0xFFdf4b37, 0xFF22d1cd, 0xFF22d1cd, 0xFFe6de36, 0xFFe6de36,
         0xFF3267ff, 0xFF3267ff, 0xFF9d47d1, 0xFF9d47d1, 0xFF3267ff, 0xFF3267ff, 0xFF5cdd9d, 0xFF5cdd9d,
         0xFF3267ff, 0xFF3267ff, 0xFF9d47d1, 0xFF9d47d1, 0xFF3267ff, 0xFF3267ff, 0xFFe3d082, 0xFFe3d082
-    };
+    });
     static constexpr auto percent = std::to_array<double>({
              1,                  0.9510157507590116, 2.9510157507590113, 23.695886056604927,
             25.695886056604927, 25.39321881940624,  27.39321881940624,   31.849399922570655,
@@ -205,45 +208,45 @@ height: 30px;
             71.89166004442,     74.45795382765857,  76.45795382765857,   82.78364610713776,
             84.78364610713776,  94.52743647737229,  96.52743647737229,   96.03934633331295,
     });
-    const int N = std::size(percent);
-    std::array<SkScalar, N> pos;
-    for (int i = 0; i < N; ++i) {
+    static constexpr int kPercentSize = std::size(percent);
+    std::array<SkScalar, kPercentSize> pos;
+    for (int i = 0; i < kPercentSize; ++i) {
         pos[i] = SkDoubleToScalar(percent[i] / 100);
     }
-    rec->construct(colors, pos.data(), N);
+    rec->construct(colors, pos);
 }
 
 static void make1(ColorPos* rec) {
-    const SkColor colors[] = {
+    static constexpr auto colors = std::to_array<SkColor>({
         SK_ColorBLACK, SK_ColorWHITE, SK_ColorBLACK, SK_ColorWHITE,
         SK_ColorBLACK, SK_ColorWHITE, SK_ColorBLACK, SK_ColorWHITE,
         SK_ColorBLACK,
-    };
-    rec->construct(colors, nullptr, std::size(colors));
+    });
+    rec->construct(colors, {});
 }
 
 static void make2(ColorPos* rec) {
-    const SkColor colors[] = {
+    static constexpr auto colors = std::to_array<SkColor>({
         SK_ColorBLACK, SK_ColorWHITE, SK_ColorBLACK, SK_ColorWHITE,
         SK_ColorBLACK, SK_ColorWHITE, SK_ColorBLACK, SK_ColorWHITE,
         SK_ColorBLACK,
-    };
-    const int N = std::size(colors);
-    std::array<SkScalar, N> pos;
-    for (int i = 0; i < N; ++i) {
-        pos[i] = SK_Scalar1 * i / (N - 1);
+    });
+    static constexpr int kColorsSize = std::size(colors);
+    std::array<SkScalar, kColorsSize> pos;
+    for (int i = 0; i < kColorsSize; ++i) {
+        pos[i] = SK_Scalar1 * i / (kColorsSize - 1);
     }
-    rec->construct(colors, pos.data(), N);
+    rec->construct(colors, pos);
 }
 
 static void make3(ColorPos* rec) {
-    const SkColor colors[] = {
+    static constexpr auto colors = std::to_array<SkColor>({
         SK_ColorRED, SK_ColorBLUE, SK_ColorBLUE, SK_ColorGREEN, SK_ColorGREEN, SK_ColorBLACK,
-    };
-    const SkScalar pos[] = {
+    });
+    static constexpr auto pos = std::to_array<SkScalar>({
         0, 0, 0.5f, 0.5, 1, 1,
-    };
-    rec->construct(colors, pos, std::size(colors));
+    });
+    rec->construct(colors, pos);
 }
 
 class GradientsManyColorsGM : public GM {

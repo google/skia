@@ -28,36 +28,36 @@
 static void test4(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    SkPoint pts[] = {
-        {10, 160}, {610, 160},
-        {610, 160}, {10, 160},
+    static constexpr auto pts = std::to_array<SkPoint>({
+            SkPoint{10, 160}, SkPoint{610, 160},
+            SkPoint{610, 160}, SkPoint{10, 160},
 
-        {610, 160}, {610, 160},
-        {610, 199}, {610, 199},
+            SkPoint{610, 160}, SkPoint{610, 160},
+            SkPoint{610, 199}, SkPoint{610, 199},
 
-        {10, 198}, {610, 198},
-        {610, 199}, {10, 199},
+            SkPoint{10, 198},  SkPoint{610, 198},
+            SkPoint{610, 199}, SkPoint{10, 199},
 
-        {10, 160}, {10, 160},
-        {10, 199}, {10, 199}
-    };
-    char verbs[] = {
-        0, 1, 1, 1, 4,
-        0, 1, 1, 1, 4,
-        0, 1, 1, 1, 4,
-        0, 1, 1, 1, 4
-    };
+            SkPoint{10, 160},  SkPoint{10, 160},
+            SkPoint{10, 199},  SkPoint{10, 199},
+    });
+    static constexpr auto verbs = std::to_array<char>({
+            0, 1, 1, 1, 4,
+            0, 1, 1, 1, 4,
+            0, 1, 1, 1, 4,
+            0, 1, 1, 1, 4,
+    });
     SkPathBuilder path;
-    SkPoint* ptPtr = pts;
-    for (size_t i = 0; i < sizeof(verbs); ++i) {
-        switch ((SkPath::Verb) verbs[i]) {
+    size_t ptIdx = 0;
+    for (char verb : verbs) {
+        switch ((SkPath::Verb) verb) {
             case SkPath::kMove_Verb:
-                path.moveTo(ptPtr->fX, ptPtr->fY);
-                ++ptPtr;
+                path.moveTo(pts[ptIdx].fX, pts[ptIdx].fY);
+                ++ptIdx;
                 break;
             case SkPath::kLine_Verb:
-                path.lineTo(ptPtr->fX, ptPtr->fY);
-                ++ptPtr;
+                path.lineTo(pts[ptIdx].fX, pts[ptIdx].fY);
+                ++ptIdx;
                 break;
             case SkPath::kClose_Verb:
                 path.close();

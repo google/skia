@@ -25,6 +25,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
@@ -131,12 +132,16 @@ DEF_GM( return new DrawAtlasGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
-                              const SkPoint xy[], const SkPath& path, const SkFont& font, const SkPaint& paint,
+static void draw_text_on_path(SkCanvas* canvas,
+                              SkSpan<const char> text,
+                              SkSpan<const SkPoint> xy,
+                              const SkPath& path,
+                              const SkFont& font,
+                              const SkPaint& paint,
                               float baseline_offset) {
     SkPathMeasure meas(path, false);
 
-    size_t count = font.countText(text, length, SkTextEncoding::kUTF8);
+    size_t count = font.countText(text.data(), text.size(), SkTextEncoding::kUTF8);
     size_t size = count * (sizeof(SkRSXform) + sizeof(SkScalar));
     SkAutoSMalloc<512> storage(size);
     SkRSXform* xform = (SkRSXform*)storage.get();
@@ -149,7 +154,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
     const SkRect bounds = path.getBounds().makeOutset(max, max);
 
     AutoTArray<SkGlyphID> glyphs(count);
-    font.textToGlyphs(text, length, SkTextEncoding::kUTF8, glyphs);
+    font.textToGlyphs(text.data(), text.size(), SkTextEncoding::kUTF8, glyphs);
     font.getWidths(glyphs, {widths, count});
 
     for (size_t i = 0; i < count; ++i) {
@@ -216,7 +221,7 @@ static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     };
     for (auto d : dirs) {
         path = SkPath::Oval(SkRect::MakeXYWH(160, 160, 540, 540), d);
-        draw_text_on_path(canvas, text0, N, pos.data(), path, font, paint, baseline_offset);
+        draw_text_on_path(canvas, SkSpan(text0).first(N), pos, path, font, paint, baseline_offset);
     }
 
     paint.reset();
