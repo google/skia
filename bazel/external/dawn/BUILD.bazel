@@ -149,6 +149,7 @@ DAWN_GENERATOR_TEMPLATES = glob(
 DAWN_JSON_GENERATOR_SRCS = DAWN_GENERATOR_TEMPLATES + [
     "src/dawn/dawn.json",
     "src/dawn/dawn_wire.json",
+    "src/dawn/dawn_version.json",
 ] + glob(
     [
         "src/dawn/dawn_native.json",
@@ -164,6 +165,7 @@ DAWN_JSON_GENERATOR_CMD = (
         ["src/dawn/dawn_native.json"],
         allow_empty = True,
     ) else "") +
+    " --addin-jsons $(location src/dawn/dawn_version.json) " +
     DAWN_TEMPLATE_DIR_FLAG
 )
 

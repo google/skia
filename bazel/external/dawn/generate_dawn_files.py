@@ -262,6 +262,9 @@ class CMakeParser:
             native_json = "src/dawn/dawn_native.json"
             if os.path.exists(os.path.join(self.dawn_root, native_json)):
                 extra_params.extend(["--native-json", native_json])
+            version_json = "src/dawn/dawn_version.json"
+            if os.path.exists(os.path.join(self.dawn_root, version_json)):
+                extra_params.extend(["--addin-jsons", version_json])
 
         i = 0
         while i < len(args):
