@@ -1192,7 +1192,6 @@ ClipStack::ClipStack(const SkIRect& deviceBounds, const SkMatrix* ctm, bool forc
         : fElements(kElementStackIncrement)
         , fSaves(kSaveStackIncrement)
         , fMasks(kMaskStackIncrement)
-        , fProxyProvider(nullptr)
         , fDeviceBounds(deviceBounds)
         , fCTM(ctm)
         , fForceAA(forceAA) {

@@ -36,8 +36,7 @@ enum class SkBackingFit;
 GrThreadSafeCache::VertexData::VertexData(sk_sp<GrGpuBuffer> gpuBuffer,
                                           int numVertices,
                                           size_t vertexSize)
-        : fVertices(nullptr)
-        , fNumVertices(numVertices)
+        : fNumVertices(numVertices)
         , fVertexSize(vertexSize)
         , fGpuBuffer(std::move(gpuBuffer)) {
     if (fGpuBuffer) {
@@ -64,7 +63,7 @@ void GrThreadSafeCache::VertexData::setGpuBuffer(sk_sp<GrGpuBuffer> gpuBuffer) {
 }
 
 void GrThreadSafeCache::VertexData::reset() {
-    sk_free(const_cast<void*>(fVertices));
+    sk_free(const_cast<void*>(fVertices.get()));
     fVertices = nullptr;
     fNumVertices = 0;
     fVertexSize = 0;
@@ -85,9 +84,7 @@ void GrThreadSafeCache::VertexData::reset() {
     }
 }
 
-GrThreadSafeCache::GrThreadSafeCache()
-    : fFreeEntryList(nullptr) {
-}
+GrThreadSafeCache::GrThreadSafeCache() {}
 
 GrThreadSafeCache::~GrThreadSafeCache() {
     this->dropAllRefs();

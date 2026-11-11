@@ -14,6 +14,8 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
+#include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstdint>
 
@@ -79,18 +81,19 @@ public:
 #endif
 
 private:
-    int                                   fNumSamples;
-    bool                                  fNeedsStencil;
-    GrBackendFormat                       fBackendFormat;
-    GrSurfaceOrigin                       fOrigin;
-    bool                                  fTargetHasVkResolveAttachmentWithInput;
-    int                                   fTargetsNumSamples;
-    const GrPipeline*                     fPipeline;
-    const GrUserStencilSettings*          fUserStencilSettings;
-    const GrGeometryProcessor*            fGeomProc;
-    GrPrimitiveType                       fPrimitiveType;
-    GrXferBarrierFlags                    fRenderPassXferBarriers;
-    GrLoadOp                              fColorLoadOp;
+    int                                          fNumSamples;
+    bool                                         fNeedsStencil;
+    GrBackendFormat                              fBackendFormat;
+    GrSurfaceOrigin                              fOrigin;
+    bool                                         fTargetHasVkResolveAttachmentWithInput;
+    int                                          fTargetsNumSamples;
+    raw_ptr<const GrPipeline>                    fPipeline;
+    raw_ptr<const GrUserStencilSettings>         fUserStencilSettings;
+    // RAW_PTR_EXCLUSION: Performance: +3.8% on blur_0.50_inner_high_quality.
+    RAW_PTR_EXCLUSION const GrGeometryProcessor* fGeomProc;
+    GrPrimitiveType                              fPrimitiveType;
+    GrXferBarrierFlags                           fRenderPassXferBarriers;
+    GrLoadOp                                     fColorLoadOp;
 };
 
 #endif

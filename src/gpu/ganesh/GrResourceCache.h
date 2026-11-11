@@ -26,6 +26,7 @@
 #include "src/gpu/ganesh/GrGpuResource.h"
 #include "src/gpu/ganesh/GrGpuResourceCacheAccess.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -363,8 +364,8 @@ private:
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
     typedef SkTDArray<GrGpuResource*> ResourceArray;
 
-    GrProxyProvider*                    fProxyProvider = nullptr;
-    GrThreadSafeCache*                  fThreadSafeCache = nullptr;
+    raw_ptr<GrProxyProvider>            fProxyProvider;
+    raw_ptr<GrThreadSafeCache>          fThreadSafeCache;
 
     // Whenever a resource is added to the cache or the result of a cache lookup, fTimestamp is
     // assigned as the resource's timestamp and then incremented. fPurgeableQueue orders the
@@ -402,7 +403,7 @@ private:
 
     GrDirectContext::DirectContextID    fOwningContextID;
     uint32_t                            fContextUniqueID = SK_InvalidUniqueID;
-    skgpu::SingleOwner*                 fSingleOwner = nullptr;
+    raw_ptr<skgpu::SingleOwner>         fSingleOwner;
 
     // This resource is allowed to be in the nonpurgeable array for the sake of validate() because
     // we're in the midst of converting it to purgeable status.

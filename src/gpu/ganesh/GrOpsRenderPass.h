@@ -17,6 +17,7 @@
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <array>
 #include <cstddef>
@@ -150,7 +151,7 @@ public:
     void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>);
 
 protected:
-    GrOpsRenderPass() : fOrigin(kTopLeft_GrSurfaceOrigin), fRenderTarget(nullptr) {}
+    GrOpsRenderPass() : fOrigin(kTopLeft_GrSurfaceOrigin) {}
 
     GrOpsRenderPass(GrRenderTarget* rt, GrSurfaceOrigin origin)
             : fOrigin(origin)
@@ -165,7 +166,7 @@ protected:
     }
 
     GrSurfaceOrigin fOrigin;
-    GrRenderTarget* fRenderTarget;
+    raw_ptr<GrRenderTarget> fRenderTarget;
 
     // Backends may defer binding of certain buffers if their draw API requires a buffer, or if
     // their bind methods don't support base values.

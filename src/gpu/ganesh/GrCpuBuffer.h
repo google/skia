@@ -13,6 +13,7 @@
 #include "src/core/SkSafeMath.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrNonAtomicRef.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstddef>
 #include <new>
@@ -43,7 +44,8 @@ public:
 
 private:
     GrCpuBuffer(void* data, size_t size) : fData(data), fSize(size) {}
-    void* fData;
+    // RAW_PTR_EXCLUSION: Performance: +4.1% on hardstop_scale_num_colors_mirror_025_colors.
+    RAW_PTR_EXCLUSION void* fData;
     size_t fSize;
 };
 

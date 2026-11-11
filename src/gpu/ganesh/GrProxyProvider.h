@@ -18,6 +18,7 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstdint>
 #include <string_view>
@@ -361,7 +362,7 @@ private:
 
     sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, UseAllocator useAllocator);
 
-    GrImageContext*        fImageContext;
+    raw_ptr<GrImageContext>             fImageContext;
     sk_sp<GrUniquelyKeyedProxyRegistry> fUniquelyKeyedProxyRegistry;
 };
 

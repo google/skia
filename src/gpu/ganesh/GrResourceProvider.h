@@ -19,6 +19,7 @@
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -438,8 +439,8 @@ private:
     sk_sp<const GrGpuBuffer> createNonAAQuadIndexBuffer();
     sk_sp<const GrGpuBuffer> createAAQuadIndexBuffer();
 
-    GrResourceCache* fCache;
-    GrGpu* fGpu;
+    raw_ptr<GrResourceCache> fCache;
+    raw_ptr<GrGpu> fGpu;
     sk_sp<const GrCaps> fCaps;
     sk_sp<const GrGpuBuffer> fNonAAQuadIndexBuffer;
     sk_sp<const GrGpuBuffer> fAAQuadIndexBuffer;

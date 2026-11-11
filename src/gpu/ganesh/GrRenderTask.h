@@ -19,6 +19,7 @@
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstdint>
 
@@ -312,7 +313,7 @@ private:
     // For performance reasons, we should perform texture resolves back-to-back as much as possible.
     // (skbug.com/40040728). To accomplish this, we make and reuse one single resolve task for
     // each render task, then add it as a dependency during makeClosed().
-    GrTextureResolveRenderTask* fTextureResolveTask = nullptr;
+    raw_ptr<GrTextureResolveRenderTask> fTextureResolveTask;
 
     SkDEBUGCODE(GrDrawingManager *fDrawingMgr = nullptr;)
 };

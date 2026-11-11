@@ -21,6 +21,7 @@
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/RectanizerSkyline.h"
 #include "src/gpu/Token.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <array>
 #include <cstdint>
@@ -397,10 +398,10 @@ private:
     skgpu::Token fLastUse;
     int          fFlushesSinceLastUse;
 
-    GrAtlasGenerationCounter* const fGenerationCounter;
+    const raw_ptr<GrAtlasGenerationCounter> fGenerationCounter;
     uint64_t fGenID;
     GrPlotLocator fPlotLocator;
-    std::byte* fData;
+    raw_ptr<std::byte, DanglingUntriaged | AllowPtrArithmetic> fData;
     const int fWidth;
     const int fHeight;
     const int fX;

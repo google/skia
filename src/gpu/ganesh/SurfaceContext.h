@@ -24,6 +24,7 @@
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"  // IWYU pragma: keep
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <functional>
@@ -196,7 +197,7 @@ protected:
 
     SkDEBUGCODE(skgpu::SingleOwner* singleOwner() const;)
 
-    GrRecordingContext* fContext;
+    raw_ptr<GrRecordingContext> fContext;
 
     GrSurfaceProxyView fReadView;
 

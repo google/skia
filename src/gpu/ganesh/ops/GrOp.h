@@ -19,6 +19,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <atomic>
 #include <cstddef>
@@ -349,7 +350,7 @@ private:
     };
 
     Owner                               fNextInChain{nullptr};
-    GrOp*                               fPrevInChain = nullptr;
+    raw_ptr<GrOp>                       fPrevInChain;
     const uint16_t                      fClassID;
     uint16_t                            fBoundsFlags;
 

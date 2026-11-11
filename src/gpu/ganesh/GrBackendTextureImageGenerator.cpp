@@ -45,7 +45,6 @@ GrBackendTextureImageGenerator::RefHelper::RefHelper(
         std::unique_ptr<GrSemaphore> semaphore)
         : fOriginalTexture(std::move(texture))
         , fOwningContextID(owningContextID)
-        , fBorrowingContextReleaseProc(nullptr)
         , fSemaphore(std::move(semaphore)) {}
 
 GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
@@ -153,7 +152,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
         } else {
             SkASSERT(fRefHelper->fBorrowingContextReleaseProc);
             // Ref the release proc to be held by the proxy we make below
-            releaseProcHelper = sk_ref_sp(fRefHelper->fBorrowingContextReleaseProc);
+            releaseProcHelper = sk_ref_sp(fRefHelper->fBorrowingContextReleaseProc.get());
         }
     } else {
         SkASSERT(!fRefHelper->fBorrowingContextReleaseProc);

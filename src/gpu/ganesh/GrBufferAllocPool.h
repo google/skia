@@ -18,6 +18,8 @@
 #include "src/gpu/ganesh/GrCpuBuffer.h"
 #include "src/gpu/ganesh/GrDrawIndirectCommand.h"
 #include "src/gpu/ganesh/GrNonAtomicRef.h"
+#include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstddef>
 #include <memory>
@@ -172,9 +174,10 @@ private:
     skia_private::TArray<BufferBlock> fBlocks;
     sk_sp<CpuBufferCache> fCpuBufferCache;
     sk_sp<GrCpuBuffer> fCpuStagingBuffer;
-    GrGpu* fGpu;
+    raw_ptr<GrGpu> fGpu;
     GrGpuBufferType fBufferType;
-    void* fBufferPtr = nullptr;
+    // RAW_PTR_EXCLUSION: Performance: +8.0% on samplingoptions_filter_0_mipmap_0.
+    RAW_PTR_EXCLUSION void* fBufferPtr = nullptr;
 };
 
 /**

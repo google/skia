@@ -23,6 +23,7 @@
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -155,7 +156,7 @@ public:
 
         VertexData(sk_sp<GrGpuBuffer> gpuBuffer, int numVertices, size_t vertexSize);
 
-        const void* fVertices;
+        raw_ptr<const void, DanglingUntriaged> fVertices;
         int fNumVertices;
         size_t fVertexSize;
 
@@ -326,7 +327,7 @@ private:
 
     char                         fStorage[kInitialArenaSize];
     SkArenaAlloc                 fEntryAllocator{fStorage, kInitialArenaSize, kInitialArenaSize};
-    Entry*                       fFreeEntryList  SK_GUARDED_BY(fSpinLock);
+    raw_ptr<Entry>               fFreeEntryList  SK_GUARDED_BY(fSpinLock);
 };
 
 #endif // GrThreadSafeCache_DEFINED

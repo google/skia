@@ -28,6 +28,7 @@
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrScissorState.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -313,11 +314,11 @@ private:
         ~Draw();
         // The geometry processor is always forced to be in an arena allocation. This object does
         // not need to manage its lifetime.
-        const GrGeometryProcessor* fGeometryProcessor = nullptr;
+        raw_ptr<const GrGeometryProcessor> fGeometryProcessor;
         // Must have GrGeometryProcessor::numTextureSamplers() entries. Can be null if no samplers.
-        const GrSurfaceProxy* const* fGeomProcProxies = nullptr;
-        const GrSimpleMesh* fMeshes = nullptr;
-        const GrOp* fOp = nullptr;
+        raw_ptr<const GrSurfaceProxy* const, AllowPtrArithmetic> fGeomProcProxies;
+        raw_ptr<const GrSimpleMesh, AllowPtrArithmetic> fMeshes;
+        raw_ptr<const GrOp> fOp;
         int fMeshCnt = 0;
         GrPrimitiveType fPrimitiveType;
     };

@@ -21,6 +21,7 @@
 #include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstdint>
 #include <functional>
@@ -472,7 +473,8 @@ private:
     };
 
     skia_private::STArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
-    const GrFragmentProcessor* fParent = nullptr;
+    // RAW_PTR_EXCLUSION: Performance: +4.9% on gradient_linear_clamp_hicolor.
+    RAW_PTR_EXCLUSION const GrFragmentProcessor* fParent = nullptr;
     uint32_t fFlags = 0;
     SkSL::SampleUsage fUsage;
 

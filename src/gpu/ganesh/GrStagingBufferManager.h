@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <utility>
@@ -58,14 +59,14 @@ private:
                 , fMapPtr(mapPtr) {}
 
         sk_sp<GrGpuBuffer> fBuffer;
-        void* fMapPtr;
+        raw_ptr<void> fMapPtr;
         size_t fOffset = 0;
 
         size_t remaining() { return fBuffer->size() - fOffset; }
     };
 
     std::vector<StagingBuffer> fBuffers;
-    GrGpu* fGpu;
+    raw_ptr<GrGpu> fGpu;
 };
 
 #endif

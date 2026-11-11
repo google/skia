@@ -21,6 +21,7 @@
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/geometry/GrShape.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstdint>
 #include <memory>
@@ -327,22 +328,22 @@ private:
                                   const Element** elements, int count,
                                   std::unique_ptr<GrFragmentProcessor> clipFP);
 
-    RawElement::Stack        fElements;
-    SaveRecord::Stack        fSaves; // always has one wide open record at the top
+    RawElement::Stack                fElements;
+    SaveRecord::Stack                fSaves; // always has one wide open record at the top
 
     // The masks are recorded during apply() calls so we can cache them; they are not modifications
     // of the actual clip stack.
     // NOTE: These fields can go away once a context has a dedicated clip atlas
-    mutable Mask::Stack      fMasks;
-    mutable GrProxyProvider* fProxyProvider;
+    mutable Mask::Stack              fMasks;
+    mutable raw_ptr<GrProxyProvider> fProxyProvider;
 
-    const SkIRect            fDeviceBounds;
-    const SkMatrix*          fCTM;
+    const SkIRect                    fDeviceBounds;
+    raw_ptr<const SkMatrix>          fCTM;
 
     // When there's MSAA, clip elements are applied using the stencil buffer. If a backend cannot
     // disable MSAA per draw, then all elements are effectively AA'ed. Tracking them as such makes
     // keeps the entire stack as simple as possible.
-    bool                     fForceAA;
+    bool                             fForceAA;
 };
 
 // Clip element iteration

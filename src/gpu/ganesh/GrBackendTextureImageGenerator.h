@@ -14,6 +14,7 @@
 #include "include/private/gpu/ganesh/GrTextureGenerator.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <memory>
 
@@ -91,20 +92,20 @@ private:
         // all uses of the wrapped texture are finished on the borrowing context before we open
         // this back up to other contexts. In general a ref to this release proc is owned by all
         // proxies and gpu uses of the backend texture.
-        skgpu::RefCntedCallback*         fBorrowingContextReleaseProc;
+        raw_ptr<skgpu::RefCntedCallback> fBorrowingContextReleaseProc;
         GrDirectContext::DirectContextID fBorrowingContextID;
 
         std::unique_ptr<GrSemaphore>     fSemaphore;
     };
 
-    RefHelper*       fRefHelper;
+    raw_ptr<RefHelper, DanglingUntriaged> fRefHelper;
     // This Mutex is used to guard the borrowing of the texture to one GrContext at a time as well
     // as the creation of the fBorrowingContextReleaseProc. The latter happening if two threads with
     // the same consuming GrContext try to generate a texture at the same time.
-    SkMutex          fBorrowingMutex;
+    SkMutex                               fBorrowingMutex;
 
-    GrBackendTexture fBackendTexture;
-    GrSurfaceOrigin  fSurfaceOrigin;
+    GrBackendTexture                      fBackendTexture;
+    GrSurfaceOrigin                       fSurfaceOrigin;
 
     using INHERITED = GrTextureGenerator;
 };

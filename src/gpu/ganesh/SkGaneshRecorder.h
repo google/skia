@@ -13,6 +13,7 @@
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "src/capture/SkCaptureManager.h"
 #include "src/cpu/Recorder.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 class GrDirectContext;
 
@@ -29,7 +30,7 @@ public:
     skcpu::Recorder* cpuRecorder() override { return skcpu::Recorder::TODO(); }
 
 private:
-    GrRecordingContext* fGaneshCtx;
+    raw_ptr<GrRecordingContext> fGaneshCtx;
 
     SkCanvas* makeCaptureCanvas(SkCanvas*) override { return nullptr; }
     void createCaptureBreakpoint(SkSurface*) override { }

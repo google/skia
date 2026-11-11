@@ -13,6 +13,7 @@
 #include "include/private/SkMath.h"
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -59,13 +60,13 @@ public:
 private:
     size_t getAllocationOffset(size_t size);
     struct SubmitData {
-        GrRingBuffer* fOwner;
+        raw_ptr<GrRingBuffer> fOwner;
         size_t fLastHead;
         size_t fGenID;
     };
     static void FinishSubmit(void*);
 
-    GrGpu* fGpu;
+    raw_ptr<GrGpu> fGpu;
     sk_sp<GrGpuBuffer> fCurrentBuffer;
     std::vector<sk_sp<GrGpuBuffer>> fPreviousBuffers; // previous buffers we've used in this submit
     size_t fTotalSize;

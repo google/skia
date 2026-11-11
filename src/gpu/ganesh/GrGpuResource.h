@@ -16,6 +16,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <atomic>
 #include <cstddef>
@@ -333,7 +334,7 @@ private:
 
     // This is not ref'ed but abandon() or release() will be called before the GrGpu object
     // is destroyed. Those calls will set this to NULL.
-    GrGpu* fGpu;
+    raw_ptr<GrGpu> fGpu;
     mutable size_t fGpuMemorySize = kInvalidGpuMemorySize;
 
     GrBudgetedType fBudgetedType = GrBudgetedType::kUnbudgetedUncacheable;

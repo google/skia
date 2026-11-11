@@ -26,7 +26,6 @@ GrPlot::GrPlot(int pageIndex,
         , fGenerationCounter(generationCounter)
         , fGenID(fGenerationCounter->next())
         , fPlotLocator(pageIndex, plotIndex, fGenID)
-        , fData(nullptr)
         , fWidth(width)
         , fHeight(height)
         , fX(offX)

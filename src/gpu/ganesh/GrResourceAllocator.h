@@ -21,6 +21,8 @@
 #include "src/gpu/ganesh/GrHashMapWithCache.h"
 #include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstdint>
 
@@ -200,10 +202,10 @@ private:
         SkDEBUGCODE(uint32_t uniqueID() const { return fUniqueID; })
 
     private:
-        GrSurfaceProxy*   fOriginatingProxy;
-        skgpu::ScratchKey fScratchKey; // free pool wants a reference to this.
-        sk_sp<GrSurface>  fExistingSurface; // queried from resource cache. may be null.
-        bool              fAccountedForInBudget = false;
+        raw_ptr<GrSurfaceProxy, DanglingUntriaged> fOriginatingProxy;
+        skgpu::ScratchKey                          fScratchKey; // free pool wants a reference to this.
+        sk_sp<GrSurface>                           fExistingSurface; // queried from resource cache. may be null.
+        bool                                       fAccountedForInBudget = false;
 
 #ifdef SK_DEBUG
         uint32_t         fUniqueID;
@@ -259,13 +261,14 @@ private:
         SkDEBUGCODE(uint32_t uniqueID() const { return fUniqueID; })
 
     private:
-        GrSurfaceProxy*  fProxy;
-        unsigned int     fStart;
-        unsigned int     fEnd;
-        Interval*        fNext = nullptr;
-        unsigned int     fUses = 0;
-        Register*        fRegister = nullptr;
-        AllowRecycling   fAllowRecycling = AllowRecycling::kYes;
+        // RAW_PTR_EXCLUSION: Performance: +11.6% on samplingoptions_filter_0_mipmap_0.
+        RAW_PTR_EXCLUSION GrSurfaceProxy*          fProxy;
+        unsigned int                               fStart;
+        unsigned int                               fEnd;
+        raw_ptr<Interval, DanglingUntriaged>       fNext;
+        unsigned int                               fUses = 0;
+        raw_ptr<Register, DanglingUntriaged>       fRegister;
+        AllowRecycling                             fAllowRecycling = AllowRecycling::kYes;
 
 #ifdef SK_DEBUG
         uint32_t        fUniqueID;

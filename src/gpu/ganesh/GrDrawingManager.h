@@ -21,6 +21,7 @@
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/PathRenderer.h"
 #include "src/gpu/ganesh/PathRendererChain.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -244,23 +245,23 @@ private:
     static const int kNumPixelGeometries = 5; // The different pixel geometries
     static const int kNumDFTOptions = 2;      // DFT or no DFT
 
-    GrRecordingContext*                        fContext;
+    raw_ptr<GrRecordingContext>                        fContext;
 
     // This cache is used by both the vertex and index pools. It reuses memory across multiple
     // flushes.
-    sk_sp<GrBufferAllocPool::CpuBufferCache>   fCpuBufferCache;
+    sk_sp<GrBufferAllocPool::CpuBufferCache>           fCpuBufferCache;
 
-    skia_private::TArray<sk_sp<GrRenderTask>>  fDAG;
-    std::vector<int>                           fReorderBlockerTaskIndices;
-    skgpu::ganesh::OpsTask*                    fActiveOpsTask = nullptr;
+    skia_private::TArray<sk_sp<GrRenderTask>>          fDAG;
+    std::vector<int>                                   fReorderBlockerTaskIndices;
+    raw_ptr<skgpu::ganesh::OpsTask, DanglingUntriaged> fActiveOpsTask;
 
-    PathRendererChain::Options                 fOptionsForPathRendererChain;
-    std::unique_ptr<PathRendererChain>         fPathRendererChain;
-    sk_sp<skgpu::ganesh::SoftwarePathRenderer> fSoftwarePathRenderer;
+    PathRendererChain::Options                         fOptionsForPathRendererChain;
+    std::unique_ptr<PathRendererChain>                 fPathRendererChain;
+    sk_sp<skgpu::ganesh::SoftwarePathRenderer>         fSoftwarePathRenderer;
 
-    skgpu::TokenTracker                        fTokenTracker;
-    bool                                       fFlushing = false;
-    const bool                                 fReduceOpsTaskSplitting;
+    skgpu::TokenTracker                                fTokenTracker;
+    bool                                               fFlushing = false;
+    const bool                                         fReduceOpsTaskSplitting;
 
     skia_private::TArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
 

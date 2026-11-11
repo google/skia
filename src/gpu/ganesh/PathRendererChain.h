@@ -15,6 +15,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/PathRenderer.h"
 #include "src/gpu/ganesh/ops/AtlasRenderTask.h"  // IWYU pragma: keep
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 
@@ -68,8 +69,8 @@ private:
     static constexpr size_t kPreAllocCount = 8;
 
     skia_private::STArray<kPreAllocCount, sk_sp<PathRenderer>> fChain;
-    AtlasPathRenderer* fAtlasPathRenderer = nullptr;
-    PathRenderer* fTessellationPathRenderer = nullptr;
+    raw_ptr<AtlasPathRenderer> fAtlasPathRenderer;
+    raw_ptr<PathRenderer> fTessellationPathRenderer;
 };
 
 }  // namespace skgpu::ganesh

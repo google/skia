@@ -18,6 +18,7 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 class GrOnFlushResourceProvider;
 enum class GrColorType;
@@ -97,7 +98,7 @@ private:
     SkISize fDrawBounds;
 
     SkSTArenaAllocWithReset<512> fNodeAllocator;
-    Node* fTopNode = nullptr;
+    raw_ptr<Node> fTopNode;
 
     sk_sp<GrTextureProxy> fTextureProxy;
     sk_sp<GrTexture> fBackingTexture;

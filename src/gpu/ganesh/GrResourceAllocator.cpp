@@ -50,6 +50,7 @@ GrResourceAllocator::~GrResourceAllocator() {
     SkASSERT(fFailedInstantiation || fIntvlList.empty());
     SkASSERT(fActiveIntvls.empty());
     SkASSERT(!fIntvlHash.count());
+    this->reset();
 }
 
 void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end,

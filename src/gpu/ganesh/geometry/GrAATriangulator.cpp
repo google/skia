@@ -13,6 +13,7 @@
 #include "include/private/SkMath.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ganesh/GrEagerVertexAllocator.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <queue>
@@ -44,20 +45,20 @@ using Event = GrAATriangulator::Event;
 using EventComparator = GrAATriangulator::EventComparator;
 
 struct SSVertex {
-    SSVertex(Vertex* v) : fVertex(v), fPrev(nullptr), fNext(nullptr) {}
-    Vertex* fVertex;
-    SSEdge* fPrev;
-    SSEdge* fNext;
+    SSVertex(Vertex* v) : fVertex(v) {}
+    raw_ptr<Vertex> fVertex;
+    raw_ptr<SSEdge> fPrev;
+    raw_ptr<SSEdge> fNext;
 };
 
 struct GrAATriangulator::SSEdge {
     SSEdge(Edge* edge, SSVertex* prev, SSVertex* next)
-      : fEdge(edge), fEvent(nullptr), fPrev(prev), fNext(next) {
+      : fEdge(edge), fPrev(prev), fNext(next) {
     }
-    Edge*     fEdge;
-    Event*    fEvent;
-    SSVertex* fPrev;
-    SSVertex* fNext;
+    raw_ptr<Edge>     fEdge;
+    raw_ptr<Event>    fEvent;
+    raw_ptr<SSVertex> fPrev;
+    raw_ptr<SSVertex> fNext;
 };
 
 typedef std::unordered_map<Vertex*, SSVertex*> SSVertexMap;

@@ -15,6 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/ganesh/geometry/GrTriangulator.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstdint>
 #include <tuple>
@@ -46,7 +47,7 @@ public:
     struct Event {
         Event(SSEdge* edge, const SkPoint& point, uint8_t alpha)
                 : fEdge(edge), fPoint(point), fAlpha(alpha) {}
-        SSEdge* fEdge;
+        raw_ptr<SSEdge> fEdge;
         SkPoint fPoint;
         uint8_t fAlpha;
         void apply(VertexList* mesh, const Comparator&, EventList* events, GrAATriangulator*);

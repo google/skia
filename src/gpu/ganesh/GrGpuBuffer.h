@@ -11,6 +11,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstddef>
 #include <string_view>
@@ -116,7 +117,8 @@ protected:
         kWriteDiscard,
     };
 
-    void* fMapPtr;
+    // RAW_PTR_EXCLUSION: Performance: +3.0% on vertexcolorspace_half.
+    RAW_PTR_EXCLUSION void* fMapPtr;
 
 private:
     /** Currently MapType is determined entirely by the buffer type, as documented in map(). */
