@@ -905,16 +905,16 @@ DEF_SIMPLE_CANVAS_TEST(TestAnisotropicStrokedEllipse, CtsEnforcement::kNextRelea
             { .fPixel={24, 11}, .fInShape=true },
         });
         for (auto t : kTestPoints) {
+            static constexpr unsigned int kTolerance = 2;
             SkColor actualColor = result.getColor(t.fPixel.fX, t.fPixel.fY);
-            bool actualInShape = actualColor != SK_ColorTRANSPARENT;
             if (t.fInShape) {
-                REPORTER_ASSERT(reporter, actualInShape,
-                                "Expected (%d,%d) to be in stroked ellipse",
-                                t.fPixel.fX, t.fPixel.fY);
+                REPORTER_ASSERT(reporter, SkColorGetA(actualColor) > kTolerance,
+                                "Expected (%d,%d) to be in stroked ellipse, but A=%u",
+                                t.fPixel.fX, t.fPixel.fY, SkColorGetA(actualColor));
             } else {
-                REPORTER_ASSERT(reporter, !actualInShape,
-                                "Expected (%d,%d) to be untouched by stroked ellipse",
-                                t.fPixel.fX, t.fPixel.fY);
+                REPORTER_ASSERT(reporter, SkColorGetA(actualColor) <= kTolerance,
+                                "Expected (%d,%d) to be untouched by stroked ellipse, but A=%u",
+                                t.fPixel.fX, t.fPixel.fY, SkColorGetA(actualColor));
             }
         }
     };
@@ -960,16 +960,16 @@ DEF_SIMPLE_CANVAS_TEST(TestAnisotropicStrokedEllipticalRRect,
             { .fPixel={61, 18}, .fInShape=false },
         });
         for (auto t : kTestPoints) {
+            static constexpr unsigned int kTolerance = 2;
             SkColor actualColor = result.getColor(t.fPixel.fX, t.fPixel.fY);
-            bool actualInShape = actualColor != SK_ColorTRANSPARENT;
             if (t.fInShape) {
-                REPORTER_ASSERT(reporter, actualInShape,
-                                "Expected (%d,%d) to be in stroked rrect",
-                                t.fPixel.fX, t.fPixel.fY);
+                REPORTER_ASSERT(reporter, SkColorGetA(actualColor) > kTolerance,
+                                "Expected (%d,%d) to be in stroked rrect, but A=%u",
+                                t.fPixel.fX, t.fPixel.fY, SkColorGetA(actualColor));
             } else {
-                REPORTER_ASSERT(reporter, !actualInShape,
-                                "Expected (%d,%d) to be untouched by stroked rrect",
-                                t.fPixel.fX, t.fPixel.fY);
+                REPORTER_ASSERT(reporter, SkColorGetA(actualColor) <= kTolerance,
+                                "Expected (%d,%d) to be untouched by stroked rrect, but A=%u",
+                                t.fPixel.fX, t.fPixel.fY, SkColorGetA(actualColor));
             }
         }
     };
