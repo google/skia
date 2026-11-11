@@ -33,6 +33,10 @@ SK_API bool IsJpeg(const void*, size_t);
  *  Attempts to decode the given bytes as a JPEG using Rust implementation.
  *
  *  If the bytes are not a JPEG, returns nullptr.
+ *  Codec construction reads headers with bounded lookahead.
+ *  If the segment scanner rejects the input or disagrees with the parser,
+ *  construction reads all available bytes for compatibility.
+ *  Pixel decoding reads the remaining available input.
  *  Unannotated streams use kGrowing for incremental, scanline, and raw decoding.
  *  Full-frame getPixels retains legacy non-strict best-effort decoding.
  *  All eighth-step reduced sizes support scanline decoding through buffered

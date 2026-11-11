@@ -258,6 +258,220 @@ static sk_sp<SkData> make_dc_only_jpeg(bool eoi = false, bool truncatedScan = fa
     return SkData::MakeWithCopy(bytes.data(), bytes.size());
 }
 
+DEF_TEST(RustJpegCodec_MetadataRejectsInvalidSignatureWithoutDraining, r) {
+    std::vector<uint8_t> bytes(1024 * 1024, 0);
+    for (uint8_t firstByte : std::array<uint8_t, 2>{0, 0xFF}) {
+        bytes[0] = firstByte;
+        auto data = SkData::MakeWithCopy(bytes.data(), bytes.size());
+        for (bool inputComplete : {false, true}) {
+            auto stream = SkMemoryStream::Make(data);
+            auto reader = rust_jpeg::new_reader(
+                    std::make_unique<rust::stream::SkStreamAdapter>(stream.get()),
+                    data->size(),
+                    inputComplete);
+            REPORTER_ASSERT(r, reader->read_metadata() == rust_jpeg::DecodingResult::FormatError);
+            REPORTER_ASSERT(r, !reader->metadata_loaded());
+            REPORTER_ASSERT(
+                    r, stream->getPosition() <= 8192, "bytes read: %zu", stream->getPosition());
+        }
+    }
+}
+
+DEF_TEST(RustJpegCodec_MetadataReadsHeaderOnly, r) {
+    auto original = GetResourceAsData("images/mandrill_512_q075.jpg");
+    REPORTER_ASSERT(r, original);
+    if (!original) {
+        return;
+    }
+    const uint8_t sos[] = {0xFF, 0xDA};
+    const auto* sosMarker = std::search(original->bytes(),
+                                        original->bytes() + original->size(),
+                                        std::begin(sos),
+                                        std::end(sos));
+    const size_t sosOffset = sosMarker - original->bytes();
+    REPORTER_ASSERT(r, sosOffset + 6 < 8192);
+    if (sosOffset + 6 >= 8192) {
+        return;
+    }
+    // Place the SOS marker at the end of a read chunk, before its parameters.
+    const size_t boundaryPadding = 8192 - sosOffset - 6;
+    for (size_t padding : {size_t{0}, size_t{16384}, size_t{65000}, boundaryPadding}) {
+        std::vector<uint8_t> bytes = {0xFF, 0xD8};
+        if (padding) {
+            const size_t length = padding + 2;
+            bytes.insert(
+                    bytes.end(),
+                    {0xFF, 0xEF, static_cast<uint8_t>(length >> 8), static_cast<uint8_t>(length)});
+            bytes.insert(bytes.end(), padding, 0);
+        }
+        bytes.insert(bytes.end(), original->bytes() + 2, original->bytes() + original->size());
+        auto data = SkData::MakeWithCopy(bytes.data(), bytes.size());
+        for (auto state :
+             {SkJpegRustDecoder::InputState::kGrowing, SkJpegRustDecoder::InputState::kComplete}) {
+            auto stream = SkMemoryStream::Make(data);
+            auto* streamPtr = stream.get();
+            SkCodec::Result result;
+            auto codec = SkJpegRustDecoder::Decode(std::move(stream), &result, state);
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+            REPORTER_ASSERT(r, codec);
+            if (!codec) {
+                continue;
+            }
+            const size_t bytesRead = streamPtr->getPosition();
+            if (!padding) {
+                REPORTER_ASSERT(r, bytesRead == 8192, "bytes read: %zu", bytesRead);
+            }
+            REPORTER_ASSERT(r, bytesRead <= padding + 2 * 8192, "bytes read: %zu", bytesRead);
+            REPORTER_ASSERT(r, bytesRead < data->size());
+
+            SkBitmap actual;
+            auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+            if (!actual.tryAllocPixels(info)) {
+                ERRORF(r, "Pixel allocation failed");
+                continue;
+            }
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(actual.pixmap()));
+            auto reference = decode_rust_jpeg(r, "images/mandrill_512_q075.jpg");
+            REPORTER_ASSERT(r, reference);
+            if (!reference) {
+                continue;
+            }
+            SkBitmap expected;
+            if (!expected.tryAllocPixels(info)) {
+                ERRORF(r, "Pixel allocation failed");
+                continue;
+            }
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, reference->getPixels(expected.pixmap()));
+            REPORTER_ASSERT(r, actual.computeByteSize() == expected.computeByteSize());
+            REPORTER_ASSERT(
+                    r,
+                    !std::memcmp(
+                            actual.getPixels(), expected.getPixels(), actual.computeByteSize()));
+        }
+    }
+}
+
+static void check_metadata_compatibility_decode(skiatest::Reporter* r,
+                                                sk_sp<SkData> data,
+                                                const SkBitmap& expected) {
+    for (auto state :
+         {SkJpegRustDecoder::InputState::kGrowing, SkJpegRustDecoder::InputState::kComplete}) {
+        auto stream = SkMemoryStream::Make(data);
+        auto* streamPtr = stream.get();
+        SkCodec::Result result;
+        auto codec = SkJpegRustDecoder::Decode(std::move(stream), &result, state);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+        REPORTER_ASSERT(r, codec);
+        if (!codec) {
+            continue;
+        }
+        REPORTER_ASSERT(r, codec->dimensions() == expected.dimensions());
+        REPORTER_ASSERT(r, streamPtr->getPosition() == data->size());
+        SkBitmap actual;
+        if (!actual.tryAllocPixels(expected.info())) {
+            ERRORF(r, "Pixel allocation failed");
+            continue;
+        }
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(actual.pixmap()));
+        REPORTER_ASSERT(
+                r,
+                !std::memcmp(actual.getPixels(), expected.getPixels(), expected.computeByteSize()));
+    }
+}
+
+DEF_TEST(RustJpegCodec_MetadataScannerMismatch, r) {
+    auto original = GetResourceAsData("images/mandrill_512_q075.jpg");
+    REPORTER_ASSERT(r, original);
+    if (!original) {
+        return;
+    }
+    auto reference = decode_rust_jpeg(r, "images/mandrill_512_q075.jpg");
+    REPORTER_ASSERT(r, reference);
+    if (!reference) {
+        return;
+    }
+    const auto info = reference->getInfo().makeColorType(kN32_SkColorType).makeColorSpace(nullptr);
+    SkBitmap expected;
+    if (!expected.tryAllocPixels(info)) {
+        ERRORF(r, "Pixel allocation failed");
+        return;
+    }
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, reference->getPixels(expected.pixmap()));
+
+    for (size_t padding : {size_t{0}, size_t{65536}}) {
+        for (int count : {1, 8, 64}) {
+            // Zune accepts this padding, but the segment scanner rejects it.
+            std::vector<uint8_t> bytes = {0xFF, 0xD8, 0xFF, 0x00};
+            bytes.insert(bytes.end(), padding, 0);
+            for (int i = 0; i < count; ++i) {
+                bytes.insert(bytes.end(), {0xFF, 0xEF, 0xFF, 0xFF});
+                bytes.insert(bytes.end(), 65533, 0);
+            }
+            bytes.insert(bytes.end(), original->bytes() + 2, original->bytes() + original->size());
+            auto data = SkData::MakeWithCopy(bytes.data(), bytes.size());
+            check_metadata_compatibility_decode(r, std::move(data), expected);
+        }
+    }
+}
+
+DEF_TEST(RustJpegCodec_MetadataFalseScannerCompletion, r) {
+    auto original = GetResourceAsData("images/mandrill_512_q075.jpg");
+    REPORTER_ASSERT(r, original);
+    if (!original) {
+        return;
+    }
+    auto reference = decode_rust_jpeg(r, "images/mandrill_512_q075.jpg");
+    REPORTER_ASSERT(r, reference);
+    if (!reference) {
+        return;
+    }
+    SkBitmap expected;
+    const auto info = reference->getInfo().makeColorType(kN32_SkColorType).makeColorSpace(nullptr);
+    if (!expected.tryAllocPixels(info)) {
+        ERRORF(r, "Pixel allocation failed");
+        return;
+    }
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, reference->getPixels(expected.pixmap()));
+    for (size_t padding : {65536, 1048576}) {
+        // The scanner stops at this SOS, which zune skips as an RST0 payload.
+        std::vector<uint8_t> bytes = {0xFF, 0xD8, 0xFF, 0xD0, 0, 4, 0xFF, 0xDA};
+        bytes.insert(bytes.end(), padding, 0);
+        bytes.insert(bytes.end(), original->bytes() + 2, original->bytes() + original->size());
+        check_metadata_compatibility_decode(
+                r, SkData::MakeWithCopy(bytes.data(), bytes.size()), expected);
+    }
+}
+
+DEF_TEST(RustJpegCodec_MetadataResumesAfterTemporaryEof, r) {
+    auto data = GetResourceAsData("images/mandrill_512_q075.jpg");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+    for (size_t available : {0, 1, 100, 512}) {
+        auto stream = std::make_unique<HaltingStream>(data, available);
+        auto reader = make_rust_jpeg_reader_for_test(stream.get(), 0);
+        for (int attempt = 0; attempt < 3; ++attempt) {
+            REPORTER_ASSERT(r,
+                            reader->read_metadata() == rust_jpeg::DecodingResult::IncompleteInput);
+            REPORTER_ASSERT(r, stream->getPosition() == available);
+        }
+        stream->addNewData(data->size());
+        const auto result = reader->read_metadata();
+        REPORTER_ASSERT(r, result == rust_jpeg::DecodingResult::Success);
+        if (result != rust_jpeg::DecodingResult::Success) {
+            continue;
+        }
+        REPORTER_ASSERT(r, reader->metadata_loaded());
+        REPORTER_ASSERT(r, reader->width() == 512 && reader->height() == 512);
+        REPORTER_ASSERT(r, stream->getPosition() <= available + 8192);
+        REPORTER_ASSERT(r, stream->getPosition() < data->size());
+        const size_t position = stream->getPosition();
+        REPORTER_ASSERT(r, reader->read_metadata() == rust_jpeg::DecodingResult::Success);
+        REPORTER_ASSERT(r, stream->getPosition() == position);
+    }
+}
+
 #if defined(SK_CODEC_DECODES_JPEG)
 static int native_current_scan_rows(sk_sp<SkData> data,
                                     const SkImageInfo& info,
