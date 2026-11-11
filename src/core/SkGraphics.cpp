@@ -7,39 +7,15 @@
 
 #include "include/core/SkGraphics.h"
 
-#include "include/private/SkOnce.h"
-#include "src/core/SkBitmapProcState.h"
-#include "src/core/SkBlitMask.h"
-#include "src/core/SkBlitRow.h"
 #include "src/core/SkContextPriv.h"
-#include "src/core/SkCpu.h"
 #include "src/core/SkImageFilter_Base.h"
-#include "src/core/SkMemset.h"
-#include "src/core/SkOpts.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkStrikeCache.h"
-#include "src/core/SkSwizzlePriv.h"
 #include "src/core/SkTypefaceCache.h"
-
-namespace {
-void init_globals_if_needed() {
-    static SkOnce once;
-    once([] {
-        SkCpu::CacheRuntimeFeatures();
-        SkOpts::Init();
-        SkOpts::Init_BitmapProcState();
-        SkOpts::Init_BlitMask();
-        SkOpts::Init_BlitRow();
-        SkOpts::Init_Memset();
-        SkOpts::Init_Swizzler();
-    });
-}
-}  // namespace
 
 void SkGraphics::Init() {
     // SkGraphics::Init() must be thread-safe and idempotent.
-    init_globals_if_needed();
-    SkContexts::GetGlobalSkContext();
+    SkContexts::GetGlobalSkContext(/*enableRuntimeOpts=*/true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

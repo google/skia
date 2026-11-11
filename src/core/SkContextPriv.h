@@ -74,7 +74,9 @@ namespace SkContexts {
 // Returns the global SkContext. If the global SkContext does not exist yet, it will be created.
 // This is an intermediary step in the SkContext project, whereby we use this
 // global SkContext object to remove or take away functionality from SkGraphics.
-SkContext* GetGlobalSkContext();
+// NOTE: set enableRuntimeOpts to false by default so that if we create the global skcontext from
+// the skgraphics::set__ functions, then it won't init the runtime opts
+SkContext* GetGlobalSkContext(bool enableRuntimeOpts = false);
 }
 
 #endif  // SkContextPriv_DEFINED

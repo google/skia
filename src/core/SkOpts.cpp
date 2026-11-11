@@ -7,8 +7,14 @@
 #include "src/core/SkOpts.h"
 
 #include "include/private/SkFeatures.h"
+#include "include/private/SkOnce.h"
+#include "src/core/SkBitmapProcState.h"
+#include "src/core/SkBlitMask.h"
+#include "src/core/SkBlitRow.h"
 #include "src/core/SkCpu.h"
+#include "src/core/SkMemset.h"
 #include "src/core/SkOptsTargets.h"
+#include "src/core/SkSwizzlePriv.h"
 
 #define SK_OPTS_TARGET SK_OPTS_TARGET_DEFAULT
 #include "src/opts/SkOpts_SetTarget.h"
@@ -48,30 +54,37 @@ namespace SkOpts {
     void Init_ml4();
     void Init_lasx();
 
-    static bool init() {
-    #if defined(SK_ENABLE_OPTIMIZE_SIZE)
-        // All Init_foo functions are omitted when optimizing for size
-    #elif defined(SK_CPU_X86)
-        #if SK_CPU_X64_LEVEL < SK_CPU_X64_LEVEL_AVX2
-            if (SkCpu::Supports(SkX64::ML3)) { Init_ml3(); }
-        #endif
-
-        #if (SK_CPU_X64_LEVEL < SK_CPU_X64_LEVEL_ML4)
-            // TODO(kjlubick): Remove the SK_ENABLE_AVX512_OPTS flag in favor of the disable one
-            #if defined(SK_ENABLE_AVX512_OPTS) && !defined(SK_DISABLE_AVX512_OPTS)
-                if (SkCpu::Supports(SkX64::ML4)) { Init_ml4(); }
-            #endif
-        #endif
-
-    #elif defined(SK_CPU_LOONGARCH)
-        #if SK_CPU_LSX_LEVEL < SK_CPU_LSX_LEVEL_LASX
-            if (SkCpu::Supports(SkLoongArch::ASX)) { Init_lasx(); }
-        #endif
-    #endif
-        return true;
-    }
-
     void Init() {
-        [[maybe_unused]] static bool gInitialized = init();
+#if defined(SK_ENABLE_OPTIMIZE_SIZE)
+        // All Init_foo functions are omitted when optimizing for size
+#elif defined(SK_CPU_X86)
+#if SK_CPU_X64_LEVEL < SK_CPU_X64_LEVEL_AVX2
+        if (SkCpu::Supports(SkX64::ML3)) {
+            Init_ml3();
+        }
+#endif
+
+#if (SK_CPU_X64_LEVEL < SK_CPU_X64_LEVEL_ML4)
+            // TODO(kjlubick): Remove the SK_ENABLE_AVX512_OPTS flag in favor of the disable one
+#if defined(SK_ENABLE_AVX512_OPTS) && !defined(SK_DISABLE_AVX512_OPTS)
+            if (SkCpu::Supports(SkX64::ML4)) {
+                Init_ml4();
+            }
+#endif
+#endif
+
+#elif defined(SK_CPU_LOONGARCH)
+#if SK_CPU_LSX_LEVEL < SK_CPU_LSX_LEVEL_LASX
+        if (SkCpu::Supports(SkLoongArch::ASX)) {
+            Init_lasx();
+        }
+#endif
+#endif
+
+        SkOpts::Init_BitmapProcState();
+        SkOpts::Init_BlitMask();
+        SkOpts::Init_BlitRow();
+        SkOpts::Init_Memset();
+        SkOpts::Init_Swizzler();
     }
 }  // namespace SkOpts
