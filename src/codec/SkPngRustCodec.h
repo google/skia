@@ -205,7 +205,7 @@ private:
     // Leaves the stream just past `IEND` so that callers can keep reading it (see `Codec_end`).
     // Like libpng, partial decodes skip this and stop early. Errors are ignored: the scanlines and
     // the `IDAT` CRC are verified already, and libpng also tolerates a damaged tail (it checks the
-    // `IEND` CRC as if it were ancillary). No-op unless the codec is built `for_android`.
+    // `IEND` CRC as if it were ancillary). No-op unless `limit_read` is enabled.
     void finishStreamAfterLastFrame();
 
     // SkCodec overrides:

@@ -501,7 +501,13 @@ skia_cc_library(
     defines = [
         "SK_CODEC_DECODES_PNG_WITH_RUST",
     ] + select({
-        "//rust/png:for_android_true": ["SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID"],
+        "//rust/png:captured_chunks_enabled": ["SK_CODEC_DECODES_PNG_WITH_RUST_CAPTURED_CHUNKS"],
+        "//conditions:default": [],
+    }) + select({
+        "//rust/png:limit_read_enabled": ["SK_CODEC_DECODES_PNG_WITH_RUST_LIMIT_READ"],
+        "//conditions:default": [],
+    }) + select({
+        "//rust/png:disable_apng_enabled": ["SK_CODEC_DECODES_PNG_WITH_RUST_DISABLE_APNG"],
         "//conditions:default": [],
     }),
     features = ["layering_check"],

@@ -177,7 +177,10 @@ skia_cc_library(
     defines = [
         "SK_CODEC_ENCODES_PNG_WITH_RUST",
     ] + select({
-        "//rust/png:for_android_true": ["SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID"],
+        "//rust/png:encode_sbit_enabled": ["SK_CODEC_ENCODES_PNG_WITH_RUST_SBIT"],
+        "//conditions:default": [],
+    }) + select({
+        "//rust/png:encode_gainmap_enabled": ["SK_CODEC_ENCODES_PNG_WITH_RUST_GAINMAP"],
         "//conditions:default": [],
     }),
     features = ["layering_check"],

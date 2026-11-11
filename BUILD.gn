@@ -1469,16 +1469,18 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
       rebase_path("//bazel-bin/rust/png/FFI.rs.cc", root_build_dir) +
           "=rust/png/FFI.rs.cc",
     ]
-    if (skia_use_rust_png_for_android) {
-      bazel_args += [ "--//rust/png:for_android=true" ]
-    } else {
-      bazel_args += [ "--//rust/png:for_android=false" ]
-    }
-    if (skia_build_fuzzers) {
-      bazel_args += [ "--//rust/png:fuzzing_build_mode=true" ]
-    } else {
-      bazel_args += [ "--//rust/png:fuzzing_build_mode=false" ]
-    }
+
+    # `gn/skia.gni` already expanded `skia_use_rust_png_for_android` into the
+    # granular args below; disable Bazel's `for_android` umbrella so individual
+    # `= false` overrides in GN aren't re-enabled by Bazel's `match_any` groups.
+    # TODO(b/565483339): Remove `--//rust/png:for_android=false` once Bazel drops `for_android`.
+    bazel_args += [
+      "--//rust/png:for_android=false",
+      "--//rust/png:captured_chunks=$skia_use_rust_png_captured_chunks",
+      "--//rust/png:limit_read=$skia_use_rust_png_limit_read",
+      "--//rust/png:disable_apng=$skia_use_rust_png_disable_apng",
+      "--//rust/png:fuzzing_build_mode=$skia_build_fuzzers",
+    ]
   }
 
   if (skia_use_rust_bmp_decode) {
@@ -1761,10 +1763,6 @@ config("rust_common_cxx_bridge_public_config") {
 optional("rust_common") {
   enabled = skia_use_rust_png_decode || skia_use_rust_png_encode ||
             skia_use_rust_bmp_decode
-  public_defines = []
-  if (skia_use_rust_png_for_android) {
-    public_defines += [ "SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID" ]
-  }
   public = skia_rust_common_ffi_cpp_hdrs
   sources = skia_rust_common_ffi_cpp_srcs
   public_configs = [ ":rust_common_cxx_bridge_public_config" ]
@@ -1818,6 +1816,15 @@ optional("rust_exif") {
 
 optional("png_decode_rust") {
   public_defines = [ "SK_CODEC_DECODES_PNG_WITH_RUST" ]
+  if (skia_use_rust_png_captured_chunks) {
+    public_defines += [ "SK_CODEC_DECODES_PNG_WITH_RUST_CAPTURED_CHUNKS" ]
+  }
+  if (skia_use_rust_png_limit_read) {
+    public_defines += [ "SK_CODEC_DECODES_PNG_WITH_RUST_LIMIT_READ" ]
+  }
+  if (skia_use_rust_png_disable_apng) {
+    public_defines += [ "SK_CODEC_DECODES_PNG_WITH_RUST_DISABLE_APNG" ]
+  }
   enabled = skia_use_rust_png_decode
   public = skia_codec_rust_png_public
   sources = skia_codec_rust_png
@@ -1837,6 +1844,12 @@ optional("png_decode_rust") {
 
 optional("png_encode_rust") {
   public_defines = [ "SK_CODEC_ENCODES_PNG_WITH_RUST" ]
+  if (skia_use_rust_png_encode_sbit) {
+    public_defines += [ "SK_CODEC_ENCODES_PNG_WITH_RUST_SBIT" ]
+  }
+  if (skia_use_rust_png_encode_gainmap) {
+    public_defines += [ "SK_CODEC_ENCODES_PNG_WITH_RUST_GAINMAP" ]
+  }
   enabled = skia_use_rust_png_encode
   public = skia_encode_rust_png_public  # From `gn/core.gni`
   sources = skia_encode_rust_png_srcs  # From `gn/core.gni`

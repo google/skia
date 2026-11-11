@@ -29,7 +29,7 @@
 namespace {
 
 // Reads every byte of each unknown chunk (e.g. `npTc` when
-// `skia_use_rust_png_for_android=true`) so that ASAN catches out-of-bounds
+// `skia_use_rust_png_captured_chunks=true`) so that ASAN catches out-of-bounds
 // spans handed across the Rust/C++ boundary.
 class FuzzChunkReader final : public SkPngChunkReader {
 public:

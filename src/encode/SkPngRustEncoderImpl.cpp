@@ -118,7 +118,14 @@ private:
     raw_ptr<SkWStream> fStream;  // Non-owning pointer.
 };
 
-#ifdef SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST_SBIT) || defined(SK_CODEC_ENCODES_PNG_WITH_RUST_GAINMAP)
+bool WriteChunk(rust_png::Writer& writer, std::array<uint8_t, 4> name, SkSpan<const uint8_t> data) {
+    auto slice = rust::Slice<const uint8_t>(data.data(), data.size());
+    return writer.write_chunk(name, slice) == rust_png::EncodingResult::Success;
+}
+#endif
+
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST_SBIT)
 std::vector<uint8_t> GetSbitData(SkColorType colorType) {
     switch (colorType) {
         case kRGBA_F16Norm_SkColorType:
@@ -171,11 +178,6 @@ size_t ExpectedSbitSize(rust_png::ColorType colorType) {
     return 0;
 }
 
-bool WriteChunk(rust_png::Writer& writer, std::array<uint8_t, 4> name, SkSpan<const uint8_t> data) {
-    auto slice = rust::Slice<const uint8_t>(data.data(), data.size());
-    return writer.write_chunk(name, slice) == rust_png::EncodingResult::Success;
-}
-
 bool WriteSbitChunk(rust_png::Writer& writer,
                     SkColorType colorType,
                     rust_png::ColorType rustEncoderColorType) {
@@ -199,7 +201,11 @@ bool WriteSbitChunk(rust_png::Writer& writer,
 
     return WriteChunk(writer, {'s', 'B', 'I', 'T'}, sbitData);
 }
+#else
+inline bool WriteSbitChunk(rust_png::Writer&, SkColorType, rust_png::ColorType) { return true; }
+#endif
 
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST_GAINMAP)
 bool WriteGainmapChunks(rust_png::Writer& writer, const SkPngRustEncoder::Options& options) {
     if (!options.fGainmapInfo) {
         return true;
@@ -254,7 +260,6 @@ bool WriteGainmapChunks(rust_png::Writer& writer, const SkPngRustEncoder::Option
     return true;
 }
 #else
-inline bool WriteSbitChunk(rust_png::Writer&, SkColorType, rust_png::ColorType) { return true; }
 inline bool WriteGainmapChunks(rust_png::Writer&, const SkPngRustEncoder::Options&) { return true; }
 #endif
 

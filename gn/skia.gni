@@ -196,6 +196,13 @@ declare_args() {
 
   # libgrapheme sources
   skia_libgrapheme_third_party_dir = "//third_party/libgrapheme"
+
+  # Granular Android-specific Rust PNG codec flags (all default to `skia_use_rust_png_for_android`).
+  skia_use_rust_png_captured_chunks = skia_use_rust_png_for_android
+  skia_use_rust_png_limit_read = skia_use_rust_png_for_android
+  skia_use_rust_png_disable_apng = skia_use_rust_png_for_android
+  skia_use_rust_png_encode_sbit = skia_use_rust_png_for_android
+  skia_use_rust_png_encode_gainmap = skia_use_rust_png_for_android
 }
 
 assert(!skia_use_dawn || skia_enable_graphite)  # Dawn is Graphite-only

@@ -53,7 +53,8 @@ DEF_TEST(RustEncodePng_smoke_test, r) {
     REPORTER_ASSERT(r, success);
 }
 
-#ifdef SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST_GAINMAP) && \
+        defined(SK_CODEC_DECODES_PNG_WITH_RUST_CAPTURED_CHUNKS)
 DEF_TEST(RustEncodePng_gainmap, r) {
     SkColorType colorTypes[] = {
             kRGBA_8888_SkColorType,
@@ -142,7 +143,9 @@ DEF_TEST(RustEncodePng_gainmap, r) {
         skiatest::ExpectApproxEqInfo(r, sourceGainmapInfo, gainmapInfo);
     }
 }
+#endif
 
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST_SBIT) && defined(SK_CODEC_DECODES_PNG_WITH_RUST)
 DEF_TEST(RustEncodePng_sBIT, r) {
     // Test kRGB_565_SkColorType
     {
