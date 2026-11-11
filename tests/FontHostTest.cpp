@@ -9,6 +9,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkFontTypes.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -28,6 +29,7 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <optional>
 #include <string>
 
 using namespace skia_private;
@@ -290,6 +292,83 @@ DEF_TEST(FontHost, reporter) {
     test_fontstream(reporter);
     test_advances(reporter);
     test_symbolfont(reporter);
+}
+
+// Verify that degenerate or extreme-aspect font matrices yield zero/near-zero advances and bounds
+// without fabricating outline paths for invalid or color glyphs
+DEF_TEST(FontHost_DegenerateMatrix, reporter) {
+    // GDI GetGlyphOutlineW rejects singular MAT2 matrices instead of returning empty outlines
+    sk_sp<SkTypeface> typeface = ToolUtils::CreateTypefaceFromResource("fonts/Roboto-Regular.ttf");
+    if (!typeface || ToolUtils::FontMgrIsGDI()) {
+        return;
+    }
+
+    constexpr const char* kText = "BOOO";
+    constexpr size_t kGlyphCount = 4;
+    std::array<SkGlyphID, kGlyphCount> glyphs{};
+    SkFont unscaled64(typeface, 64);
+    const size_t count =
+            unscaled64.textToGlyphs(kText, strlen(kText), SkTextEncoding::kUTF8, glyphs);
+    REPORTER_ASSERT(reporter, count == glyphs.size());
+    for (SkGlyphID glyph : glyphs) {
+        REPORTER_ASSERT(reporter, glyph != 0);
+    }
+
+    SkFont zeroSize(typeface, 0);
+    SkFont zeroScaleX(typeface, 16);
+    zeroScaleX.setScaleX(0);
+
+    for (const SkFont& font : {zeroSize, zeroScaleX}) {
+        REPORTER_ASSERT(reporter, !font.getPath(0xFFFF).has_value());
+
+        std::array<SkScalar, kGlyphCount> widths;
+        std::array<SkRect, kGlyphCount> bounds;
+        widths.fill(-1);
+        bounds.fill(SkRect::MakeWH(1, 1));
+        font.getWidthsBounds(glyphs, widths, bounds, nullptr);
+
+        for (size_t i = 0; i < kGlyphCount; ++i) {
+            REPORTER_ASSERT(reporter, widths[i] == 0);
+            REPORTER_ASSERT(reporter, bounds[i].isEmpty());
+
+            std::optional<SkPath> path = font.getPath(glyphs[i]);
+            REPORTER_ASSERT(reporter, path.has_value());
+            if (path.has_value()) {
+                REPORTER_ASSERT(reporter, path->getBounds().isEmpty());
+            }
+        }
+    }
+
+    std::array<SkScalar, kGlyphCount> fullWidths{};
+    std::array<SkRect, kGlyphCount> fullBounds{};
+    unscaled64.getWidthsBounds(glyphs, fullWidths, fullBounds, nullptr);
+
+    SkFont subFixedScaleX(typeface, 64);
+    subFixedScaleX.setScaleX(0.000005f);
+    std::array<SkScalar, kGlyphCount> tinyWidths;
+    tinyWidths.fill(-1);
+    subFixedScaleX.getWidthsBounds(glyphs, tinyWidths, {}, nullptr);
+    for (size_t i = 0; i < kGlyphCount; ++i) {
+        REPORTER_ASSERT(reporter, fullWidths[i] > 0);
+        REPORTER_ASSERT(reporter, !fullBounds[i].isEmpty());
+        REPORTER_ASSERT(reporter, tinyWidths[i] >= 0);
+        REPORTER_ASSERT(reporter, tinyWidths[i] < fullWidths[i] * 0.01f);
+        std::optional<SkPath> path = subFixedScaleX.getPath(glyphs[i]);
+        REPORTER_ASSERT(reporter, path.has_value());
+        if (path.has_value()) {
+            REPORTER_ASSERT(reporter, path->getBounds().width() < fullBounds[i].width() * 0.01f);
+        }
+    }
+
+    if (sk_sp<SkTypeface> colr = ToolUtils::CreateTypefaceFromResource("fonts/colr.ttf")) {
+        const SkGlyphID colrGlyph = SkFont(colr, 16).unicharToGlyph(0x1F600);
+        if (colrGlyph != 0 && !SkFont(colr, 16).getPath(colrGlyph).has_value()) {
+            SkFont colrZeroScaleX(colr, 16);
+            colrZeroScaleX.setScaleX(0);
+            REPORTER_ASSERT(reporter, !colrZeroScaleX.getPath(colrGlyph).has_value());
+            REPORTER_ASSERT(reporter, colrZeroScaleX.getBounds(colrGlyph, nullptr).isEmpty());
+        }
+    }
 }
 
 // need tests for SkStrSearch
