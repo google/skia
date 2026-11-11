@@ -252,6 +252,9 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 
 		if b.ExtraConfig("NativeFonts") {
 			configs = append(configs, glPrefix)
+		} else if b.ExtraConfig("StandaloneWasm") {
+			// Currently only plain webgl config works for wasm (no dft, msaa, etc).
+			configs = []string{"webgl"}
 		} else {
 			configs = append(configs, glPrefix, glPrefix+"dft")
 			if sampleCount > 0 {
@@ -822,7 +825,7 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		// Test 1010102 on our Linux/NVIDIA tasks and the persistent cache config
 		// on the GL tasks.
 		if b.GPU("QuadroP400") && !b.ExtraConfig("PreAbandonGpuContext") && !b.ExtraConfig("TSAN") && b.IsLinux() &&
-			!b.ExtraConfig("FailFlushTimeCallbacks") && !b.ExtraConfig("Graphite") {
+			!b.ExtraConfig("FailFlushTimeCallbacks") && !b.ExtraConfig("Graphite") && !b.ExtraConfig("StandaloneWasm") {
 			if b.ExtraConfig("Vulkan") {
 				configs = append(configs, "vk1010102")
 				// Decoding transparent images to 1010102 just looks bad
@@ -1103,15 +1106,6 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("skp")
 	} else {
 		removeFromArgs("lottie")
-	}
-
-	if b.ExtraConfig("StandaloneWasm") && b.GPU() {
-		// TODO(denniston.t@gmail.com): until there is a StandaloneWasm WebGL sink,
-		// we can only run the unit tests.
-		removeFromArgs("gm")
-		removeFromArgs("image")
-		removeFromArgs("colorImage")
-		removeFromArgs("svg")
 	}
 
 	if b.ExtraConfig("TSAN") {
@@ -1696,6 +1690,20 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.IsWindows() && b.GPU("IntelArcB570") && b.ExtraConfig("ANGLE") {
 		// skbug.com/535536995
 		skip(ALL, "test", ALL, "BigImageTest_Ganesh")
+	}
+
+	if b.ExtraConfig("StandaloneWasm") && b.GPU() {
+		// skbug.com/584258002
+		skip(ALL, "gm", ALL, "compressed_textures")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_cs")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_cubic")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_domain")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_limited")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_limited_cs")
+		skip(ALL, "test", ALL, "FlushFinishedProcTest")
+		skip(ALL, "test", ALL, "ES2BlendWithNoTexture")
+		skip(ALL, "test", ALL, "WritePixelsNonTextureMSAA_Gpu")
 	}
 
 	if b.GPU("PowerVRGX6250") {

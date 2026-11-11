@@ -19,6 +19,8 @@ const char* skgpu::ContextTypeName(skgpu::ContextType type) {
             return "OpenGL";
         case skgpu::ContextType::kGLES:
             return "OpenGLES";
+        case skgpu::ContextType::kWebGL:
+            return "WebGL";
         case skgpu::ContextType::kANGLE_D3D9_ES2:
             return "ANGLE D3D9 ES2";
         case skgpu::ContextType::kANGLE_D3D11_ES2:
@@ -97,6 +99,7 @@ GrBackendApi skgpu::ganesh::ContextTypeBackend(skgpu::ContextType type) {
     switch (type) {
         case skgpu::ContextType::kGL:
         case skgpu::ContextType::kGLES:
+        case skgpu::ContextType::kWebGL:
         case skgpu::ContextType::kANGLE_D3D9_ES2:
         case skgpu::ContextType::kANGLE_D3D11_ES2:
         case skgpu::ContextType::kANGLE_D3D11_ES3:
@@ -135,6 +138,7 @@ skgpu::BackendApi skgpu::graphite::ContextTypeBackend(ContextType type) {
     switch (type) {
         case skgpu::ContextType::kGL:
         case skgpu::ContextType::kGLES:
+        case skgpu::ContextType::kWebGL:
         case skgpu::ContextType::kANGLE_D3D9_ES2:
         case skgpu::ContextType::kANGLE_D3D11_ES2:
         case skgpu::ContextType::kANGLE_D3D11_ES3:

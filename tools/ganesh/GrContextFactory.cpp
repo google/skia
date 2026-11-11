@@ -177,6 +177,11 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                 case ContextType::kGLES:
                     glCtx = CreatePlatformGLTestContext(kGLES_GrGLStandard, glShareContext);
                     break;
+#if defined(SK_BUILD_FOR_WASM)
+                case ContextType::kWebGL:
+                    glCtx = CreatePlatformGLTestContext(kWebGL_GrGLStandard, glShareContext);
+                    break;
+#endif
 #if SK_ANGLE
                 case ContextType::kANGLE_D3D9_ES2:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kD3D9, ANGLEContextVersion::kES2,

@@ -2596,9 +2596,8 @@ if (skia_enable_tools) {
             libs += [ "OpenGL32.lib" ]
           }
         } else if (is_wasm) {
-          # TODO: replace with webgl test context
           sources +=
-              [ "tools/ganesh/gl/none/CreatePlatformGLTestContext_none.cpp" ]
+              [ "tools/ganesh/gl/webgl/CreatePlatformGLTestContext_webgl.cpp" ]
         }
       }
 

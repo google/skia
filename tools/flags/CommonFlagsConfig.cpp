@@ -23,6 +23,8 @@ using namespace skia_private;
 #if defined(SK_GANESH)
 #if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
 #define DEFAULT_GPU_CONFIG "gles"
+#elif defined(SK_BUILD_FOR_WASM)
+#define DEFAULT_GPU_CONFIG "webgl"
 #else
 #define DEFAULT_GPU_CONFIG "gl"
 #endif
@@ -83,6 +85,7 @@ static const struct {
     { "glddl",                 "gpu", "api=gl,useDDLSink=true" },
     { "glreducedshaders",      "gpu", "api=gl,reducedShaders=true" },
     { "glesreducedshaders",    "gpu", "api=gles,reducedShaders=true" },
+    { "webgl",                 "gpu", "api=webgl" },
     { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
     { "angle_d3d11_es3",       "gpu", "api=angle_d3d11_es3" },
     { "angle_d3d9_es2",        "gpu", "api=angle_d3d9_es2" },
@@ -203,6 +206,7 @@ static const char configExtendedHelp[] =
         "\t\tgl    \t\t\tUse OpenGL.\n"
         "\t\tgles  \t\t\tUse OpenGL ES.\n"
         "\t\tglesfakev2  \t\t\tUse OpenGL ES with version faked as 2.0.\n"
+        "\t\twebgl \t\t\tUse WebGL.\n"
         "\t\tnullgl \t\t\tUse null OpenGL.\n"
         "\t\tangle_d3d9_es2\t\tUse OpenGL ES2 on the ANGLE Direct3D9 backend.\n"
         "\t\tangle_d3d11_es2\t\tUse OpenGL ES2 on the ANGLE Direct3D11 backend.\n"
@@ -360,6 +364,10 @@ static bool parse_option_gpu_api(const SkString&                      value,
     if (value.equals("glesfakev2")) {
         *outContextType = skgpu::ContextType::kGLES;
         *outFakeGLESVersion2 = true;
+        return true;
+    }
+    if (value.equals("webgl")) {
+        *outContextType = skgpu::ContextType::kWebGL;
         return true;
     }
     if (value.equals("angle_d3d9_es2")) {

@@ -25,6 +25,7 @@ enum class BackendApi : unsigned;
 enum class ContextType {
     kGL,               //! OpenGL context.
     kGLES,             //! OpenGL ES context.
+    kWebGL,            //! WebGL context.
     kANGLE_D3D9_ES2,   //! ANGLE on Direct3D9 OpenGL ES 2 context.
     kANGLE_D3D11_ES2,  //! ANGLE on Direct3D11 OpenGL ES 2 context.
     kANGLE_D3D11_ES3,  //! ANGLE on Direct3D11 OpenGL ES 3 context.

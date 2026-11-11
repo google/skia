@@ -856,14 +856,19 @@ if (is_wasm) {
       ldflags = common
       ldflags += [
         "-sDYNAMIC_EXECUTION=0",  # Disallow eval(): widens portability
-        "-sMIN_WEBGL_VERSION=2",
-        "-sMAX_WEBGL_VERSION=2",
         "-sWASM=1",
         "-sALLOW_MEMORY_GROWTH=1",
         "-sSTACK_SIZE=1048576",  # 1 MB
         "-sEXPORT_ES6=1",
         "-sMODULARIZE=1",  # Do not pollute global JS scope
       ]
+      if (skia_use_webgl) {
+        ldflags += [
+          "-sUSE_WEBGL2=1",
+          "-sMIN_WEBGL_VERSION=2",
+          "-sMAX_WEBGL_VERSION=2",
+        ]
+      }
       if (is_debug) {
         ldflags += [
           "-sASSERTIONS=1",
