@@ -337,6 +337,22 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * HVF support.
+   *
+   *   FreeType can use Apple's HVF (Hierarchical Variable Font) library
+   *   to render glyphs from fonts containing 'hvgl' tables.
+   *
+   *   Define this macro if you want to enable this 'feature'.
+   *
+   *   If you use a build system like cmake or the `configure` script,
+   *   options set by those programs have precedence, overwriting the value
+   *   here with the configured one.
+   */
+/* #define FT_CONFIG_OPTION_HVF */
+
+
+  /**************************************************************************
+   *
    * Glyph Postscript Names handling
    *
    *   By default, FreeType 2 is compiled with the 'psnames' module.  This
@@ -424,8 +440,10 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
-   * The size in bytes of the render pool used by the scan-line converter to
-   * do all of its work.
+   * The size in bytes of the stack render pool used by the scan-line
+   * converters.  Use this option to limit the stack usage.  The memory
+   * requirements are proportional to size and complexity of a given glyph.
+   * FreeType's rasterizers switch to dynamic allocations when necessary.
    */
 #define FT_RENDER_POOL_SIZE  16384L
 
@@ -652,6 +670,7 @@ FT_BEGIN_HEADER
 #define TT_CONFIG_CMAP_FORMAT_12
 #define TT_CONFIG_CMAP_FORMAT_13
 #define TT_CONFIG_CMAP_FORMAT_14
+#define TT_CONFIG_CMAP_FORMAT_15
 
 
   /*************************************************************************/
@@ -741,20 +760,17 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
-   * Define `TT_CONFIG_OPTION_NO_BORING_EXPANSION` if you want to exclude
-   * support for 'boring' OpenType specification expansions.
+   * Define `TT_CONFIG_OPTION_VARC` if you want to include support for
+   * variable composite glyphs (the 'VARC' table).  This is part of the
+   * 'boring' OpenType specification expansions.
    *
-   *   https://github.com/harfbuzz/boring-expansion-spec
+   *   https://github.com/harfbuzz/boring-expansion-spec/blob/main/VARC.md
    *
-   * Right now, the following features are covered:
-   *
-   *   - 'avar' version 2.0
-   *
-   * Most likely, this is a temporary configuration option to be removed in
-   * the near future, since it is assumed that eventually those features are
-   * added to the OpenType standard.
+   * Variable composites enable more efficient encoding of variable glyphs
+   * by allowing glyphs to be composed from other glyphs with variable
+   * transformations and axis value overrides.
    */
-#define TT_CONFIG_OPTION_NO_BORING_EXPANSION
+/* #define TT_CONFIG_OPTION_VARC */
 
 
   /**************************************************************************
