@@ -7,6 +7,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 #include "src/gpu/ganesh/geometry/GrQuadBuffer.h"
@@ -44,7 +45,7 @@ static void assert_metadata_eq(skiatest::Reporter* r, const TestData& expected,
             expected.fItem1, expected.fItem2, actual.fItem1, actual.fItem2);
 }
 
-static std::vector<GrQuad> generate_quads(float seed, int cnt, const GrQuad::Type types[]) {
+static std::vector<GrQuad> generate_quads(float seed, SkSpan<const GrQuad::Type> types) {
     // For convenience use matrix to derive each quad type, rely on different seed values to
     // differentiate between quads of the same type
     SkMatrix rotate;
@@ -57,9 +58,9 @@ static std::vector<GrQuad> generate_quads(float seed, int cnt, const GrQuad::Typ
 
     std::vector<GrQuad> quads;
     SkRect rect = SkRect::MakeXYWH(seed, 2.f * seed, 2.f * seed, seed);
-    for (int i = 0; i < cnt; ++i) {
+    for (GrQuad::Type type : types) {
         GrQuad quad;
-        switch(types[i]) {
+        switch(type) {
             case GrQuad::Type::kAxisAligned:
                 quad = GrQuad(rect);
                 break;
@@ -70,12 +71,12 @@ static std::vector<GrQuad> generate_quads(float seed, int cnt, const GrQuad::Typ
                 quad = GrQuad::MakeFromRect(rect, skew);
                 break;
             default:
-                SkASSERT(types[i] == GrQuad::Type::kPerspective);
+                SkASSERT(type == GrQuad::Type::kPerspective);
                 quad = GrQuad::MakeFromRect(rect, perspective);
                 break;
         }
 
-        SkASSERT(quad.quadType() == types[i]);
+        SkASSERT(quad.quadType() == type);
         quads.push_back(quad);
     }
     return quads;
@@ -96,8 +97,8 @@ TEST(Append) {
     static_assert(std::size(kDeviceTypes) == kQuadCount, "device quad count");
     static_assert(std::size(kLocalTypes) == kQuadCount, "local quad count");
 
-    std::vector<GrQuad> expectedDeviceQuads = generate_quads(1.f, kQuadCount, kDeviceTypes);
-    std::vector<GrQuad> expectedLocalQuads = generate_quads(2.f, kQuadCount, kLocalTypes);
+    std::vector<GrQuad> expectedDeviceQuads = generate_quads(1.f, kDeviceTypes);
+    std::vector<GrQuad> expectedLocalQuads = generate_quads(2.f, kLocalTypes);
 
     // Fill in the buffer with the device quads, and a local quad if the index is even
     GrQuadBuffer<TestData> buffer;
@@ -141,8 +142,8 @@ TEST(Concat) {
     static_assert(std::size(kTypesA) == kQuadCount, "quadsA count");
     static_assert(std::size(kTypesB) == kQuadCount, "quadsB count");
 
-    std::vector<GrQuad> quadsA = generate_quads(1.f, kQuadCount, kTypesA);
-    std::vector<GrQuad> quadsB = generate_quads(2.f, kQuadCount, kTypesB);
+    std::vector<GrQuad> quadsA = generate_quads(1.f, kTypesA);
+    std::vector<GrQuad> quadsB = generate_quads(2.f, kTypesB);
     // Make two buffers, the first uses 'quadsA' for device quads and 'quadsB' for local quads
     // on even indices. The second uses 'quadsB' for device quads and 'quadsA' for local quads
     // on odd indices.

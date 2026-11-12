@@ -237,7 +237,9 @@ static void test_conic_tangents(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_this_conic_to_quad(skiatest::Reporter* r, const SkPoint pts[3], SkScalar w) {
+static void test_this_conic_to_quad(skiatest::Reporter* r,
+                                    SkSpan<const SkPoint, 3> pts,
+                                    SkScalar w) {
     SkAutoConicToQuads quadder;
     const SkPoint* qpts = quadder.computeQuads(pts, w, 0.25);
     const int qcount = quadder.countQuads();
@@ -253,16 +255,15 @@ static void test_this_conic_to_quad(skiatest::Reporter* r, const SkPoint pts[3],
  *  Inspired by crbug_627414
  */
 static void test_conic_to_quads(skiatest::Reporter* reporter) {
-    const SkPoint triples[] = {
-        { 0, 0 }, { 1, 0 }, { 1, 1 },
-        { 0, 0 }, { 3.58732e-43f, 2.72084f }, { 3.00392f, 3.00392f },
-        { 0, 0 }, { 100000, 0 }, { 100000, 100000 },
-        { 0, 0 }, { 1e30f, 0 }, { 1e30f, 1e30f },
-    };
-    const int N = sizeof(triples) / sizeof(SkPoint);
+    static constexpr auto triples = std::to_array<SkPoint>({
+            SkPoint{ 0, 0 }, SkPoint{ 1, 0 }, SkPoint{ 1, 1 },
+            SkPoint{ 0, 0 }, SkPoint{ 3.58732e-43f, 2.72084f }, SkPoint{ 3.00392f, 3.00392f },
+            SkPoint{ 0, 0 }, SkPoint{ 100000, 0 }, SkPoint{ 100000, 100000 },
+            SkPoint{ 0, 0 }, SkPoint{ 1e30f, 0 }, SkPoint{ 1e30f, 1e30f },
+    });
 
-    for (int i = 0; i < N; i += 3) {
-        const SkPoint* pts = &triples[i];
+    for (size_t i = 0; i < triples.size(); i += 3) {
+        SkSpan<const SkPoint, 3> pts = SkSpan(triples).subspan(i).first<3>();
 
         SkScalar w = 1e30f;
         do {

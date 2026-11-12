@@ -18,6 +18,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextureCompressionType.h"
@@ -90,7 +91,7 @@ sk_sp<SkImage> create_image(GrDirectContext* dContext, const GrBackendTexture& b
 static void check_compressed_mipmaps(GrRecordingContext* rContext,
                                      sk_sp<SkImage> img,
                                      SkTextureCompressionType compressionType,
-                                     const SkColor4f expectedColors[6],
+                                     SkSpan<const SkColor4f, 6> expectedColors,
                                      skgpu::Mipmapped mipmapped,
                                      skiatest::Reporter* reporter,
                                      const char* label) {
@@ -221,7 +222,7 @@ static void test_compressed_color_init(
 
 // Create compressed data pulling the color for each mipmap level from 'levelColors'.
 static std::unique_ptr<const char[]> make_compressed_data(SkTextureCompressionType compression,
-                                                          SkColor4f levelColors[6],
+                                                          SkSpan<const SkColor4f, 6> levelColors,
                                                           skgpu::Mipmapped mipmapped) {
     SkISize dimensions { 32, 32 };
 

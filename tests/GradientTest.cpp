@@ -21,6 +21,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
@@ -87,8 +88,8 @@ struct GradRec {
     int fColorCount;
     const SkColor4f* fColors;
     const float* fPos;
-    const SkPoint* fPoint;   // 2
-    const float* fRadius; // 2
+    std::array<SkPoint, 2> fPoint;
+    std::array<SkScalar, 2> fRadius;
     SkTileMode fTileMode;
 
     SkGradient grad() const {
@@ -123,6 +124,8 @@ struct GradRec {
     }
 };
 
+static_assert(sizeof(GradRec::fPoint) == sizeof(SkShaderBase::GradientInfo::fPoint));
+static_assert(sizeof(GradRec::fRadius) == sizeof(SkShaderBase::GradientInfo::fRadius));
 
 static void none_gradproc(skiatest::Reporter* reporter, const GradRec&, const GradRec&) {
     sk_sp<SkShader> s(SkShaders::Empty());
@@ -136,11 +139,11 @@ static void color_gradproc(skiatest::Reporter* reporter, const GradRec& rec, con
 
 static void linear_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec,
                             const GradRec& checkRec) {
-    sk_sp<SkShader> s = SkShaders::LinearGradient(buildRec.fPoint, buildRec.grad());
+    sk_sp<SkShader> s = SkShaders::LinearGradient(buildRec.fPoint.data(), buildRec.grad());
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kLinear);
-    REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint, 2 * sizeof(SkPoint)));
+    REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint.data(), sizeof(info.fPoint)));
 }
 
 static void radial_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec,
@@ -171,24 +174,25 @@ static void conical_gradproc(skiatest::Reporter* reporter, const GradRec& buildR
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kConical);
-    REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint, 2 * sizeof(SkPoint)));
-    REPORTER_ASSERT(reporter, !memcmp(info.fRadius, checkRec.fRadius, 2 * sizeof(SkScalar)));
+    REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint.data(), sizeof(info.fPoint)));
+    REPORTER_ASSERT(reporter, !memcmp(info.fRadius, checkRec.fRadius.data(), sizeof(info.fRadius)));
 }
 
 static void linear_gradproc_matrix(skiatest::Reporter* reporter, const GradRec& buildRec,
                                    const GradRec& checkRec) {
     SkMatrix localMatrix = SkMatrix::RotateDeg(45, {100, 100});
-    sk_sp<SkShader> s = SkShaders::LinearGradient(buildRec.fPoint, buildRec.grad(), &localMatrix);
+    sk_sp<SkShader> s =
+            SkShaders::LinearGradient(buildRec.fPoint.data(), buildRec.grad(), &localMatrix);
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kLinear, localMatrix);
-    REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint, 2 * sizeof(SkPoint)));
+    REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint.data(), sizeof(info.fPoint)));
 
     // Same but using a local matrix wrapper.
-    s = SkShaders::LinearGradient(buildRec.fPoint, buildRec.grad());
+    s = SkShaders::LinearGradient(buildRec.fPoint.data(), buildRec.grad());
     s = s->makeWithLocalMatrix(localMatrix);
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kLinear, localMatrix);
-    REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint, 2 * sizeof(SkPoint)));
+    REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint.data(), sizeof(info.fPoint)));
 }
 
 // Ensure that repeated color gradients behave like drawing a single color
@@ -220,11 +224,11 @@ static void TestGradientShaders(skiatest::Reporter* reporter) {
                                          SkColors::kGreen,
                                          SkColors::kBlue };
     static const SkScalar gPos[] = { 0, SK_ScalarHalf, SK_Scalar1 };
-    static const SkPoint gPts[] = {
+    static constexpr auto gPts = std::to_array<SkPoint>({
         { 0, 0 },
         { SkIntToScalar(10), SkIntToScalar(20) }
-    };
-    static const SkScalar gRad[] = { SkIntToScalar(1), SkIntToScalar(2) };
+    });
+    static constexpr auto gRad = std::to_array<SkScalar>({ SkIntToScalar(1), SkIntToScalar(2) });
 
     GradRec rec;
     rec.fColorCount = std::size(gColors);

@@ -15,6 +15,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTextureCompressionType.h"
 #include "include/core/SkTypes.h"
@@ -297,7 +298,7 @@ static SkColor4f get_expected_color(SkColor4f orig, GrColorType ct) {
 static void check_mipmaps(GrDirectContext*,
                           const GrBackendTexture&,
                           GrColorType,
-                          const SkColor4f expectedColors[6],
+                          SkSpan<const SkColor4f, 6> expectedColors,
                           skiatest::Reporter*,
                           const char* label);
 
@@ -418,7 +419,7 @@ void test_color_init(
 static void check_mipmaps(GrDirectContext* dContext,
                           const GrBackendTexture& backendTex,
                           GrColorType colorType,
-                          const SkColor4f expectedColors[6],
+                          SkSpan<const SkColor4f, 6> expectedColors,
                           skiatest::Reporter* reporter,
                           const char* label) {
 #ifdef SK_GL

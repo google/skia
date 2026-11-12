@@ -23,6 +23,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
@@ -235,13 +236,14 @@ static float gaussian(int x, SkScalar sigma) {
 
 // Perform a brute force convolution of a step function with a Gaussian.
 // Return the right half in 'result'
-static void brute_force_1d(SkScalar stepMin, SkScalar stepMax,
+static void brute_force_1d(SkScalar stepMin,
+                           SkScalar stepMax,
                            SkScalar gaussianSigma,
-                           int* result, int resultCount) {
+                           SkSpan<int> result) {
 
     int gaussianRange = SkScalarCeilToInt(10 * gaussianSigma);
 
-    for (int i = 0; i < resultCount; ++i) {
+    for (int i = 0; i < SkToInt(result.size()); ++i) {
         SkScalar sum = 0.0f;
         for (int j = -gaussianRange; j < gaussianRange; ++j) {
             sum += gaussian(j, gaussianSigma) * step(i-j, stepMin, stepMax);
@@ -305,10 +307,10 @@ static void write_as_csv(const char* label, SkScalar scale, int* data, int count
 }
 #endif
 
-static bool match(int* first, int* second, int count, int tol) {
-    int delta;
-    for (int i = 0; i < count; ++i) {
-        delta = first[i] - second[i];
+static bool match(SkSpan<const int> first, SkSpan<const int> second, int tol) {
+    SkASSERT(first.size() == second.size());
+    for (size_t i = 0; i < first.size(); ++i) {
+        int delta = first[i] - second[i];
         if (delta > tol || delta < -tol) {
             return false;
         }
@@ -347,11 +349,11 @@ DEF_TEST(BlurSigmaRange, reporter) {
         cpu_blur_path(polyPath, sigma, generalCaseResult, kSize);
 
         ground_truth_2d(100, 100, sigma, groundTruthResult, kSize);
-        brute_force_1d(-50.0f, 50.0f, sigma, bruteForce1DResult, kSize);
+        brute_force_1d(-50.0f, 50.0f, sigma, bruteForce1DResult);
 
-        REPORTER_ASSERT(reporter, match(rectSpecialCaseResult, bruteForce1DResult, kSize, 5));
-        REPORTER_ASSERT(reporter, match(generalCaseResult, bruteForce1DResult, kSize, 15));
-        REPORTER_ASSERT(reporter, match(groundTruthResult, bruteForce1DResult, kSize, 1));
+        REPORTER_ASSERT(reporter, match(rectSpecialCaseResult, bruteForce1DResult, 5));
+        REPORTER_ASSERT(reporter, match(generalCaseResult, bruteForce1DResult, 15));
+        REPORTER_ASSERT(reporter, match(groundTruthResult, bruteForce1DResult, 1));
 
 #if WRITE_CSV
         write_as_csv("RectSpecialCase", sigma, rectSpecialCaseResult, kSize);

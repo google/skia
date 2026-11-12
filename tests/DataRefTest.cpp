@@ -55,9 +55,9 @@ static void test_emptytable(skiatest::Reporter* reporter) {
 }
 
 static void test_simpletable(skiatest::Reporter* reporter) {
-    const int idata[] = { 1, 4, 9, 16, 25, 63 };
+    static constexpr auto idata = std::to_array<int>({1, 4, 9, 16, 25, 63});
     int icount = std::size(idata);
-    sk_sp<SkDataTable> itable(SkDataTable::MakeCopyArray(idata, sizeof(idata[0]), icount));
+    sk_sp<SkDataTable> itable(SkDataTable::MakeCopyArray(idata.data(), sizeof(idata[0]), icount));
     REPORTER_ASSERT(reporter, itable->count() == icount);
     for (int i = 0; i < icount; ++i) {
         size_t size;

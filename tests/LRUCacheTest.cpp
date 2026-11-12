@@ -63,12 +63,12 @@ DEF_TEST(LRUCacheRandom, r) {
     };
     int instances = 0;
     {
-        int seq[] = { 0, 1, 2, 3, 4, 1, 6, 2, 7, 5, 3, 2, 2, 3, 1, 7 };
+        static constexpr auto seq =
+                std::to_array<int>({0, 1, 2, 3, 4, 1, 6, 2, 7, 5, 3, 2, 2, 3, 1, 7});
         auto expected = std::to_array<int>({7, 1, 3, 2, 5});
         static const int kSize = 5;
         SkLRUCache<MoveOnlyKey, std::unique_ptr<Value>> test(kSize);
-        for (int i = 0; i < (int) (sizeof(seq) / sizeof(int)); i++) {
-            int k = seq[i];
+        for (int k : seq) {
             MoveOnlyKey key(k);
             if (!test.find(key)) {
                 test.insert(std::move(key), std::make_unique<Value>(k, &instances));

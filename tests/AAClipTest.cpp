@@ -19,6 +19,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
@@ -360,11 +361,10 @@ DEF_TEST(AAClip_RRectIsReallyARect_ClipIsRect, reporter) {
     REPORTER_ASSERT(reporter, clip.isRect());
 }
 
-static void did_dx_affect(skiatest::Reporter* reporter, const SkScalar dx[],
-                          size_t count, bool changed) {
+static void did_dx_affect(skiatest::Reporter* reporter, SkSpan<const SkScalar> dx, bool changed) {
     SkIRect ir = { 0, 0, 10, 10 };
 
-    for (size_t i = 0; i < count; ++i) {
+    for (SkScalar d : dx) {
         SkRect r;
         r.set(ir);
 
@@ -373,9 +373,9 @@ static void did_dx_affect(skiatest::Reporter* reporter, const SkScalar dx[],
         SkRasterClip rc2(ir);
 
         rc0.op(r, SkMatrix::I(), SkClipOp::kIntersect, false);
-        r.offset(dx[i], 0);
+        r.offset(d, 0);
         rc1.op(r, SkMatrix::I(), SkClipOp::kIntersect, true);
-        r.offset(-2*dx[i], 0);
+        r.offset(-2*d, 0);
         rc2.op(r, SkMatrix::I(), SkClipOp::kIntersect, true);
 
         REPORTER_ASSERT(reporter, changed != (rc0 == rc1));
@@ -389,12 +389,12 @@ DEF_TEST(AAClip_op_NearlyIntegral_GenerateSameRasterClips, reporter) {
     static const SkScalar gSafeX[] = {
         0, SK_Scalar1/1000, SK_Scalar1/100, SK_Scalar1/10,
     };
-    did_dx_affect(reporter, gSafeX, std::size(gSafeX), false);
+    did_dx_affect(reporter, gSafeX, false);
 
     static const SkScalar gUnsafeX[] = {
         SK_Scalar1/4, SK_Scalar1/3,
     };
-    did_dx_affect(reporter, gUnsafeX, std::size(gUnsafeX), true);
+    did_dx_affect(reporter, gUnsafeX, true);
 }
 
 DEF_TEST(AAClip_setPath_AvoidAssertion, reporter) {
