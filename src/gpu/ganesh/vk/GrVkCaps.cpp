@@ -401,7 +401,13 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
     // we do expect this to be a big win on tilers.
     //
     // On ARM devices we are seeing an average perf win of around 50%-60% across the board.
-    if (skgpu::kARM_VkVendor == properties.vendorID) {
+    //
+    // On Imagination this is opt-in via fAllowDiscardableMSAAOnImagination (requires
+    // fAllowMSAAOnImagination).
+    if (skgpu::kARM_VkVendor == properties.vendorID ||
+        (skgpu::kImagination_VkVendor == properties.vendorID &&
+         contextOptions.fAllowMSAAOnImagination &&
+         contextOptions.fAllowDiscardableMSAAOnImagination)) {
         VkMemoryPropertyFlags requiredLazyFlags = VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
         if (fSupportsProtectedContent) {
             // If we have a protected context we can only use memoryless images if they also support
@@ -540,13 +546,22 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const GrContextOptions& context
 
     // We've seen numerous driver bugs on qualcomm devices running on android P (api 28) or earlier
     // when trying to using discardable msaa attachments and loading from resolve. So we disable the
-    // feature for those devices. On Imagination (PowerVR) GPUs, using discardable MSAA attachments
-    // and loading from resolve in DMSAA subpasses causes 3D MMU page faults and GPU lockups.
-    if ((properties.vendorID == skgpu::kQualcomm_VkVendor && androidAPIVersion <= 28) ||
-        (properties.vendorID == skgpu::kImagination_VkVendor &&
-         contextOptions.fAllowMSAAOnImagination)) {
+    // feature for those devices.
+    if (properties.vendorID == skgpu::kQualcomm_VkVendor && androidAPIVersion <= 28) {
         fPreferDiscardableMSAAAttachment = false;
         fSupportsDiscardableMSAAForDMSAA = false;
+    }
+
+    // On Imagination (PowerVR) GPUs, loading from resolve in DMSAA subpasses causes 3D MMU page
+    // faults and GPU lockups, so DMSAA stays disabled. Discardable MSAA attachments for
+    // multisampled render targets are opt-in via fAllowDiscardableMSAAOnImagination; note that a
+    // multisampled render target with GrLoadOp::kLoad still takes the load-from-resolve subpass.
+    if (properties.vendorID == skgpu::kImagination_VkVendor &&
+        contextOptions.fAllowMSAAOnImagination) {
+        fSupportsDiscardableMSAAForDMSAA = false;
+        if (!contextOptions.fAllowDiscardableMSAAOnImagination) {
+            fPreferDiscardableMSAAAttachment = false;
+        }
     }
 
     // On the Mali G76 and T880, the Perlin noise code needs to aggressively snap to multiples

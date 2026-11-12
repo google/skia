@@ -297,6 +297,11 @@ struct SK_API GrContextOptions {
     // Historically MSAA was disabled outright for Imagination (2017, Nexus Player).
     bool fAllowMSAAOnImagination = false;
 
+    // Only meaningful with fAllowMSAAOnImagination. If true, multisampled render targets on
+    // Imagination use discardable (lazily allocated, resolved in-pass) MSAA attachments instead of
+    // memory-backed attachments with a separate resolve.
+    bool fAllowDiscardableMSAAOnImagination = false;
+
     /**
      * Currently on ARM Android we disable the use of GL TexStorage because of memory regressions.
      * However, some clients may still want to use TexStorage. For example, TexStorage support is
