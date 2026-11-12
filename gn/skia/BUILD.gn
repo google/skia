@@ -873,6 +873,7 @@ if (is_wasm) {
         ldflags += [
           "-sASSERTIONS=1",
           "-sPTHREADS_DEBUG=1",
+          "-g",
           "-gsource-map",
         ]
       }

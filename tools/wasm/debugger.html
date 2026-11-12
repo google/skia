@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>dm wasm debugger</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 60em; margin: 2em auto; padding: 0 1em; }
+    code, textarea { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.9em; }
+    textarea { width: 100%; box-sizing: border-box; padding: 0.5em; }
+    .controls { margin: 0.5em 0 2em; }
+    .error { color: #b00020; }
+    #output { max-height: 25em; overflow: auto; margin: 0 0 2em; }
+    #output:empty { display: none; }
+    .instructions { padding: 0 1.5em; border: 1px solid #ccc; background: #f7f7f7; }
+    li { margin: 0.4em 0; }
+  </style>
+
+  <script type="module">
+    import createModule from "/dm.js";
+
+    const argvInput = document.getElementById("argv");
+    const status = document.getElementById("status");
+    const output = document.getElementById("output");
+    let dmState = { module: null, exit: null, abortCtrl: null };
+    let preloaded = null;
+
+    // Show dm's stdout/stderr on the page, as well as in the console.
+    function printer(log) {
+      return (s) => {
+        log(s);
+        output.append(s + "\n");
+        output.scrollTop = output.scrollHeight;
+      };
+    }
+
+    // Starts loading a new module instance, note returned `module` is a promise.
+    function load() {
+      const run = { module: null, exit: Promise.withResolvers(), abortCtrl: new AbortController() };
+      run.module = createModule({
+        noInitialRun: true,
+        print: printer(console.log),
+        printErr: printer(console.error),
+        onExit: run.exit.resolve,
+        onAbort: (msg) => run.exit.reject(new Error("abort: " + msg)),
+      });
+      return run;
+    }
+
+    async function dm(argv) {
+      // Abort previous run if any.
+      dmState.abortCtrl?.abort();
+
+      // Load module instance
+      const thisRun = dmState = preloaded ?? load();
+      preloaded = null;
+
+      // A wasm trap (e.g. failed SkASSERT) on a pthread shows up as an uncaught error on the main
+      // thread, instead of going through the onExit/onAbort handlers.
+      window.addEventListener("error", (e) => {
+        thisRun.exit.reject(new Error("uncaught: " + (e.error?.message ?? e.message)));
+      }, { signal: thisRun.abortCtrl.signal });
+
+      try {
+        (await thisRun.module).callMain(argv);
+      } catch (e) {
+        thisRun.exit.reject(e);
+      }
+      return thisRun.exit.promise;
+    }
+
+    // Splits on whitespace, handling quotes for values that have literal whitespace
+    function parseArgv(text) {
+      return [...text.matchAll(/"([^"]*)"|'([^']*)'|(\S+)/g)].map((m) => m[1] ?? m[2] ?? m[3]);
+    }
+
+    function setStatus(text, { error = false } = {}) {
+      status.textContent = text;
+      status.classList.toggle("error", error);
+    }
+
+    function main() {
+      document.getElementById("run").addEventListener("click", async () => {
+        setStatus("running...");
+        output.textContent = "";
+        try {
+          const argv = parseArgv(argvInput.value);
+          console.log("running dm with args: " + JSON.stringify(argv));
+          const code = await dm(argv);
+          setStatus(`dm exited with status ${code}`, { error: code !== 0 });
+        } catch (e) {
+          console.error(e);
+          setStatus(`dm failed: ${e.message}`, { error: true });
+        }
+      });
+    }
+
+    // Load the first instance eagerly so C++ sources show up in DevTools before the first run.
+    preloaded = load();
+    main();
+  </script>
+</head>
+
+<body>
+  <h1>dm wasm debugger</h1>
+
+  <p>Runs Skia's <code>dm</code> in this page with these args:</p>
+  <textarea id="argv" rows="4" spellcheck="false">--src gm --config 8888 -m ^arcto$</textarea>
+
+  <div class="controls">
+    <button id="run">Run</button>
+    <span id="status"></span>
+  </div>
+  <pre id="output"></pre>
+
+  <div class="instructions">
+    <h2>Debugging in Chrome DevTools</h2>
+    <ol>
+      <li>
+        Build dm for wasm in debug mode:
+        <pre>
+target_cpu = "wasm"
+is_debug = true</pre>
+      </li>
+      <li>
+        Serve this page and the build, then open the printed URL:
+        <pre>tools/wasm/serve_debugger.py --build out/wasm</pre>
+      </li>
+      <li>
+        <b>(Required)</b> Install the
+        <a href="https://chromewebstore.google.com/detail/pdcpmagijalfljmkmjngeonclgbbannb">
+          C/C++ DevTools Support (DWARF)</a>
+        extension. Without it, DevTools only shows wasm disassembly.
+      </li>
+      <li>
+        Open DevTools, go to the <b>Sources</b> tab and find the C++ file to debug under the
+        <code>file://</code> node in the left panel. It may take a minute to appear while the
+        debug info is loaded.
+      </li>
+      <li>
+        Set your breakpoint, then click <b>Run</b>. Click Run again to start a new run.
+        Note: greyed-out line numbers cannot have breakpoints on them.
+      </li>
+      <li>
+        To stop where dm crashes (e.g. failed <code>SkASSERT</code>), turn on
+        <b>Pause on uncaught exceptions</b> in the source tab breakpoint pane.
+      </li>
+    </ol>
+  </div>
+</body>
+
+</html>
