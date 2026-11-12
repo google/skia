@@ -18,7 +18,6 @@ import (
 	"go.skia.org/infra/go/exec"
 	"go.skia.org/infra/go/gerrit"
 	"go.skia.org/infra/go/git"
-	"go.skia.org/infra/go/git/git_common"
 	"go.skia.org/infra/go/skerr"
 	"go.skia.org/infra/go/sklog"
 	"go.skia.org/infra/promk/go/pushgateway"
@@ -36,7 +35,7 @@ const (
 	metricValue_Failure           = "1"
 )
 
-func botUpdate(ctx context.Context, checkoutRoot, gitCacheDir, skiaRev, patchRef, depotToolsDir string, local bool) error {
+func botUpdate(ctx context.Context, checkoutRoot, gitCacheDir, skiaRev, patchRef, depotToolsDir string) error {
 	return td.Do(ctx, td.Props("bot_update").Infra(), func(ctx context.Context) error {
 		tmp, err := os_steps.TempDir(ctx, "", "")
 		if err != nil {
@@ -59,11 +58,6 @@ func botUpdate(ctx context.Context, checkoutRoot, gitCacheDir, skiaRev, patchRef
 		}
 		if _, err := exec.RunCwd(ctx, ".", "git", "--version"); err != nil {
 			return err
-		}
-		if !local {
-			if err := git_common.EnsureGitIsFromCIPD(ctx); err != nil {
-				return err
-			}
 		}
 
 		spec := `
@@ -206,7 +200,7 @@ func main() {
 
 	// Sync Chrome.
 	if !*skipSync {
-		if err := botUpdate(ctx, checkoutRoot, gitCacheDir, *skiaRev, *patchRef, depotToolsDir, *local); err != nil {
+		if err := botUpdate(ctx, checkoutRoot, gitCacheDir, *skiaRev, *patchRef, depotToolsDir); err != nil {
 			td.Fatal(ctx, err)
 		}
 	}

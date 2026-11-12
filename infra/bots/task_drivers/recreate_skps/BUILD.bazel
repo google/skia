@@ -17,7 +17,6 @@ go_library(
         "@org_skia_go_infra//go/exec",
         "@org_skia_go_infra//go/gerrit",
         "@org_skia_go_infra//go/git",
-        "@org_skia_go_infra//go/git/git_common",
         "@org_skia_go_infra//go/skerr",
         "@org_skia_go_infra//go/sklog",
         "@org_skia_go_infra//promk/go/pushgateway",
