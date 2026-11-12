@@ -25,6 +25,7 @@
 #include "src/core/SkSafeMath.h"
 #include "src/encode/SkImageEncoderFns.h"
 #include "src/encode/SkImageEncoderPriv.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 
 #ifdef __clang__
@@ -114,7 +115,7 @@ public:
     void flush() override { fStream->flush(); }
 
 private:
-    SkWStream* fStream = nullptr;  // Non-owning pointer.
+    raw_ptr<SkWStream> fStream;  // Non-owning pointer.
 };
 
 #ifdef SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID

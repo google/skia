@@ -191,6 +191,7 @@ skia_cc_library(
         "//rust/png:ffi_cpp",
         "//src/codec:any_decoder",
         "//src/core:core_priv",
+        "//src/partition_alloc:raw_ptr",
         "@crates//:cxx_cc",
     ],
 )
@@ -213,6 +214,7 @@ skia_cc_library(
         ":encoder_common",
         "//:core",
         "//src/core:core_priv",
+        "//src/partition_alloc:raw_ptr",
         "@libjpeg_turbo",
     ],
 )

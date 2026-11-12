@@ -10,6 +10,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/pathops/SkLineParameters.h"
 #include "src/pathops/SkPathOpsCurve.h"
 #include "src/pathops/SkPathOpsTypes.h"
@@ -133,11 +134,13 @@ private:
     SkDCurveSweep fPart;  // the curve from start to end offset as needed
     double fSide;
     SkLineParameters fTangentHalf;  // used only to sort a pair of lines or line-like sections
-    SkOpAngle* fNext;
-    SkOpSpanBase* fLastMarked;
-    SkOpSpanBase* fStart;
-    SkOpSpanBase* fEnd;
-    SkOpSpanBase* fComputedEnd;
+    // RAW_PTR_EXCLUSION: Performance: +16.9%, +3.0%, +10.0%, +10.4%, +11.9% on
+    // pathops_simplify_rects respectively.
+    RAW_PTR_EXCLUSION SkOpAngle* fNext;
+    RAW_PTR_EXCLUSION SkOpSpanBase* fLastMarked;
+    RAW_PTR_EXCLUSION SkOpSpanBase* fStart;
+    RAW_PTR_EXCLUSION SkOpSpanBase* fEnd;
+    RAW_PTR_EXCLUSION SkOpSpanBase* fComputedEnd;
     int fSectorMask;
     int8_t fSectorStart;  // in 32nds of a circle
     int8_t fSectorEnd;

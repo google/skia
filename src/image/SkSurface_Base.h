@@ -19,6 +19,7 @@
 #include "include/private/SkPixelStorage.h"
 #include "src/capture/SkCaptureManager.h"
 #include "src/image/SkImage_Base.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstdint>
 #include <memory>
@@ -187,7 +188,7 @@ public:
 private:
     // fCachedCanvas is the raw pointer to the canvas that is returned to the client.
     // It can point to either the base canvas or a capture canvas wrapper.
-    SkCanvas* fCachedCanvas = nullptr;
+    raw_ptr<SkCanvas>         fCachedCanvas;
     // SkSurface_Base must always own the base canvas. During capture, SkCaptureManager owns any
     // wrapping capture canvas that fCachedCanvas may point to.
     std::unique_ptr<SkCanvas> fOwnedBaseCanvas = nullptr;
