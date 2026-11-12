@@ -6,6 +6,7 @@
  */
 #include "src/gpu/ganesh/gl/GrGLOpsRenderPass.h"
 
+#include "include/core/SkRect.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/gl/GrGLFunctions.h"
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
@@ -18,8 +19,10 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrDrawIndirectCommand.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
+#include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
+#include "src/gpu/ganesh/GrScissorState.h"
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLProgram.h"
@@ -95,11 +98,40 @@ void GrGLOpsRenderPass::onEnd() {
 bool GrGLOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
                                        const SkRect& drawBounds) {
     fPrimitiveType = programInfo.primitiveType();
+#if defined(SK_LEGACY_SCISSOR)
+    (void)drawBounds;
     return fGpu->flushGLState(fRenderTarget, fUseMultisampleFBO, programInfo);
+#else
+    SkRect rtRect = SkRect::Make(fContentBounds);
+    if (rtRect.intersect(drawBounds)) {
+        rtRect.roundOut(&fCurrentPipelineBounds);
+    } else {
+        fCurrentPipelineBounds.setEmpty();
+    }
+    if (!fGpu->flushGLState(fRenderTarget, fUseMultisampleFBO, programInfo)) {
+        return false;
+    }
+    if (!programInfo.pipeline().isScissorTestEnabled()) {
+        // "Disable" scissor by restricting it to the pipeline's drawBounds (which disables
+        // GL_SCISSOR_TEST entirely when fCurrentPipelineBounds covers the full render target).
+        GrScissorState scissorState(fRenderTarget->dimensions());
+        (void)scissorState.set(fCurrentPipelineBounds);
+        fGpu->flushScissor(scissorState, fRenderTarget->height(), fOrigin);
+    }
+    return true;
+#endif
 }
 
 void GrGLOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
+#if defined(SK_LEGACY_SCISSOR)
     fGpu->flushScissorRect(scissor, fRenderTarget->height(), fOrigin);
+#else
+    GrScissorState scissorState(fRenderTarget->dimensions());
+    if (scissorState.set(fCurrentPipelineBounds)) {
+        (void)scissorState.intersect(scissor);
+    }
+    fGpu->flushScissor(scissorState, fRenderTarget->height(), fOrigin);
+#endif
 }
 
 bool GrGLOpsRenderPass::onBindTextures(const GrGeometryProcessor& geomProc,

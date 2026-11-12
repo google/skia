@@ -2132,7 +2132,12 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, bool useMultisampleFBO,
                       glRT->numStencilBits(useMultisampleFBO));
     }
     this->flushStencil(stencil, programInfo.origin());
+#if defined(SK_LEGACY_SCISSOR)
     this->flushScissorTest(GrScissorTest(programInfo.pipeline().isScissorTestEnabled()));
+#else
+    // Scissor state is configured dynamically in GrGLOpsRenderPass::onBindPipeline and
+    // GrGLOpsRenderPass::onSetScissorRect.
+#endif
     this->flushWindowRectangles(programInfo.pipeline().getWindowRectsState(),
                                 glRT, programInfo.origin());
     this->flushConservativeRasterState(programInfo.pipeline().usesConservativeRaster());
