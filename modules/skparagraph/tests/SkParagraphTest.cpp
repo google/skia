@@ -13529,3 +13529,76 @@ DEF_TEST(SkParagraph_EllipsisAfterHardLineBreak, reporter) {
     }
 #endif
 }
+
+// A line-final hard break has no visible width, so in an RTL paragraph (where its glyph is the
+// visual left end of the last run) boxes and hit-test positions must match the text without it
+DEF_TEST(SkParagraph_RTLHardBreakHasNoWidth, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    auto build = [&](const std::string& text, TextDirection dir) {
+        ParagraphStyle paragraphStyle;
+        paragraphStyle.setTextDirection(dir);
+        TextStyle textStyle;
+        textStyle.setFontFamilies({SkString("Ahem")});
+        textStyle.setFontSize(14);
+        paragraphStyle.setTextStyle(textStyle);
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+        builder.addText(text.c_str(), text.size());
+        auto paragraph = builder.Build();
+        paragraph->layout(300);
+        return paragraph;
+    };
+    auto sameBoxes = [&](const char* label, Paragraph* expected, Paragraph* actual,
+                         unsigned start, unsigned end) {
+        auto e = expected->getRectsForRange(start, end, RectHeightStyle::kTight,
+                                            RectWidthStyle::kTight);
+        auto a = actual->getRectsForRange(start, end, RectHeightStyle::kTight,
+                                          RectWidthStyle::kTight);
+        REPORTER_ASSERT(reporter, !e.empty() && e.size() == a.size(),
+                        "%s [%u:%u): %zu != %zu", label, start, end, e.size(), a.size());
+        for (size_t i = 0; i < std::min(e.size(), a.size()); ++i) {
+            REPORTER_ASSERT(reporter,
+                            SkScalarNearlyEqual(e[i].rect.fLeft, a[i].rect.fLeft) &&
+                            SkScalarNearlyEqual(e[i].rect.fRight, a[i].rect.fRight),
+                            "%s [%u:%u) #%zu: [%g:%g) != [%g:%g)", label, start, end, i,
+                            e[i].rect.fLeft, e[i].rect.fRight, a[i].rect.fLeft, a[i].rect.fRight);
+        }
+    };
+
+    // Mixed BiDi: an LTR run followed by an RTL run that owns the hard break. In CRLF only LF is
+    // the hard break; CR stays trailing whitespace, as it already is in LTR
+    struct Case { const char* label; const char* text; const char* hardBreak; };
+    for (auto [label, text, hardBreak] : {Case{"LF", "aaa bbb.", "\n"},
+                                          Case{"CRLF", "aaa bbb.\r", "\n"},
+                                          Case{"PS", "aaa bbb.", "\xE2\x80\xA9"}}) {
+        auto mixed = build(text, TextDirection::kRtl);
+        auto broken = build(std::string(text) + hardBreak, TextDirection::kRtl);
+        sameBoxes(label, mixed.get(), broken.get(), 0, 3);
+        sameBoxes(label, mixed.get(), broken.get(), 4, 7);
+        sameBoxes(label, mixed.get(), broken.get(), 7, 8);
+        sameBoxes(label, mixed.get(), broken.get(), 0, 8);
+
+        // dx left of the line maps to the logical end of the line, before the hard break
+        for (SkScalar dx : {0.0f, 100.0f, 190.0f, 195.0f, 201.0f, 203.0f, 230.0f, 260.0f,
+                            299.0f, 310.0f}) {
+            auto e = mixed->getGlyphPositionAtCoordinate(dx, 7);
+            auto a = broken->getGlyphPositionAtCoordinate(dx, 7);
+            REPORTER_ASSERT(reporter, e.position == a.position && e.affinity == a.affinity,
+                            "%s @%g: %d%c != %d%c", label, dx,
+                            e.position, e.affinity == kUpstream ? 'U' : 'D',
+                            a.position, a.affinity == kUpstream ? 'U' : 'D');
+        }
+    }
+
+    // Pure RTL: the hard break shares the run with the text
+    auto hebrew = build("\u05D0\u05D1\u05D2", TextDirection::kRtl);
+    auto hebrewBroken = build("\u05D0\u05D1\u05D2\n", TextDirection::kRtl);
+    sameBoxes("hebrew", hebrew.get(), hebrewBroken.get(), 0, 3);
+    sameBoxes("hebrew", hebrew.get(), hebrewBroken.get(), 1, 2);
+
+    // LTR keeps excluding the hard break at the visual right end
+    auto ltr = build("aaa bbb.", TextDirection::kLtr);
+    auto ltrBroken = build("aaa bbb.\n", TextDirection::kLtr);
+    sameBoxes("ltr", ltr.get(), ltrBroken.get(), 0, 8);
+}

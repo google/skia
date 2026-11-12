@@ -1055,9 +1055,17 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     if (!run->leftToRight()) {
         std::swap(start, end);
     }
+    // A hard break is the logical last cluster, so its glyphs sit at the visual right end of an
+    // LTR run and at the visual left end of an RTL run; they have no width on the line
     result.pos = start->startPos();
-    result.size = (end->isHardBreak() ? end->startPos() : end->endPos()) - start->startPos();
-    auto textStartInRun = run->positionX(start->startPos());
+    size_t glyphEnd = end->endPos();
+    if (run->leftToRight() && end->isHardBreak()) {
+        glyphEnd = end->startPos();
+    } else if (!run->leftToRight() && start->isHardBreak()) {
+        result.pos = start->endPos();
+    }
+    result.size = glyphEnd - result.pos;
+    auto textStartInRun = run->positionX(result.pos);
     auto textStartInLine = runOffsetInLine + textOffsetInRunInLine;
     if (!run->leftToRight()) {
         std::swap(start, end);
@@ -1744,8 +1752,15 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                         keepLooking = false;
                     } else {
                         result = { SkToS32(utf16Index + 1), kUpstream};
-                        // If we haven't reached the end of the run we need to keep looking
-                        keepLooking = context.pos != 0;
+                        // Keep looking while visible glyphs remain left of this block: a block
+                        // with no glyphs (a lone hard break) cannot take the hit, and glyphs of a
+                        // line-final hard break at the visual left end of the run have no width
+                        keepLooking =
+                                context.size == 0 ||
+                                (context.pos != 0 &&
+                                 !fOwner->cluster(fOwner->clusterIndex(
+                                                          run->globalClusterIndex(context.pos - 1)))
+                                          .isHardBreak());
                     }
                     // For RTL we go another way
                     return !run->leftToRight();
