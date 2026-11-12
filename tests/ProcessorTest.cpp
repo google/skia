@@ -134,8 +134,8 @@ private:
                            const GrDstProxyView&,
                            GrXferBarrierFlags renderPassXferBarriers,
                            GrLoadOp colorLoadOp) override {}
-    void onPrepareDraws(GrMeshDrawTarget*) override { return; }
-    void onExecute(GrOpFlushState*, const SkRect&) override { return; }
+    bool onPrepareDraws(GrMeshDrawTarget*) override { return true; }
+    bool onExecute(GrOpFlushState*, const SkRect&) override { return true; }
 
     GrProcessorSet fProcessors;
 

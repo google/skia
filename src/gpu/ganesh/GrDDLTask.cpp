@@ -89,10 +89,12 @@ GrRenderTask::ExpectedOutcome GrDDLTask::onMakeClosed(GrRecordingContext*,
     return ExpectedOutcome::kTargetUnchanged;
 }
 
-void GrDDLTask::onPrepare(GrOpFlushState* flushState) {
+bool GrDDLTask::onPrepare(GrOpFlushState* flushState) {
+    bool allSucceeded = true;
     for (auto& task : fDDL->priv().renderTasks()) {
-        task->prepare(flushState);
+        allSucceeded &= task->prepare(flushState);
     }
+    return allSucceeded;
 }
 
 GrRenderTask::ExecutionResult GrDDLTask::onExecute(GrOpFlushState* flushState) {

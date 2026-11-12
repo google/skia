@@ -14,6 +14,7 @@
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkLog.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
@@ -288,7 +289,7 @@ private:
         }
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         const VertexSpec vertexSpec = this->vertexSpec();
@@ -303,8 +304,8 @@ private:
         void* vdata = target->makeVertexSpace(vertexSpec.vertexSize(), totalNumVertices,
                                               &fVertexBuffer, &fBaseVertex);
         if (!vdata) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
+            SKIA_LOG_E("Could not allocate vertices");
+            return false;
         }
 
         if (fPrePreparedVertices) {
@@ -319,25 +320,29 @@ private:
             fIndexBuffer = skgpu::ganesh::QuadPerEdgeAA::GetIndexBuffer(
                     target, vertexSpec.indexBufferOption());
             if (!fIndexBuffer) {
-                SkDebugf("Could not allocate indices\n");
-                return;
+                SKIA_LOG_E("Could not allocate indices");
+                return false;
             }
         }
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         if (!fVertexBuffer) {
-            return;
+            return false;
         }
 
         const VertexSpec vertexSpec = this->vertexSpec();
 
         if (vertexSpec.needsIndexBuffer() && !fIndexBuffer) {
-            return;
+            return false;
         }
 
         if (!fProgramInfo) {
             this->createProgramInfo(flushState);
+            if (!fProgramInfo) {
+                return false;
+            }
         }
 
         const int totalNumVertices = fQuads.count() * vertexSpec.verticesPerQuad();
@@ -345,13 +350,13 @@ private:
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindBuffers(std::move(fIndexBuffer), nullptr, std::move(fVertexBuffer));
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        skgpu::ganesh::QuadPerEdgeAA::IssueDraw(flushState->caps(),
-                                                flushState->opsRenderPass(),
-                                                vertexSpec,
-                                                0,
-                                                fQuads.count(),
-                                                totalNumVertices,
-                                                fBaseVertex);
+        return skgpu::ganesh::QuadPerEdgeAA::IssueDraw(flushState->caps(),
+                                                       flushState->opsRenderPass(),
+                                                       vertexSpec,
+                                                       0,
+                                                       fQuads.count(),
+                                                       totalNumVertices,
+                                                       fBaseVertex);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {

@@ -201,9 +201,12 @@ private:
                                                                    GrPipeline::InputFlags::kNone);
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         if (!fProgramInfo) {
             this->createProgramInfo(target);
+            if (!fProgramInfo) {
+                return false;
+            }
         }
 
         size_t vertexStride = fProgramInfo->geomProc().vertexStride();
@@ -213,7 +216,7 @@ private:
         void* verts = target->makeVertexSpace(vertexStride, kVertexCount, &vertexBuffer,
                                               &firstVertex);
         if (!verts) {
-            return;
+            return false;
         }
 
         const float dx = 100.0f / kVertexCount;
@@ -262,16 +265,20 @@ private:
 
         fMesh = target->allocMesh();
         fMesh->set(std::move(vertexBuffer), kVertexCount, firstVertex);
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || !fMesh) {
-            return;
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fMesh) {
+            return true;
+        }
+        if (!fProgramInfo) {
+            return false;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        return flushState->drawMesh(*fMesh);
     }
 
     Mode fMode;

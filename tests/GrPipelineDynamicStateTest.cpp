@@ -185,8 +185,8 @@ private:
                       const GrDstProxyView&,
                       GrXferBarrierFlags renderPassXferBarriers,
                       GrLoadOp colorLoadOp) override {}
-    void onPrepare(GrOpFlushState*) override {}
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+    bool onPrepare(GrOpFlushState*) override { return true; }
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         GrPipeline pipeline(fScissorTest, SkBlendMode::kSrc,
                             flushState->drawOpArgs().writeView().swizzle());
         STArray<kNumMeshes, GrSimpleMesh> meshes;
@@ -212,8 +212,11 @@ private:
             if (fScissorTest == GrScissorTest::kEnabled) {
                 flushState->setScissorRect(kDynamicScissors[i]);
             }
-            flushState->drawMesh(meshes[i]);
+            if (!flushState->drawMesh(meshes[i])) {
+                return false;
+            }
         }
+        return true;
     }
 
     GrScissorTest               fScissorTest;

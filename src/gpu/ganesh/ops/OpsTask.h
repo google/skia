@@ -67,7 +67,7 @@ public:
     /**
      * Together these two functions flush all queued up draws to GrCommandBuffer.
      */
-    void onPrepare(GrOpFlushState* flushState) override;
+    bool onPrepare(GrOpFlushState* flushState) override;
     ExecutionResult onExecute(GrOpFlushState* flushState) override;
 
     void addSampledTexture(GrSurfaceProxy* proxy) {

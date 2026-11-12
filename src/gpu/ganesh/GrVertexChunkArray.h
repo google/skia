@@ -91,7 +91,7 @@ public:
     }
 
 private:
-    bool allocChunk(int minCount);
+    [[nodiscard]] bool allocChunk(int minCount);
 
     GrMeshDrawTarget* const fTarget;
     GrVertexChunkArray* const fChunks;

@@ -73,7 +73,7 @@ private:
     }
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
                       const GrDstProxyView&, GrXferBarrierFlags, GrLoadOp colorLoadOp) override {}
-    void onPrepare(GrOpFlushState* flushState) override {
+    bool onPrepare(GrOpFlushState* flushState) override {
         constexpr static SkPMColor4f kCyan = {0,1,1,1};
         auto alloc = flushState->allocator();
         const SkMatrix& shaderMatrix = SkMatrix::I();
@@ -101,19 +101,25 @@ private:
             }
 
             auto* tess = PathCurveTessellator::Make(alloc, shaderCaps.fInfinitySupport);
-            tess->prepareWithTriangles(flushState, shaderMatrix, &triangles, pathList,
-                                       fPath.countVerbs());
+            if (!tess->prepareWithTriangles(flushState, shaderMatrix, &triangles, pathList,
+                                            fPath.countVerbs())) {
+                return false;
+            }
             fTessellator = tess;
 #else
             auto* tess = PathCurveTessellator::Make(alloc, shaderCaps.fInfinitySupport);
-            tess->prepareWithTriangles(flushState, shaderMatrix, nullptr, pathList,
-                                       fPath.countVerbs());
+            if (!tess->prepareWithTriangles(flushState, shaderMatrix, nullptr, pathList,
+                                            fPath.countVerbs())) {
+                return false;
+            }
             fTessellator = tess;
 #endif
         } else {
             // This emulates what PathStencilCoverOp does when using wedges.
             fTessellator = PathWedgeTessellator::Make(alloc, shaderCaps.fInfinitySupport);
-            fTessellator->prepare(flushState, shaderMatrix, pathList, fPath.countVerbs());
+            if (!fTessellator->prepare(flushState, shaderMatrix, pathList, fPath.countVerbs())) {
+                return false;
+            }
         }
 
         auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState, std::move(fProcessors),
@@ -131,11 +137,12 @@ private:
                                                      tessShader,
                                                      pipeline,
                                                      &GrUserStencilSettings::kUnused);
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         flushState->bindPipeline(*fProgram, chainBounds);
-        fTessellator->draw(flushState);
+        return fTessellator->draw(flushState);
     }
 
     const SkPath fPath;

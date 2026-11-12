@@ -27,9 +27,11 @@ DEF_FUZZ(Triangulation, fuzz) {
 
     GrCpuVertexAllocator allocator;
     bool isLinear;
+    int vertexCount;
 
-    int count = GrTriangulator::PathToTriangles(path, tol, clipBounds, &allocator, &isLinear);
-    if (count > 0) {
+    bool result = GrTriangulator::PathToTriangles(path, tol, clipBounds, &allocator, &isLinear,
+                                                  &vertexCount);
+    if (result && vertexCount > 0) {
         allocator.detachVertexData(); // normally handled by the triangulating path renderer.
     }
 #endif // SK_ENABLE_OPTIMIZE_SIZE

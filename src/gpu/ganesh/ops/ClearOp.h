@@ -67,9 +67,9 @@ private:
                       const GrDstProxyView&, GrXferBarrierFlags renderPassXferBarriers,
                       GrLoadOp colorLoadOp) override {}
 
-    void onPrepare(GrOpFlushState*) override {}
+    bool onPrepare(GrOpFlushState*) override { return true; }
 
-    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override;
+    bool onExecute(GrOpFlushState* state, const SkRect& chainBounds) override;
 #if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string("Scissor [ ");

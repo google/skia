@@ -19,6 +19,7 @@
 #include "include/private/SkAlignedStorage.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkLog.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
@@ -1322,11 +1323,11 @@ private:
                                                  colorLoadOp);
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         if (!fProgramInfo) {
             this->createProgramInfo(target);
             if (!fProgramInfo) {
-                return;
+                return false;
             }
         }
 
@@ -1335,16 +1336,16 @@ private:
         VertexWriter vertices = target->makeVertexWriter(fProgramInfo->geomProc().vertexStride(),
                                                          fVertCount, &vertexBuffer, &firstVertex);
         if (!vertices) SK_UNLIKELY {
-            SkDebugf("Could not allocate vertices\n");
-            return;
+            SKIA_LOG_E("Could not allocate vertices");
+            return false;
         }
 
         sk_sp<const GrBuffer> indexBuffer = nullptr;
         int firstIndex = 0;
         uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) SK_UNLIKELY {
-            SkDebugf("Could not allocate indices\n");
-            return;
+            SKIA_LOG_E("Could not allocate indices");
+            return false;
         }
 
         int currStartVertex = 0;
@@ -1449,16 +1450,20 @@ private:
         fMesh = target->allocMesh();
         fMesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo, std::move(vertexBuffer), firstVertex);
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || !fMesh) {
-            return;
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fMesh) {
+            return true;
+        }
+        if (!fProgramInfo) {
+            return false;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        return flushState->drawMesh(*fMesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
@@ -1694,11 +1699,11 @@ private:
                                                  colorLoadOp);
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         if (!fProgramInfo) {
             this->createProgramInfo(target);
             if (!fProgramInfo) {
-                return;
+                return false;
             }
         }
 
@@ -1707,16 +1712,16 @@ private:
         VertexWriter vertices = target->makeVertexWriter(fProgramInfo->geomProc().vertexStride(),
                                                          fVertCount, &vertexBuffer, &firstVertex);
         if (!vertices) SK_UNLIKELY {
-            SkDebugf("Could not allocate vertices\n");
-            return;
+            SKIA_LOG_E("Could not allocate vertices");
+            return false;
         }
 
         sk_sp<const GrBuffer> indexBuffer;
         int firstIndex = 0;
         uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) SK_UNLIKELY {
-            SkDebugf("Could not allocate indices\n");
-            return;
+            SKIA_LOG_E("Could not allocate indices");
+            return false;
         }
 
         int currStartVertex = 0;
@@ -1780,16 +1785,20 @@ private:
         fMesh = target->allocMesh();
         fMesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                           GrPrimitiveRestart::kNo, std::move(vertexBuffer), firstVertex);
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || !fMesh) {
-            return;
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fMesh) {
+            return true;
+        }
+        if (!fProgramInfo) {
+            return false;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        return flushState->drawMesh(*fMesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
@@ -2036,19 +2045,19 @@ private:
                                                  colorLoadOp);
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         if (!fProgramInfo) {
             this->createProgramInfo(target);
             if (!fProgramInfo) {
-                return;
+                return false;
             }
         }
 
         QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.size());
         VertexWriter verts{helper.vertices()};
         if (!verts) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
+            SKIA_LOG_E("Could not allocate vertices");
+            return false;
         }
 
         // On MSAA, bloat enough to guarantee any pixel that might be touched by the ellipse has
@@ -2086,16 +2095,20 @@ private:
                             invRadii);
         }
         fMesh = helper.mesh();
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || !fMesh) {
-            return;
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fMesh) {
+            return true;
+        }
+        if (!fProgramInfo) {
+            return false;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        return flushState->drawMesh(*fMesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
@@ -2315,15 +2328,18 @@ private:
                                                  renderPassXferBarriers, colorLoadOp);
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         if (!fProgramInfo) {
             this->createProgramInfo(target);
+            if (!fProgramInfo) {
+                return false;
+            }
         }
 
         QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.size());
         VertexWriter verts{helper.vertices()};
         if (!verts) {
-            return;
+            return false;
         }
 
         for (const auto& ellipse : fEllipses) {
@@ -2360,16 +2376,20 @@ private:
                             origin_centered_tri_strip(innerCoordX, innerCoordY));
         }
         fMesh = helper.mesh();
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || !fMesh) {
-            return;
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fMesh) {
+            return true;
+        }
+        if (!fProgramInfo) {
+            return false;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        return flushState->drawMesh(*fMesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
@@ -2730,11 +2750,11 @@ private:
                                                  renderPassXferBarriers, colorLoadOp);
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         if (!fProgramInfo) {
             this->createProgramInfo(target);
             if (!fProgramInfo) {
-                return;
+                return false;
             }
         }
 
@@ -2744,16 +2764,16 @@ private:
         VertexWriter verts = target->makeVertexWriter(fProgramInfo->geomProc().vertexStride(),
                                                       fVertCount, &vertexBuffer, &firstVertex);
         if (!verts) SK_UNLIKELY {
-            SkDebugf("Could not allocate vertices\n");
-            return;
+            SKIA_LOG_E("Could not allocate vertices");
+            return false;
         }
 
         sk_sp<const GrBuffer> indexBuffer;
         int firstIndex = 0;
         uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) SK_UNLIKELY {
-            SkDebugf("Could not allocate indices\n");
-            return;
+            SKIA_LOG_E("Could not allocate indices");
+            return false;
         }
 
         int currStartVertex = 0;
@@ -2826,16 +2846,20 @@ private:
         fMesh = target->allocMesh();
         fMesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                           GrPrimitiveRestart::kNo, std::move(vertexBuffer), firstVertex);
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || !fMesh) {
-            return;
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fMesh) {
+            return true;
+        }
+        if (!fProgramInfo) {
+            return false;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        return flushState->drawMesh(*fMesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
@@ -3056,11 +3080,11 @@ private:
                                                  renderPassXferBarriers, colorLoadOp);
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         if (!fProgramInfo) {
             this->createProgramInfo(target);
             if (!fProgramInfo) {
-                return;
+                return false;
             }
         }
 
@@ -3070,8 +3094,8 @@ private:
                 fStroked ? kStroke_RRectType : kFill_RRectType, target->resourceProvider());
 
         if (!indexBuffer) {
-            SkDebugf("Could not allocate indices\n");
-            return;
+            SKIA_LOG_E("Could not allocate indices");
+            return false;
         }
         PatternHelper helper(target, GrPrimitiveType::kTriangles,
                              fProgramInfo->geomProc().vertexStride(),
@@ -3079,8 +3103,8 @@ private:
                              fRRects.size(), kNumRRectsInIndexBuffer);
         VertexWriter verts{helper.vertices()};
         if (!verts) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
+            SKIA_LOG_E("Could not allocate vertices");
+            return false;
         }
 
         for (const auto& rrect : fRRects) {
@@ -3157,16 +3181,20 @@ private:
             }
         }
         fMesh = helper.mesh();
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || !fMesh) {
-            return;
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fMesh) {
+            return true;
+        }
+        if (!fProgramInfo) {
+            return false;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        return flushState->drawMesh(*fMesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {

@@ -23,6 +23,7 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkLog.h"
 #include "include/private/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkArenaAlloc.h"
@@ -279,11 +280,11 @@ private:
                                                                    &GrUserStencilSettings::kUnused);
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         if (!fProgramInfo) {
             this->createProgramInfo(target);
             if (!fProgramInfo) {
-                return;
+                return false;
             }
         }
 
@@ -295,8 +296,11 @@ private:
             numRects = safeMath.addInt(numRects, fPatches[i].fIter->numRectsToDraw());
         }
 
-        if (!numRects || !safeMath) {
-            return;
+        if (!safeMath) {
+            return false;
+        }
+        if (!numRects) {
+            return true;
         }
 
         const size_t kVertexStride = fProgramInfo->geomProc().vertexStride();
@@ -305,8 +309,8 @@ private:
 
         VertexWriter vertices{helper.vertices()};
         if (!vertices) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
+            SKIA_LOG_E("Could not allocate vertices");
+            return false;
         }
 
         for (int i = 0; i < patchCnt; i++) {
@@ -377,18 +381,22 @@ private:
         }
 
         fMesh = helper.mesh();
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || !fMesh) {
-            return;
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fMesh) {
+            return true;
+        }
+        if (!fProgramInfo) {
+            return false;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(),
                                  *fView.proxy(),
                                  fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        return flushState->drawMesh(*fMesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {

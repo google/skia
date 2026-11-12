@@ -49,7 +49,7 @@ public:
     // Returns true upon successful upload and false upon failure.
     bool inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
 
-    void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
+    bool onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 
     bool set(GrRenderTarget*,
              sk_sp<GrVkFramebuffer>,

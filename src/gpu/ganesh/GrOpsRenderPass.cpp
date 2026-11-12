@@ -63,9 +63,9 @@ void GrOpsRenderPass::clearStencilClip(const GrScissorState& scissor, bool insid
     this->onClearStencilClip(scissor, insideStencilMask);
 }
 
-void GrOpsRenderPass::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) {
+bool GrOpsRenderPass::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) {
     fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
-    this->onExecuteDrawable(std::move(drawable));
+    return this->onExecuteDrawable(std::move(drawable));
 }
 
 void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
@@ -225,58 +225,62 @@ bool GrOpsRenderPass::prepareToDraw() {
     return true;
 }
 
-void GrOpsRenderPass::draw(int vertexCount, int baseVertex) {
+bool GrOpsRenderPass::draw(int vertexCount, int baseVertex) {
     if (!this->prepareToDraw()) {
-        return;
+        return false;
     }
     SkASSERT(!fHasIndexBuffer);
     SkASSERT(DynamicStateStatus::kConfigured != fInstanceBufferStatus);
     SkASSERT(DynamicStateStatus::kUninitialized != fVertexBufferStatus);
     this->onDraw(vertexCount, baseVertex);
+    return true;
 }
 
-void GrOpsRenderPass::drawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
+bool GrOpsRenderPass::drawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
                                   uint16_t maxIndexValue, int baseVertex) {
     if (!this->prepareToDraw()) {
-        return;
+        return false;
     }
     SkASSERT(fHasIndexBuffer);
     SkASSERT(DynamicStateStatus::kConfigured != fInstanceBufferStatus);
     SkASSERT(DynamicStateStatus::kUninitialized != fVertexBufferStatus);
     this->onDrawIndexed(indexCount, baseIndex, minIndexValue, maxIndexValue, baseVertex);
+    return true;
 }
 
-void GrOpsRenderPass::drawInstanced(int instanceCount, int baseInstance, int vertexCount,
+bool GrOpsRenderPass::drawInstanced(int instanceCount, int baseInstance, int vertexCount,
                                     int baseVertex) {
     SkASSERT(this->gpu()->caps()->drawInstancedSupport());
     if (!this->prepareToDraw()) {
-        return;
+        return false;
     }
     SkASSERT(!fHasIndexBuffer);
     SkASSERT(DynamicStateStatus::kUninitialized != fInstanceBufferStatus);
     SkASSERT(DynamicStateStatus::kUninitialized != fVertexBufferStatus);
     this->onDrawInstanced(instanceCount, baseInstance, vertexCount, baseVertex);
+    return true;
 }
 
-void GrOpsRenderPass::drawIndexedInstanced(int indexCount, int baseIndex, int instanceCount,
+bool GrOpsRenderPass::drawIndexedInstanced(int indexCount, int baseIndex, int instanceCount,
                                            int baseInstance, int baseVertex) {
     SkASSERT(this->gpu()->caps()->drawInstancedSupport());
     if (!this->prepareToDraw()) {
-        return;
+        return false;
     }
     SkASSERT(fHasIndexBuffer);
     SkASSERT(DynamicStateStatus::kUninitialized != fInstanceBufferStatus);
     SkASSERT(DynamicStateStatus::kUninitialized != fVertexBufferStatus);
     this->onDrawIndexedInstanced(indexCount, baseIndex, instanceCount, baseInstance, baseVertex);
+    return true;
 }
 
-void GrOpsRenderPass::drawIndirect(const GrBuffer* drawIndirectBuffer, size_t bufferOffset,
+bool GrOpsRenderPass::drawIndirect(const GrBuffer* drawIndirectBuffer, size_t bufferOffset,
                                    int drawCount) {
     SkASSERT(this->gpu()->caps()->drawInstancedSupport());
     SkASSERT(drawIndirectBuffer->isCpuBuffer() ||
              !static_cast<const GrGpuBuffer*>(drawIndirectBuffer)->isMapped());
     if (!this->prepareToDraw()) {
-        return;
+        return false;
     }
     SkASSERT(!fHasIndexBuffer);
     SkASSERT(DynamicStateStatus::kUninitialized != fInstanceBufferStatus);
@@ -291,18 +295,19 @@ void GrOpsRenderPass::drawIndirect(const GrBuffer* drawIndirectBuffer, size_t bu
             auto [vertexCount, instanceCount, baseVertex, baseInstance] = cmds[i];
             this->onDrawInstanced(instanceCount, baseInstance, vertexCount, baseVertex);
         }
-        return;
+        return true;
     }
     this->onDrawIndirect(drawIndirectBuffer, bufferOffset, drawCount);
+    return true;
 }
 
-void GrOpsRenderPass::drawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t bufferOffset,
+bool GrOpsRenderPass::drawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t bufferOffset,
                                           int drawCount) {
     SkASSERT(this->gpu()->caps()->drawInstancedSupport());
     SkASSERT(drawIndirectBuffer->isCpuBuffer() ||
              !static_cast<const GrGpuBuffer*>(drawIndirectBuffer)->isMapped());
     if (!this->prepareToDraw()) {
-        return;
+        return false;
     }
     SkASSERT(fHasIndexBuffer);
     SkASSERT(DynamicStateStatus::kUninitialized != fInstanceBufferStatus);
@@ -319,12 +324,13 @@ void GrOpsRenderPass::drawIndexedIndirect(const GrBuffer* drawIndirectBuffer, si
             this->onDrawIndexedInstanced(indexCount, baseIndex, instanceCount, baseInstance,
                                          baseVertex);
         }
-        return;
+        return true;
     }
     this->onDrawIndexedIndirect(drawIndirectBuffer, bufferOffset, drawCount);
+    return true;
 }
 
-void GrOpsRenderPass::drawIndexPattern(int patternIndexCount, int patternRepeatCount,
+bool GrOpsRenderPass::drawIndexPattern(int patternIndexCount, int patternRepeatCount,
                                        int maxPatternRepetitionsInIndexBuffer,
                                        int patternVertexCount, int baseVertex) {
     int baseRepetition = 0;
@@ -335,8 +341,11 @@ void GrOpsRenderPass::drawIndexPattern(int patternIndexCount, int patternRepeatC
         // A patterned index buffer must contain indices in the range [0..vertexCount].
         int minIndexValue = 0;
         int maxIndexValue = patternVertexCount * repeatCount - 1;
-        this->drawIndexed(drawIndexCount, 0, minIndexValue, maxIndexValue,
-                          patternVertexCount * baseRepetition + baseVertex);
+        if (!this->drawIndexed(drawIndexCount, 0, minIndexValue, maxIndexValue,
+                               patternVertexCount * baseRepetition + baseVertex)) {
+            return false;
+        }
         baseRepetition += repeatCount;
     }
+    return true;
 }

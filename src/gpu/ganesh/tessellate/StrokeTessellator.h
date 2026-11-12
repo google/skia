@@ -42,15 +42,15 @@ public:
 
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
     //
-    // Returns the fixed number of edges the tessellator will draw per patch.
-    void prepare(GrMeshDrawTarget*,
-                 const SkMatrix& shaderMatrix,
-                 PathStrokeList*,
-                 int totalCombinedStrokeVerbCnt);
+    // Returns true on success; false on failure.
+    [[nodiscard]] bool prepare(GrMeshDrawTarget*,
+                               const SkMatrix& shaderMatrix,
+                               PathStrokeList*,
+                               int totalCombinedStrokeVerbCnt);
 
     // Issues draw calls for the tessellated stroke. The caller is responsible for creating and
     // binding a pipeline that uses this class's shader() before calling draw().
-    void draw(GrOpFlushState*) const;
+    [[nodiscard]] bool draw(GrOpFlushState*) const;
 
 protected:
     const PatchAttribs fAttribs;

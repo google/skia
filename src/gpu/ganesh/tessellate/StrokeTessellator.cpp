@@ -165,7 +165,7 @@ void write_fixed_count_patches(StrokeWriter&& patchWriter,
 
 SKGPU_DECLARE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
 
-void StrokeTessellator::prepare(GrMeshDrawTarget* target,
+bool StrokeTessellator::prepare(GrMeshDrawTarget* target,
                                 const SkMatrix& shaderMatrix,
                                 PathStrokeList* pathStrokeList,
                                 int totalCombinedStrokeVerbCnt) {
@@ -188,24 +188,29 @@ void StrokeTessellator::prepare(GrMeshDrawTarget* target,
                 FixedCountStrokes::VertexBufferSize(),
                 gVertexIDFallbackBufferKey,
                 FixedCountStrokes::WriteVertexBuffer);
+        if (!fVertexBufferIfNoIDSupport) {
+            return false;
+        }
     }
+    return true;
 }
 
-void StrokeTessellator::draw(GrOpFlushState* flushState) const {
+bool StrokeTessellator::draw(GrOpFlushState* flushState) const {
     if (fVertexChunkArray.empty() || fVertexCount <= 0) {
-        return;
+        return true;
     }
     if (!flushState->caps().shaderCaps()->fVertexIDSupport &&
         !fVertexBufferIfNoIDSupport) {
-        return;
+        return false;
     }
     for (const auto& instanceChunk : fVertexChunkArray) {
         flushState->bindBuffers(nullptr, instanceChunk.fBuffer, fVertexBufferIfNoIDSupport);
-        flushState->drawInstanced(instanceChunk.fCount,
-                                  instanceChunk.fBase,
-                                  fVertexCount,
-                                  0);
+        if (!flushState->drawInstanced(
+                    instanceChunk.fCount, instanceChunk.fBase, fVertexCount, 0)) {
+            return false;
+        }
     }
+    return true;
 }
 
 }  // namespace skgpu::ganesh
