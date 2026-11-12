@@ -1093,7 +1093,7 @@ float4 circular_arc_vertex_fn(float3 position,
 float4 text_vertex_fn(float2 baseCoords,
                       // Uniforms
                       float4x4 maskToDevice,
-                      float4x4 localToDevice,
+                      float3x3 localToDevice,
                       float2 atlasSizeInv,
                       // Instance Attributes
                       float2 size,
@@ -1115,9 +1115,11 @@ float4 text_vertex_fn(float2 baseCoords,
     float4 position = maskToDevice * subRunCoords.xy01;
 
     // Calculate the local coords used for shading.
-    // TODO(b/246963258): This is incorrect if the transform has perspective, which would
-    // require a division + a valid z coordinate (which is currently set to 0).
-    stepLocalCoords = (inverse(localToDevice) * position).xy;
+    // Since glyphs are always rendered into a purely 2D atlas, `maskToDevice` is the only source
+    // of perspective distortion. Thus `position.w` already provides the perspective interpolation
+    // needed for `localToDevice`, and dividing in the vertex shader is sufficient.
+    float3 localCoords = inverse(localToDevice) * position.xyw;
+    stepLocalCoords = localCoords.xy / localCoords.z;
 
     unormTexCoords = baseCoords + uvPos;
     textureCoords = unormTexCoords * atlasSizeInv;

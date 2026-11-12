@@ -11,16 +11,19 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkFontTypes.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "include/utils/SkTextUtils.h"
 #include "src/core/SkMatrixPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -122,3 +125,30 @@ private:
 
 DEF_GM(return new PerspTextGM(true);)
 DEF_GM(return new PerspTextGM(false);)
+
+DEF_SIMPLE_GM(persptext_shader, canvas, 420, 180) {
+    canvas->clear(SK_ColorWHITE);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setShader(ToolUtils::create_checkerboard_shader(SK_ColorBLUE, SK_ColorRED, 20));
+
+    SkM44 persp;
+    persp.setRC(3, 2, -1.0f / 350.0f);
+    canvas->translate(210.0f, 90.0f);
+    canvas->concat(persp *
+                   SkM44::Rotate({0, 1, 0}, -SK_ScalarPI / 5) *
+                   SkM44::Rotate({1, 0, 0}, SK_ScalarPI / 6));
+
+    // background
+    paint.setAlphaf(0.18f);
+    canvas->drawRect({-180, -60, 180, 60}, paint);
+
+    // text
+    SkFont font(ToolUtils::CreatePortableTypeface("serif", SkFontStyle::Bold()), 30.0f);
+    paint.setAlphaf(1.0f);
+    SkTextUtils::DrawString(
+            canvas, "Checkerboard should", 0.0f, -8.0f, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(
+            canvas, "align with background", 0.0f, 32.0f, font, paint, SkTextUtils::kCenter_Align);
+}

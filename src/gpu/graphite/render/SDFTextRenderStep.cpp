@@ -63,7 +63,7 @@ SDFTextRenderStep::SDFTextRenderStep(Layout layout)
                                              | Flags::kAppendInstances
                                              | Flags::kAllowsSelfIntersection,
                      /*uniforms=*/{{"maskToDevice", SkSLType::kFloat4x4},
-                                   {"localToDevice", SkSLType::kFloat4x4},
+                                   {"localToDevice", SkSLType::kFloat3x3},
                                    {"atlasSizeInv", SkSLType::kFloat2},
                                    {"gammaParams", SkSLType::kHalf2}},
                      PrimitiveType::kTriangleStrip,
@@ -177,7 +177,7 @@ void SDFTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
     // TODO(b/351923375): Precompute the 3x3 inverse of the local-to-device since it's shared by all
     // instances? We can derive it from the Transform's existing 4x4 inverse.
     gatherer->write(subRunData.maskToDevice());
-    gatherer->write(params.transform().matrix()); // local-to-device
+    gatherer->write(params.transform().matrix().asM33()); // local-to-device
     SkV2 atlasDimensionsInverse = {1.f/proxies[0]->dimensions().width(),
                                    1.f/proxies[0]->dimensions().height()};
     gatherer->write(atlasDimensionsInverse);
