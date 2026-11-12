@@ -23,6 +23,8 @@
 #include "src/gpu/ganesh/image/SkImage_GaneshYUVA.h"
 #include "src/image/SkImage_Base.h"
 
+#include <array>
+
 DDLPromiseImageHelper::PromiseImageInfo::PromiseImageInfo(int index,
                                                           uint32_t originalUniqueID,
                                                           const SkImageInfo& ii)
@@ -328,16 +330,16 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(sk_sp<SkData> data,
 
     sk_sp<SkImage> image;
     if (curImage.isYUV()) {
-        GrBackendFormat backendFormats[SkYUVAInfo::kMaxPlanes];
+        std::array<GrBackendFormat, SkYUVAInfo::kMaxPlanes> backendFormats;
         const SkYUVAInfo& yuvaInfo = curImage.yuvaInfo();
-        void* contexts[SkYUVAInfo::kMaxPlanes] = {nullptr, nullptr, nullptr, nullptr};
+        std::array<void*, SkYUVAInfo::kMaxPlanes> contexts = {};
         int textureCount = yuvaInfo.numPlanes();
         for (int i = 0; i < textureCount; ++i) {
             backendFormats[i] = curImage.backendFormat(i);
             contexts[i] = curImage.refCallbackContext(i).release();
         }
         GrYUVABackendTextureInfo yuvaBackendTextures(
-                yuvaInfo, backendFormats, skgpu::Mipmapped::kNo, kTopLeft_GrSurfaceOrigin);
+                yuvaInfo, backendFormats.data(), skgpu::Mipmapped::kNo, kTopLeft_GrSurfaceOrigin);
         image = SkImages::PromiseTextureFromYUVA(
                 procContext->fThreadSafeProxy,
                 yuvaBackendTextures,

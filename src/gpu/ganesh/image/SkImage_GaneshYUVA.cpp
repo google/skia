@@ -107,8 +107,8 @@ bool SkImage_GaneshYUVA::setupMipmapsForPlanes(GrRecordingContext* context) cons
             newProxies[i] = fYUVAProxies.refProxy(i);
         }
     }
-    fYUVAProxies = GrYUVATextureProxies(fYUVAProxies.yuvaInfo(), newProxies.data(),
-                                        fYUVAProxies.textureOrigin());
+    fYUVAProxies =
+            GrYUVATextureProxies(fYUVAProxies.yuvaInfo(), newProxies, fYUVAProxies.textureOrigin());
     SkASSERT(fYUVAProxies.isValid());
     return true;
 }
@@ -236,7 +236,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GaneshYUVA::flattenToView(
 std::unique_ptr<GrFragmentProcessor> SkImage_GaneshYUVA::asFragmentProcessor(
         skgpu::ganesh::SurfaceDrawContext* sdc,
         SkSamplingOptions sampling,
-        const SkTileMode tileModes[2],
+        std::pair<SkTileMode, SkTileMode> tileModes,
         const SkMatrix& m,
         const SkRect* subset,
         const SkRect* domain) const {
@@ -250,8 +250,8 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GaneshYUVA::asFragmentProcessor(
                 SkSamplingPriv::AnisoFallback(fYUVAProxies.mipmapped() == skgpu::Mipmapped::kYes);
     }
 
-    auto wmx = SkTileModeToWrapMode(tileModes[0]);
-    auto wmy = SkTileModeToWrapMode(tileModes[1]);
+    auto wmx = SkTileModeToWrapMode(tileModes.first);
+    auto wmy = SkTileModeToWrapMode(tileModes.second);
     GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
     // The packed 4:2:2 plane is always sampled without mip levels (they would blend its U and V
     // lanes), so don't build any.

@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
 
 #include "include/core/SkColor.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -36,9 +37,10 @@ static int num_channels(uint32_t channelFlags) {
 }
 #endif
 
-GrYUVATextureProxies::GrYUVATextureProxies(const SkYUVAInfo& yuvaInfo,
-                                           sk_sp<GrSurfaceProxy> proxies[SkYUVAInfo::kMaxPlanes],
-                                           GrSurfaceOrigin textureOrigin)
+GrYUVATextureProxies::GrYUVATextureProxies(
+        const SkYUVAInfo& yuvaInfo,
+        SkSpan<sk_sp<GrSurfaceProxy>, SkYUVAInfo::kMaxPlanes> proxies,
+        GrSurfaceOrigin textureOrigin)
         : fYUVAInfo(yuvaInfo), fTextureOrigin(textureOrigin) {
     int n = yuvaInfo.numPlanes();
     if (n == 0) {
@@ -77,9 +79,10 @@ GrYUVATextureProxies::GrYUVATextureProxies(const SkYUVAInfo& yuvaInfo,
     SkASSERT(this->isValid());
 }
 
-GrYUVATextureProxies::GrYUVATextureProxies(const SkYUVAInfo& yuvaInfo,
-                                           GrSurfaceProxyView views[SkYUVAInfo::kMaxPlanes],
-                                           GrColorType colorTypes[SkYUVAInfo::kMaxPlanes])
+GrYUVATextureProxies::GrYUVATextureProxies(
+        const SkYUVAInfo& yuvaInfo,
+        SkSpan<GrSurfaceProxyView, SkYUVAInfo::kMaxPlanes> views,
+        SkSpan<const GrColorType, SkYUVAInfo::kMaxPlanes> colorTypes)
         : fYUVAInfo(yuvaInfo) {
     uint32_t pixmapChannelMasks[SkYUVAInfo::kMaxPlanes];
     int n = yuvaInfo.numPlanes();

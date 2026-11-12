@@ -213,7 +213,7 @@ static GrSurfaceProxyView texture_proxy_view_from_planes(GrRecordingContext* ctx
         return {};
     }
 
-    GrYUVATextureProxies yuvaProxies(yuvaPixmaps.yuvaInfo(), views.data(), pixmapColorTypes.data());
+    GrYUVATextureProxies yuvaProxies(yuvaPixmaps.yuvaInfo(), views, pixmapColorTypes);
     SkAssertResult(yuvaProxies.isValid());
 
     std::unique_ptr<GrFragmentProcessor> fp = GrYUVtoRGBEffect::Make(
@@ -440,20 +440,21 @@ std::tuple<GrSurfaceProxyView, GrColorType> AsView(GrRecordingContext* rContext,
     return {};
 }
 
-static std::unique_ptr<GrFragmentProcessor> make_fp_from_view(GrRecordingContext* rContext,
-                                                              GrSurfaceProxyView view,
-                                                              SkAlphaType at,
-                                                              SkSamplingOptions sampling,
-                                                              const SkTileMode tileModes[2],
-                                                              const SkMatrix& m,
-                                                              const SkRect* subset,
-                                                              const SkRect* domain) {
+static std::unique_ptr<GrFragmentProcessor> make_fp_from_view(
+        GrRecordingContext* rContext,
+        GrSurfaceProxyView view,
+        SkAlphaType at,
+        SkSamplingOptions sampling,
+        std::pair<SkTileMode, SkTileMode> tileModes,
+        const SkMatrix& m,
+        const SkRect* subset,
+        const SkRect* domain) {
     if (!view) {
         return nullptr;
     }
     const GrCaps& caps = *rContext->priv().caps();
-    auto wmx = SkTileModeToWrapMode(tileModes[0]);
-    auto wmy = SkTileModeToWrapMode(tileModes[1]);
+    auto wmx = SkTileModeToWrapMode(tileModes.first);
+    auto wmy = SkTileModeToWrapMode(tileModes.second);
     if (sampling.useCubic) {
         if (subset) {
             if (domain) {
@@ -515,7 +516,7 @@ static std::unique_ptr<GrFragmentProcessor> make_fp_from_view(GrRecordingContext
 std::unique_ptr<GrFragmentProcessor> raster_as_fp(GrRecordingContext* rContext,
                                                   const SkImage_Raster* img,
                                                   SkSamplingOptions sampling,
-                                                  const SkTileMode tileModes[2],
+                                                  std::pair<SkTileMode, SkTileMode> tileModes,
                                                   const SkMatrix& m,
                                                   const SkRect* subset,
                                                   const SkRect* domain) {
@@ -531,13 +532,14 @@ std::unique_ptr<GrFragmentProcessor> raster_as_fp(GrRecordingContext* rContext,
                              domain);
 }
 
-std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(SurfaceDrawContext* sdc,
-                                                         const SkImage* img,
-                                                         SkSamplingOptions sampling,
-                                                         const SkTileMode tileModes[2],
-                                                         const SkMatrix& m,
-                                                         const SkRect* subset,
-                                                         const SkRect* domain) {
+std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(
+        SurfaceDrawContext* sdc,
+        const SkImage* img,
+        SkSamplingOptions sampling,
+        std::pair<SkTileMode, SkTileMode> tileModes,
+        const SkMatrix& m,
+        const SkRect* subset,
+        const SkRect* domain) {
     if (!sdc) {
         return {};
     }
@@ -590,7 +592,7 @@ std::unique_ptr<GrFragmentProcessor> MakeFragmentProcessorFromView(
         GrSurfaceProxyView view,
         SkAlphaType at,
         SkSamplingOptions sampling,
-        const SkTileMode tileModes[2],
+        std::pair<SkTileMode, SkTileMode> tileModes,
         const SkMatrix& m,
         const SkRect* subset,
         const SkRect* domain) {
@@ -598,8 +600,8 @@ std::unique_ptr<GrFragmentProcessor> MakeFragmentProcessorFromView(
         return nullptr;
     }
     const GrCaps& caps = *rContext->priv().caps();
-    auto wmx = SkTileModeToWrapMode(tileModes[0]);
-    auto wmy = SkTileModeToWrapMode(tileModes[1]);
+    auto wmx = SkTileModeToWrapMode(tileModes.first);
+    auto wmy = SkTileModeToWrapMode(tileModes.second);
     if (sampling.useCubic) {
         if (subset) {
             if (domain) {

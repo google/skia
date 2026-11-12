@@ -350,7 +350,7 @@ void Device::drawEdgeAAImage(const SkImage* image,
     }
     const SkRect* subset = restrictToSubset       ? &src : nullptr;
     const SkRect* domain = coordsAllInsideSrcRect ? &src : nullptr;
-    SkTileMode tileModes[] = {tm, tm};
+    std::pair tileModes{tm, tm};
     std::unique_ptr<GrFragmentProcessor> fp = skgpu::ganesh::AsFragmentProcessor(
             sdc, image, sampling, tileModes, textureMatrix, subset, domain);
     fp = GrColorSpaceXformEffect::Make(
@@ -486,7 +486,7 @@ void Device::drawCoverageMask(const SkSpecialImage* mask,
         return;
     }
 
-    SkTileMode tileModes[] = {SkTileMode::kDecal, SkTileMode::kDecal};
+    std::pair tileModes{SkTileMode::kDecal, SkTileMode::kDecal};
 
     auto deviceToMask = maskToDevice.invert();
     if (!deviceToMask) {

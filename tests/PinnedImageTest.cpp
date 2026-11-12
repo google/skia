@@ -34,6 +34,7 @@
 #include "tools/gpu/ContextType.h"
 
 #include <string>
+#include <utility>
 
 class GrRecordingContext;
 struct GrContextOptions;
@@ -210,7 +211,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PinnedImageTest_AsFragmentProcessor,
     sk_sp<SkImage> img = SkImages::PinnableRasterFromBitmap(bm);
     REPORTER_ASSERT(reporter, img, "PinnableImageFromBitmap returned null");
 
-    SkTileMode tm[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
+    std::pair tm{SkTileMode::kClamp, SkTileMode::kClamp};
 
     auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dContext,
                                                        GrColorType::kRGBA_8888,

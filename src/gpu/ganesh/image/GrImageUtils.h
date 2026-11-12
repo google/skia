@@ -18,6 +18,7 @@
 #include <memory>
 #include <string_view>
 #include <tuple>
+#include <utility>
 
 class GrCaps;
 class GrImageContext;
@@ -90,8 +91,8 @@ GrColorType ColorTypeOfLockTextureProxy(const GrCaps*, SkColorType);
 
 /**
  * Returns a GrFragmentProcessor that can be used with the passed GrRecordingContext to
- * draw the image. SkSamplingOptions indicates the filter and SkTileMode[] indicates the x and
- * y tile modes. The passed matrix is applied to the coordinates before sampling the image.
+ * draw the image. SkSamplingOptions indicates the filter and the SkTileMode pair indicates the
+ * x and y tile modes. The passed matrix is applied to the coordinates before sampling the image.
  * Optional 'subset' indicates whether the tile modes should be applied to a subset of the image
  * Optional 'domain' is a bound on the coordinates of the image that will be required and can be
  * used to optimize the shader if 'subset' is also specified.
@@ -99,29 +100,31 @@ GrColorType ColorTypeOfLockTextureProxy(const GrCaps*, SkColorType);
 std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(SurfaceDrawContext*,
                                                          const SkImage*,
                                                          SkSamplingOptions,
-                                                         const SkTileMode[2],
+                                                         std::pair<SkTileMode, SkTileMode>,
                                                          const SkMatrix&,
                                                          const SkRect* subset = nullptr,
                                                          const SkRect* domain = nullptr);
 
-inline std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(SurfaceDrawContext* sdc,
-                                                                const sk_sp<const SkImage>& img,
-                                                                SkSamplingOptions opt,
-                                                                const SkTileMode tm[2],
-                                                                const SkMatrix& m,
-                                                                const SkRect* subset = nullptr,
-                                                                const SkRect* domain = nullptr) {
+inline std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(
+        SurfaceDrawContext* sdc,
+        const sk_sp<const SkImage>& img,
+        SkSamplingOptions opt,
+        std::pair<SkTileMode, SkTileMode> tm,
+        const SkMatrix& m,
+        const SkRect* subset = nullptr,
+        const SkRect* domain = nullptr) {
     return AsFragmentProcessor(sdc, img.get(), opt, tm, m, subset, domain);
 }
 
-std::unique_ptr<GrFragmentProcessor> MakeFragmentProcessorFromView(GrRecordingContext*,
-                                                                   GrSurfaceProxyView,
-                                                                   SkAlphaType,
-                                                                   SkSamplingOptions,
-                                                                   const SkTileMode[2],
-                                                                   const SkMatrix&,
-                                                                   const SkRect* subset,
-                                                                   const SkRect* domain);
+std::unique_ptr<GrFragmentProcessor> MakeFragmentProcessorFromView(
+        GrRecordingContext*,
+        GrSurfaceProxyView,
+        SkAlphaType,
+        SkSamplingOptions,
+        std::pair<SkTileMode, SkTileMode>,
+        const SkMatrix&,
+        const SkRect* subset,
+        const SkRect* domain);
 
 /**
  * Returns input view if it is already mipmapped. Otherwise, attempts to make a mipmapped view

@@ -445,7 +445,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Ganesh::asView(
 std::unique_ptr<GrFragmentProcessor> SkImage_Ganesh::asFragmentProcessor(
         skgpu::ganesh::SurfaceDrawContext* sdc,
         SkSamplingOptions sampling,
-        const SkTileMode tileModes[2],
+        std::pair<SkTileMode, SkTileMode> tileModes,
         const SkMatrix& m,
         const SkRect* subset,
         const SkRect* domain) const {

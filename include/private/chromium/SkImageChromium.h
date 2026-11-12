@@ -9,6 +9,7 @@
 #define SkImageChromium_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkAPI.h"
 
 class GrBackendFormat;
@@ -93,8 +94,25 @@ SK_API sk_sp<SkImage> PromiseTextureFrom(sk_sp<GrContextThreadSafeProxy> gpuCont
     @param imageColorSpace     range of colors; may be nullptr
     @param textureFulfillProc  function called to get actual gpu texture
     @param textureReleaseProc  function called when texture can be deleted
-    @param textureContexts     state passed to textureFulfillProc and textureReleaseProc
+    @param textureContexts     state passed to textureFulfillProc and textureReleaseProc; must
+                               hold at least one entry per plane of 'backendTextureInfo'
+                               (this is enforced with a release-build bounds check)
     @return                    created SkImage, or nullptr
+*/
+SK_API sk_sp<SkImage> PromiseTextureFromYUVA(
+        sk_sp<GrContextThreadSafeProxy> gpuContextProxy,
+        const GrYUVABackendTextureInfo& backendTextureInfo,
+        sk_sp<SkColorSpace> imageColorSpace,
+        PromiseImageTextureFulfillProc textureFulfillProc,
+        PromiseImageTextureReleaseProc textureReleaseProc,
+        SkSpan<const PromiseImageTextureContext> textureContexts);
+
+/** DEPRECATED: Prefer the SkSpan overload above, which bounds-checks textureContexts.
+    This pointer overload is kept for existing clients and forwards to it.
+
+    PRECONDITIONS: textureContexts must be non-null and point to at least
+    backendTextureInfo.numPlanes() readable elements. Note that C-style array arguments
+    still select this overload.
 */
 SK_API sk_sp<SkImage> PromiseTextureFromYUVA(sk_sp<GrContextThreadSafeProxy> gpuContextProxy,
                                              const GrYUVABackendTextureInfo& backendTextureInfo,

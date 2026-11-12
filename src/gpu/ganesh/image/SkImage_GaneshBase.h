@@ -16,10 +16,11 @@
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "src/image/SkImage_Base.h"
 
-#include <memory>
-#include <tuple>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
+#include <tuple>
+#include <utility>
 
 class GrBackendFormat;
 class GrBackendTexture;
@@ -105,7 +106,7 @@ public:
     virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
             skgpu::ganesh::SurfaceDrawContext*,
             SkSamplingOptions,
-            const SkTileMode[2],
+            std::pair<SkTileMode, SkTileMode>,
             const SkMatrix&,
             const SkRect*,
             const SkRect*) const = 0;

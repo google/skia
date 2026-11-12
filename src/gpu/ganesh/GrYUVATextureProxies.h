@@ -9,6 +9,7 @@
 #define GrYUVATextureProxies_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrTypes.h"
@@ -25,9 +26,12 @@ class GrYUVATextureProxies {
 public:
     GrYUVATextureProxies() = default;
 
-    /** Assumes all planes are sampled with a default "rgba" swizzle. */
+    /**
+     * Assumes all planes are sampled with a default "rgba" swizzle.
+     * The first numPlanes() entries of 'proxies' are detached (moved from).
+     */
     GrYUVATextureProxies(const SkYUVAInfo&,
-                         sk_sp<GrSurfaceProxy>[SkYUVAInfo::kMaxPlanes],
+                         SkSpan<sk_sp<GrSurfaceProxy>, SkYUVAInfo::kMaxPlanes> proxies,
                          GrSurfaceOrigin textureOrigin);
 
     /**
@@ -35,10 +39,11 @@ public:
      * pixmaps' channels are swizzled into the texture during upload. This will compute a swizzle
      * for each texture based on the original color types and the views' swizzles. The views must
      * all have the same origin or the result will be an invalid GrYUVATextureProxies.
+     * The first numPlanes() entries of 'views' proxies are detached (moved from).
      */
     GrYUVATextureProxies(const SkYUVAInfo&,
-                         GrSurfaceProxyView[SkYUVAInfo::kMaxPlanes],
-                         GrColorType[SkYUVAInfo::kMaxPlanes]);
+                         SkSpan<GrSurfaceProxyView, SkYUVAInfo::kMaxPlanes> views,
+                         SkSpan<const GrColorType, SkYUVAInfo::kMaxPlanes>);
 
     GrYUVATextureProxies(const GrYUVATextureProxies&) = default;
     GrYUVATextureProxies(GrYUVATextureProxies&&) = default;

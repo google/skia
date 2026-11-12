@@ -18,12 +18,16 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSpan.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/core/SkYUVAInfo.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
+#include "include/gpu/ganesh/GrYUVABackendTextures.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkTArray.h"
 #include "include/private/chromium/GrDeferredDisplayListRecorder.h"
@@ -39,6 +43,7 @@
 #include "tools/gpu/ContextType.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
+#include <array>
 #include <cstddef>
 #include <functional>
 #include <utility>
@@ -450,4 +455,94 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
     // We should only call each callback once and we should have made all the calls by this point.
     REPORTER_ASSERT(reporter, counts.fFulfillCount == 1);
     REPORTER_ASSERT(reporter, counts.fReleaseCount == 1);
+}
+
+namespace {
+struct YUVAPlaneReleaseCounter {
+    int fReleaseCount = 0;
+
+    static sk_sp<GrPromiseImageTexture> Fulfill(void*) { return nullptr; }
+    static void Release(void* self) {
+        static_cast<YUVAPlaneReleaseCounter*>(self)->fReleaseCount++;
+    }
+};
+}  // namespace
+
+// Exercises both the SkSpan overload and the deprecated pointer overload of
+// SkImages::PromiseTextureFromYUVA. Each must create an image from a valid three-plane info and
+// call the release proc exactly once per plane context when the never-drawn image is destroyed.
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageYUVAOverloads,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
+    auto dContext = ctxInfo.directContext();
+
+    const GrBackendFormat planeFormat =
+            dContext->defaultBackendFormat(kAlpha_8_SkColorType, GrRenderable::kNo);
+    if (!planeFormat.isValid()) {
+        return;
+    }
+    const SkYUVAInfo yuvaInfo({4, 4},
+                              SkYUVAInfo::PlaneConfig::kY_U_V,
+                              SkYUVAInfo::Subsampling::k420,
+                              kJPEG_Full_SkYUVColorSpace);
+    const std::array<GrBackendFormat, SkYUVAInfo::kMaxPlanes> planeFormats = {
+            planeFormat, planeFormat, planeFormat};
+    const GrYUVABackendTextureInfo backendInfo(
+            yuvaInfo, planeFormats.data(), skgpu::Mipmapped::kNo, kTopLeft_GrSurfaceOrigin);
+    REPORTER_ASSERT(reporter, backendInfo.isValid());
+    constexpr int kNumPlanes = 3;
+    REPORTER_ASSERT(reporter, backendInfo.numPlanes() == kNumPlanes);
+
+    auto check_overload = [&](const char* name, auto&& makeImage) {
+        skiatest::ReporterContext subtest(reporter, SkString(name));
+        std::array<YUVAPlaneReleaseCounter, kNumPlanes> counters;
+        std::array<SkImages::PromiseImageTextureContext, kNumPlanes> contexts = {
+                &counters[0], &counters[1], &counters[2]};
+
+        sk_sp<SkImage> image = makeImage(contexts);
+        REPORTER_ASSERT(reporter, image);
+        for (const YUVAPlaneReleaseCounter& counter : counters) {
+            REPORTER_ASSERT(reporter, counter.fReleaseCount == 0);
+        }
+        image.reset();
+        for (const YUVAPlaneReleaseCounter& counter : counters) {
+            REPORTER_ASSERT(reporter, counter.fReleaseCount == 1);
+        }
+    };
+
+    check_overload("SkSpan overload",
+                   [&](std::array<SkImages::PromiseImageTextureContext, kNumPlanes>& c) {
+                       return SkImages::PromiseTextureFromYUVA(
+                               dContext->threadSafeProxy(),
+                               backendInfo,
+                               /*imageColorSpace=*/nullptr,
+                               YUVAPlaneReleaseCounter::Fulfill,
+                               YUVAPlaneReleaseCounter::Release,
+                               SkSpan<const SkImages::PromiseImageTextureContext>(c));
+                   });
+
+    check_overload("pointer overload",
+                   [&](std::array<SkImages::PromiseImageTextureContext, kNumPlanes>& c) {
+                       return SkImages::PromiseTextureFromYUVA(dContext->threadSafeProxy(),
+                                                               backendInfo,
+                                                               /*imageColorSpace=*/nullptr,
+                                                               YUVAPlaneReleaseCounter::Fulfill,
+                                                               YUVAPlaneReleaseCounter::Release,
+                                                               c.data());
+                   });
+
+    // The pointer overload validates the info before wrapping textureContexts in an SkSpan, so an
+    // invalid info with null contexts returns nullptr instead of tripping SkSpan's release-assert.
+    {
+        skiatest::ReporterContext subtest(reporter, SkString("pointer overload, invalid info"));
+        sk_sp<SkImage> image = SkImages::PromiseTextureFromYUVA(
+                dContext->threadSafeProxy(),
+                GrYUVABackendTextureInfo(),
+                /*imageColorSpace=*/nullptr,
+                YUVAPlaneReleaseCounter::Fulfill,
+                YUVAPlaneReleaseCounter::Release,
+                static_cast<SkImages::PromiseImageTextureContext*>(nullptr));
+        REPORTER_ASSERT(reporter, !image);
+    }
 }

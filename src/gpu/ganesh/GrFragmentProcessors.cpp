@@ -618,7 +618,7 @@ static bool needs_subset(sk_sp<const SkImage> img, const SkRect& subset) {
 static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkImageShader* shader,
                                                            const GrFPArgs& args,
                                                            const SkShaders::MatrixRec& mRec) {
-    SkTileMode tileModes[2] = {shader->tileModeX(), shader->tileModeY()};
+    std::pair tileModes{shader->tileModeX(), shader->tileModeY()};
     const SkRect shaderSubset = shader->subset();
     const SkRect* subset = needs_subset(shader->image(), shaderSubset) ? &shaderSubset : nullptr;
     auto fp = skgpu::ganesh::AsFragmentProcessor(

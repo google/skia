@@ -17,6 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/gpu/GpuTypes.h"
@@ -28,6 +29,7 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/GrYUVABackendTextures.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/chromium/SkImageChromium.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/private/gpu/ganesh/GrTextureGenerator.h"
@@ -508,7 +510,7 @@ sk_sp<SkImage> TextureFromYUVATextures(GrRecordingContext* context,
         }
     }
     GrYUVATextureProxies yuvaProxies(
-            yuvaTextures.yuvaInfo(), proxies.data(), yuvaTextures.textureOrigin());
+            yuvaTextures.yuvaInfo(), proxies, yuvaTextures.textureOrigin());
 
     if (!yuvaProxies.isValid()) {
         return nullptr;
@@ -590,8 +592,7 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(GrRecordingContext* context,
         }
     }
 
-    GrYUVATextureProxies yuvaProxies(pixmapsToUpload->yuvaInfo(), views.data(),
-                                     pixmapColorTypes.data());
+    GrYUVATextureProxies yuvaProxies(pixmapsToUpload->yuvaInfo(), views, pixmapColorTypes);
     SkASSERT(yuvaProxies.isValid());
     return sk_make_sp<SkImage_GaneshYUVA>(sk_ref_sp(context),
                                           kNeedNewImageUniqueID,
@@ -604,20 +605,21 @@ sk_sp<SkImage> PromiseTextureFromYUVA(sk_sp<GrContextThreadSafeProxy> threadSafe
                                       sk_sp<SkColorSpace> imageColorSpace,
                                       PromiseImageTextureFulfillProc textureFulfillProc,
                                       PromiseImageTextureReleaseProc textureReleaseProc,
-                                      PromiseImageTextureContext textureContexts[]) {
+                                      SkSpan<const PromiseImageTextureContext> textureContexts) {
     if (!backendTextureInfo.isValid()) {
         return nullptr;
     }
 
     SkISize planeDimensions[SkYUVAInfo::kMaxPlanes];
     int n = backendTextureInfo.yuvaInfo().planeDimensions(planeDimensions);
+    SkSpan<const PromiseImageTextureContext> contexts = textureContexts.first(n);
 
     // Our contract is that we will always call the release proc even on failure.
     // We use the helper to convey the context, so we need to ensure make doesn't fail.
     textureReleaseProc = textureReleaseProc ? textureReleaseProc : [](void*) {};
     std::array<sk_sp<skgpu::RefCntedCallback>, 4> releaseHelpers;
     for (int i = 0; i < n; ++i) {
-        releaseHelpers[i] = skgpu::RefCntedCallback::Make(textureReleaseProc, textureContexts[i]);
+        releaseHelpers[i] = skgpu::RefCntedCallback::Make(textureReleaseProc, contexts[i]);
     }
 
     if (!threadSafeProxy) {
@@ -648,13 +650,37 @@ sk_sp<SkImage> PromiseTextureFromYUVA(sk_sp<GrContextThreadSafeProxy> threadSafe
         }
     }
     GrYUVATextureProxies yuvaTextureProxies(
-            backendTextureInfo.yuvaInfo(), proxies.data(), backendTextureInfo.textureOrigin());
+            backendTextureInfo.yuvaInfo(), proxies, backendTextureInfo.textureOrigin());
     SkASSERT(yuvaTextureProxies.isValid());
     sk_sp<GrImageContext> ctx(GrImageContextPriv::MakeForPromiseImage(std::move(threadSafeProxy)));
     return sk_make_sp<SkImage_GaneshYUVA>(std::move(ctx),
                                           kNeedNewImageUniqueID,
                                           std::move(yuvaTextureProxies),
                                           std::move(imageColorSpace));
+}
+
+sk_sp<SkImage> PromiseTextureFromYUVA(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
+                                      const GrYUVABackendTextureInfo& backendTextureInfo,
+                                      sk_sp<SkColorSpace> imageColorSpace,
+                                      PromiseImageTextureFulfillProc textureFulfillProc,
+                                      PromiseImageTextureReleaseProc textureReleaseProc,
+                                      PromiseImageTextureContext textureContexts[]) {
+    // Checked before building the span so an invalid info with a null textureContexts still
+    // returns nullptr rather than tripping SkSpan's (nullptr, n>0) release-assert.
+    if (!backendTextureInfo.isValid()) {
+        return nullptr;
+    }
+    // TODO(crbug.com/582862856): Remove once clients migrate to the SkSpan overload. The caller
+    // guarantees (see PRECONDITIONS in SkImageChromium.h) that textureContexts points to at
+    // least numPlanes() elements.
+    SkSpan<const PromiseImageTextureContext> contexts =
+            SK_UNSAFE_TODO(SkSpan(textureContexts, size_t(backendTextureInfo.numPlanes())));
+    return PromiseTextureFromYUVA(std::move(threadSafeProxy),
+                                  backendTextureInfo,
+                                  std::move(imageColorSpace),
+                                  textureFulfillProc,
+                                  textureReleaseProc,
+                                  contexts);
 }
 
 }  // namespace SkImages

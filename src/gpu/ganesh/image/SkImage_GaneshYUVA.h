@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <memory>
 #include <tuple>
+#include <utility>
 
 class GrDirectContext;
 class GrFragmentProcessor;
@@ -86,7 +87,7 @@ public:
 
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(skgpu::ganesh::SurfaceDrawContext*,
                                                              SkSamplingOptions,
-                                                             const SkTileMode[2],
+                                                             std::pair<SkTileMode, SkTileMode>,
                                                              const SkMatrix&,
                                                              const SkRect*,
                                                              const SkRect*) const override;
