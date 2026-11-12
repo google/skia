@@ -98,12 +98,7 @@ void GrDDLTask::onPrepare(GrOpFlushState* flushState) {
 GrRenderTask::ExecutionResult GrDDLTask::onExecute(GrOpFlushState* flushState) {
     ExecutionResult result;
     for (auto& task : fDDL->priv().renderTasks()) {
-        ExecutionResult taskResult = task->execute(flushState);
-        result.accum(taskResult);
-        if (!taskResult.fAllTasksSuccessful) {
-            // Stop at the first failure (matching GrDrawingManager::executeRenderTasks).
-            break;
-        }
+        result.accum(task->execute(flushState));
     }
 
     return result;

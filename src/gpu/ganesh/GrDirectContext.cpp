@@ -225,10 +225,6 @@ void GrDirectContext::freeGpuResources() {
 
     // TODO: bubble this error up to the client
     (void) this->flushAndSubmit();
-    if (this->abandoned()) { // flushAndSubmit can abandon the context
-        return;
-    }
-
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     if (fSmallPathAtlasMgr) {
         fSmallPathAtlasMgr->reset();

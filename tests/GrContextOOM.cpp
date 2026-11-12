@@ -27,17 +27,18 @@ DEF_GANESH_TEST(GrContext_oomed, reporter, originalOptions, CtsEnforcement::kApi
     GrContextOptions options = originalOptions;
     options.fRandomGLOOM = true;
     options.fSkipGLErrorChecks = GrContextOptions::Enable::kNo;
+    sk_gpu_test::GrContextFactory factory(options);
     for (int ct = 0; ct < skgpu::kContextTypeCount; ++ct) {
         auto contextType = static_cast<skgpu::ContextType>(ct);
+        auto context = factory.get(contextType);
+        if (!context) {
+            continue;
+        }
+        if (context->backend() != GrBackendApi::kOpenGL) {
+            continue;
+        }
         auto info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
         for (int run = 0; run < 20; ++run) {
-            // An OOM that causes a flush to fail abandons the context, so each run uses a fresh
-            // context.
-            sk_gpu_test::GrContextFactory factory(options);
-            auto context = factory.get(contextType);
-            if (!context || context->backend() != GrBackendApi::kOpenGL) {
-                break;
-            }
             bool oomed = false;
             for (int i = 0; i < 500; ++i) {
                 // Make sure we're actually making a significant number of GL calls and not just
@@ -51,10 +52,6 @@ DEF_GANESH_TEST(GrContext_oomed, reporter, originalOptions, CtsEnforcement::kApi
                 context->flushAndSubmit(surf.get(), GrSyncCpu::kNo);
                 if ((oomed = context->oomed())) {
                     REPORTER_ASSERT(reporter, !context->oomed(), "oomed() wasn't cleared");
-                    break;
-                }
-                if (context->abandoned()) {
-                    // A failed flush abandons the context so it can't be used any further.
                     break;
                 }
             }

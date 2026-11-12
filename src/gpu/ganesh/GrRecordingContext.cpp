@@ -158,9 +158,6 @@ const GrThreadSafeCache* GrRecordingContext::threadSafeCache() const {
 }
 
 void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
-    if (this->abandoned()) {
-        return;
-    }
     this->drawingManager()->addOnFlushCallbackObject(onFlushCBObject);
 }
 

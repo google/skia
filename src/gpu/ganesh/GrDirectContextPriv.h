@@ -193,8 +193,6 @@ public:
     sk_sp<SkImage> testingOnly_getFontAtlasImage(skgpu::MaskFormat format, unsigned int index = 0);
 
     void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
-    // No-op if the context has been abandoned (e.g., by a failed flush).
-    void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif
 
 private:

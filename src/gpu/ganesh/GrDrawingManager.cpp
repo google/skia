@@ -106,9 +106,7 @@ GrDirectContext::FlushResult GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> pro
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
         }
-        if (info.fFinishedWithStatsProc) {
-            info.fFinishedWithStatsProc(info.fFinishedContext, skgpu::GpuStats());
-        } else if (info.fFinishedProc) {
+        if (info.fFinishedProc) {
             info.fFinishedProc(info.fFinishedContext);
         }
         return {false, GrSemaphoresSubmitted::kNo};
@@ -229,36 +227,7 @@ GrDirectContext::FlushResult GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> pro
         fContext->priv().threadSafeCache()->dropUniqueRefs(/*resourceCache=*/nullptr);
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
             onFlushCBObject->onFlushFailed();
-            onFlushCBObject->postFlush(fTokenTracker.nextFlushToken());
         }
-        fFlushing = false;
-
-        if (timerQuery) {
-            gpu->endTimerQuery(*timerQuery);
-        }
-
-        // An error during the flush is treated as fatal: rendering has already stopped at the
-        // first failure (see executeRenderTasks) and we now abandon the context rather than
-        // continue with a partially rendered (and potentially inconsistent) set of surfaces.
-        // None of the flush info's requests (semaphores, surface state changes, timer query) are
-        // honored, so the gpu's executeFlushInfo is skipped entirely.
-        //
-        // NOTE: abandoning the context destroys this GrDrawingManager. 'this' (including any
-        // member variable) must not be accessed after this call.
-        flushState.abandon();
-        dContext->abandonContext();
-
-        // Notify the client last, after the context has been abandoned, so that the callbacks
-        // observe the abandoned state. 'info' is owned by the caller and is still valid here.
-        if (info.fSubmittedProc) {
-            info.fSubmittedProc(info.fSubmittedContext, false);
-        }
-        if (info.fFinishedWithStatsProc) {
-            info.fFinishedWithStatsProc(info.fFinishedContext, skgpu::GpuStats());
-        } else if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
-        return {false, GrSemaphoresSubmitted::kNo};
     }
 
     GrDirectContext::FlushResult flushResult = gpu->executeFlushInfo(proxies, access, info,
@@ -279,9 +248,7 @@ GrDirectContext::FlushResult GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> pro
         resourceCache->purgeAsNeeded();
     }
     fFlushing = false;
-    // Any rendering failure has already returned above, so only the flush info's result matters.
-    SkASSERT(executionResult.fAllTasksSuccessful);
-    return flushResult;
+    return {executionResult.fAllTasksSuccessful && flushResult.fSuccess, flushResult.fSubmitted};
 }
 
 bool GrDrawingManager::submitToGpu() {
@@ -344,15 +311,7 @@ GrRenderTask::ExecutionResult GrDrawingManager::executeRenderTasks(GrOpFlushStat
             continue;
         }
 
-        GrRenderTask::ExecutionResult taskResult = renderTask->execute(flushState);
-        result.accum(taskResult);
-        if (!taskResult.fAllTasksSuccessful) {
-            // Stop rendering at the first failure. The remaining tasks may depend on this task's
-            // output so executing them would only produce incorrect results. The caller (flush)
-            // will abandon the context.
-            flushState->abort();
-            break;
-        }
+        result.accum(renderTask->execute(flushState));
 
         if (++numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush ||
             flushState->gpu()->getCurrentSubmitRenderPassCount() >= kMaxRenderPassesBeforeFlush) {
@@ -609,11 +568,6 @@ GrDirectContext::FlushResult GrDrawingManager::flushSurfaces(
     // portion of the DAG required by 'proxies' in order to restore some of the
     // semantics of this method.
     GrDirectContext::FlushResult result = this->flush(proxies, access, info, newState);
-    if (direct->abandoned()) {
-        // A failed flush abandons the context, which destroys this GrDrawingManager. 'this' must
-        // not be accessed in that case.
-        return result;
-    }
     if (result.fSuccess) {
         // Only resolve/regen mips if the flush actually executed the render tasks.
         for (GrSurfaceProxy* proxy : proxies) {

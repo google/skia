@@ -155,23 +155,19 @@ sk_sp<SkImage> TextureFromAHardwareBufferWithData(GrDirectContext* dContext,
         return nullptr;
     }
 
-    if (dContext->abandoned()) {
+    GrDrawingManager* drawingManager = dContext->priv().drawingManager();
+    if (!drawingManager) {
         return nullptr;
     }
 
     skgpu::ganesh::SurfaceContext surfaceContext(
             dContext, std::move(framebufferView), image->imageInfo().colorInfo());
 
-    if (!surfaceContext.writePixels(dContext, pixmap, {0, 0})) {
-        return nullptr;
-    }
+    surfaceContext.writePixels(dContext, pixmap, {0, 0});
 
-
-    GrDirectContext::FlushResult result = dContext->priv().flushSurface(
-            surfaceContext.asSurfaceProxy(),
-            SkSurfaces::BackendSurfaceAccess::kNoAccess,
-            {},
-            nullptr);
+    GrSurfaceProxy* p[1] = {surfaceContext.asSurfaceProxy()};
+    GrDirectContext::FlushResult result = drawingManager->flush(
+        p, SkSurfaces::BackendSurfaceAccess::kNoAccess, {}, nullptr);
     if (!result.fSuccess) {
         return nullptr;
     }
