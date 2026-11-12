@@ -113,7 +113,7 @@ private:
 
     // If using an index buffer, this gets set during onBindBuffers. It is either the CPU address of
     // the indices, or nullptr if they reside physically in GPU memory.
-    raw_ptr<const uint16_t, AllowPtrArithmetic> fIndexPointer;
+    raw_ptr<const uint16_t, DanglingUntriaged | AllowPtrArithmetic> fIndexPointer;
 
     // This tracks whether or not we bound the respective buffers during the bindBuffers call.
     SkDEBUGCODE(bool fDidBindVertexBuffer = false;)
