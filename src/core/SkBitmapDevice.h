@@ -11,6 +11,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkRasterHandleAllocator.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
@@ -18,6 +19,7 @@
 #include "src/core/SkDevice.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkRasterClipStack.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 class SkBlender;
 class SkImage;
@@ -28,7 +30,6 @@ class SkPaint;
 class SkPath;
 class SkPixmap;
 class SkRRect;
-class SkRasterHandleAllocator;
 class SkRecorder;
 class SkRegion;
 class SkShader;
@@ -157,7 +158,9 @@ private:
                     const SkPaint&,
                     sk_sp<SkMipmap>);
 
-    void* fRasterHandle = nullptr;
+    // RAW_PTR_EXCLUSION: Handle is an opaque client token (e.g. a Windows GDI HDC), not
+    // necessarily a heap pointer.
+    RAW_PTR_EXCLUSION SkRasterHandleAllocator::Handle fRasterHandle = nullptr;
     skcpu::Recorder* fRecorder = nullptr;
     SkBitmap fBitmap;
     SkRasterClipStack fRCStack;
