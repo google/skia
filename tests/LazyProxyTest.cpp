@@ -106,9 +106,10 @@ public:
             func(fProxy.get(), skgpu::Mipmapped::kNo);
         }
 
-        void onExecute(GrOpFlushState*, const SkRect& chainBounds) override {
+        bool onExecute(GrOpFlushState*, const SkRect& chainBounds) override {
             REPORTER_ASSERT(fTest->fReporter, fTest->fHasOpTexture);
             REPORTER_ASSERT(fTest->fReporter, fTest->fHasClipTexture);
+            return true;
         }
 
     private:
@@ -163,7 +164,7 @@ public:
                           GrXferBarrierFlags renderPassXferBarriers,
                           GrLoadOp colorLoadOp) override {}
 
-        void onPrepare(GrOpFlushState*) override {}
+        bool onPrepare(GrOpFlushState*) override { return true; }
 
         LazyProxyTest* const fTest;
         sk_sp<GrTextureProxy> fProxy;
@@ -450,9 +451,10 @@ private:
                       const GrDstProxyView&,
                       GrXferBarrierFlags renderPassXferBarriers,
                       GrLoadOp colorLoadOp) override {}
-    void onPrepare(GrOpFlushState*) override {}
-    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
+    bool onPrepare(GrOpFlushState*) override { return true; }
+    bool onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
         *fTestExecuteValue = 2;
+        return true;
     }
 
     int* fTestExecuteValue;

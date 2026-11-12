@@ -17,6 +17,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkLog.h"
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
@@ -700,8 +701,8 @@ private:
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override;
 
-    void onPrepareDraws(GrMeshDrawTarget*) override;
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+    bool onPrepareDraws(GrMeshDrawTarget*) override;
+    bool onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 #if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override;
 #endif
@@ -1119,7 +1120,7 @@ void MeshOp::onCreateProgramInfo(const GrCaps* caps,
                                              colorLoadOp);
 }
 
-void MeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
+bool MeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
     size_t vertexStride = fSpecification->stride();
     sk_sp<const GrBuffer> vertexBuffer;
     int firstVertex;
@@ -1131,8 +1132,8 @@ void MeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
                                                              &vertexBuffer,
                                                              &firstVertex);
         if (!verts) SK_UNLIKELY {
-            SkDebugf("Could not allocate vertices.\n");
-            return;
+            SKIA_LOG_E("Could not allocate vertices");
+            return false;
         }
 
         bool transform = fViewMatrix == SkMatrix::InvalidMatrix();
@@ -1153,8 +1154,8 @@ void MeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
         uint16_t* indices = nullptr;
         indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) SK_UNLIKELY {
-            SkDebugf("Could not allocate indices.\n");
-            return;
+            SKIA_LOG_E("Could not allocate indices");
+            return false;
         }
         // We can just copy the first mesh's indices. Subsequent meshes need their indices adjusted.
         std::copy_n(fMeshes[0].indices(), fMeshes[0].indexCount(), indices);
@@ -1189,15 +1190,18 @@ void MeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
     } else {
         fMesh->set(std::move(vertexBuffer), fVertexCount, firstVertex);
     }
+    return true;
 }
 
-void MeshOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+bool MeshOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    if (!fMesh) {
+        return true;
+    }
     if (!fProgramInfo) {
         this->createProgramInfo(flushState);
-    }
-
-    if (!fProgramInfo || !fMesh) {
-        return;
+        if (!fProgramInfo) {
+            return false;
+        }
     }
 
     TArray<GrSurfaceProxy*> geomProcTextures;
@@ -1213,7 +1217,7 @@ void MeshOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     flushState->bindTextures(fProgramInfo->geomProc(),
                              geomProcTextures.data(),
                              fProgramInfo->pipeline());
-    flushState->drawMesh(*fMesh);
+    return flushState->drawMesh(*fMesh);
 }
 
 GrOp::CombineResult MeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {

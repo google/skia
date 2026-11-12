@@ -46,12 +46,17 @@ GrThreadSafeCache* GrOpFlushState::threadSafeCache() const {
     return fGpu->getContext()->priv().threadSafeCache();
 }
 
-void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
-        const GrOp* op, const SkRect& chainBounds, const GrPipeline* pipeline,
+bool GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
+        const GrOp* op,
+        const SkRect& chainBounds,
+        const GrPipeline* pipeline,
         const GrUserStencilSettings* userStencilSettings) {
     SkASSERT(this->opsRenderPass());
 
-    while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {
+    // Once a draw fails, subsequent draws and uploads for this op are skipped and the error
+    // is bubbled up the stack.
+    bool result = true;
+    while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op && result) {
         skgpu::Token drawToken = fTokenTracker->nextFlushToken();
 
         bool drawUploadFailure = false;
@@ -66,11 +71,12 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
         }
 
         // If not all of the uploads succeeded, do not attempt to execute the draw and relevant
-        // preparations. Continue on to the next draw operation.
+        // preparations (or subsequent tasks) and instead bubble the error up the stack.
         // fDeferredUploadFailed covers ASAP and inline upload failures: draws in such a flush
         // may sample texture regions that were never written, so they are skipped.
         if (drawUploadFailure || fDeferredUploadFailed) {
             fGpu->stats()->incNumFailedDraws();
+            result = false;
         } else {
             GrProgramInfo programInfo(this->caps(),
                                       this->writeView(),
@@ -86,13 +92,18 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
             this->bindTextures(programInfo.geomProc(), fCurrDraw->fGeomProcProxies,
                             programInfo.pipeline());
             for (int i = 0; i < fCurrDraw->fMeshCnt; ++i) {
-                this->drawMesh(fCurrDraw->fMeshes[i]);
+                if (!this->drawMesh(fCurrDraw->fMeshes[i])) {
+                    result = false;
+                    break;
+                }
             }
         }
 
         fTokenTracker->issueFlushToken();
         ++fCurrDraw;
     }
+
+    return result;
 }
 
 bool GrOpFlushState::preExecuteDraws() {
@@ -105,6 +116,7 @@ bool GrOpFlushState::preExecuteDraws() {
     for (auto& upload : fASAPUploads) {
         if (!this->doUpload(upload)) {
             fDeferredUploadFailed = true;
+            return false;
         }
     }
     // Setup execution iterators.
@@ -279,20 +291,25 @@ skgpu::ganesh::SmallPathAtlasMgr* GrOpFlushState::smallPathAtlasManager() const 
 }
 #endif
 
-void GrOpFlushState::drawMesh(const GrSimpleMesh& mesh) {
+bool GrOpFlushState::drawMesh(const GrSimpleMesh& mesh) {
     SkASSERT(mesh.fIsInitialized);
     if (!mesh.fIndexBuffer) {
         this->bindBuffers(nullptr, nullptr, mesh.fVertexBuffer);
-        this->draw(mesh.fVertexCount, mesh.fBaseVertex);
+        return this->draw(mesh.fVertexCount, mesh.fBaseVertex);
     } else {
         this->bindBuffers(mesh.fIndexBuffer, nullptr, mesh.fVertexBuffer, mesh.fPrimitiveRestart);
         if (0 == mesh.fPatternRepeatCount) {
-            this->drawIndexed(mesh.fIndexCount, mesh.fBaseIndex, mesh.fMinIndexValue,
-                              mesh.fMaxIndexValue, mesh.fBaseVertex);
+            return this->drawIndexed(mesh.fIndexCount,
+                                     mesh.fBaseIndex,
+                                     mesh.fMinIndexValue,
+                                     mesh.fMaxIndexValue,
+                                     mesh.fBaseVertex);
         } else {
-            this->drawIndexPattern(mesh.fIndexCount, mesh.fPatternRepeatCount,
-                                   mesh.fMaxPatternRepetitionsInIndexBuffer, mesh.fVertexCount,
-                                   mesh.fBaseVertex);
+            return this->drawIndexPattern(mesh.fIndexCount,
+                                          mesh.fPatternRepeatCount,
+                                          mesh.fMaxPatternRepetitionsInIndexBuffer,
+                                          mesh.fVertexCount,
+                                          mesh.fBaseVertex);
         }
     }
 }

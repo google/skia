@@ -254,14 +254,14 @@ void PathStencilCoverOp::onPrePrepare(GrRecordingContext* context,
 
 SKGPU_DECLARE_STATIC_UNIQUE_KEY(gUnitQuadBufferKey);
 
-void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
+bool PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
     if (!fTessellator) {
         this->prePreparePrograms({flushState->allocator(), flushState->writeView(),
                                  flushState->usesMSAASurface(), &flushState->dstProxyView(),
                                  flushState->renderPassBarriers(), flushState->colorLoadOp(),
                                  &flushState->caps()}, flushState->detachAppliedClip());
         if (!fTessellator) {
-            return;
+            return false;
         }
     }
 
@@ -280,8 +280,8 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         // divide-by-3. Anything that large is a pathologic input that will likely OOM anyways, so
         // dropping at 1/4 of int max vs. 1/3 of int max doesn't matter.
         if ((std::numeric_limits<int>::max() >> 2) < maxTrianglesInFans) SK_UNLIKELY {
-            SKIA_LOG_W("Excessive triangle count, dropping draw: %d", maxTrianglesInFans);
-            return;
+            SKIA_LOG_E("Excessive triangle count: %d", maxTrianglesInFans);
+            return false;
         }
         int fanTriangleCount = 0;
         if (VertexWriter triangleVertexWriter =
@@ -300,14 +300,18 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
             SkASSERT(fanTriangleCount <= maxTrianglesInFans);
             fFanVertexCount = fanTriangleCount * 3;
             vertexAlloc.unlock(fFanVertexCount);
+        } else if (maxTrianglesInFans > 0) SK_UNLIKELY {
+            SKIA_LOG_E("Could not allocate fan vertices");
+            return false;
         }
     }
 
     auto tessShader = &fStencilPathProgram->geomProc().cast<GrPathTessellationShader>();
-    fTessellator->prepare(flushState,
-                          tessShader->viewMatrix(),
-                          *fPathDrawList,
-                          fTotalCombinedPathVerbCnt);
+    if (!fTessellator->prepare(
+                flushState, tessShader->viewMatrix(), *fPathDrawList, fTotalCombinedPathVerbCnt)) {
+        SKIA_LOG_E("Could not prepare tessellator");
+        return false;
+    }
 
     if (fCoverBBoxProgram) {
         size_t instanceStride = fCoverBBoxProgram->geomProc().instanceStride();
@@ -316,8 +320,8 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
                                                                  &fBBoxBuffer,
                                                                  &fBBoxBaseInstance);
         if (!vertexWriter) SK_UNLIKELY {
-            SKIA_LOG_W("Could not allocate vertices");
-            return;
+            SKIA_LOG_E("Could not allocate vertices");
+            return false;
         }
         SkDEBUGCODE(int pathCount = 0;)
         for (auto [pathMatrix, path, color] : *fPathDrawList) {
@@ -357,17 +361,18 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         fBBoxVertexBufferIfNoIDSupport = flushState->resourceProvider()->findOrMakeStaticBuffer(
                 GrGpuBufferType::kVertex, sizeof(kUnitQuad), kUnitQuad, gUnitQuadBufferKey);
     }
+    return true;
 }
 
-void PathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+bool PathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fTessellator) {
-        return;
+        return false;
     }
 
     if (fCoverBBoxProgram &&
         fCoverBBoxProgram->geomProc().hasVertexAttributes() &&
         !fBBoxVertexBufferIfNoIDSupport) {
-        return;
+        return false;
     }
 
     // Stencil the inner fan, if any.
@@ -376,13 +381,17 @@ void PathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
         SkASSERT(fFanBuffer);
         flushState->bindPipelineAndScissorClip(*fStencilFanProgram, this->bounds());
         flushState->bindBuffers(nullptr, nullptr, fFanBuffer);
-        flushState->draw(fFanVertexCount, fFanBaseVertex);
+        if (!flushState->draw(fFanVertexCount, fFanBaseVertex)) {
+            return false;
+        }
     }
 
     // Stencil the rest of the path.
     SkASSERT(fStencilPathProgram);
     flushState->bindPipelineAndScissorClip(*fStencilPathProgram, this->bounds());
-    fTessellator->draw(flushState);
+    if (!fTessellator->draw(flushState)) {
+        return false;
+    }
 
     // Fill in the bounding box (if not in stencil-only mode).
     if (fCoverBBoxProgram) {
@@ -390,8 +399,12 @@ void PathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
         flushState->bindTextures(fCoverBBoxProgram->geomProc(), nullptr,
                                  fCoverBBoxProgram->pipeline());
         flushState->bindBuffers(nullptr, fBBoxBuffer, fBBoxVertexBufferIfNoIDSupport);
-        flushState->drawInstanced(fPathCount, fBBoxBaseInstance, 4, 0);
+        if (!flushState->drawInstanced(fPathCount, fBBoxBaseInstance, 4, 0)) {
+            return false;
+        }
     }
+
+    return true;
 }
 
 }  // namespace skgpu::ganesh

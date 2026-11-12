@@ -8,6 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/mock/GrMockTypes.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -141,10 +142,11 @@ DEF_PATH_TESS_BENCH(GrPathCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
                                   skgpu::Swizzle::RGBA());
     auto tess = PathCurveTessellator::Make(&arena,
                                            fTarget->caps().shaderCaps()->fInfinitySupport);
-    tess->prepare(fTarget.get(),
-                  fMatrix,
-                  {gAlmostIdentity, fPath, SK_PMColor4fTRANSPARENT},
-                  fPath.countVerbs());
+    bool result = tess->prepare(fTarget.get(),
+                                fMatrix,
+                                {gAlmostIdentity, fPath, SK_PMColor4fTRANSPARENT},
+                                fPath.countVerbs());
+    SkASSERT_RELEASE(result);
 }
 
 DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
@@ -153,10 +155,11 @@ DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
                                   skgpu::Swizzle::RGBA());
     auto tess = PathWedgeTessellator::Make(&arena,
                                            fTarget->caps().shaderCaps()->fInfinitySupport);
-    tess->prepare(fTarget.get(),
-                  fMatrix,
-                  {gAlmostIdentity, fPath, SK_PMColor4fTRANSPARENT},
-                  fPath.countVerbs());
+    bool result = tess->prepare(fTarget.get(),
+                                fMatrix,
+                                {gAlmostIdentity, fPath, SK_PMColor4fTRANSPARENT},
+                                fPath.countVerbs());
+    SkASSERT_RELEASE(result);
 }
 
 static void benchmark_wangs_formula_cubic_log2(const SkMatrix& matrix, const SkPath& path) {
@@ -349,10 +352,11 @@ private:
 
     void onDraw(int loops, SkCanvas*) final {
         for (int i = 0; i < loops; ++i) {
-            fTessellator->prepare(fTarget.get(),
-                                  SkMatrix::Scale(fMatrixScale, fMatrixScale),
-                                  fPathStrokes.data(),
-                                  fTotalVerbCount);
+            bool result = fTessellator->prepare(fTarget.get(),
+                                                SkMatrix::Scale(fMatrixScale, fMatrixScale),
+                                                fPathStrokes.data(),
+                                                fTotalVerbCount);
+            SkASSERT_RELEASE(result);
             fTarget->resetAllocator();
         }
     }

@@ -168,12 +168,13 @@ private:
                       GrXferBarrierFlags renderPassXferBarriers,
                       GrLoadOp colorLoadOp) override {}
 
-    void onPrepare(GrOpFlushState*) override {}
+    bool onPrepare(GrOpFlushState*) override { return true; }
 
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override {
+    bool onExecute(GrOpFlushState*, const SkRect& chainBounds) override {
         for (auto& op : ChainRange<TestOp>(this)) {
             op.writeResult(fResult);
         }
+        return true;
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc* arenas, const GrCaps&) override {
@@ -287,8 +288,9 @@ DEF_GANESH_TEST(OpChainTest, reporter, /*ctxInfo*/, CtsEnforcement::kApiLevel_T)
                                   *caps);
                 }
                 opsTask.makeClosed(dContext.get());
-                opsTask.prepare(&flushState);
-                opsTask.execute(&flushState);
+                REPORTER_ASSERT(reporter, opsTask.prepare(&flushState));
+                GrRenderTask::ExecutionResult exeResult = opsTask.execute(&flushState);
+                REPORTER_ASSERT(reporter, exeResult.fAllTasksSuccessful);
                 opsTask.endFlush(drawingMgr);
                 opsTask.disown(drawingMgr);
 #if 0  // Useful to repeat a random configuration that fails the test while debugger attached.

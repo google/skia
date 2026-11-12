@@ -499,13 +499,12 @@ int QuadLimit(IndexBufferOption option) {
     SkUNREACHABLE;
 }
 
-void IssueDraw(const GrCaps& caps, GrOpsRenderPass* renderPass, const VertexSpec& spec,
+bool IssueDraw(const GrCaps& caps, GrOpsRenderPass* renderPass, const VertexSpec& spec,
                int runningQuadCount, int quadsInDraw, int maxVerts, int absVertBufferOffset) {
     if (spec.indexBufferOption() == IndexBufferOption::kTriStrips) {
         int offset = absVertBufferOffset +
                                     runningQuadCount * GrResourceProvider::NumVertsPerNonAAQuad();
-        renderPass->draw(4, offset);
-        return;
+        return renderPass->draw(4, offset);
     }
 
     SkASSERT(spec.indexBufferOption() == IndexBufferOption::kPictureFramed ||
@@ -533,8 +532,8 @@ void IssueDraw(const GrCaps& caps, GrOpsRenderPass* renderPass, const VertexSpec
         // preferred.
         int offset = absVertBufferOffset + runningQuadCount * numVertsPerQuad;
 
-        renderPass->drawIndexPattern(numIndicesPerQuad, quadsInDraw, maxNumQuads, numVertsPerQuad,
-                                     offset);
+        return renderPass->drawIndexPattern(numIndicesPerQuad, quadsInDraw, maxNumQuads,
+                                            numVertsPerQuad, offset);
     } else {
         int baseIndex = runningQuadCount * numIndicesPerQuad;
         int numIndicesToDraw = quadsInDraw * numIndicesPerQuad;
@@ -542,8 +541,8 @@ void IssueDraw(const GrCaps& caps, GrOpsRenderPass* renderPass, const VertexSpec
         int minVertex = runningQuadCount * numVertsPerQuad;
         int maxVertex = (runningQuadCount + quadsInDraw) * numVertsPerQuad - 1; // inclusive
 
-        renderPass->drawIndexed(numIndicesToDraw, baseIndex, minVertex, maxVertex,
-                                absVertBufferOffset);
+        return renderPass->drawIndexed(numIndicesToDraw, baseIndex, minVertex, maxVertex,
+                                       absVertBufferOffset);
     }
 }
 

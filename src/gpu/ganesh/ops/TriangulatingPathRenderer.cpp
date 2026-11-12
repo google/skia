@@ -209,7 +209,7 @@ public:
     }
 
     sk_sp<GrThreadSafeCache::VertexData> detachVertexData() {
-        SkASSERT(!fLockStride && !fVertices && !fVertexBuffer && fVertexData);
+        SkASSERT(!fLockStride && !fVertices && !fVertexBuffer);
 
         return std::move(fVertexData);
     }
@@ -316,27 +316,31 @@ private:
 
     // Triangulate the provided 'shape' in the shape's coordinate space. 'tol' should already
     // have been mapped back from device space.
-    static int Triangulate(GrEagerVertexAllocator* allocator,
-                           const SkMatrix& viewMatrix,
-                           const GrStyledShape& shape,
-                           const SkIRect& devClipBounds,
-                           SkScalar tol,
-                           bool* isLinear) {
+    [[nodiscard]] static bool Triangulate(GrEagerVertexAllocator* allocator,
+                                          const SkMatrix& viewMatrix,
+                                          const GrStyledShape& shape,
+                                          const SkIRect& devClipBounds,
+                                          SkScalar tol,
+                                          bool* isLinear,
+                                          int* vertexCount) {
         SkRect clipBounds = SkRect::Make(devClipBounds);
 
         SkMatrix vmi;
         if (!viewMatrix.invert(&vmi)) {
-            return 0;
+            *isLinear = true;
+            *vertexCount = 0;
+            return true;
         }
         vmi.mapRect(&clipBounds);
 
         SkASSERT(!shape.style().applies());
         SkPath path = shape.asPath();
 
-        return GrTriangulator::PathToTriangles(path, tol, clipBounds, allocator, isLinear);
+        return GrTriangulator::PathToTriangles(path, tol, clipBounds, allocator, isLinear,
+                                               vertexCount);
     }
 
-    void createNonAAMesh(GrMeshDrawTarget* target) {
+    [[nodiscard]] bool createNonAAMesh(GrMeshDrawTarget* target) {
         SkASSERT(!fAntiAlias);
         GrResourceProvider* rp = target->resourceProvider();
         auto threadSafeCache = target->threadSafeCache();
@@ -361,7 +365,7 @@ private:
                                                              GrGpuBufferType::kVertex,
                                                              kStatic_GrAccessPattern);
                 if (!buffer) {
-                    return;
+                    return false;
                 }
 
                 // Since we have a direct context and a ref on 'fVertexData' we need not worry
@@ -370,20 +374,24 @@ private:
             }
 
             fMesh = CreateMesh(target, fVertexData->refGpuBuffer(), 0, fVertexData->numVertices());
-            return;
+            return true;
         }
 
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(rp, canMapVB);
 
         bool isLinear;
-        int vertexCount = Triangulate(&allocator, fViewMatrix, fShape, fDevClipBounds, tol,
-                                      &isLinear);
-        if (vertexCount == 0) {
-            return;
+        int vertexCount;
+        bool result = Triangulate(&allocator, fViewMatrix, fShape, fDevClipBounds, tol,
+                                  &isLinear, &vertexCount);
+        if (!result) {
+            return false;
         }
 
         fVertexData = allocator.detachVertexData();
+        if (vertexCount == 0) {
+            return true;
+        }
 
         key.setCustomData(create_data(vertexCount, isLinear, tol));
 
@@ -400,29 +408,37 @@ private:
                 sk_make_sp<UniqueKeyInvalidator>(key, target->contextUniqueID()));
         }
 
-        // If buffer upload failed in unlock(), fMesh remains null and the draw is skipped.
+        // If buffer upload failed in unlock(), this draw will fail.
         if (fVertexData->gpuBuffer()) {
             fMesh = CreateMesh(target, fVertexData->refGpuBuffer(), 0, fVertexData->numVertices());
+            return true;
         }
+        return false;
     }
 
-    void createAAMesh(GrMeshDrawTarget* target) {
+    [[nodiscard]] bool createAAMesh(GrMeshDrawTarget* target) {
         SkASSERT(!fVertexData);
         SkASSERT(fAntiAlias);
         SkPath path = this->getPath().makeTransform(fViewMatrix);
         if (path.isEmpty()) {
-            return;
+            return true;
         }
         SkRect clipBounds = SkRect::Make(fDevClipBounds);
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
         GrEagerDynamicVertexAllocator allocator(target, &vertexBuffer, &firstVertex);
-        int vertexCount = GrAATriangulator::PathToAATriangles(path, tol, clipBounds, &allocator);
+        int vertexCount;
+        bool result = GrAATriangulator::PathToAATriangles(path, tol, clipBounds, &allocator,
+                                                          &vertexCount);
+        if (!result) {
+            return false;
+        }
         if (vertexCount == 0) {
-            return;
+            return true;
         }
         fMesh = CreateMesh(target, std::move(vertexBuffer), firstVertex, vertexCount);
+        return true;
     }
 
     GrProgramInfo* programInfo() override { return fProgramInfo; }
@@ -517,8 +533,12 @@ private:
         GrCpuVertexAllocator allocator;
 
         bool isLinear;
-        int vertexCount = Triangulate(&allocator, fViewMatrix, fShape, fDevClipBounds, tol,
-                                      &isLinear);
+        int vertexCount;
+        bool result = Triangulate(&allocator, fViewMatrix, fShape, fDevClipBounds, tol,
+                                  &isLinear, &vertexCount);
+        if (!result) {
+            return;
+        }
         if (vertexCount == 0) {
             return;
         }
@@ -547,11 +567,11 @@ private:
         }
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         if (fAntiAlias) {
-            this->createAAMesh(target);
+            return this->createAAMesh(target);
         } else {
-            this->createNonAAMesh(target);
+            return this->createNonAAMesh(target);
         }
     }
 
@@ -564,18 +584,20 @@ private:
         return mesh;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fMesh) {
+            return true;
+        }
         if (!fProgramInfo) {
             this->createProgramInfo(flushState);
-        }
-
-        if (!fProgramInfo || !fMesh) {
-            return;
+            if (!fProgramInfo) {
+                return false;
+            }
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        return flushState->drawMesh(*fMesh);
     }
 
 #if defined(GPU_TEST_UTILS)

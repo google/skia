@@ -18,6 +18,7 @@
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkLog.h"
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
@@ -233,6 +234,8 @@ public:
         return false;
     }
 
+    bool isValid() const { return fValid; }
+
 private:
     /**
      *  Derived properties
@@ -277,7 +280,7 @@ private:
                                                                           &fFirstVertex,
                                                                           &fVerticesInChunk));
         if (!fVertices) {
-            SkDebugf("WARNING: Failed to allocate vertex buffer for DefaultPathRenderer.\n");
+            SKIA_LOG_E("Failed to allocate vertex buffer for DefaultPathRenderer");
             fCurVert = nullptr;
             fCurIdx = fIndices = nullptr;
             fSubpathIndexStart = 0;
@@ -296,7 +299,7 @@ private:
                                                       &fIndexBuffer, &fFirstIndex,
                                                       &fIndicesInChunk);
             if (!fIndices) {
-                SkDebugf("WARNING: Failed to allocate index buffer for DefaultPathRenderer.\n");
+                SKIA_LOG_E("Failed to allocate index buffer for DefaultPathRenderer");
                 fVertices = nullptr;
                 fValid = false;
             }
@@ -528,7 +531,7 @@ private:
 
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         PathGeoBuilder pathGeoBuilder(this->primType(), target, &fMeshes);
 
         // fill buffers
@@ -536,22 +539,28 @@ private:
             const PathData& args = fPaths[i];
             pathGeoBuilder.addPath(args.fPath, args.fTolerance);
         }
+        return pathGeoBuilder.isValid();
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (fMeshes.empty()) {
+            return true;
+        }
         if (!fProgramInfo) {
             this->createProgramInfo(flushState);
-        }
-
-        if (!fProgramInfo || fMeshes.empty()) {
-            return;
+            if (!fProgramInfo) {
+                return false;
+            }
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
         for (int i = 0; i < fMeshes.size(); ++i) {
-            flushState->drawMesh(*fMeshes[i]);
+            if (!flushState->drawMesh(*fMeshes[i])) {
+                return false;
+            }
         }
+        return true;
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {

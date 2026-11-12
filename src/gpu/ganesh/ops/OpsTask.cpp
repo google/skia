@@ -11,6 +11,7 @@
 #include "include/core/SkString.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
+#include "include/private/SkLog.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScopeExit.h"
@@ -511,7 +512,7 @@ void OpsTask::onPrePrepare(GrRecordingContext* context) {
     }
 }
 
-void OpsTask::onPrepare(GrOpFlushState* flushState) {
+bool OpsTask::onPrepare(GrOpFlushState* flushState) {
     SkASSERT(this->target(0)->peekRenderTarget());
     SkASSERT(this->isClosed());
     // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
@@ -520,10 +521,11 @@ void OpsTask::onPrepare(GrOpFlushState* flushState) {
     // we shouldn't end up with OpsTasks with only discard.
     if (this->isColorNoOp() ||
         (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
-        return;
+        return true;
     }
     TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
 
+    bool allSucceeded = true;
     flushState->setSampledProxyArray(&fSampledProxies);
     GrSurfaceProxyView dstView(sk_ref_sp(this->target(0)), fTargetOrigin, fTargetSwizzle);
     // Loop over the ops that haven't yet been prepared.
@@ -545,11 +547,12 @@ void OpsTask::onPrepare(GrOpFlushState* flushState) {
             //                          chain.appliedClip());
 
             // GrOp::prePrepare may or may not have been called at this point
-            chain.head()->prepare(flushState);
+            allSucceeded &= chain.head()->prepare(flushState);
             flushState->setOpArgs(nullptr);
         }
     }
     flushState->setSampledProxyArray(nullptr);
+    return allSucceeded;
 }
 
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
@@ -579,7 +582,7 @@ GrRenderTask::ExecutionResult OpsTask::onExecute(GrOpFlushState* flushState) {
         SkASSERT(proxy->canUseStencil(caps));
         if (!flushState->resourceProvider()->attachStencilAttachment(renderTarget,
                                                                      fUsesMSAASurface)) {
-            SkDebugf("WARNING: failed to attach a stencil buffer. Rendering will be skipped.\n");
+            SKIA_LOG_E("Failed to attach a stencil buffer");
             return ExecutionResult::RanButFailed();
         }
         stencil = renderTarget->getStencilAttachment(fUsesMSAASurface);
@@ -732,6 +735,7 @@ GrRenderTask::ExecutionResult OpsTask::onExecute(GrOpFlushState* flushState) {
 
     GrSurfaceProxyView dstView(sk_ref_sp(this->target(0)), fTargetOrigin, fTargetSwizzle);
 
+    bool allSucceeded = true;
     // Draw all the generated geometry.
     for (const auto& chain : fOpChains) {
         if (!chain.shouldExecute()) {
@@ -747,7 +751,7 @@ GrRenderTask::ExecutionResult OpsTask::onExecute(GrOpFlushState* flushState) {
                                       fColorLoadOp);
 
         flushState->setOpArgs(&opArgs);
-        chain.head()->execute(flushState, chain.bounds());
+        allSucceeded &= chain.head()->execute(flushState, chain.bounds());
         flushState->setOpArgs(nullptr);
     }
 
@@ -755,7 +759,7 @@ GrRenderTask::ExecutionResult OpsTask::onExecute(GrOpFlushState* flushState) {
     flushState->gpu()->submit(renderPass);
     flushState->setOpsRenderPass(nullptr);
 
-    return ExecutionResult::RanAndSucceeded();
+    return ExecutionResult::Ran(allSucceeded);
 }
 
 void OpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {

@@ -59,7 +59,7 @@ private:
         SkASSERT(0);
     }
 
-    void onPrepare(GrOpFlushState*) override;
+    bool onPrepare(GrOpFlushState*) override;
 
     ExecutionResult onExecute(GrOpFlushState*) override;
 

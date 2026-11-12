@@ -198,7 +198,7 @@ private:
         context->priv().recordProgramInfo(fProgramInfo);
     }
 
-    void onPrepare(GrOpFlushState* flushState) override {
+    bool onPrepare(GrOpFlushState* flushState) override {
         SkPoint vertices[4] = {
             {100, fY},
             {0, fY+100},
@@ -209,20 +209,24 @@ private:
                                                                      sizeof(vertices),
                                                                      GrGpuBufferType::kVertex,
                                                                      kStatic_GrAccessPattern);
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         if (!fVertexBuffer) {
-            return;
+            return false;
         }
 
         if (!fProgramInfo) {
             fProgramInfo = this->createProgramInfo(flushState);
+            if (!fProgramInfo) {
+                return false;
+            }
         }
 
         flushState->bindPipeline(*fProgramInfo, SkRect::MakeXYWH(0, fY, 100, 100));
         flushState->bindBuffers(nullptr, nullptr, std::move(fVertexBuffer));
-        flushState->draw(4, 0);
+        return flushState->draw(4, 0);
     }
 
     sk_sp<GrBuffer> fVertexBuffer;

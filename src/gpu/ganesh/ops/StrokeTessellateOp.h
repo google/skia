@@ -81,9 +81,9 @@ private:
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
                       const GrDstProxyView&, GrXferBarrierFlags, GrLoadOp colorLoadOp) override;
 
-    void onPrepare(GrOpFlushState*) override;
+    bool onPrepare(GrOpFlushState*) override;
 
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+    bool onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     const GrAAType fAAType;
     const SkMatrix fViewMatrix;

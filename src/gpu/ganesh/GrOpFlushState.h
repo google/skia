@@ -77,8 +77,10 @@ public:
                                 bool shouldPrepareSurfaceForSampling = false);
 
     /** Called as ops are executed. Must be called in the same order as the ops were prepared. */
-    void executeDrawsAndUploadsForMeshDrawOp(const GrOp* op, const SkRect& chainBounds,
-                                             const GrPipeline*, const GrUserStencilSettings*);
+    [[nodiscard]] bool executeDrawsAndUploadsForMeshDrawOp(const GrOp* op,
+                                                           const SkRect& chainBounds,
+                                                           const GrPipeline*,
+                                                           const GrUserStencilSettings*);
 
     GrOpsRenderPass* opsRenderPass() { return fOpsRenderPass; }
     void setOpsRenderPass(GrOpsRenderPass* renderPass) { fOpsRenderPass = renderPass; }
@@ -247,7 +249,7 @@ public:
     }
 
     // Makes the appropriate bindBuffers() and draw*() calls for the provided mesh.
-    void drawMesh(const GrSimpleMesh& mesh);
+    [[nodiscard]] bool drawMesh(const GrSimpleMesh& mesh);
 
     // Pass-through methods to GrOpsRenderPass.
     void bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
@@ -267,34 +269,46 @@ public:
         fOpsRenderPass->bindBuffers(std::move(indexBuffer), std::move(instanceBuffer),
                                     std::move(vertexBuffer), primitiveRestart);
     }
-    void draw(int vertexCount, int baseVertex) {
-        fOpsRenderPass->draw(vertexCount, baseVertex);
+    [[nodiscard]] bool draw(int vertexCount, int baseVertex) {
+        return fOpsRenderPass->draw(vertexCount, baseVertex);
     }
-    void drawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue, uint16_t maxIndexValue,
-                     int baseVertex) {
-        fOpsRenderPass->drawIndexed(indexCount, baseIndex, minIndexValue, maxIndexValue,
-                                    baseVertex);
+    [[nodiscard]] bool drawIndexed(int indexCount,
+                                   int baseIndex,
+                                   uint16_t minIndexValue,
+                                   uint16_t maxIndexValue,
+                                   int baseVertex) {
+        return fOpsRenderPass->drawIndexed(
+                indexCount, baseIndex, minIndexValue, maxIndexValue, baseVertex);
     }
-    void drawInstanced(int instanceCount, int baseInstance, int vertexCount, int baseVertex) {
-        fOpsRenderPass->drawInstanced(instanceCount, baseInstance, vertexCount, baseVertex);
+    [[nodiscard]] bool drawInstanced(int instanceCount,
+                                     int baseInstance,
+                                     int vertexCount,
+                                     int baseVertex) {
+        return fOpsRenderPass->drawInstanced(instanceCount, baseInstance, vertexCount, baseVertex);
     }
-    void drawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
-                              int baseVertex) {
-        fOpsRenderPass->drawIndexedInstanced(indexCount, baseIndex, instanceCount, baseInstance,
-                                             baseVertex);
+    [[nodiscard]] bool drawIndexedInstanced(
+            int indexCount, int baseIndex, int instanceCount, int baseInstance, int baseVertex) {
+        return fOpsRenderPass->drawIndexedInstanced(
+                indexCount, baseIndex, instanceCount, baseInstance, baseVertex);
     }
-    void drawIndirect(const GrBuffer* drawIndirectBuffer, size_t offset, int drawCount) {
-        fOpsRenderPass->drawIndirect(drawIndirectBuffer, offset, drawCount);
+    [[nodiscard]] bool drawIndirect(const GrBuffer* drawIndirectBuffer,
+                                    size_t offset,
+                                    int drawCount) {
+        return fOpsRenderPass->drawIndirect(drawIndirectBuffer, offset, drawCount);
     }
-    void drawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t offset, int drawCount) {
-        fOpsRenderPass->drawIndexedIndirect(drawIndirectBuffer, offset, drawCount);
+    [[nodiscard]] bool drawIndexedIndirect(const GrBuffer* drawIndirectBuffer,
+                                           size_t offset,
+                                           int drawCount) {
+        return fOpsRenderPass->drawIndexedIndirect(drawIndirectBuffer, offset, drawCount);
     }
-    void drawIndexPattern(int patternIndexCount, int patternRepeatCount,
-                          int maxPatternRepetitionsInIndexBuffer, int patternVertexCount,
-                          int baseVertex) {
-        fOpsRenderPass->drawIndexPattern(patternIndexCount, patternRepeatCount,
-                                         maxPatternRepetitionsInIndexBuffer, patternVertexCount,
-                                         baseVertex);
+    [[nodiscard]] bool drawIndexPattern(int patternIndexCount,
+                                        int patternRepeatCount,
+                                        int maxPatternRepetitionsInIndexBuffer,
+                                        int patternVertexCount,
+                                        int baseVertex) {
+        return fOpsRenderPass->drawIndexPattern(patternIndexCount, patternRepeatCount,
+                                                maxPatternRepetitionsInIndexBuffer,
+                                                patternVertexCount, baseVertex);
     }
 
 private:

@@ -54,14 +54,14 @@ void GrOp::prePrepare(GrRecordingContext* context, const GrSurfaceProxyView& dst
                        colorLoadOp);
 }
 
-void GrOp::prepare(GrOpFlushState* state) {
+bool GrOp::prepare(GrOpFlushState* state) {
     TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_STR_STATIC(name()));
-    this->onPrepare(state);
+    return this->onPrepare(state);
 }
 
-void GrOp::execute(GrOpFlushState* state, const SkRect& chainBounds) {
+bool GrOp::execute(GrOpFlushState* state, const SkRect& chainBounds) {
     TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_STR_STATIC(name()));
-    this->onExecute(state, chainBounds);
+    return this->onExecute(state, chainBounds);
 }
 
 #ifdef SK_DEBUG

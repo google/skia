@@ -115,18 +115,17 @@ protected:
                                                                    flags);
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) final {
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) final {
         if (!fProgramInfo) {
             this->createProgramInfo(flushState);
-        }
-
-        if (!fProgramInfo) {
-            return;
+            if (!fProgramInfo) {
+                return false;
+            }
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        return flushState->drawMesh(*fMesh);
     }
 
     const SkRect& rect() const { return fRect; }
@@ -182,11 +181,11 @@ private:
         return tmp;
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) final {
+    bool onPrepareDraws(GrMeshDrawTarget* target) final {
         QuadHelper helper(target, sizeof(Vertex), 1);
         Vertex* verts = reinterpret_cast<Vertex*>(helper.vertices());
         if (!verts) {
-            return;
+            return false;
         }
         SkRect rect = this->rect();
         SkPointPriv::SetRectTriStrip(&verts[0].fPosition, rect, sizeof(Vertex));
@@ -197,6 +196,7 @@ private:
         }
 
         fMesh = helper.mesh();
+        return true;
     }
 
     SkMatrix fKLM;
@@ -385,17 +385,18 @@ private:
         return tmp;
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) final {
+    bool onPrepareDraws(GrMeshDrawTarget* target) final {
         QuadHelper helper(target, sizeof(Vertex), 1);
         Vertex* verts = reinterpret_cast<Vertex*>(helper.vertices());
         if (!verts) {
-            return;
+            return false;
         }
         SkRect rect = this->rect();
         SkPointPriv::SetRectTriStrip(&verts[0].fPosition, rect, sizeof(Vertex));
         fDevToUV.apply(verts, 4, sizeof(Vertex), sizeof(SkPoint));
 
         fMesh = helper.mesh();
+        return true;
     }
 
     GrPathUtils::QuadUVMatrix fDevToUV;

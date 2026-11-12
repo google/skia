@@ -112,6 +112,8 @@ public:
      */
     bool validPMUPMConversionExists();
 
+    bool hasCheckedPMUPMConversion() const { return this->context()->fDidTestPMConversions; }
+
     /**
      * These functions create premul <-> unpremul effects, using specialized round-trip effects.
      */

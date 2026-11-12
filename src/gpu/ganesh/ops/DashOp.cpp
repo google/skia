@@ -374,7 +374,7 @@ private:
                                                                    fStencilSettings);
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         int instanceCount = fLines.size();
         SkPaint::Cap cap = this->cap();
         DashCap capType = (SkPaint::kRound_Cap == cap) ? kRound_DashCap : kNonRound_DashCap;
@@ -382,7 +382,7 @@ private:
         if (!fProgramInfo) {
             this->createProgramInfo(target);
             if (!fProgramInfo) {
-                return;
+                return false;
             }
         }
 
@@ -606,14 +606,17 @@ private:
             draw.fHasEndRect = hasEndRect;
         }
 
-        if (!totalRectCount || !safeMath) {
-            return;
+        if (!safeMath) {
+            return false;
+        }
+        if (!totalRectCount) {
+            return true;
         }
 
         QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), totalRectCount);
         VertexWriter vertices{ helper.vertices() };
         if (!vertices) {
-            return;
+            return false;
         }
 
         int rectIndex = 0;
@@ -662,16 +665,20 @@ private:
         }
 
         fMesh = helper.mesh();
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || !fMesh) {
-            return;
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fMesh) {
+            return true;
+        }
+        if (!fProgramInfo) {
+            return false;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        return flushState->drawMesh(*fMesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {

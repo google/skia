@@ -217,7 +217,7 @@ private:
                                                                      kStatic_GrAccessPattern);
     }
 
-    void onPrepare(GrOpFlushState* flushState) override {
+    bool onPrepare(GrOpFlushState* flushState) override {
         if (fMode == AttrMode::kWacky) {
             struct V {
                 SkPoint p;
@@ -234,20 +234,24 @@ private:
             };
             this->makeVB<V>(flushState, fRect);
         }
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         if (!fVertexBuffer) {
-            return;
+            return false;
         }
 
         if (!fProgramInfo) {
             fProgramInfo = this->createProgramInfo(flushState);
+            if (!fProgramInfo) {
+                return false;
+            }
         }
 
         flushState->bindPipeline(*fProgramInfo, fRect);
         flushState->bindBuffers(nullptr, nullptr, std::move(fVertexBuffer));
-        flushState->draw(4, 0);
+        return flushState->draw(4, 0);
     }
 
     sk_sp<GrBuffer> fVertexBuffer;

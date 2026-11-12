@@ -103,12 +103,12 @@ void GrRenderTask::makeClosed(GrRecordingContext* rContext) {
     this->setFlag(kClosed_Flag);
 }
 
-void GrRenderTask::prepare(GrOpFlushState* flushState) {
+bool GrRenderTask::prepare(GrOpFlushState* flushState) {
     for (int i = 0; i < fDeferredProxies.size(); ++i) {
         fDeferredProxies[i]->texPriv().scheduleUpload(flushState);
     }
 
-    this->onPrepare(flushState);
+    return this->onPrepare(flushState);
 }
 
 // Add a GrRenderTask-based dependency

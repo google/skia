@@ -186,19 +186,23 @@ private:
         static constexpr Attribute kPos = {"pos", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
     };
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         fMesh = target->allocMesh();
         fMesh->set(fBuffer, fVertexCount, fBaseVertex);
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         if (!fProgramInfo) {
             this->createProgramInfo(flushState);
+            if (!fProgramInfo) {
+                return false;
+            }
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        flushState->drawMesh(*fMesh);
+        return flushState->drawMesh(*fMesh);
     }
 
     sk_sp<GrGpuBuffer> fBuffer;

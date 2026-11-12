@@ -457,6 +457,7 @@ filegroup(
         "DrawOpAtlasTest.cpp",
         "FloatingPointTextureTest.cpp",
         "GaneshContextRecorderTest.cpp",
+        "GaneshDrawFailureTest.cpp",
         "GpuDrawPathTest.cpp",
         "GrAHardwareBufferTest.cpp",
         "GrClipStackTest.cpp",

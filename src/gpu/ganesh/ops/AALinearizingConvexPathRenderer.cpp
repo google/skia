@@ -213,19 +213,19 @@ private:
                                                             renderPassXferBarriers, colorLoadOp);
     }
 
-    void recordDraw(GrMeshDrawTarget* target,
-                    int vertexCount, size_t vertexStride, void* vertices,
-                    int indexCount, uint16_t* indices) {
+    [[nodiscard]] bool recordDraw(GrMeshDrawTarget* target,
+                                  int vertexCount, size_t vertexStride, void* vertices,
+                                  int indexCount, uint16_t* indices) {
         if (vertexCount == 0 || indexCount == 0) {
-            return;
+            return true;
         }
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
         void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
                                               &firstVertex);
         if (!verts) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
+            SKIA_LOG_E("Could not allocate vertices");
+            return false;
         }
         memcpy(verts, vertices, vertexCount * vertexStride);
 
@@ -233,21 +233,22 @@ private:
         int firstIndex;
         uint16_t* idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
         if (!idxs) {
-            SkDebugf("Could not allocate indices\n");
-            return;
+            SKIA_LOG_E("Could not allocate indices");
+            return false;
         }
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
         GrSimpleMesh* mesh = target->allocMesh();
         mesh->setIndexed(std::move(indexBuffer), indexCount, firstIndex, 0, vertexCount - 1,
                          GrPrimitiveRestart::kNo, std::move(vertexBuffer), firstVertex);
         fMeshes.push_back(mesh);
+        return true;
     }
 
-    void onPrepareDraws(GrMeshDrawTarget* target) override {
+    bool onPrepareDraws(GrMeshDrawTarget* target) override {
         if (!fProgramInfo) {
             this->createProgramInfo(target);
             if (!fProgramInfo) {
-                return;
+                return false;
             }
         }
 
@@ -273,7 +274,12 @@ private:
             if (vertexCount + currentVertices > static_cast<int>(UINT16_MAX)) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                this->recordDraw(target, vertexCount, vertexStride, vertices, indexCount, indices);
+                if (!this->recordDraw(target, vertexCount, vertexStride, vertices,
+                                      indexCount, indices)) {
+                    sk_free(vertices);
+                    sk_free(indices);
+                    return false;
+                }
                 vertexCount = 0;
                 indexCount = 0;
             }
@@ -282,7 +288,8 @@ private:
                 if (maxVertices * vertexStride > SK_MaxS32) {
                     sk_free(vertices);
                     sk_free(indices);
-                    return;
+                    SKIA_LOG_E("Vertex count overflow");
+                    return false;
                 }
                 vertices = (uint8_t*) sk_realloc_throw(vertices, maxVertices * vertexStride);
             }
@@ -292,7 +299,8 @@ private:
                 if (maxIndices * sizeof(uint16_t) > SK_MaxS32) {
                     sk_free(vertices);
                     sk_free(indices);
-                    return;
+                    SKIA_LOG_E("Index count overflow");
+                    return false;
                 }
                 indices = (uint16_t*) sk_realloc_throw(indices, maxIndices * sizeof(uint16_t));
             }
@@ -312,22 +320,34 @@ private:
             indexCount += currentIndices;
         }
         if (vertexCount <= SK_MaxS32 && indexCount <= SK_MaxS32) {
-            this->recordDraw(target, vertexCount, vertexStride, vertices, indexCount, indices);
+            if (!this->recordDraw(target, vertexCount, vertexStride, vertices,
+                                  indexCount, indices)) {
+                sk_free(vertices);
+                sk_free(indices);
+                return false;
+            }
         }
         sk_free(vertices);
         sk_free(indices);
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || fMeshes.empty()) {
-            return;
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (fMeshes.empty()) {
+            return true;
+        }
+        if (!fProgramInfo) {
+            return false;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
         for (int i = 0; i < fMeshes.size(); ++i) {
-            flushState->drawMesh(*fMeshes[i]);
+            if (!flushState->drawMesh(*fMeshes[i])) {
+                return false;
+            }
         }
+        return true;
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {

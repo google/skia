@@ -36,19 +36,24 @@ class GrTriangulator {
 public:
     constexpr static int kArenaDefaultChunkSize = 16 * 1024;
 
-    static int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                               GrEagerVertexAllocator* vertexAllocator, bool* isLinear) {
+    [[nodiscard]] static bool PathToTriangles(const SkPath& path,
+                                              SkScalar tolerance,
+                                              const SkRect& clipBounds,
+                                              GrEagerVertexAllocator* vertexAllocator,
+                                              bool* isLinear,
+                                              int* vertexCount) {
+        *vertexCount = 0;
         if (!path.isFinite()) {
-            return 0;
+            *isLinear = true;
+            return true;
         }
         SkArenaAlloc alloc(kArenaDefaultChunkSize);
         GrTriangulator triangulator(path, &alloc);
         auto [ polys, success ] = triangulator.pathToPolys(tolerance, clipBounds, isLinear);
         if (!success) {
-            return 0;
+            return false;
         }
-        int count = triangulator.polysToTriangles(polys, vertexAllocator);
-        return count;
+        return triangulator.polysToTriangles(polys, vertexAllocator, vertexCount);
     }
 
     // Enums used by GrTriangulator internals.
@@ -198,7 +203,7 @@ protected:
     std::tuple<Poly*, bool> pathToPolys(float tolerance, const SkRect& clipBounds,
                       bool* isLinear);
     static int64_t CountPoints(Poly* polys, SkPathFillType overrideFillType);
-    int polysToTriangles(Poly*, GrEagerVertexAllocator*) const;
+    [[nodiscard]] bool polysToTriangles(Poly*, GrEagerVertexAllocator*, int* vertexCount) const;
 
     // FIXME: fPath should be plumbed through function parameters instead.
     const SkPath fPath;
