@@ -47,6 +47,7 @@ skia_filegroup(
     name = "core_hdrs",
     srcs = [
         "SkChromeRemoteGlyphCache.h",
+        "SkConvertPixelsWithColorMatrix.h",
         "SkDiscardableMemory.h",
         "SkPMColor.h",
         "Slug.h",

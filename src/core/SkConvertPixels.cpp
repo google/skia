@@ -6,18 +6,23 @@
  */
 #include "src/core/SkConvertPixels.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkSize.h"
+#include "include/effects/SkColorMatrix.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/chromium/SkConvertPixelsWithColorMatrix.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkHalf.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkRectMemcpy.h"
 #include "src/core/SkSwizzlePriv.h"
 
@@ -248,21 +253,52 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
 }
 
 // Default: Use the pipeline.
-static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, int dstStride,
-                                  const SkImageInfo& srcInfo, const void* srcRow, int srcStride,
-                                  const SkColorSpaceXformSteps& steps) {
+static void convert_with_pipeline(const SkImageInfo& dstInfo,
+                                  void* dstRow,
+                                  int dstStride,
+                                  const SkImageInfo& srcInfo,
+                                  const void* srcRow,
+                                  int srcStride,
+                                  const SkColorSpaceXformSteps& steps,
+                                  const SkColorMatrix* srcMatrix,
+                                  const SkColorMatrix* dstMatrix) {
     SkRasterPipelineContexts::MemoryCtx src = {const_cast<void*>(srcRow), srcStride},
                                         dst = {dstRow, dstStride};
 
+    float srcRowMajor[20];
+    float dstRowMajor[20];
+
     SkRasterPipeline_<256> pipeline;
     pipeline.appendLoad(srcInfo.colorType(), &src);
+    if (srcMatrix) {
+        if (srcInfo.alphaType() == kPremul_SkAlphaType) {
+            pipeline.append(SkRasterPipelineOp::unpremul);
+        }
+        srcMatrix->getRowMajor(srcRowMajor);
+        pipeline.append(SkRasterPipelineOp::matrix_4x5, srcRowMajor);
+        pipeline.append(SkRasterPipelineOp::clamp_a_01);
+    }
     steps.apply(&pipeline);
+    if (dstMatrix) {
+        dstMatrix->getRowMajor(dstRowMajor);
+        pipeline.append(SkRasterPipelineOp::matrix_4x5, dstRowMajor);
+        pipeline.append(SkRasterPipelineOp::clamp_a_01);
+        if (dstInfo.alphaType() == kPremul_SkAlphaType) {
+            pipeline.append(SkRasterPipelineOp::premul);
+        }
+    }
     pipeline.appendStore(dstInfo.colorType(), &dst);
-    pipeline.run(0,0, srcInfo.width(), srcInfo.height());
+    pipeline.run(0, 0, srcInfo.width(), srcInfo.height());
 }
 
-bool SkConvertPixels(const SkImageInfo& dstInfo,       void* dstPixels, size_t dstRB,
-                     const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB) {
+static bool convert_pixels_common(const SkImageInfo& srcInfo,
+                                  const void* srcPixels,
+                                  size_t srcRB,
+                                  const SkColorMatrix* srcMatrix,
+                                  const SkImageInfo& dstInfo,
+                                  void* dstPixels,
+                                  size_t dstRB,
+                                  const SkColorMatrix* dstMatrix) {
     SkASSERT(dstInfo.dimensions() == srcInfo.dimensions());
     SkASSERT(SkImageInfoValidConversion(dstInfo, srcInfo));
 
@@ -279,14 +315,40 @@ bool SkConvertPixels(const SkImageInfo& dstInfo,       void* dstPixels, size_t d
         return false;
     }
 
-    SkColorSpaceXformSteps steps{srcInfo.colorSpace(), srcInfo.alphaType(),
-                                 dstInfo.colorSpace(), dstInfo.alphaType()};
+    SkColorSpaceXformSteps steps{srcInfo.colorSpace(),
+                                 srcMatrix ? kUnpremul_SkAlphaType : srcInfo.alphaType(),
+                                 dstInfo.colorSpace(),
+                                 dstMatrix ? kUnpremul_SkAlphaType : dstInfo.alphaType()};
 
-    for (auto fn : {rect_memcpy, swizzle_or_premul, convert_to_alpha8}) {
-        if (fn(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, steps)) {
-            return true;
+    if (!srcMatrix && !dstMatrix) {
+        for (auto fn : {rect_memcpy, swizzle_or_premul, convert_to_alpha8}) {
+            if (fn(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, steps)) {
+                return true;
+            }
         }
     }
-    convert_with_pipeline(dstInfo, dstPixels, dstStride, srcInfo, srcPixels, srcStride, steps);
+
+    convert_with_pipeline(dstInfo, dstPixels, dstStride,
+                          srcInfo, srcPixels, srcStride,
+                          steps, srcMatrix, dstMatrix);
     return true;
+}
+
+bool SkConvertPixels(const SkImageInfo& dstInfo,       void* dstPixels, size_t dstRB,
+                     const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB) {
+    return convert_pixels_common(srcInfo, srcPixels, srcRB, /*srcMatrix=*/nullptr,
+                                 dstInfo, dstPixels, dstRB, /*dstMatrix=*/nullptr);
+}
+
+bool SkConvertPixelsWithColorMatrix(const SkPixmap& src,
+                                    const SkColorMatrix* srcMatrix,
+                                    const SkPixmap& dst,
+                                    const SkColorMatrix* dstMatrix) {
+    if (!src.addr() || !dst.writable_addr() ||
+        src.dimensions() != dst.dimensions() ||
+        !SkImageInfoValidConversion(dst.info(), src.info())) {
+        return false;
+    }
+    return convert_pixels_common(src.info(), src.addr(), src.rowBytes(), srcMatrix,
+                                 dst.info(), dst.writable_addr(), dst.rowBytes(), dstMatrix);
 }
