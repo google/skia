@@ -161,9 +161,16 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
             }
 
             v->codeAppend(
+            // Instead of relying on sign() operations, the netdir of the hull is summed from
+            // the raw cross product results, and the vertex whose cross product is most opposite
+            // to netdir (most "concave") is collapsed into its next neighbor. This recovers as
+            // much missing area as possible of the convex hull.
+
             // Find the "turn direction" of each corner and net turn direction.
             "float vertexdir = 0;"
             "float netdir = 0;"
+            "float maxdir = 0;"
+            "float mindir = 0;"
             "float2 prev, next;"
             "float dir;"
             "float2 localcoord;"
@@ -176,18 +183,20 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
                 v->codeAppendf(
                 "next = p%i - p%i;", (i + 1) % 4, i);
                 v->codeAppendf(
-                "dir = sign(cross_length_2d(prev, next));"
+                "dir = cross_length_2d(prev, next);"
                 "if (vertexidx == %i) {"
                     "vertexdir = dir;"
                     "localcoord = p%i;"
                     "nextcoord = p%i;"
                 "}"
-                "netdir += dir;", i, i, (i + 1) % 4);
+                "netdir += dir;"
+                "maxdir = max(maxdir, dir);"
+                "mindir = min(mindir, dir);", i, i, (i + 1) % 4);
             }
 
             v->codeAppend(
             // Remove the non-convex vertex, if any.
-            "if (vertexdir != sign(netdir)) {"
+            "if (vertexdir == (netdir > 0 ? mindir : maxdir) && vertexdir != 0) {"
                 "localcoord = nextcoord;"
             "}"
 

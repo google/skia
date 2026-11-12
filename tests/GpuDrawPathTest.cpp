@@ -6,6 +6,7 @@
  */
 #include "tests/Test.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkImageInfo.h"
@@ -23,14 +24,15 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "tests/CtsEnforcement.h"
+#include "tools/gpu/ContextType.h"
 
 #include <initializer_list>
-
-struct GrContextOptions;
 
 static void test_drawPathEmpty(skiatest::Reporter*, SkCanvas* canvas) {
     // Filling an empty path should not crash.
@@ -171,4 +173,61 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(StrokeCircle_Bug356182429,
     SkRect oval = SkRect::MakeLTRB(0, 0, 1.83670992E-40f, 1.21223864E-38f);
     surface->getCanvas()->drawArc(oval, 8.17909887E-41f, 2.24207754E-44f, false, paint);
     dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
+}
+
+static void only_allow_tessellation(GrContextOptions* options) {
+    options->fGpuPathRenderers = GpuPathRenderers::kTessellation;
+}
+
+DEF_GANESH_TEST_FOR_CONTEXTS(PathInnerTriangulate_CollinearChopHull,
+                             skgpu::IsRenderingContext,
+                             reporter,
+                             ctxInfo,
+                             only_allow_tessellation,
+                             CtsEnforcement::kNever) {
+    constexpr int kWidth = 700;
+    constexpr int kHeight = 1000;
+    SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+    auto dContext = ctxInfo.directContext();
+
+    // Symmetric S-curve cubic ribbon whose inflection chop at t=0.5 produces collinear control
+    // points in HullShader.
+    SkPath path = SkPathBuilder()
+            .moveTo(235.754637f, 204.666667f)
+            .cubicTo(235.754637f, 281.5f, 47.7737455f, 281.5f, 47.7737455f, 358.333333f)
+            .rLineTo(9.2910995f, 0.0f)
+            .cubicTo(57.064845f, 281.5f, 245.0457365f, 281.5f, 245.0457365f, 204.666667f)
+            .close()
+            .detach();
+
+    for (int sampleCount : {1, 4}) {
+        auto surface = SkSurfaces::RenderTarget(
+                dContext, skgpu::Budgeted::kNo, info, sampleCount, nullptr);
+        if (!surface) {
+            continue;
+        }
+
+        SkCanvas* canvas = surface->getCanvas();
+        canvas->clear(SK_ColorWHITE);
+        canvas->scale(2.625f, 2.625f);
+
+        SkPaint paint;
+        paint.setColor(SK_ColorBLUE);
+        // Use non-AA for sampleCount==1 and MSAA for sampleCount>1 so TessellationPathRenderer
+        // (and specifically PathInnerTriangulateOp) is selected.
+        paint.setAntiAlias(sampleCount > 1);
+        canvas->drawPath(path, paint);
+
+        SkBitmap bm;
+        bm.allocPixels(info);
+        REPORTER_ASSERT(reporter, surface->readPixels(bm, 0, 0));
+
+        // Check a point well inside the lower-left portion of the ribbon (SVG ~(53.3, 342.9),
+        // device pixel (140, 900)), which lies inside the chopped cubic's hull triangle
+        // (bcd, cd, B) and was previously left uncovered by HullShader.
+        SkColor got = bm.getColor(140, 900);
+        REPORTER_ASSERT(reporter, got == SK_ColorBLUE,
+                        "sampleCount=%d: expected SK_ColorBLUE (0x%08x) at (140, 900), got 0x%08x",
+                        sampleCount, SK_ColorBLUE, got);
+    }
 }
