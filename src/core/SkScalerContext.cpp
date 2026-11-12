@@ -709,6 +709,7 @@ void SkScalerContext::GenerateImageFromPath(
 // origGlyph.fImage when consecutive loads diverge
 void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     SkASSERT(origGlyph.fAdvancesBoundsFormatAndInitialPathDone);
+    SkASSERT(!origGlyph.isEmpty() && !origGlyph.imageTooLarge() && origGlyph.fImage != nullptr);
 
     const SkGlyph* unfilteredGlyph = &origGlyph;
     // in case we need to call generateImage on a mask-format that is different

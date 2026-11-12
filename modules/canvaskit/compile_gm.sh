@@ -175,6 +175,7 @@ GLOBIGNORE+="tests/CodecTest.cpp:"\
 "tests/FontationsTest.cpp:"\
 "tests/FontationsFtCompTest.cpp:"\
 "tests/FontScanner_FontationsTest.cpp:"\
+"tests/FontHostFreeTypeTest.cpp:"\
 "tests/FontScanner_FreeTypeTest.cpp:"\
 "tests/FCITest.cpp:"\
 "tests/JpegGainmapTest.cpp:"\
