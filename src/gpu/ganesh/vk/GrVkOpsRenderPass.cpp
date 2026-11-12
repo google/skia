@@ -869,10 +869,10 @@ void GrVkOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkOpsRenderPass::onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) {
+bool GrVkOpsRenderPass::onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) {
     if (!fCurrentRenderPass) {
         SkASSERT(fGpu->isDeviceLost());
-        return;
+        return false;
     }
 
     VkRect2D bounds;
@@ -885,7 +885,7 @@ void GrVkOpsRenderPass::onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHan
         // We may have failed to start a new render pass
         if (!fCurrentRenderPass) {
             SkASSERT(fGpu->isDeviceLost());
-            return;
+            return false;
         }
     }
     SkASSERT(fCurrentSecondaryCommandBuffer);
@@ -910,4 +910,5 @@ void GrVkOpsRenderPass::onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHan
 
     drawable->draw(info);
     fGpu->addDrawable(std::move(drawable));
+    return true;
 }

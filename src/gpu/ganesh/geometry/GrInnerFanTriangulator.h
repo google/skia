@@ -32,27 +32,34 @@ public:
         fCollectBreadcrumbTriangles = true;
     }
 
-    int pathToTriangles(GrEagerVertexAllocator* vertexAlloc, BreadcrumbTriangleList* breadcrumbList,
-                        bool* isLinear) {
-        Poly* polys = this->pathToPolys(breadcrumbList, isLinear);
-        return this->polysToTriangles(polys, vertexAlloc, breadcrumbList);
+    [[nodiscard]] bool pathToTriangles(GrEagerVertexAllocator* vertexAlloc,
+                                       BreadcrumbTriangleList* breadcrumbList,
+                                       bool* isLinear, int* vertexCount) {
+        auto [polys, success] = this->pathToPolys(breadcrumbList, isLinear);
+        if (!success) {
+            *vertexCount = 0;
+            return false;
+        }
+        return this->polysToTriangles(polys, vertexAlloc, breadcrumbList, vertexCount);
     }
 
-    Poly* pathToPolys(BreadcrumbTriangleList* breadcrumbList, bool* isLinear) {
+    std::tuple<Poly*, bool> pathToPolys(BreadcrumbTriangleList* breadcrumbList, bool* isLinear) {
         auto [ polys, success ] = this->GrTriangulator::pathToPolys(0, SkRect::MakeEmpty(),
                                                                     isLinear);
         if (!success) {
-            return nullptr;
+            return {nullptr, false};
         }
         breadcrumbList->concat(std::move(fBreadcrumbList));
-        return polys;
+        return {polys, success};
     }
 
-    int polysToTriangles(Poly* polys, GrEagerVertexAllocator* vertexAlloc,
-                         BreadcrumbTriangleList* breadcrumbList) const {
-        int vertexCount = this->GrTriangulator::polysToTriangles(polys, vertexAlloc);
+    [[nodiscard]] bool polysToTriangles(Poly* polys,
+                                        GrEagerVertexAllocator* vertexAlloc,
+                                        BreadcrumbTriangleList* breadcrumbList,
+                                        int* vertexCount) const {
+        bool result = this->GrTriangulator::polysToTriangles(polys, vertexAlloc, vertexCount);
         breadcrumbList->concat(std::move(fBreadcrumbList));
-        return vertexCount;
+        return result;
     }
 };
 

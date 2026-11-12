@@ -24,7 +24,7 @@ public:
 
     bool inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
 
-    void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override {}
+    bool onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override { return true; }
 
     bool set(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo&,

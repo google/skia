@@ -962,7 +962,9 @@ static void verify_simple_inner_polygons(skiatest::Reporter* r, const char* shap
         {
             bool isLinear;
             GrInnerFanTriangulator triangulator(path, &arena);
-            vertexCount = triangulator.pathToTriangles(&vertexAlloc, &breadcrumbs, &isLinear);
+            bool result = triangulator.pathToTriangles(&vertexAlloc, &breadcrumbs, &isLinear,
+                                                       &vertexCount);
+            REPORTER_ASSERT(r, result);
         }
 
         // Count up all the triangulated edges.
@@ -1301,8 +1303,10 @@ DEF_TEST(Triangulator_Crbug1262444, r) {
 
     SkRect clipBounds = SkRect::MakeLTRB(0, 0, 14, 14);
     SimplerVertexAllocator alloc;
-    int vertexCount = GrAATriangulator::PathToAATriangles(
-            path.detach(), GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
+    int vertexCount;
+    bool result = GrAATriangulator::PathToAATriangles(
+            path.detach(), GrPathUtils::kDefaultTolerance, clipBounds, &alloc, &vertexCount);
+    REPORTER_ASSERT(r, !result);
     REPORTER_ASSERT(r, vertexCount == 0);
 }
 
@@ -1408,8 +1412,10 @@ DEF_TEST(Triangulator_Crbug337080025, r) {
     SkRect clipBounds = SkRect::MakeLTRB(0, 0, 256, 256);
     SimplerVertexAllocator alloc;
 
-    int vertexCount = GrAATriangulator::PathToAATriangles(
-            path.detach(), GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
+    int vertexCount;
+    bool result = GrAATriangulator::PathToAATriangles(
+            path.detach(), GrPathUtils::kDefaultTolerance, clipBounds, &alloc, &vertexCount);
+    REPORTER_ASSERT(r, !result);
     REPORTER_ASSERT(r, vertexCount == 0);
 }
 
@@ -1460,8 +1466,10 @@ DEF_TEST(Triangulator_bug421959607, r) {
     SkRect clipBounds = SkRect::MakeLTRB(0, 0, 128, 160);
     SimplerVertexAllocator alloc;
 
-    int vertexCount = GrAATriangulator::PathToAATriangles(
-            path.detach(), GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
+    int vertexCount;
+    bool result = GrAATriangulator::PathToAATriangles(
+            path.detach(), GrPathUtils::kDefaultTolerance, clipBounds, &alloc, &vertexCount);
+    REPORTER_ASSERT(r, result);
     REPORTER_ASSERT(r, vertexCount);
 }
 #endif
@@ -1508,8 +1516,10 @@ DEF_TEST(Triangulator_bug424666603, r) {
     path.close();
     SkRect clipBounds = SkRect::MakeLTRB(0, 0, 128, 160);
     SimplerVertexAllocator alloc;
-    int vertexCount = GrAATriangulator::PathToAATriangles(
-            path.detach(), GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
+    int vertexCount;
+    bool result = GrAATriangulator::PathToAATriangles(
+            path.detach(), GrPathUtils::kDefaultTolerance, clipBounds, &alloc, &vertexCount);
+    REPORTER_ASSERT(r, result);
     REPORTER_ASSERT(r, vertexCount);
 }
 

@@ -11,6 +11,7 @@
 #include "include/core/SkRect.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkLog.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkTPin.h"
 #include "src/core/SkGeometry.h"
@@ -1926,10 +1927,16 @@ int64_t GrTriangulator::CountPoints(Poly* polys, SkPathFillType overrideFillType
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 
-int GrTriangulator::polysToTriangles(Poly* polys, GrEagerVertexAllocator* vertexAllocator) const {
+bool GrTriangulator::polysToTriangles(Poly* polys,
+                                      GrEagerVertexAllocator* vertexAllocator,
+                                      int* vertexCount) const {
+    *vertexCount = 0;
     int64_t count64 = CountPoints(polys, fPath.getFillType());
-    if (0 == count64 || count64 > SK_MaxS32) {
-        return 0;
+    if (0 == count64) {
+        return true;
+    }
+    if (count64 > SK_MaxS32) {
+        return false;
     }
     int count = count64;
 
@@ -1939,8 +1946,8 @@ int GrTriangulator::polysToTriangles(Poly* polys, GrEagerVertexAllocator* vertex
     }
     skgpu::VertexWriter verts = vertexAllocator->lockWriter(vertexStride, count);
     if (!verts) {
-        SkDebugf("Could not allocate vertices\n");
-        return 0;
+        SKIA_LOG_E("Could not allocate vertices");
+        return false;
     }
 
     TESS_LOG("emitting %d verts\n", count);
@@ -1951,7 +1958,8 @@ int GrTriangulator::polysToTriangles(Poly* polys, GrEagerVertexAllocator* vertex
     int actualCount = static_cast<int>((verts.mark() - start) / vertexStride);
     SkASSERT(actualCount <= count);
     vertexAllocator->unlock(actualCount);
-    return actualCount;
+    *vertexCount = actualCount;
+    return true;
 }
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE

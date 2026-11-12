@@ -142,7 +142,9 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(PathTest_CrBug1232834,
                   .detach();
 
     surface->getCanvas()->drawPath(path, paint);
-    dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
+    auto result = dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
+    // The ill-formed path should be skipped without failing the flush
+    REPORTER_ASSERT(reporter, result.fSuccess);
 }
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(StrokeCircle_Bug356182429,

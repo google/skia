@@ -213,8 +213,9 @@ private:
     // @param quadCount         the number of quads that will be drawn by the provided 'mesh'.
     //                          A subsequent ConfigureMesh call would the use
     //                          'runningQuadCount' + 'quadCount' for its new 'runningQuadCount'.
-    void IssueDraw(const GrCaps&, GrOpsRenderPass*, const VertexSpec&, int runningQuadCount,
-                   int quadCount, int maxVerts, int absVertBufferOffset);
+    [[nodiscard]] bool IssueDraw(const GrCaps&, GrOpsRenderPass*, const VertexSpec&,
+                                 int runningQuadCount, int quadCount, int maxVerts,
+                                 int absVertBufferOffset);
 
     }  // namespace skgpu::ganesh::QuadPerEdgeAA
 

@@ -159,8 +159,19 @@ bool SurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoin
                             SkToBool(srcProxy->asTextureProxy()) &&
                             (srcColorType == GrColorType::kRGBA_8888 ||
                              srcColorType == GrColorType::kBGRA_8888) &&
-                            defaultRGBAFormat.isValid() &&
-                            dContext->priv().validPMUPMConversionExists();
+                            defaultRGBAFormat.isValid();
+    if (canvas2DFastPath) {
+        if (!dContext->priv().hasCheckedPMUPMConversion()) {
+            // validPMUPMConversionExists() may flush pending work on the context the first time it
+            // is called. Flush here so any failure in pending work is observed rather than
+            // consumed inside the conversion test.
+            GrDirectContext::FlushResult result = dContext->priv().flushSurfaces({});
+            if (!result.fSuccess) {
+                return false;
+            }
+        }
+        canvas2DFastPath = dContext->priv().validPMUPMConversionExists();
+    }
 
     // Since the validPMUPMConversionExists function actually submits work to the gpu to do its
     // tests, it is possible that during that call we have abandoned the context. Thus, we do
@@ -435,8 +446,19 @@ bool SurfaceContext::internalWritePixels(GrDirectContext* dContext,
                             this->asFillContext() &&
                             (dstColorType == GrColorType::kRGBA_8888 ||
                              dstColorType == GrColorType::kBGRA_8888) &&
-                            rgbaDefaultFormat.isValid() &&
-                            dContext->priv().validPMUPMConversionExists();
+                            rgbaDefaultFormat.isValid();
+    if (canvas2DFastPath) {
+        if (!dContext->priv().hasCheckedPMUPMConversion()) {
+            // validPMUPMConversionExists() may flush pending work on the context the first time it
+            // is called. Flush here so any failure in pending work is observed rather than
+            // consumed inside the conversion test.
+            GrDirectContext::FlushResult result = dContext->priv().flushSurfaces({});
+            if (!result.fSuccess) {
+                return false;
+            }
+        }
+        canvas2DFastPath = dContext->priv().validPMUPMConversionExists();
+    }
 
     // Since the validPMUPMConversionExists function actually submits work to the gpu to do its
     // tests, it is possible that during that call we have abanoned the context. Thus we do an

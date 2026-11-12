@@ -80,7 +80,7 @@ GrOp::CombineResult ClearOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const G
     return CombineResult::kCannotCombine;
 }
 
-void ClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
+bool ClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     SkASSERT(state->opsRenderPass());
     if (fBuffer & Buffer::kColor) {
         state->opsRenderPass()->clear(fScissor, fColor);
@@ -89,6 +89,7 @@ void ClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     if (fBuffer & Buffer::kStencilClip) {
         state->opsRenderPass()->clearStencilClip(fScissor, fStencilInsideMask);
     }
+    return true;
 }
 
 }  // namespace skgpu::ganesh

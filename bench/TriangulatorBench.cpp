@@ -68,8 +68,9 @@ public:
     void doLoop() override {
         for (const SkPath& path : fPaths) {
             bool isLinear;
-            GrTriangulator::PathToTriangles(path, kTigerTolerance, SkRect::MakeEmpty(), this,
-                                            &isLinear);
+            int vertexCount;
+            (void) GrTriangulator::PathToTriangles(path, kTigerTolerance, SkRect::MakeEmpty(), this,
+                                                   &isLinear, &vertexCount);
         }
     }
 };
@@ -82,9 +83,11 @@ public:
 
     void doLoop() override {
         bool isLinear;
+        int vertexCount;
         for (const SkPath& path : fPaths) {
             GrInnerFanTriangulator::BreadcrumbTriangleList breadcrumbList;
-            GrInnerFanTriangulator(path, &fArena).pathToTriangles(this, &breadcrumbList, &isLinear);
+            (void) GrInnerFanTriangulator(path, &fArena).pathToTriangles(this, &breadcrumbList,
+                                                                         &isLinear, &vertexCount);
         }
         fArena.reset();
     }

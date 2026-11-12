@@ -10,6 +10,7 @@
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 #include "include/core/SkPathTypes.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkLog.h"
 #include "include/private/SkMath.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ganesh/GrEagerVertexAllocator.h"
@@ -685,8 +686,10 @@ std::tuple<Poly*, bool> GrAATriangulator::tessellate(const VertexList& mesh, con
     }
 }
 
-int GrAATriangulator::polysToAATriangles(Poly* polys,
-                                         GrEagerVertexAllocator* vertexAllocator) const {
+bool GrAATriangulator::polysToAATriangles(Poly* polys,
+                                          GrEagerVertexAllocator* vertexAllocator,
+                                          int* vertexCount) const {
+    *vertexCount = 0;
     int64_t count64 = CountPoints(polys, SkPathFillType::kWinding);
     // Count the points from the outer mesh.
     for (Vertex* v = fOuterMesh.fHead; v; v = v->fNext) {
@@ -694,16 +697,20 @@ int GrAATriangulator::polysToAATriangles(Poly* polys,
             count64 += TRIANGULATOR_WIREFRAME ? 12 : 6;
         }
     }
-    if (0 == count64 || count64 > SK_MaxS32) {
-        return 0;
+    if (0 == count64) {
+        return true;
     }
+    if (count64 > SK_MaxS32) {
+        return false;
+    }
+
     int count = count64;
 
     size_t vertexStride = sizeof(SkPoint) + sizeof(float);
     skgpu::VertexWriter verts = vertexAllocator->lockWriter(vertexStride, count);
     if (!verts) {
-        SkDebugf("Could not allocate vertices\n");
-        return 0;
+        SKIA_LOG_E("Could not allocate vertices");
+        return false;
     }
 
     TESS_LOG("emitting %d verts\n", count);
@@ -724,7 +731,8 @@ int GrAATriangulator::polysToAATriangles(Poly* polys,
     int actualCount = static_cast<int>((verts.mark() - start) / vertexStride);
     SkASSERT(actualCount <= count);
     vertexAllocator->unlock(actualCount);
-    return actualCount;
+    *vertexCount = actualCount;
+    return true;
 }
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE

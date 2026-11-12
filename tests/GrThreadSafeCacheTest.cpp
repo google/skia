@@ -633,26 +633,30 @@ private:
         this->findOrCreateVertices(rContext, false, fFailFillingIn);
     }
 
-    void onPrepare(GrOpFlushState* flushState) override {
+    bool onPrepare(GrOpFlushState* flushState) override {
         auto dContext = flushState->gpu()->getContext();
 
         // This call site is not a noop bc this op could've been created on with DDL context
         // and, therefore, could be lacking a gpu-side buffer
         this->findOrCreateVertices(dContext, false, fFailFillingIn);
+        return true;
     }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+    bool onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         if (!fVertexData || !fVertexData->gpuBuffer()) {
-            return;
+            return false;
         }
 
         if (!fProgramInfo) {
             fProgramInfo = this->createProgramInfo(flushState);
+            if (!fProgramInfo) {
+                return false;
+            }
         }
 
         flushState->bindPipeline(*fProgramInfo, SkRect::MakeIWH(fWH, fWH));
         flushState->bindBuffers(nullptr, nullptr, fVertexData->refGpuBuffer());
-        flushState->draw(4, 0);
+        return flushState->draw(4, 0);
     }
 
     TestHelper::Stats*               fStats;
@@ -1051,7 +1055,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_75Verts,
                                        CtsEnforcement::kNever) {
     test_4_75(ctxInfo.directContext(), reporter,
               &TestHelper::addVertAccess, &TestHelper::checkVert,
-              /*failureClearsProxyCache=*/false);
+              /*failureClearsProxyCache=*/true);
 }
 
 // Case 5: ensure that expanding the map works (esp. wrt custom data)

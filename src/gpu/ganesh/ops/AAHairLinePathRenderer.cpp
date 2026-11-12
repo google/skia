@@ -22,6 +22,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkLog.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkOnce.h"
@@ -940,8 +941,8 @@ private:
                            GrXferBarrierFlags renderPassXferBarriers,
                            GrLoadOp colorLoadOp) override;
 
-    void onPrepareDraws(GrMeshDrawTarget*) override;
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+    bool onPrepareDraws(GrMeshDrawTarget*) override;
+    bool onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
         AAHairlineOp* that = t->cast<AAHairlineOp>();
@@ -1196,11 +1197,11 @@ void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
     context->priv().recordProgramInfo(fProgramInfos[2]);
 }
 
-void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
+bool AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
     auto inverse = this->viewMatrix().invert();
     if (!inverse) {
-        return;
+        return true;
     }
 
     // we will transform to identity space if the viewmatrix does not have perspective
@@ -1244,13 +1245,13 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
     int conicCount = conics.size() / 3;
     int quadAndConicCount = safeMath.addInt(conicCount, quadCount);
     if (!safeMath.ok()) {
-        return;
+        return false;
     }
 
     static constexpr int kMaxLines = SK_MaxS32 / kLineSegNumVertices;
     static constexpr int kMaxQuadsAndConics = SK_MaxS32 / kQuadNumVertices;
     if (lineCount > kMaxLines || quadAndConicCount > kMaxQuadsAndConics) {
-        return;
+        return false;
     }
 
     // do lines first
@@ -1266,8 +1267,8 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
 
         LineVertex* verts = reinterpret_cast<LineVertex*>(helper.vertices());
         if (!verts) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
+            SKIA_LOG_E("Could not allocate vertices");
+            return false;
         }
 
         for (int i = 0; i < lineCount; ++i) {
@@ -1288,8 +1289,8 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
                                                  &firstVertex);
 
         if (!vertices || !quadsIndexBuffer) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
+            SKIA_LOG_E("Could not allocate vertices");
+            return false;
         }
 
         // Setup vertices
@@ -1299,7 +1300,7 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
         for (int i = 0; i < unsubdivQuadCnt; ++i) {
             SkASSERT(qSubdivs[i] >= 0);
             if (!quads[3*i].isFinite() || !quads[3*i+1].isFinite() || !quads[3*i+2].isFinite()) {
-                return;
+                return true;
             }
             add_quads(&quads[3*i], qSubdivs[i], toDevice, toSrc, &bezVerts);
         }
@@ -1334,19 +1335,28 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
     // In DDL mode this will replace the predicted program requirements with the actual ones.
     // However, we will already have surfaced the predicted programs to the DDL.
     fCharacterization = actualPrograms;
+    return true;
 }
 
-void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+bool AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     this->createProgramInfo(flushState);
 
     for (int i = 0; i < 3; ++i) {
-        if (fProgramInfos[i] && fMeshes[i]) {
-            flushState->bindPipelineAndScissorClip(*fProgramInfos[i], chainBounds);
-            flushState->bindTextures(fProgramInfos[i]->geomProc(), nullptr,
-                                     fProgramInfos[i]->pipeline());
-            flushState->drawMesh(*fMeshes[i]);
+        if (!fMeshes[i]) {
+            continue;
+        }
+        if (!fProgramInfos[i]) {
+            return false;
+        }
+
+        flushState->bindPipelineAndScissorClip(*fProgramInfos[i], chainBounds);
+        flushState->bindTextures(
+                fProgramInfos[i]->geomProc(), nullptr, fProgramInfos[i]->pipeline());
+        if (!flushState->drawMesh(*fMeshes[i])) {
+            return false;
         }
     }
+    return true;
 }
 
 } // anonymous namespace

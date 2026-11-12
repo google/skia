@@ -63,14 +63,14 @@ public:
     PatchAttribs patchAttribs() const { return fAttribs; }
 
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
-    virtual void prepare(GrMeshDrawTarget* target,
-                         const SkMatrix& shaderMatrix,
-                         const PathDrawList& pathDrawList,
-                         int totalCombinedPathVerbCnt) = 0;
+    [[nodiscard]] virtual bool prepare(GrMeshDrawTarget* target,
+                                       const SkMatrix& shaderMatrix,
+                                       const PathDrawList& pathDrawList,
+                                       int totalCombinedPathVerbCnt) = 0;
 
     // Issues fixed-count instanced draw calls over the patches. The caller is responsible for
     // binding its desired pipeline ahead of time.
-    virtual void draw(GrOpFlushState* flushState) const = 0;
+    [[nodiscard]] virtual bool draw(GrOpFlushState* flushState) const = 0;
 
 protected:
     PathTessellator(bool infinitySupport, PatchAttribs attribs) : fAttribs(attribs) {
@@ -105,29 +105,31 @@ public:
                          PatchAttribs attribs = PatchAttribs::kNone)
             : PathTessellator(infinitySupport, attribs) {}
 
-    void prepareWithTriangles(GrMeshDrawTarget* target,
-                              const SkMatrix& shaderMatrix,
-                              GrInnerFanTriangulator::BreadcrumbTriangleList* extraTriangles,
-                              const PathDrawList& pathDrawList,
-                              int totalCombinedPathVerbCnt);
+    [[nodiscard]] bool prepareWithTriangles(
+            GrMeshDrawTarget* target,
+            const SkMatrix& shaderMatrix,
+            GrInnerFanTriangulator::BreadcrumbTriangleList* extraTriangles,
+            const PathDrawList& pathDrawList,
+            int totalCombinedPathVerbCnt);
 
-    void prepare(GrMeshDrawTarget* target,
+    bool prepare(GrMeshDrawTarget* target,
                  const SkMatrix& shaderMatrix,
                  const PathDrawList& pathDrawList,
                  int totalCombinedPathVerbCnt) final {
-        this->prepareWithTriangles(target,
-                                   shaderMatrix,
-                                   nullptr, // no extra triangles by default
-                                   pathDrawList,
-                                   totalCombinedPathVerbCnt);
+        return this->prepareWithTriangles(target,
+                                          shaderMatrix,
+                                          nullptr, // no extra triangles by default
+                                          pathDrawList,
+                                          totalCombinedPathVerbCnt);
     }
 
-    void draw(GrOpFlushState*) const final;
+    bool draw(GrOpFlushState*) const final;
 
     // Draws a 4-point instance for each patch. This method is used for drawing convex hulls over
     // each cubic with GrFillCubicHullShader. The caller is responsible for binding its desired
     // pipeline ahead of time.
-    void drawHullInstances(GrOpFlushState*, sk_sp<const GrGpuBuffer> vertexBufferIfNeeded) const;
+    [[nodiscard]] bool drawHullInstances(GrOpFlushState*,
+                                         sk_sp<const GrGpuBuffer> vertexBufferIfNeeded) const;
 };
 
 // Prepares an array of "wedge" patches. A wedge is an independent, 5-point closed contour
@@ -147,12 +149,12 @@ public:
         fAttribs |= PatchAttribs::kFanPoint;
     }
 
-    void prepare(GrMeshDrawTarget* target,
+    bool prepare(GrMeshDrawTarget* target,
                  const SkMatrix& shaderMatrix,
                  const PathDrawList& pathDrawList,
                  int totalCombinedPathVerbCnt) final;
 
-    void draw(GrOpFlushState*) const final;
+    bool draw(GrOpFlushState*) const final;
 };
 
 }  // namespace skgpu::ganesh

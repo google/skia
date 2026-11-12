@@ -12,6 +12,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkLog.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkArenaAlloc.h"
@@ -458,7 +459,7 @@ GrProcessorSet::Analysis AtlasTextOp::finalize(const GrCaps& caps,
     return analysis;
 }
 
-void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
+bool AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
     auto resourceProvider = target->resourceProvider();
 
     // If we need local coordinates, compute an inverse view matrix. If this is solid color, the
@@ -467,7 +468,7 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
     // all geometries to have same draw matrix.
     SkMatrix localMatrix = SkMatrix::I();
     if (fUsesLocalCoords && !fHead->fDrawMatrix.invert(&localMatrix)) {
-        return;
+        return true;
     }
 
     GrAtlasManager* atlasManager = target->atlasManager();
@@ -477,8 +478,8 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
     unsigned int numActiveViews;
     const GrSurfaceProxyView* views = atlasManager->getViews(maskFormat, &numActiveViews);
     if (!views) {
-        SkDebugf("Could not allocate backing texture for atlas\n");
-        return;
+        SKIA_LOG_E("Could not allocate backing texture for atlas");
+        return false;
     }
     SkASSERT(views[0].proxy());
 
@@ -499,6 +500,10 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
     FlushInfo flushInfo;
     flushInfo.fPrimProcProxies = primProcProxies;
     flushInfo.fIndexBuffer = resourceProvider->refNonAAQuadIndexBuffer();
+    if (!flushInfo.fIndexBuffer) SK_UNLIKELY {
+        SKIA_LOG_E("Could not allocate index buffer");
+        return false;
+    }
 
 #if !defined(SK_DISABLE_SDF_TEXT)
     if (this->usesDistanceFields()) {
@@ -547,14 +552,14 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
                 &flushInfo.fVertexOffset);
 
         if (!vertices || !flushInfo.fVertexBuffer) {
-            SkDebugf("Could not allocate vertices\n");
+            SKIA_LOG_E("Could not allocate vertices");
             return false;
         }
         return true;
     };
 
     if (!resetVertexBuffer()) {
-        return;
+        return false;
     }
 
     for (const Geometry* geo = fHead; geo != nullptr; geo = geo->fNext) {
@@ -588,7 +593,7 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
 
             // There was a problem allocating the glyph in the atlas. Bail.
             if (!ok) {
-                return;
+                return false;
             }
 
             geo->fillVertexData(vertices + quadCursor * quadSize, subRunCursor, glyphsRegenerated);
@@ -608,22 +613,23 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
                 if (quadCursor == quadEnd && allGlyphsCursor < allGlyphsEnd) {
                     // If the vertex buffer is full and there are still glyphs to draw then
                     // get a new buffer.
-                    if(!resetVertexBuffer()) {
-                        return;
+                    if (!resetVertexBuffer()) {
+                        return false;
                     }
                 }
             }
         }
     }
+    return true;
 }
 
-void AtlasTextOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+bool AtlasTextOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
                                                              std::move(fProcessors),
                                                              GrPipeline::InputFlags::kNone);
 
-    flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline,
-                                                    &GrUserStencilSettings::kUnused);
+    return flushState->executeDrawsAndUploadsForMeshDrawOp(
+            this, chainBounds, pipeline, &GrUserStencilSettings::kUnused);
 }
 
 void AtlasTextOp::createDrawForGeneratedGlyphs(GrMeshDrawTarget* target,
