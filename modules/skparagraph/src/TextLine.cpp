@@ -563,6 +563,10 @@ void TextLine::justify(SkScalar maxWidth) {
         if (ghost) {
             if (cluster->run().leftToRight()) {
                 this->shiftCluster(cluster, ghostShift, ghostShift);
+            } else {
+                // The trailing space of an RTL run is drawn before its other clusters, and the
+                // boxes of the run start from it, so it moves with them
+                this->shiftCluster(cluster, shift, prevShift);
             }
             return true;
         }

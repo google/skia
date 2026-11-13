@@ -12018,6 +12018,65 @@ UNIX_ONLY_TEST(SkParagraph_JustifiedRtlMixedHitsInsideBoxes, reporter) {
     }
 }
 
+// Each painted glyph starts inside the box of its code unit, and every box stays in the line
+static void checkBoxesMatchGlyphs(skiatest::Reporter* reporter,
+                                  Paragraph* paragraph,
+                                  SkScalar width) {
+    auto impl = static_cast<ParagraphImpl*>(paragraph);
+    impl->ensureUTF16Mapping();
+    size_t glyphs = 0;
+    paragraph->visit([&](int, const Paragraph::VisitorInfo* info) {
+        if (info == nullptr) {
+            return;
+        }
+        for (int g = 0; g < info->count; ++g) {
+            auto i = impl->getUTF16Index(info->utf8Starts[g]);
+            auto boxes = paragraph->getRectsForRange(
+                    i, i + 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            if (boxes.empty()) {
+                continue;
+            }
+            ++glyphs;
+            SkScalar x = info->origin.fX + info->positions[g].fX;
+            auto& box = boxes.front().rect;
+            REPORTER_ASSERT(reporter,
+                            box.fLeft - EPSILON100 <= x && x <= box.fRight + EPSILON100,
+                            "glyph of %zu at %g, box [%g, %g)",
+                            i,
+                            x,
+                            box.fLeft,
+                            box.fRight);
+            REPORTER_ASSERT(reporter,
+                            box.fLeft > -EPSILON100 && box.fRight < width + EPSILON100,
+                            "box of %zu [%g, %g) outside [0, %g)",
+                            i,
+                            box.fLeft,
+                            box.fRight,
+                            width);
+        }
+    });
+    REPORTER_ASSERT(reporter, glyphs > 0);
+}
+
+// An RTL run at the end of a justified LTR line moves with the rest of the line, including the
+// trailing space inside it that the boxes of the run are measured from
+UNIX_ONLY_TEST(SkParagraph_JustifiedLtrLineEndingInRtlRunBoxesMatchGlyphs, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    // At these widths a line ends inside an Arabic run
+    for (SkScalar width : {110.0f, 140.0f, 180.0f}) {
+        auto paragraph =
+                layoutJustified(fontCollection,
+                                "Noto Naskh Arabic",
+                                15,
+                                TextDirection::kLtr,
+                                width,
+                                "Hello world دار ورد زاد and more english words دور رواد here ok");
+        REPORTER_ASSERT(reporter, paragraph->lineNumber() > 1);
+        checkBoxesMatchGlyphs(reporter, paragraph.get(), width);
+    }
+}
+
 // Ensure BiDi control characters and dropped glyphs do not leave gaps in code unit cluster mapping
 DEF_TEST(SkParagraph_BidiControlGaps, reporter) {
     auto fontCollection = sk_make_sp<FontCollection>();
