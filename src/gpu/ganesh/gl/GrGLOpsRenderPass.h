@@ -115,9 +115,6 @@ private:
     // Per-pipeline state.
     GrPrimitiveType fPrimitiveType;
     raw_ptr<GrGLAttribArrayState> fAttribArrayState;
-#if !defined(SK_LEGACY_SCISSOR)
-    SkIRect fCurrentPipelineBounds;
-#endif
 
     // If using an index buffer, this gets set during onBindBuffers. It is either the CPU address of
     // the indices, or nullptr if they reside physically in GPU memory.

@@ -138,15 +138,6 @@ public:
 
     // Flushes state from GrProgramInfo to GL. Returns false if the state couldn't be set.
     bool flushGLState(GrRenderTarget*, bool useMultisampleFBO, const GrProgramInfo&);
-
-    // Flushes the scissor. See the note on flushBoundTextureAndParams about
-    // flushing the scissor after that function is called.
-    void flushScissor(const GrScissorState& scissorState, int rtHeight, GrSurfaceOrigin rtOrigin) {
-        this->flushScissorTest(GrScissorTest(scissorState.enabled()));
-        if (scissorState.enabled()) {
-            this->flushScissorRect(scissorState.rect(), rtHeight, rtOrigin);
-        }
-    }
     void flushScissorRect(const SkIRect& scissor, int rtHeight, GrSurfaceOrigin);
 
     // The flushRenderTarget methods will all set the initial viewport to the full extent of the
@@ -525,6 +516,14 @@ private:
     void flushColorWrite(bool writeColor);
     void flushClearColor(std::array<float, 4>);
 
+    // flushes the scissor. see the note on flushBoundTextureAndParams about
+    // flushing the scissor after that function is called.
+    void flushScissor(const GrScissorState& scissorState, int rtHeight, GrSurfaceOrigin rtOrigin) {
+        this->flushScissorTest(GrScissorTest(scissorState.enabled()));
+        if (scissorState.enabled()) {
+            this->flushScissorRect(scissorState.rect(), rtHeight, rtOrigin);
+        }
+    }
     void flushScissorTest(GrScissorTest);
 
     void flushWindowRectangles(const GrWindowRectsState&, const GrGLRenderTarget*, GrSurfaceOrigin);
