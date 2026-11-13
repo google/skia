@@ -55,6 +55,8 @@ public:
             , fChunks(chunks)
             , fStride(stride)
             , fMinVerticesPerChunk(minVerticesPerChunk) {
+        SkASSERT(fChunks && fChunks->empty());
+        SkASSERT(fStride > 0);
         SkASSERT(fMinVerticesPerChunk > 0);
     }
 
