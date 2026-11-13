@@ -43,6 +43,9 @@ class GrGpu;
 class GrBufferAllocPool : SkNoncopyable {
 public:
     inline static constexpr size_t kDefaultBufferSize = 1 << 15;
+    // Largest GrResourceProvider dynamic midpoint bin (1.5 GiB) that fits in signed 32-bit int
+    // after pow2+midpoint rounding.
+    inline static constexpr size_t kMaxBlockSize = (size_t{1} << 30) + (size_t{1} << 29);
 
     /**
      * A cache object that can be shared by multiple GrBufferAllocPool instances. It caches
@@ -111,9 +114,10 @@ protected:
      *
      * @param size         the amount of data to make space for
      * @param alignment    alignment constraint from start of buffer
-     * @param buffer       returns the buffer that will hold the data.
-     * @param offset       returns the offset into buffer of the data.
-     * @return pointer to where the client should write the data.
+     * @param buffer       returns the buffer that will hold the data, or nullptr on failure.
+     * @param offset       returns the offset into buffer of the data, or 0 on failure.
+     * @return pointer to where the client should write the data, or nullptr if
+     *         the request is invalid, overflows, or cannot be allocated.
      */
     void* makeSpace(size_t size, size_t alignment, sk_sp<const GrBuffer>* buffer, size_t* offset);
 
@@ -131,16 +135,18 @@ protected:
      * in temporary storage and/or the buffer may be locked.
      *
      * The caller requests a minimum number of bytes, but the block may be (much)
-     * larger. Assuming that a new block must be allocated, it will be fallbackSize bytes.
+     * larger. Assuming that a new block must be allocated, it will be at least fallbackSize bytes.
      * The actual block size is returned in actualSize.
      *
      * @param minSize        the minimum amount of data to make space for
      * @param fallbackSize   the amount of data to make space for if a new block is needed
+     *                       (must be >= minSize and <= kMaxBlockSize)
      * @param alignment      alignment constraint from start of buffer
-     * @param buffer         returns the buffer that will hold the data.
-     * @param offset         returns the offset into buffer of the data.
-     * @param actualSize     returns the capacity of the block
-     * @return pointer to where the client should write the data.
+     * @param buffer         returns the buffer that will hold the data, or nullptr on failure.
+     * @param offset         returns the offset into buffer of the data, or 0 on failure.
+     * @param actualSize     returns the capacity of the block, or 0 on failure.
+     * @return pointer to where the client should write the data, or nullptr if
+     *         the request is invalid, overflows, or cannot be allocated.
      */
     void* makeSpaceAtLeast(size_t minSize,
                            size_t fallbackSize,
@@ -165,7 +171,7 @@ private:
     void destroyBlock();
     void deleteBlocks();
     [[nodiscard]] bool flushCpuData(const BufferBlock& block, size_t flushSize);
-    void resetCpuData(size_t newSize);
+    [[nodiscard]] bool resetCpuData(size_t newSize);
 #ifdef SK_DEBUG
     void validate(bool unusedBlockAllowed = false) const;
 #endif
@@ -211,10 +217,10 @@ public:
      * @param vertexSize   specifies size of a vertex to allocate space for
      * @param vertexCount  number of vertices to allocate space for
      * @param buffer       returns the vertex buffer that will hold the
-     *                     vertices.
-     * @param startVertex  returns the offset into buffer of the first vertex.
-     *                     In units of the size of a vertex from layout param.
-     * @return pointer to first vertex.
+     *                     vertices, or nullptr on failure.
+     * @param startVertex  returns the offset into buffer of the first vertex,
+     *                     in units of vertexSize, or 0 on failure.
+     * @return pointer to first vertex, or nullptr if allocation fails.
      */
     void* makeSpace(size_t vertexSize,
                     int vertexCount,
@@ -242,11 +248,12 @@ public:
      * @param vertexSize           specifies size of a vertex to allocate space for
      * @param minVertexCount       minimum number of vertices to allocate space for
      * @param fallbackVertexCount  number of vertices to allocate space for if a new block is needed
-     * @param buffer               returns the vertex buffer that will hold the vertices.
-     * @param startVertex          returns the offset into buffer of the first vertex.
-     *                             In units of the size of a vertex from layout param.
-     * @param actualVertexCount    returns the capacity of the block (in vertices)
-     * @return pointer to first vertex.
+     * @param buffer               returns the vertex buffer that will hold the vertices, or
+     *                             nullptr on failure.
+     * @param startVertex          returns the offset into buffer of the first vertex, in units of
+     *                             vertexSize, or 0 on failure.
+     * @param actualVertexCount    returns the capacity of the block (in vertices), or 0 on failure.
+     * @return pointer to first vertex, or nullptr if allocation fails.
      */
     void* makeSpaceAtLeast(size_t vertexSize,
                            int minVertexCount,
@@ -288,9 +295,10 @@ public:
      * in temporary storage and/or the buffer may be locked.
      *
      * @param indexCount   number of indices to allocate space for
-     * @param buffer       returns the index buffer that will hold the indices.
-     * @param startIndex   returns the offset into buffer of the first index.
-     * @return pointer to first index.
+     * @param buffer       returns the index buffer that will hold the indices, or nullptr on
+     *                     failure.
+     * @param startIndex   returns the offset into buffer of the first index, or 0 on failure.
+     * @return pointer to first index, or nullptr if allocation fails.
      */
     void* makeSpace(int indexCount, sk_sp<const GrBuffer>* buffer, int* startIndex);
 
@@ -314,10 +322,12 @@ public:
      *
      * @param minIndexCount        minimum number of indices to allocate space for
      * @param fallbackIndexCount   number of indices to allocate space for if a new block is needed
-     * @param buffer               returns the index buffer that will hold the indices.
-     * @param startIndex           returns the offset into buffer of the first index.
-     * @param actualIndexCount     returns the capacity of the block (in indices)
-     * @return pointer to first index.
+     * @param buffer               returns the index buffer that will hold the indices, or nullptr
+     *                             on failure.
+     * @param startIndex           returns the offset into buffer of the first index, or 0 on
+     *                             failure.
+     * @param actualIndexCount     returns the capacity of the block (in indices), or 0 on failure.
+     * @return pointer to first index, or nullptr if allocation fails.
      */
     void* makeSpaceAtLeast(int minIndexCount,
                            int fallbackIndexCount,
@@ -334,24 +344,15 @@ public:
     GrDrawIndirectBufferAllocPool(GrGpu* gpu, sk_sp<CpuBufferCache> cpuBufferCache)
             : GrBufferAllocPool(gpu, GrGpuBufferType::kDrawIndirect, std::move(cpuBufferCache)) {}
 
-    GrDrawIndirectWriter makeSpace(int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offset) {
-        return this->GrBufferAllocPool::makeSpace(drawCount * sizeof(GrDrawIndirectCommand), 4,
-                                                  buffer, offset);
-    }
+    GrDrawIndirectWriter makeSpace(int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offset);
 
-    void putBack(int drawCount) {
-        this->GrBufferAllocPool::putBack(drawCount * sizeof(GrDrawIndirectCommand));
-    }
+    void putBack(int drawCount);
 
-    GrDrawIndexedIndirectWriter makeIndexedSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
-                                                 size_t* offset) {
-        return this->GrBufferAllocPool::makeSpace(
-                drawCount * sizeof(GrDrawIndexedIndirectCommand), 4, buffer, offset);
-    }
+    GrDrawIndexedIndirectWriter makeIndexedSpace(int drawCount,
+                                                 sk_sp<const GrBuffer>* buffer,
+                                                 size_t* offset);
 
-    void putBackIndexed(int drawCount) {
-        this->GrBufferAllocPool::putBack(drawCount * sizeof(GrDrawIndexedIndirectCommand));
-    }
+    void putBackIndexed(int drawCount);
 
     using GrBufferAllocPool::unmap;
     using GrBufferAllocPool::reset;

@@ -7,7 +7,8 @@
 #include "src/gpu/ganesh/GrBufferAllocPool.h"
 
 #include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/private/SkMacros.h"
+#include "include/private/SkTFitsIn.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -21,6 +22,7 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <utility>
 
 sk_sp<GrBufferAllocPool::CpuBufferCache> GrBufferAllocPool::CpuBufferCache::Make(
         int maxBuffersToCache) {
@@ -36,7 +38,9 @@ GrBufferAllocPool::CpuBufferCache::CpuBufferCache(int maxBuffersToCache)
 
 sk_sp<GrCpuBuffer> GrBufferAllocPool::CpuBufferCache::makeBuffer(size_t size,
                                                                  bool mustBeInitialized) {
-    SkASSERT(size > 0);
+    if (!size) {
+        return nullptr;
+    }
     Buffer* result = nullptr;
     if (size == kDefaultBufferSize) {
         int i = 0;
@@ -48,12 +52,18 @@ sk_sp<GrCpuBuffer> GrBufferAllocPool::CpuBufferCache::makeBuffer(size_t size,
         }
         if (!result && i < fMaxBuffersToCache) {
             fBuffers[i].fBuffer = GrCpuBuffer::Make(size);
+            if (!fBuffers[i].fBuffer) {
+                return nullptr;
+            }
             result = &fBuffers[i];
         }
     }
     Buffer tempResult;
     if (!result) {
         tempResult.fBuffer = GrCpuBuffer::Make(size);
+        if (!tempResult.fBuffer) {
+            return nullptr;
+        }
         result = &tempResult;
     }
     if (mustBeInitialized && !result->fCleared) {
@@ -116,7 +126,7 @@ void GrBufferAllocPool::reset() {
     VALIDATE();
     fBytesInUse = 0;
     this->deleteBlocks();
-    this->resetCpuData(0);
+    (void)this->resetCpuData(0);
     VALIDATE();
 }
 
@@ -186,7 +196,7 @@ static inline size_t align_up_pad(size_t x, size_t alignment) {
     return (alignment - x % alignment) % alignment;
 }
 
-static inline size_t align_down(size_t x, uint32_t alignment) {
+static inline size_t align_down(size_t x, size_t alignment) {
     return (x / alignment) * alignment;
 }
 
@@ -198,6 +208,13 @@ void* GrBufferAllocPool::makeSpace(size_t size,
 
     SkASSERT(buffer);
     SkASSERT(offset);
+
+    buffer->reset();
+    *offset = 0;
+
+    if (!size || !alignment) {
+        return nullptr;
+    }
 
     if (fBufferPtr) {
         BufferBlock& back = fBlocks.back();
@@ -254,13 +271,38 @@ void* GrBufferAllocPool::makeSpaceAtLeast(size_t minSize,
     SkASSERT(offset);
     SkASSERT(actualSize);
 
-    size_t usedBytes = (fBlocks.empty()) ? 0 : fBlocks.back().fBuffer->size() -
-                                               fBlocks.back().fBytesFree;
-    size_t pad = align_up_pad(usedBytes, alignment);
-    if (!fBufferPtr || fBlocks.empty() || (minSize + pad) > fBlocks.back().fBytesFree) {
+    buffer->reset();
+    *offset = 0;
+    *actualSize = 0;
+
+    if (!minSize || !alignment || fallbackSize < minSize) {
+        return nullptr;
+    }
+
+    SkSafeMath safeMath;
+    size_t minAlignedSize = safeMath.add(minSize, align_up_pad(minSize, alignment));
+    if (!safeMath.ok()) {
+        return nullptr;
+    }
+
+    size_t usedBytes = 0;
+    size_t pad = 0;
+    bool needNewBlock = !fBufferPtr || fBlocks.empty();
+    if (!needNewBlock) {
+        const BufferBlock& back = fBlocks.back();
+        usedBytes = back.fBuffer->size() - back.fBytesFree;
+        pad = align_up_pad(usedBytes, alignment);
+        size_t requiredFree = safeMath.add(minAlignedSize, pad);
+        if (!safeMath.ok()) {
+            return nullptr;
+        }
+        needNewBlock = requiredFree > back.fBytesFree;
+    }
+
+    if (needNewBlock) {
         // We either don't have a block yet or the current block doesn't have enough free space.
         // Create a new one.
-        if (!this->createBlock(fallbackSize)) {
+        if (!this->createBlock(std::max(fallbackSize, minAlignedSize))) {
             return nullptr;
         }
         usedBytes = 0;
@@ -276,6 +318,7 @@ void* GrBufferAllocPool::makeSpaceAtLeast(size_t minSize,
 
     // Give caller all remaining space in this block (but aligned correctly)
     size_t size = align_down(fBlocks.back().fBytesFree, alignment);
+    SkASSERT(size >= minAlignedSize);
     *offset = usedBytes;
     *buffer = fBlocks.back().fBuffer;
     *actualSize = size;
@@ -319,6 +362,9 @@ void GrBufferAllocPool::putBack(size_t bytes) {
 }
 
 bool GrBufferAllocPool::createBlock(size_t requestSize) {
+    if (requestSize > kMaxBlockSize) {
+        return false;
+    }
     size_t size = std::max(requestSize, kDefaultBufferSize);
 
     VALIDATE();
@@ -326,7 +372,10 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
     BufferBlock& block = fBlocks.push_back();
 
     block.fBuffer = this->getBuffer(size);
-    if (!block.fBuffer) {
+    // Defensively verify that the returned buffer fits in int32_t so vertex/index count and
+    // offset calculations cannot overflow int.
+    if (!block.fBuffer || block.fBuffer->size() < size ||
+        !SkTFitsIn<int32_t>(block.fBuffer->size())) {
         fBlocks.pop_back();
         return false;
     }
@@ -365,7 +414,10 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
         }
     }
     if (!fBufferPtr) {
-        this->resetCpuData(block.fBytesFree);
+        if (!this->resetCpuData(block.fBytesFree)) {
+            this->destroyBlock();
+            return false;
+        }
         fBufferPtr = fCpuStagingBuffer->data();
     }
 
@@ -382,18 +434,24 @@ void GrBufferAllocPool::destroyBlock() {
     fBufferPtr = nullptr;
 }
 
-void GrBufferAllocPool::resetCpuData(size_t newSize) {
+bool GrBufferAllocPool::resetCpuData(size_t newSize) {
     SkASSERT(newSize >= kDefaultBufferSize || !newSize);
     if (!newSize) {
         fCpuStagingBuffer.reset();
-        return;
+        return true;
     }
     if (fCpuStagingBuffer && newSize <= fCpuStagingBuffer->size()) {
-        return;
+        return true;
     }
     bool mustInitialize = fGpu->caps()->mustClearUploadedBufferData();
-    fCpuStagingBuffer = fCpuBufferCache ? fCpuBufferCache->makeBuffer(newSize, mustInitialize)
+    sk_sp<GrCpuBuffer> buffer = fCpuBufferCache
+                                        ? fCpuBufferCache->makeBuffer(newSize, mustInitialize)
                                         : GrCpuBuffer::Make(newSize);
+    if (!buffer) {
+        return false;
+    }
+    fCpuStagingBuffer = std::move(buffer);
+    return true;
 }
 
 bool GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize) {
@@ -444,18 +502,31 @@ void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
                                          int vertexCount,
                                          sk_sp<const GrBuffer>* buffer,
                                          int* startVertex) {
-    SkASSERT(vertexCount >= 0);
+    SkASSERT(vertexCount > 0);
     SkASSERT(buffer);
     SkASSERT(startVertex);
 
-    size_t offset SK_INIT_TO_AVOID_WARNING;
-    void* ptr = INHERITED::makeSpace(SkSafeMath::Mul(vertexSize, vertexCount),
-                                     vertexSize,
-                                     buffer,
-                                     &offset);
+    buffer->reset();
+    *startVertex = 0;
+
+    if (!vertexSize || vertexCount <= 0) {
+        return nullptr;
+    }
+
+    SkSafeMath safe;
+    size_t size = safe.mul(vertexSize, static_cast<size_t>(vertexCount));
+    if (!safe.ok()) {
+        return nullptr;
+    }
+
+    size_t offset = 0;
+    void* ptr = INHERITED::makeSpace(size, vertexSize, buffer, &offset);
+    if (!ptr) {
+        return nullptr;
+    }
 
     SkASSERT(0 == offset % vertexSize);
-    *startVertex = static_cast<int>(offset / vertexSize);
+    *startVertex = SkToInt(offset / vertexSize);
     return ptr;
 }
 
@@ -463,27 +534,45 @@ void* GrVertexBufferAllocPool::makeSpaceAtLeast(size_t vertexSize, int minVertex
                                                 int fallbackVertexCount,
                                                 sk_sp<const GrBuffer>* buffer, int* startVertex,
                                                 int* actualVertexCount) {
-    SkASSERT(minVertexCount >= 0);
+    SkASSERT(minVertexCount > 0);
     SkASSERT(fallbackVertexCount >= minVertexCount);
     SkASSERT(buffer);
     SkASSERT(startVertex);
     SkASSERT(actualVertexCount);
 
-    size_t offset SK_INIT_TO_AVOID_WARNING;
-    size_t actualSize SK_INIT_TO_AVOID_WARNING;
-    void* ptr = INHERITED::makeSpaceAtLeast(SkSafeMath::Mul(vertexSize, minVertexCount),
-                                            SkSafeMath::Mul(vertexSize, fallbackVertexCount),
+    buffer->reset();
+    *startVertex = 0;
+    *actualVertexCount = 0;
+
+    if (!vertexSize || minVertexCount <= 0 || fallbackVertexCount < minVertexCount) {
+        return nullptr;
+    }
+
+    SkSafeMath safe;
+    size_t minSize = safe.mul(vertexSize, static_cast<size_t>(minVertexCount));
+    size_t fallbackSize = safe.mul(vertexSize, static_cast<size_t>(fallbackVertexCount));
+    if (!safe.ok()) {
+        return nullptr;
+    }
+
+    size_t offset = 0;
+    size_t actualSize = 0;
+    void* ptr = INHERITED::makeSpaceAtLeast(minSize,
+                                            fallbackSize,
                                             vertexSize,
                                             buffer,
                                             &offset,
                                             &actualSize);
+    if (!ptr) {
+        return nullptr;
+    }
 
     SkASSERT(0 == offset % vertexSize);
-    *startVertex = static_cast<int>(offset / vertexSize);
+    *startVertex = SkToInt(offset / vertexSize);
 
     SkASSERT(0 == actualSize % vertexSize);
-    SkASSERT(actualSize >= vertexSize * minVertexCount);
-    *actualVertexCount = static_cast<int>(actualSize / vertexSize);
+    SkASSERT(actualSize >= minSize);
+    *actualVertexCount = SkToInt(actualSize / vertexSize);
 
     return ptr;
 }
@@ -495,44 +584,153 @@ GrIndexBufferAllocPool::GrIndexBufferAllocPool(GrGpu* gpu, sk_sp<CpuBufferCache>
 
 void* GrIndexBufferAllocPool::makeSpace(int indexCount, sk_sp<const GrBuffer>* buffer,
                                         int* startIndex) {
-    SkASSERT(indexCount >= 0);
+    SkASSERT(indexCount > 0);
     SkASSERT(buffer);
     SkASSERT(startIndex);
 
-    size_t offset SK_INIT_TO_AVOID_WARNING;
-    void* ptr = INHERITED::makeSpace(SkSafeMath::Mul(indexCount, sizeof(uint16_t)),
-                                     sizeof(uint16_t),
-                                     buffer,
-                                     &offset);
+    buffer->reset();
+    *startIndex = 0;
+
+    if (indexCount <= 0) {
+        return nullptr;
+    }
+
+    SkSafeMath safe;
+    size_t size = safe.mul(static_cast<size_t>(indexCount), sizeof(uint16_t));
+    if (!safe.ok()) {
+        return nullptr;
+    }
+
+    size_t offset = 0;
+    void* ptr = INHERITED::makeSpace(size, sizeof(uint16_t), buffer, &offset);
+    if (!ptr) {
+        return nullptr;
+    }
 
     SkASSERT(0 == offset % sizeof(uint16_t));
-    *startIndex = static_cast<int>(offset / sizeof(uint16_t));
+    *startIndex = SkToInt(offset / sizeof(uint16_t));
     return ptr;
 }
 
 void* GrIndexBufferAllocPool::makeSpaceAtLeast(int minIndexCount, int fallbackIndexCount,
                                                sk_sp<const GrBuffer>* buffer, int* startIndex,
                                                int* actualIndexCount) {
-    SkASSERT(minIndexCount >= 0);
+    SkASSERT(minIndexCount > 0);
     SkASSERT(fallbackIndexCount >= minIndexCount);
     SkASSERT(buffer);
     SkASSERT(startIndex);
     SkASSERT(actualIndexCount);
 
-    size_t offset SK_INIT_TO_AVOID_WARNING;
-    size_t actualSize SK_INIT_TO_AVOID_WARNING;
-    void* ptr = INHERITED::makeSpaceAtLeast(SkSafeMath::Mul(minIndexCount, sizeof(uint16_t)),
-                                            SkSafeMath::Mul(fallbackIndexCount, sizeof(uint16_t)),
+    buffer->reset();
+    *startIndex = 0;
+    *actualIndexCount = 0;
+
+    if (minIndexCount <= 0 || fallbackIndexCount < minIndexCount) {
+        return nullptr;
+    }
+
+    SkSafeMath safe;
+    size_t minSize = safe.mul(static_cast<size_t>(minIndexCount), sizeof(uint16_t));
+    size_t fallbackSize = safe.mul(static_cast<size_t>(fallbackIndexCount), sizeof(uint16_t));
+    if (!safe.ok()) {
+        return nullptr;
+    }
+
+    size_t offset = 0;
+    size_t actualSize = 0;
+    void* ptr = INHERITED::makeSpaceAtLeast(minSize,
+                                            fallbackSize,
                                             sizeof(uint16_t),
                                             buffer,
                                             &offset,
                                             &actualSize);
+    if (!ptr) {
+        return nullptr;
+    }
 
     SkASSERT(0 == offset % sizeof(uint16_t));
-    *startIndex = static_cast<int>(offset / sizeof(uint16_t));
+    *startIndex = SkToInt(offset / sizeof(uint16_t));
 
     SkASSERT(0 == actualSize % sizeof(uint16_t));
-    SkASSERT(actualSize >= minIndexCount * sizeof(uint16_t));
-    *actualIndexCount = static_cast<int>(actualSize / sizeof(uint16_t));
+    SkASSERT(actualSize >= minSize);
+    *actualIndexCount = SkToInt(actualSize / sizeof(uint16_t));
     return ptr;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// GPU APIs (Vulkan, D3D12, OpenGL) require indirect draw buffer byte offsets to be a multiple of 4,
+// which also matches the 32-bit field alignment of GrDrawIndirectCommand (16 B) and
+// GrDrawIndexedIndirectCommand (20 B).
+static constexpr size_t kIndirectCommandAlignment = 4;
+
+GrDrawIndirectWriter GrDrawIndirectBufferAllocPool::makeSpace(int drawCount,
+                                                              sk_sp<const GrBuffer>* buffer,
+                                                              size_t* offset) {
+    SkASSERT(drawCount > 0);
+    SkASSERT(buffer);
+    SkASSERT(offset);
+
+    if (drawCount <= 0) {
+        buffer->reset();
+        *offset = 0;
+        return nullptr;
+    }
+
+    SkSafeMath safe;
+    size_t size = safe.mul(static_cast<size_t>(drawCount), sizeof(GrDrawIndirectCommand));
+    if (!safe.ok()) {
+        buffer->reset();
+        *offset = 0;
+        return nullptr;
+    }
+
+    return this->GrBufferAllocPool::makeSpace(size, kIndirectCommandAlignment, buffer, offset);
+}
+
+void GrDrawIndirectBufferAllocPool::putBack(int drawCount) {
+    SkASSERT(drawCount >= 0);
+    if (drawCount <= 0) {
+        return;
+    }
+    SkSafeMath safe;
+    size_t bytes = safe.mul(static_cast<size_t>(drawCount), sizeof(GrDrawIndirectCommand));
+    if (safe.ok()) {
+        this->GrBufferAllocPool::putBack(bytes);
+    }
+}
+
+GrDrawIndexedIndirectWriter GrDrawIndirectBufferAllocPool::makeIndexedSpace(
+        int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offset) {
+    SkASSERT(drawCount > 0);
+    SkASSERT(buffer);
+    SkASSERT(offset);
+
+    if (drawCount <= 0) {
+        buffer->reset();
+        *offset = 0;
+        return nullptr;
+    }
+
+    SkSafeMath safe;
+    size_t size = safe.mul(static_cast<size_t>(drawCount), sizeof(GrDrawIndexedIndirectCommand));
+    if (!safe.ok()) {
+        buffer->reset();
+        *offset = 0;
+        return nullptr;
+    }
+
+    return this->GrBufferAllocPool::makeSpace(size, kIndirectCommandAlignment, buffer, offset);
+}
+
+void GrDrawIndirectBufferAllocPool::putBackIndexed(int drawCount) {
+    SkASSERT(drawCount >= 0);
+    if (drawCount <= 0) {
+        return;
+    }
+    SkSafeMath safe;
+    size_t bytes = safe.mul(static_cast<size_t>(drawCount), sizeof(GrDrawIndexedIndirectCommand));
+    if (safe.ok()) {
+        this->GrBufferAllocPool::putBack(bytes);
+    }
 }

@@ -490,6 +490,7 @@ ganesh_tests_sources = [
   "$_tests/GaneshContextRecorderTest.cpp",
   "$_tests/GpuDrawPathTest.cpp",
   "$_tests/GrAHardwareBufferTest.cpp",
+  "$_tests/GrBufferAllocPoolTest.cpp",
   "$_tests/GrClipStackTest.cpp",
   "$_tests/GrContextAbandonTest.cpp",
   "$_tests/GrContextFactoryTest.cpp",
