@@ -7,11 +7,10 @@
 
 #include "src/gpu/ganesh/GrVertexChunkArray.h"
 
-#include "include/private/SkTo.h"
-#include "src/gpu/ganesh/GrBufferAllocPool.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 
 #include <algorithm>
+#include <limits>
 
 GrVertexChunkBuilder::~GrVertexChunkBuilder() {
     if (!fChunks->empty()) {
@@ -21,18 +20,9 @@ GrVertexChunkBuilder::~GrVertexChunkBuilder() {
 }
 
 bool GrVertexChunkBuilder::allocChunk(int minCount) {
-    // Cap the initial heuristic preallocation to 512 KiB (16 * kDefaultBufferSize) so inflated
-    // path verb counts cannot trigger multi-gigabyte allocations up front, while allowing
-    // subsequent chunks to double up to 16 MiB (512 * kDefaultBufferSize) as vertices are actually
-    // written to avoid excessive draw calls on large paths.
-    static constexpr size_t kMaxInitialPreallocBytes = 16 * GrBufferAllocPool::kDefaultBufferSize;
-    static constexpr size_t kMaxChunkGrowthBytes = 512 * GrBufferAllocPool::kDefaultBufferSize;
     if (!fChunks->empty()) {
         // No need to put back vertices; the buffer is full.
         fChunks->back().fCount = fCurrChunkVertexCount;
-    } else {
-        int maxInitialVertices = std::max(1, SkToInt(kMaxInitialPreallocBytes / fStride));
-        fMinVerticesPerChunk = std::min(fMinVerticesPerChunk, maxInitialVertices);
     }
     fCurrChunkVertexCount = 0;
     GrVertexChunk* chunk = &fChunks->push_back();
@@ -41,19 +31,7 @@ bool GrVertexChunkBuilder::allocChunk(int minCount) {
                                                               minAllocCount, &chunk->fBuffer,
                                                               &chunk->fBase,
                                                               &fCurrChunkVertexCapacity);
-    if (!fCurrChunkVertexWriter && minAllocCount > minCount) SK_UNLIKELY {
-        // If fStride > kDefaultBufferSize, kDefaultBufferSize / fStride is 0, so std::max
-        // guarantees we still request at least minCount vertices.
-        fMinVerticesPerChunk = std::max(minCount,
-                                        SkToInt(GrBufferAllocPool::kDefaultBufferSize / fStride));
-        fCurrChunkVertexWriter = fTarget->makeVertexWriterAtLeast(fStride, minCount,
-                                                                  fMinVerticesPerChunk,
-                                                                  &chunk->fBuffer,
-                                                                  &chunk->fBase,
-                                                                  &fCurrChunkVertexCapacity);
-    }
-    if (!fCurrChunkVertexWriter || !chunk->fBuffer ||
-        fCurrChunkVertexCapacity < minCount) SK_UNLIKELY {
+    if (!fCurrChunkVertexWriter || !chunk->fBuffer || fCurrChunkVertexCapacity < minCount) SK_UNLIKELY {
         SkDebugf("WARNING: Failed to allocate vertex buffer for GrVertexChunk.\n");
         fChunks->pop_back();
         SkASSERT(fCurrChunkVertexCount == 0);
@@ -61,7 +39,7 @@ bool GrVertexChunkBuilder::allocChunk(int minCount) {
         return false;
     }
 
-    int maxVerticesPerChunk = std::max(1, SkToInt(kMaxChunkGrowthBytes / fStride));
+    int maxVerticesPerChunk = std::numeric_limits<int>::max() / fStride;
     if (maxVerticesPerChunk / 2 > fMinVerticesPerChunk) {
         fMinVerticesPerChunk *= 2;
     } else {

@@ -9,7 +9,7 @@
 #define GrCpuBuffer_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkSafeMath.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrNonAtomicRef.h"
@@ -21,23 +21,18 @@
 class GrCpuBuffer final : public GrNonAtomicRef<GrCpuBuffer>, public GrBuffer {
 public:
     static sk_sp<GrCpuBuffer> Make(size_t size) {
-        if (!size) {
-            return nullptr;
-        }
+        SkASSERT(size > 0);
         SkSafeMath sm;
         size_t combinedSize = sm.add(sizeof(GrCpuBuffer), size);
         if (!sm.ok()) {
-            return nullptr;
+            SK_ABORT("Buffer size is too big.");
         }
-        void* mem = sk_malloc_canfail(combinedSize);
-        if (!mem) {
-            return nullptr;
-        }
-        return sk_sp<GrCpuBuffer>(
-                new (mem) GrCpuBuffer(static_cast<char*>(mem) + sizeof(GrCpuBuffer), size));
+        auto mem = ::operator new(combinedSize);
+        return sk_sp<GrCpuBuffer>(new (mem) GrCpuBuffer((char*)mem + sizeof(GrCpuBuffer), size));
     }
 
-    static void operator delete(void* p) { sk_free(p); }
+    // TODO(b/30449950): use sized delete once P0722R3 is available
+    static void operator delete(void* p) { ::operator delete(p); }
 
     void ref() const override { GrNonAtomicRef<GrCpuBuffer>::ref(); }
     void unref() const override { GrNonAtomicRef<GrCpuBuffer>::unref(); }
