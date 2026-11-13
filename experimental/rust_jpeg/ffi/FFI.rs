@@ -255,6 +255,7 @@ use jpeg_multipicture::{find_mpf_in_segments, MpfResult};
 use jpeg_segment_scan::jpeg_marker;
 use jpeg_segment_scan::{get_segment_params, ScannedSegment, SegmentScanner};
 
+use std::borrow::Cow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -1878,14 +1879,14 @@ pub fn encode_jpeg(
         _ => return EncodingResult::ParameterError,
     };
 
-    let (rgb_data, jpeg_color) = match color_type {
+    let (source_data, jpeg_color) = match color_type {
         JpegEncodeColor::Grayscale => {
             let mut data = Vec::with_capacity(w * h);
             for y in 0..h {
                 let row_start = y * row_bytes;
                 data.extend_from_slice(&pixels[row_start..row_start + w]);
             }
-            (data, jpeg_encoder::ColorType::Luma)
+            (Cow::Owned(data), jpeg_encoder::ColorType::Luma)
         }
         JpegEncodeColor::RGB => {
             let mut data = Vec::with_capacity(w * h * 3);
@@ -1893,7 +1894,17 @@ pub fn encode_jpeg(
                 let row_start = y * row_bytes;
                 data.extend_from_slice(&pixels[row_start..row_start + w * 3]);
             }
-            (data, jpeg_encoder::ColorType::Rgb)
+            (Cow::Owned(data), jpeg_encoder::ColorType::Rgb)
+        }
+        JpegEncodeColor::RGBA | JpegEncodeColor::BGRA
+            if row_bytes == min_row && !matches!(alpha_option, JpegEncodeAlpha::BlendOnBlack) =>
+        {
+            let color = if matches!(color_type, JpegEncodeColor::BGRA) {
+                jpeg_encoder::ColorType::Bgra
+            } else {
+                jpeg_encoder::ColorType::Rgba
+            };
+            (Cow::Borrowed(&pixels[..h * row_bytes]), color)
         }
         JpegEncodeColor::RGBA | JpegEncodeColor::BGRA => {
             let swap_rb = matches!(color_type, JpegEncodeColor::BGRA);
@@ -1920,7 +1931,7 @@ pub fn encode_jpeg(
                     }
                 }
             }
-            (data, jpeg_encoder::ColorType::Rgb)
+            (Cow::Owned(data), jpeg_encoder::ColorType::Rgb)
         }
         _ => return EncodingResult::ParameterError,
     };
@@ -1933,7 +1944,7 @@ pub fn encode_jpeg(
     encoder.set_exact_quantization(true);
     encoder.set_optimized_huffman_tables(true);
 
-    match encoder.encode(&rgb_data, w16, h16, jpeg_color) {
+    match encoder.encode(&source_data, w16, h16, jpeg_color) {
         Ok(()) => {
             *output = buf;
             EncodingResult::Success
@@ -2487,6 +2498,65 @@ mod tests {
     }
 
     #[test]
+    fn test_encode_packed_color_matches_padded_input() {
+        for color in [JpegEncodeColor::RGBA, JpegEncodeColor::BGRA] {
+            for (width, height) in [(1u32, 1u32), (17, 19)] {
+                let row_bytes = width as usize * 4;
+                let stride = row_bytes + 7;
+                let mut packed = vec![0; row_bytes * height as usize];
+                let mut padded = vec![0xCD; stride * height as usize];
+                for y in 0..height as usize {
+                    for x in 0..width as usize {
+                        let pixel = [
+                            (x * 13 + y * 7) as u8,
+                            (x * 3 + y * 11) as u8,
+                            (x * 17 + y * 5) as u8,
+                            (x * 19 + y * 23) as u8,
+                        ];
+                        packed[y * row_bytes + x * 4..y * row_bytes + (x + 1) * 4]
+                            .copy_from_slice(&pixel);
+                        padded[y * stride + x * 4..y * stride + (x + 1) * 4]
+                            .copy_from_slice(&pixel);
+                    }
+                }
+                for alpha in [JpegEncodeAlpha::Ignore, JpegEncodeAlpha::BlendOnBlack] {
+                    for quality in [40, 85, 90] {
+                        let mut actual = Vec::new();
+                        let mut expected = Vec::new();
+                        assert!(matches!(
+                            encode_jpeg(
+                                &packed,
+                                width,
+                                height,
+                                row_bytes as u32,
+                                color,
+                                alpha,
+                                quality,
+                                &mut actual,
+                            ),
+                            EncodingResult::Success
+                        ));
+                        assert!(matches!(
+                            encode_jpeg(
+                                &padded,
+                                width,
+                                height,
+                                stride as u32,
+                                color,
+                                alpha,
+                                quality,
+                                &mut expected,
+                            ),
+                            EncodingResult::Success
+                        ));
+                        assert_eq!(actual, expected);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
     fn test_encode_jpeg_uses_optimized_huffman_tables() {
         let pixels = [0, 255, 0].repeat(100 * 100);
 
@@ -2536,8 +2606,8 @@ mod tests {
             EncodingResult::Success
         );
 
-        let options =
-            zune_core::options::DecoderOptions::default().jpeg_set_out_colorspace(ZuneColorSpace::Luma);
+        let options = zune_core::options::DecoderOptions::default()
+            .jpeg_set_out_colorspace(ZuneColorSpace::Luma);
         let mut decoder = zune_jpeg::JpegDecoder::new_with_options(
             zune_core::bytestream::ZCursor::new(&encoded),
             options,
