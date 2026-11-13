@@ -16,6 +16,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 
 class SkImageFilter;
 namespace skif { class FilterResult; }
@@ -45,11 +46,7 @@ struct SkImageFilterCacheKey {
     uint32_t fPad = 0;
 
     bool operator==(const SkImageFilterCacheKey& other) const {
-        return fUniqueID == other.fUniqueID &&
-               fMatrix == other.fMatrix &&
-               fClipBounds == other.fClipBounds &&
-               fSrcGenID == other.fSrcGenID &&
-               fSrcSubset == other.fSrcSubset;
+        return memcmp(this, &other, sizeof(*this)) == 0;
     }
 };
 
