@@ -459,6 +459,7 @@ filegroup(
         "GaneshContextRecorderTest.cpp",
         "GpuDrawPathTest.cpp",
         "GrAHardwareBufferTest.cpp",
+        "GrBufferAllocPoolTest.cpp",
         "GrClipStackTest.cpp",
         "GrContextAbandonTest.cpp",
         "GrContextFactoryTest.cpp",
