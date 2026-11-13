@@ -25,9 +25,11 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/private/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkSpecialImage.h"
+#include "src/core/SkUtils.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
@@ -407,4 +409,83 @@ DEF_TEST(ImageFilterCache_64BitUniqueID, reporter) {
     REPORTER_ASSERT(reporter, found.image() == img1.get());
     REPORTER_ASSERT(reporter, cache->get(key2, &found));
     REPORTER_ASSERT(reporter, found.image() == img2.get());
+}
+
+DEF_TEST(ImageFilterCache_BitwiseKeyEquality, reporter) {
+    const SkIRect clip = SkIRect::MakeLTRB(0, 1, 4, 5);
+    const SkIRect emptySubset = SkIRect::MakeWH(0, 0);
+    auto makeTxMatrix = [](uint32_t txBits) {
+        return SkMatrix::Translate(sk_bit_cast<float>(txBits), 1.0f);
+    };
+
+    SkImageFilterCacheKey sameA(2, SkMatrix::Translate(2.0f, 1.0f), clip, 0, emptySubset);
+    SkImageFilterCacheKey sameB(2, SkMatrix::Translate(2.0f, 1.0f), clip, 0, emptySubset);
+    REPORTER_ASSERT(reporter, sameA == sameB);
+    REPORTER_ASSERT(reporter,
+                    SkChecksum::Hash32(&sameA, sizeof(sameA)) ==
+                    SkChecksum::Hash32(&sameB, sizeof(sameB)));
+
+    // +0.0f and -0.0f are numerically equal in SkMatrix::operator==, but have different bit
+    // representations and hashes, so cache key equality must distinguish them.
+    SkImageFilterCacheKey posZero(2, makeTxMatrix(0x00000000u), clip, 0, emptySubset);
+    SkImageFilterCacheKey negZero(2, makeTxMatrix(0x80000000u), clip, 0, emptySubset);
+    REPORTER_ASSERT(reporter,
+                    SkChecksum::Hash32(&posZero, sizeof(posZero)) !=
+                    SkChecksum::Hash32(&negZero, sizeof(negZero)));
+    REPORTER_ASSERT(reporter, !(posZero == negZero));
+
+    // preScale(0, 0) on a skew matrix leaves kAffine_Mask | kScale_Mask set in fTypeMask,
+    // whereas Scale(0, 0) only sets kScale_Mask. Even though all 9 floats are numerically equal,
+    // their fTypeMask bytes and hashes differ, so operator== must return false.
+    SkMatrix skewThenZero = SkMatrix::Skew(1.0f, 1.0f);
+    skewThenZero.getType();
+    skewThenZero.preScale(0.0f, 0.0f);
+    SkImageFilterCacheKey skewZeroKey(2, skewThenZero, clip, 0, emptySubset);
+    SkImageFilterCacheKey scaleZeroKey(2, SkMatrix::Scale(0.0f, 0.0f), clip, 0, emptySubset);
+    REPORTER_ASSERT(reporter,
+                    SkChecksum::Hash32(&skewZeroKey, sizeof(skewZeroKey)) !=
+                    SkChecksum::Hash32(&scaleZeroKey, sizeof(scaleZeroKey)));
+    REPORTER_ASSERT(reporter, !(skewZeroKey == scaleZeroKey));
+
+    // Two distinct subnormal translations chosen to produce the exact same 32-bit wyhash.
+    constexpr uint32_t kTxBitsA = 0x00017a63u;
+    constexpr uint32_t kTxBitsB = 0x00023d50u;
+    SkImageFilterCacheKey subA(2, makeTxMatrix(kTxBitsA), clip, 0, emptySubset);
+    SkImageFilterCacheKey subB(2, makeTxMatrix(kTxBitsB), clip, 0, emptySubset);
+    REPORTER_ASSERT(reporter,
+                    SkChecksum::Hash32(&subA, sizeof(subA)) ==
+                    SkChecksum::Hash32(&subB, sizeof(subB)));
+    REPORTER_ASSERT(reporter, !(subA == subB));
+    REPORTER_ASSERT(reporter, !(subA == posZero));
+
+    // Verify colliding keys coexist and evict the exact LRU entry when probe order (subB then subA)
+    // and LRU order (subA at tail) differ.
+    SkBitmap bm = create_bm();
+    const SkIRect full = SkIRect::MakeWH(kFullSize, kFullSize);
+    sk_sp<SkSpecialImage> imgA(SkSpecialImages::MakeFromRaster(full, bm, SkSurfaceProps()));
+    sk_sp<SkSpecialImage> imgB(SkSpecialImages::MakeFromRaster(full, bm, SkSurfaceProps()));
+    sk_sp<SkSpecialImage> imgC(SkSpecialImages::MakeFromRaster(full, bm, SkSurfaceProps()));
+    REPORTER_ASSERT(reporter, imgA && imgB && imgC);
+
+    sk_sp<SkImageFilterCache> cache(SkImageFilterCache::Create(2 * imgA->getSize()));
+    auto filter = make_filter();
+    const SkIPoint offset = SkIPoint::Make(0, 0);
+
+    cache->set(subB, filter.get(), skif::FilterResult(imgB, skif::LayerSpace<SkIPoint>(offset)));
+    cache->set(subA, filter.get(), skif::FilterResult(imgA, skif::LayerSpace<SkIPoint>(offset)));
+
+    skif::FilterResult found;
+    REPORTER_ASSERT(reporter, cache->get(subB, &found));
+    REPORTER_ASSERT(reporter, found.image() == imgB.get());
+
+    cache->set(posZero, filter.get(), skif::FilterResult(imgC, skif::LayerSpace<SkIPoint>(offset)));
+    SkDEBUGCODE(REPORTER_ASSERT(reporter, 2 == cache->count());)
+    REPORTER_ASSERT(reporter, !cache->get(subA, &found));
+    REPORTER_ASSERT(reporter, cache->get(subB, &found));
+    REPORTER_ASSERT(reporter, found.image() == imgB.get());
+    REPORTER_ASSERT(reporter, cache->get(posZero, &found));
+    REPORTER_ASSERT(reporter, found.image() == imgC.get());
+
+    cache->purgeByImageFilter(filter.get());
+    SkDEBUGCODE(REPORTER_ASSERT(reporter, 0 == cache->count());)
 }
