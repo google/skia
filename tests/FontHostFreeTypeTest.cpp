@@ -13,6 +13,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
@@ -30,15 +31,18 @@
 #include "tools/fonts/TestEmptyTypeface.h"
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <type_traits>
 #include <vector>
 
 #include <ft2build.h>
 
 #include <freetype/freetype.h>
+#include <freetype/ftimage.h>
 #include <freetype/ftoutln.h>
 
 namespace {
@@ -94,9 +98,16 @@ SkGlyph make_test_glyph(SkRect bounds,
     };
 
     SkFont font(sk_make_sp<FixedBoundsTypeface>(bounds, format), 10.0f);
-    font.setEdging(format == SkMask::kLCD16_Format ? SkFont::Edging::kSubpixelAntiAlias
-                                                   : SkFont::Edging::kAntiAlias);
-    font.setSubpixel(true);
+    if (format == SkMask::kLCD16_Format) {
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        font.setSubpixel(true);
+    } else if (format == SkMask::kBW_Format) {
+        font.setEdging(SkFont::Edging::kAlias);
+        font.setSubpixel(false);
+    } else {
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        font.setSubpixel(true);
+    }
     SkStrikeSpec spec = SkStrikeSpec::MakeMask(font,
                                                SkPaint(),
                                                SkSurfaceProps(0, pixelGeometry),
@@ -135,7 +146,10 @@ struct GuardedBuffer {
 // Verifies SkScalerContextFTUtils::generateGlyphImage when a FreeType outline diverges from
 // SkGlyph's pre-computed bounds:
 //   1. kLCD16_Format subpixel-to-pixel intersection and 3x subpixel cropping.
-//   2. Non-LCD kA8_Format SkFDot6 subpixel translation overflow guards.
+//   2. Non-LCD (kA8_Format and kBW_Format) target-space clipping and disjoint rejection.
+//   3. SkFDot6 subpixel translation overflow guards across LCD and non-LCD formats.
+//   4. Monochrome (kBW_Format) FT_OUTLINE_HIGH_PRECISION Bezier coordinate bounds
+//      (b/576952569).
 DEF_TEST(FreeType_GenerateGlyphImageDivergentOutline, reporter) {
     // Load the 'X' outline from ahem.ttf at 10px to establish a known 10x10 pixel glyph box.
     sk_sp<SkData> fontData = GetResourceAsData("fonts/ahem.ttf");
@@ -215,51 +229,215 @@ DEF_TEST(FreeType_GenerateGlyphImageDivergentOutline, reporter) {
         }
     }
 
-    // --- Part 2: Non-LCD SkFDot6 subpixel translation overflow guards ---
+    // --- Part 2: Non-LCD (kA8_Format and kBW_Format) target-space clipping ---
+    // Shifting the outline relative to glyph.iRect() should clip partial overlaps into the
+    // destination mask and reject disjoint outlines rather than snapping shiftedXMin/YMin to 0.
+    for (SkMask::Format fmt : {SkMask::kA8_Format, SkMask::kBW_Format}) {
+        SkArenaAlloc alloc{256};
+        SkGlyph glyph = make_test_glyph(
+                baseBounds, fmt, kUnknown_SkPixelGeometry, SkPackedGlyphID((SkGlyphID)1), &alloc);
+        REPORTER_ASSERT(reporter, glyph.maskFormat() == fmt);
+
+        SkScalerContextFTUtils utils{};
+        utils.init(SK_ColorBLACK, static_cast<SkScalerContext::Flags>(0));
+        SkMaskGamma::PreBlend noPreBlend;
+
+        for (const ShiftCase& tc : kShifts) {
+            skiatest::ReporterContext ctx(
+                    reporter,
+                    SkStringPrintf(
+                            "fmt %d shift (%d, %d)", static_cast<int>(fmt), tc.dxPx, tc.dyPx));
+            REPORTER_ASSERT(reporter, FT_Load_Char(face.get(), 'X', FT_LOAD_NO_BITMAP) == 0);
+            FT_Outline_Translate(&face->glyph->outline, tc.dxPx * 64, tc.dyPx * 64);
+
+            GuardedBuffer buf(glyph.imageSize());
+            utils.generateGlyphImage(face.get(), glyph, buf.data(), SkMatrix::I(), noPreBlend);
+
+            REPORTER_ASSERT(reporter, buf.canariesIntact());
+            REPORTER_ASSERT(reporter, buf.hasNonZeroPayload() == tc.expectNonZero);
+            for (int y = 0; y < glyph.height(); ++y) {
+                for (int x = 0; x < glyph.width(); ++x) {
+                    // FreeType Y goes up, so +dyPx moves the square toward smaller mask rows.
+                    const bool inside = x - tc.dxPx >= 0 && x - tc.dxPx < 10 && y + tc.dyPx >= 0 &&
+                                        y + tc.dyPx < 10;
+                    const uint8_t* row = buf.data() + y * glyph.rowBytes();
+                    const int value = fmt == SkMask::kBW_Format
+                                              ? ((row[x >> 3] >> (7 - (x & 7))) & 1) * 0xFF
+                                              : row[x];
+                    REPORTER_ASSERT(reporter,
+                                    value == (inside ? 0xFF : 0),
+                                    "pixel (%d, %d) got %d",
+                                    x,
+                                    y,
+                                    value);
+                }
+            }
+        }
+    }
+
+    // --- Part 3: SkFDot6 subpixel translation overflow guards ---
     // With (0.5, 0.5) subpixel positioning, generateGlyphImage applies dx = +32 and dy = -32 (in
-    // 26.6 fixed-point) and snaps the shifted bounding box to the pixel grid via xShift / yShift.
-    // Each row places outline coordinates near INT32 limits to test a distinct overflow guard.
+    // 26.6 fixed-point). Use a [-10, -10, 0, 0] glyph so xShift = +32 - (-640) = +672, allowing a
+    // distinct test case where shiftedXMax fits in SkFDot6 while translatedXMax overflows SkFDot6.
     struct OverflowCase {
-        int32_t point0X;
-        int32_t restX;
-        int32_t allY;
+        int32_t minX;
+        int32_t maxX;
+        int32_t minY;
+        int32_t maxY;
+        bool nonLcdOnly;
     };
     constexpr OverflowCase kOverflows[] = {
-            // xMin fits in SkFDot6, but xMin + dx (+32) > SK_MaxS32.
-            {SK_MaxS32 - 16, SK_MaxS32 - 16, 0},
-            // yMin fits in SkFDot6, but yMin + dy (-32) < SK_MinS32.
-            {0, 0, SK_MinS32 + 16},
-            // xMin + dx fits in SkFDot6, but xShift (dx - SK_MinS32) > SK_MaxS32.
-            {SK_MinS32, SK_MinS32, 0},
-            // xMin, xMax, and xShift each fit in SkFDot6, but xMax + xShift > SK_MaxS32.
-            {-1500000000, 1500000000, 0},
+            // maxX fits in SkFDot6, but maxX + dx (+32) > SK_MaxS32.
+            {SK_MaxS32 - 640, SK_MaxS32 - 16, 0, 640, false},
+            // minY fits in SkFDot6, but minY + dy (-32) < SK_MinS32.
+            {0, 640, SK_MinS32 + 16, SK_MinS32 + 640, false},
+            // Degenerate zero-area outline near SK_MinS32.
+            {SK_MinS32, SK_MinS32, 0, 0, false},
+            // maxX + dx (SK_MaxS32 - 32) fits in SkFDot6, but maxX + xShift (+672) > SK_MaxS32.
+            {SK_MaxS32 - 640, SK_MaxS32 - 64, 0, 640, true},
     };
 
-    SkArenaAlloc alloc{256};
-    SkGlyph subpixelGlyph =
-            make_test_glyph(baseBounds,
-                            SkMask::kA8_Format,
-                            kUnknown_SkPixelGeometry,
-                            SkPackedGlyphID((SkGlyphID)1, SK_FixedHalf, SK_FixedHalf),
-                            &alloc);
-    REPORTER_ASSERT(reporter, subpixelGlyph.maskFormat() == SkMask::kA8_Format);
+    const SkRect negLeftBounds = SkRect::MakeLTRB(-10, -10, 0, 0);
+    for (SkMask::Format fmt : {SkMask::kA8_Format, SkMask::kBW_Format, SkMask::kLCD16_Format}) {
+        const SkPixelGeometry geom =
+                fmt == SkMask::kLCD16_Format ? kRGB_H_SkPixelGeometry : kUnknown_SkPixelGeometry;
+        SkArenaAlloc alloc{256};
+        SkGlyph subpixelGlyph =
+                make_test_glyph(negLeftBounds,
+                                fmt,
+                                geom,
+                                SkPackedGlyphID((SkGlyphID)1, SK_FixedHalf, SK_FixedHalf),
+                                &alloc);
+        REPORTER_ASSERT(reporter, subpixelGlyph.maskFormat() == fmt);
 
-    SkScalerContextFTUtils utils{};
-    utils.init(SK_ColorBLACK, SkScalerContext::kSubpixelPositioning_Flag);
-    SkMaskGamma::PreBlend noPreBlend;
+        SkScalerContextFTUtils utils{};
+        utils.init(SK_ColorBLACK, SkScalerContext::kSubpixelPositioning_Flag);
+        SkMaskGamma::PreBlend noPreBlend;
 
-    for (const OverflowCase& oc : kOverflows) {
-        REPORTER_ASSERT(reporter, FT_Load_Char(face.get(), 'X', FT_LOAD_NO_BITMAP) == 0);
-        REPORTER_ASSERT(reporter, face->glyph->outline.n_points >= 2);
-        for (int i = 0; i < face->glyph->outline.n_points; ++i) {
-            face->glyph->outline.points[i].x = (i == 0) ? oc.point0X : oc.restX;
-            face->glyph->outline.points[i].y = oc.allY;
+        for (const OverflowCase& oc : kOverflows) {
+            if (oc.nonLcdOnly && fmt == SkMask::kLCD16_Format) {
+                continue;
+            }
+            REPORTER_ASSERT(reporter, FT_Load_Char(face.get(), 'X', FT_LOAD_NO_BITMAP) == 0);
+            REPORTER_ASSERT(reporter, face->glyph->outline.n_points >= 4);
+            for (int i = 0; i < face->glyph->outline.n_points; ++i) {
+                face->glyph->outline.points[i].x = (i & 1) ? oc.maxX : oc.minX;
+                face->glyph->outline.points[i].y = (i & 2) ? oc.maxY : oc.minY;
+            }
+
+            GuardedBuffer buf(subpixelGlyph.imageSize());
+            utils.generateGlyphImage(
+                    face.get(), subpixelGlyph, buf.data(), SkMatrix::I(), noPreBlend);
+
+            REPORTER_ASSERT(reporter, buf.canariesIntact());
+            REPORTER_ASSERT(reporter, !buf.hasNonZeroPayload());
         }
+    }
 
-        GuardedBuffer buf(subpixelGlyph.imageSize());
-        utils.generateGlyphImage(face.get(), subpixelGlyph, buf.data(), SkMatrix::I(), noPreBlend);
+    // --- Part 4: Monochrome FT_OUTLINE_HIGH_PRECISION Bezier bounds (b/576952569) ---
+    // FreeType's raster1 (ftraster.c) enables high-precision mode (precision_scale = 64) from the
+    // outline flag and the target bitmap size only, without looking at the outline bounds, and
+    // subdivides conics/cubics in signed Long (32-bit on Windows LLP64 / ILP32). Verify that
+    // generateGlyphImage:
+    //   - preserves FT_OUTLINE_HIGH_PRECISION when a small kBW_Format outline fits in the target,
+    //   - clears FT_OUTLINE_HIGH_PRECISION when a divergent outline extends outside the target but
+    //     stays within +-kMaxOutlineCoord ((1 << 22) - 64), and
+    //   - rejects outlines exceeding +-kMaxOutlineCoord (including the b/576952569 regression
+    //     coordinates 0xD55520 / 0xEB5D8B).
+    {
+        using TagType = std::remove_pointer_t<decltype(FT_Outline::tags)>;
+        using ContourType = std::remove_pointer_t<decltype(FT_Outline::contours)>;
 
-        REPORTER_ASSERT(reporter, buf.canariesIntact());
-        REPORTER_ASSERT(reporter, !buf.hasNonZeroPayload());
+        const SkRect bwBounds = SkRect::MakeLTRB(0, -10, 10, 0);
+        SkArenaAlloc alloc{256};
+        SkGlyph bwGlyph = make_test_glyph(bwBounds,
+                                          SkMask::kBW_Format,
+                                          kUnknown_SkPixelGeometry,
+                                          SkPackedGlyphID((SkGlyphID)1),
+                                          &alloc);
+        REPORTER_ASSERT(reporter, bwGlyph.maskFormat() == SkMask::kBW_Format);
+        REPORTER_ASSERT(reporter, bwGlyph.width() == 10 && bwGlyph.height() == 10);
+
+        SkScalerContextFTUtils utils{};
+        utils.init(SK_ColorBLACK, static_cast<SkScalerContext::Flags>(0));
+        SkMaskGamma::PreBlend noPreBlend;
+
+        struct BezierCase {
+            int32_t startY;
+            int32_t ctrlY;
+            int32_t endY;
+            bool expectAccepted;
+            bool expectHighPrecisionKept;
+        };
+        constexpr int32_t kMaxCoord = (1 << 22) - 64;
+        constexpr BezierCase kBezierCases[] = {
+                // In-bounds conic/cubic: fits inside [0..640], keeps FT_OUTLINE_HIGH_PRECISION.
+                {64, 320, 576, true, true},
+                // Divergent outline at exact kMaxOutlineCoord: accepted, high precision cleared.
+                {64, kMaxCoord, 320, true, false},
+                // 1 unit past kMaxOutlineCoord: rejected before FT_Outline_Get_Bitmap.
+                {64, kMaxCoord + 1, 320, false, false},
+                // Negative coordinate past -kMaxOutlineCoord: rejected.
+                {64, -kMaxCoord - 1, 320, false, false},
+                // Regression coordinates from b/576952569 (241,014 px conic): rejected.
+                {0xD55520, 0xEB5D8B, 0x140, false, false},
+        };
+
+        const FT_Outline savedOutline = face->glyph->outline;
+        for (bool testCubic : {false, true}) {
+            for (const BezierCase& bc : kBezierCases) {
+                // Contour 0: 8x8 px filled square inside [64..576] x [64..576] so accepted cases
+                // produce non-zero monochrome pixels. Contour 1: conic (3 pts) or cubic (4 pts).
+                std::array<FT_Vector, 8> pts = {{
+                        {64, 64},
+                        {64, 576},
+                        {576, 576},
+                        {576, 64},
+                        {64, bc.startY},
+                        {192, bc.ctrlY},
+                        {320, testCubic ? bc.ctrlY : bc.endY},
+                        {448, bc.endY},
+                }};
+                const TagType kOn = static_cast<TagType>(FT_CURVE_TAG_ON);
+                const TagType kConic = static_cast<TagType>(FT_CURVE_TAG_CONIC);
+                const TagType kCubic = static_cast<TagType>(FT_CURVE_TAG_CUBIC);
+                std::array<TagType, 8> tags = {{
+                        kOn,
+                        kOn,
+                        kOn,
+                        kOn,
+                        kOn,
+                        testCubic ? kCubic : kConic,
+                        testCubic ? kCubic : kOn,
+                        kOn,
+                }};
+                const unsigned short nPoints = testCubic ? 8 : 7;
+                std::array<ContourType, 2> contours = {{
+                        static_cast<ContourType>(3),
+                        static_cast<ContourType>(nPoints - 1),
+                }};
+
+                face->glyph->format = FT_GLYPH_FORMAT_OUTLINE;
+                face->glyph->outline.n_contours = 2;
+                face->glyph->outline.n_points = nPoints;
+                face->glyph->outline.points = pts.data();
+                face->glyph->outline.tags = tags.data();
+                face->glyph->outline.contours = contours.data();
+                face->glyph->outline.flags = FT_OUTLINE_HIGH_PRECISION;
+
+                GuardedBuffer buf(bwGlyph.imageSize());
+                utils.generateGlyphImage(
+                        face.get(), bwGlyph, buf.data(), SkMatrix::I(), noPreBlend);
+
+                REPORTER_ASSERT(reporter, buf.canariesIntact());
+                REPORTER_ASSERT(reporter, buf.hasNonZeroPayload() == bc.expectAccepted);
+                if (bc.expectAccepted) {
+                    const bool highPrecKept =
+                            (face->glyph->outline.flags & FT_OUTLINE_HIGH_PRECISION) != 0;
+                    REPORTER_ASSERT(reporter, highPrecKept == bc.expectHighPrecisionKept);
+                }
+            }
+        }
+        face->glyph->outline = savedOutline;
     }
 }

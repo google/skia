@@ -1650,6 +1650,28 @@ void SkScalerContextFTUtils::generateGlyphImage(FT_Face face, const SkGlyph& gly
 
             memset(imageBuffer, 0, glyph.rowBytes() * glyph.height());
 
+            if (outline->n_contours <= 0 || outline->n_points <= 0) {
+                return;
+            }
+
+            FT_BBox bbox;
+            FT_Outline_Get_CBox(outline, &bbox);
+            const int64_t xMin = bbox.xMin;
+            const int64_t xMax = bbox.xMax;
+            const int64_t yMin = bbox.yMin;
+            const int64_t yMax = bbox.yMax;
+            const int64_t shiftedXMin = xMin + dx;
+            const int64_t shiftedXMax = xMax + dx;
+            const int64_t shiftedYMin = yMin + dy;
+            const int64_t shiftedYMax = yMax + dy;
+            if (!SkTFitsIn<SkFDot6>(xMin) || !SkTFitsIn<SkFDot6>(xMax) ||
+                !SkTFitsIn<SkFDot6>(yMin) || !SkTFitsIn<SkFDot6>(yMax) ||
+                !SkTFitsIn<SkFDot6>(shiftedXMin) || !SkTFitsIn<SkFDot6>(shiftedXMax) ||
+                !SkTFitsIn<SkFDot6>(shiftedYMin) || !SkTFitsIn<SkFDot6>(shiftedYMax) ||
+                xMin >= xMax || yMin >= yMax) {
+                return;
+            }
+
             if (SkMask::kLCD16_Format == glyph.maskFormat()) {
                 const bool doBGR = SkToBool(fFlags & SkScalerContext::kLCD_BGROrder_Flag);
                 const bool doVert = SkToBool(fFlags & SkScalerContext::kLCD_Vertical_Flag);
@@ -1720,36 +1742,44 @@ void SkScalerContextFTUtils::generateGlyphImage(FT_Face face, const SkGlyph& gly
                             clippedBitmap, &mask, doBGR, preBlend.fR, preBlend.fG, preBlend.fB);
                 }
             } else {
-                FT_BBox     bbox;
-                FT_Bitmap   target;
-                FT_Outline_Get_CBox(outline, &bbox);
-                const int64_t xMin = bbox.xMin;
-                const int64_t xMax = bbox.xMax;
-                const int64_t yMin = bbox.yMin;
-                const int64_t yMax = bbox.yMax;
-                const int64_t shiftedXMin = xMin + dx;
-                const int64_t shiftedYMin = yMin + dy;
-                if (!SkTFitsIn<SkFDot6>(xMin) || !SkTFitsIn<SkFDot6>(xMax) ||
-                    !SkTFitsIn<SkFDot6>(yMin) || !SkTFitsIn<SkFDot6>(yMax) ||
-                    !SkTFitsIn<SkFDot6>(shiftedXMin) || !SkTFitsIn<SkFDot6>(shiftedYMin)) {
+                // Apply the subpixel offset (dx, dy) and translate the destination mask's
+                // bottom-left pixel corner (glyph.left(), glyph.top() + glyph.height() in Skia's
+                // Y-down space) to FreeType's Y-up bitmap origin (0, 0).
+                const int64_t xShift = int64_t{dx} - int64_t{glyph.left()} * SK_FDot6One;
+                const int64_t yShift =
+                        int64_t{dy} + (int64_t{glyph.top()} + glyph.height()) * SK_FDot6One;
+                const int64_t translatedXMin = xMin + xShift;
+                const int64_t translatedXMax = xMax + xShift;
+                const int64_t translatedYMin = yMin + yShift;
+                const int64_t translatedYMax = yMax + yShift;
+
+                const int64_t targetWidth = int64_t{glyph.width()} * SK_FDot6One;
+                const int64_t targetHeight = int64_t{glyph.height()} * SK_FDot6One;
+                if (translatedXMax <= 0 || translatedXMin >= targetWidth || translatedYMax <= 0 ||
+                    translatedYMin >= targetHeight) {
                     return;
                 }
 
-                // We want to apply the subpixel offset (dx, dy), and then align the resulting
-                // bounding box to the integer pixel grid of our destination bitmap.
-                // We do this by calculating the translation required to move the glyph's
-                // pixel-rounded left edge (in the destination space) to the origin which allows
-                // us to only make one call to Translate.
-                const int64_t xShift =
-                        int64_t{dx} - SkIntToFDot6(SkFDot6Floor(SkToS32(shiftedXMin)));
-                const int64_t yShift =
-                        int64_t{dy} - SkIntToFDot6(SkFDot6Floor(SkToS32(shiftedYMin)));
-                if (!SkTFitsIn<SkFDot6>(xShift) || !SkTFitsIn<SkFDot6>(yShift) ||
-                    !SkTFitsIn<SkFDot6>(xMax + xShift) || !SkTFitsIn<SkFDot6>(yMax + yShift)) {
+                // FreeType's monochrome rasterizer (ftraster.c) computes Bezier midpoints in
+                // signed Long (32-bit on Windows LLP64 and ILP32 targets). In high-precision mode
+                // (precision_scale = 64), 8-term Split_Cubic and 4-term Split_Conic sums wrap
+                // 32-bit Long when 26.6 coordinates exceed +-((1 << 22) - 64) (65,535 px, matching
+                // ft_glyphslot_preset_bitmap's < 0x10000 pixel cap). Reject outlines beyond that
+                // bound and disable FT_OUTLINE_HIGH_PRECISION whenever the outline extends outside
+                // the target bitmap.
+                constexpr int64_t kMaxOutlineCoord = (int64_t{1} << 22) - SK_FDot6One;
+                if (translatedXMin < -kMaxOutlineCoord || translatedXMax > kMaxOutlineCoord ||
+                    translatedYMin < -kMaxOutlineCoord || translatedYMax > kMaxOutlineCoord) {
                     return;
                 }
+                if (translatedXMin < 0 || translatedYMin < 0 || translatedXMax > targetWidth ||
+                    translatedYMax > targetHeight) {
+                    outline->flags &= ~FT_OUTLINE_HIGH_PRECISION;
+                }
+
                 FT_Outline_Translate(outline, SkToS32(xShift), SkToS32(yShift));
 
+                FT_Bitmap target;
                 target.width = glyph.width();
                 target.rows = glyph.height();
                 target.pitch = glyph.rowBytes();
