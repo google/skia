@@ -111,6 +111,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
         auto gpuBuffer = static_cast<const GrGpuBuffer*>(vertexBuffer);
         if (array->fUsingCpuBuffer || array->fVertexBufferUniqueID != gpuBuffer->uniqueID()) {
             bufferChanged = true;
+            array->fUsingCpuBuffer = false;
             array->fVertexBufferUniqueID = gpuBuffer->uniqueID();
         }
         offsetAsPtr = reinterpret_cast<const char*>(offsetInBytes);

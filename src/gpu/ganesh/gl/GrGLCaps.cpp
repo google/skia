@@ -744,7 +744,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (GR_IS_GR_GL(standard)) {
         fBaseVertexBaseInstanceSupport = version >= GR_GL_VER(4,2) ||
                                          ctxInfo.hasExtension("GL_ARB_base_instance");
-        if (fBaseVertexBaseInstanceSupport) {
+        if (fBaseVertexBaseInstanceSupport && !fPreferClientSideDynamicBuffers) {
             fNativeDrawIndirectSupport = version >= GR_GL_VER(4,0) ||
                                          ctxInfo.hasExtension("GL_ARB_draw_indirect");
             if (version >= GR_GL_VER(4,3) || ctxInfo.hasExtension("GL_ARB_multi_draw_indirect")) {
@@ -886,6 +886,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (ctxInfo.vendor() == GrGLVendor::kARM) {
         fShouldCollapseSrcOverToSrcWhenAble = true;
+    }
+
+    if (ctxInfo.vendor() == GrGLVendor::kQualcomm) {
+        // It appears that all the Adreno GPUs have less than optimal performance (and allocate
+        // O(N^2) client-side VBO memory up to maxIndexValue) when drawing w/ large index buffers.
+        fAvoidLargeIndexBufferDraws = true;
     }
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -4252,12 +4258,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (fDriverBugWorkarounds.gl_clear_broken) {
         fPerformColorClearsAsDraws = true;
         fPerformStencilClearsAsDraws = true;
-    }
-
-    if (ctxInfo.vendor() == GrGLVendor::kQualcomm) {
-        // It appears that all the Adreno GPUs have less than optimal performance when
-        // drawing w/ large index buffers.
-        fAvoidLargeIndexBufferDraws = true;
     }
 
     if (ctxInfo.renderer() == GrGLRenderer::kMali4xx ||

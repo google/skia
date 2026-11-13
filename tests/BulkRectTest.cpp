@@ -60,7 +60,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> new_SDC(GrRecordingCon
                                                    GrColorType::kRGBA_8888,
                                                    nullptr,
                                                    SkBackingFit::kExact,
-                                                   {128, 128},
+                                                   {8, 8},
                                                    SkSurfaceProps(),
                                                    /*label=*/{});
 }
@@ -68,7 +68,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> new_SDC(GrRecordingCon
 static sk_sp<GrSurfaceProxy> create_proxy(GrRecordingContext* rContext) {
     using namespace skgpu;
 
-    static constexpr SkISize kDimensions = {128, 128};
+    static constexpr SkISize kDimensions = {8, 8};
 
     Protected isProtected = Protected(rContext->priv().caps()->supportsProtectedContent());
 
@@ -115,7 +115,7 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
     auto quads = new GrQuadSetEntry[requestedTotNumQuads];
 
     for (int i = 0; i < requestedTotNumQuads; ++i) {
-        quads[i].fRect = SkRect::MakeWH(100.5f, 100.5f); // prevent the int non-AA optimization
+        quads[i].fRect = SkRect::MakeWH(4.5f, 4.5f); // prevent the int non-AA optimization
         quads[i].fColor = SK_PMColor4fWHITE;
         quads[i].fLocalMatrix = SkMatrix::I();
         quads[i].fAAFlags = perQuadAA(i);
@@ -148,7 +148,7 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
     REPORTER_ASSERT(reporter, expectedNumOps == actualNumOps);
     REPORTER_ASSERT(reporter, requestedTotNumQuads == actualTotNumQuads);
 
-    dContext->flushAndSubmit();
+    dContext->flushAndSubmit(GrSyncCpu::kYes);
 
     delete[] quads;
 }
@@ -190,8 +190,8 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
         }
 
         set[i].fSrcAlphaType = kPremul_SkAlphaType;
-        set[i].fSrcRect = SkRect::MakeWH(100.0f, 100.0f);
-        set[i].fDstRect = SkRect::MakeWH(100.5f, 100.5f); // prevent the int non-AA optimization
+        set[i].fSrcRect = SkRect::MakeWH(4.0f, 4.0f);
+        set[i].fDstRect = SkRect::MakeWH(4.5f, 4.5f); // prevent the int non-AA optimization
         set[i].fDstClipQuad = nullptr;
         set[i].fPreViewMatrix = nullptr;
         set[i].fColor = {1.f, 1.f, 1.f, 1.f};
@@ -266,7 +266,7 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
     REPORTER_ASSERT(reporter, expectedNumOps == actualNumOps);
     REPORTER_ASSERT(reporter, requestedTotNumQuads == actualTotNumQuads);
 
-    dContext->flushAndSubmit();
+    dContext->flushAndSubmit(GrSyncCpu::kYes);
 
     delete[] set;
 }

@@ -60,6 +60,11 @@ private:
     void bindInstanceBuffer(const GrBuffer*, int baseInstance);
     void bindVertexBuffer(const GrBuffer*, int baseVertex);
 
+    // For non-indexed (glDrawArrays*) draws: if the vertex buffer binding was deferred in
+    // onBindBuffers, binds it now offset by baseVertex. Returns the baseVertex value that should
+    // be passed to the draw call (0 if the buffer was rebased, otherwise the original baseVertex).
+    int rebaseVertexBufferForDrawArrays(int baseVertex);
+
     const void* offsetForBaseIndex(int baseIndex) const {
         if (!fIndexPointer) {
             // nullptr != 0. Adding an offset to a nullptr is undefined.
