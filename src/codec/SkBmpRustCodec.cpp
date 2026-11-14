@@ -50,6 +50,9 @@ static_assert(static_cast<int>(rust_bmp::BmpAlpha::Unpremul) ==
               "BmpAlpha::Unpremul must match SkEncodedInfo::kUnpremul_Alpha");
 
 static constexpr size_t kInMemoryReaderThreshold = 4 * 1024;
+// ICO payloads are already resident. Bound their Rust-owned copy below the
+// 64 KiB stream buffer it replaces.
+static constexpr size_t kIcoInMemoryReaderThreshold = 8 * 1024;
 
 namespace {
 
@@ -107,25 +110,28 @@ std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromStream(std::unique_ptr<S
 }
 
 std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromData(sk_sp<const SkData> data,
-                                                             Result* result) {
+                                                             Result* result,
+                                                             StreamType type) {
     Result resultStorage;
     if (!result) {
         result = &resultStorage;
     }
 
     if (!data) {
-        *result = kInvalidInput;
+        *result = (type == StreamType::kICO) ? kInvalidParameters : kInvalidInput;
         return nullptr;
     }
 
-    if (!data->empty() && data->size() <= kInMemoryReaderThreshold) {
+    const size_t inMemoryReaderThreshold =
+            type == StreamType::kICO ? kIcoInMemoryReaderThreshold : kInMemoryReaderThreshold;
+    if (!data->empty() && data->size() <= inMemoryReaderThreshold) {
         rust::Box<rust_bmp::ResultOfReader> resultOfReader = NewReaderFromData(data.get());
         std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
-        return MakeFromStreamAndReader(std::move(stream), std::move(resultOfReader),
-                                       StreamType::kBMP, data, result);
+        return MakeFromStreamAndReader(
+                std::move(stream), std::move(resultOfReader), type, data, result);
     }
 
-    return MakeFromStream(SkMemoryStream::Make(std::move(data)), result);
+    return MakeFromStream(SkMemoryStream::Make(std::move(data)), result, type);
 }
 
 std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromStreamAndReader(

@@ -109,10 +109,9 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(std::unique_ptr<SkStream
 
     const size_t totalSize = data->size();
 
-    // Parse ICO directory using Rust via a seekable view over the buffer.
-    SkMemoryStream dataStream(data);
-    rust::stream::SkStreamAdapter inputAdapter(&dataStream);
-    rust::Box<rust_ico::DirectoryResult> directoryResult = rust_ico::parse_directory(inputAdapter);
+    rust::Slice<const uint8_t> dataSlice(static_cast<const uint8_t*>(data->data()), data->size());
+    rust::Box<rust_ico::DirectoryResult> directoryResult =
+            rust_ico::parse_directory_from_data(dataSlice);
 
     // Map Rust parse result to SkCodec::Result
     switch (directoryResult->status()) {
@@ -246,7 +245,6 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(std::unique_ptr<SkStream
         // keeps the parent SkData alive for as long as the entry stream (and the
         // codec built from it) lives.
         sk_sp<const SkData> entryData = data->shareSubset(offset, boundary.size);
-        auto entryStream = std::make_unique<SkMemoryStream>(entryData);
 
         // Create codec for the embedded image.
         // PNG entries delegate to SkPngRustCodec for full color profile and EXIF support.
@@ -256,11 +254,11 @@ std::unique_ptr<SkCodec> SkIcoRustCodec::MakeFromStream(std::unique_ptr<SkStream
         std::unique_ptr<SkCodec> codec;
         sk_sp<const SkData> bmpData;
         if (entry.format == rust_ico::EmbeddedFormat::Png) {
-            codec = SkPngRustCodec::MakeFromStream(std::move(entryStream), &entryResult);
+            codec = SkPngRustCodec::MakeFromStream(SkMemoryStream::Make(entryData), &entryResult);
         } else {
             bmpData = entryData;
-            codec = SkBmpRustCodec::MakeFromStream(
-                    std::move(entryStream), &entryResult, SkBmpRustCodec::StreamType::kICO);
+            codec = SkBmpRustCodec::MakeFromData(
+                    entryData, &entryResult, SkBmpRustCodec::StreamType::kICO);
         }
         if (!codec && entryResult == kIncompleteInput) {
             hasIncompleteEntry = true;

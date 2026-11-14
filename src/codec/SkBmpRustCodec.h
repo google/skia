@@ -37,7 +37,9 @@ public:
     static std::unique_ptr<SkBmpRustCodec> MakeFromStream(std::unique_ptr<SkStream>,
                                                           Result*,
                                                           StreamType = StreamType::kBMP);
-    static std::unique_ptr<SkBmpRustCodec> MakeFromData(sk_sp<const SkData>, Result*);
+    static std::unique_ptr<SkBmpRustCodec> MakeFromData(sk_sp<const SkData>,
+                                                        Result*,
+                                                        StreamType = StreamType::kBMP);
 
     ~SkBmpRustCodec() override;
 

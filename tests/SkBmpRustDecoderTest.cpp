@@ -7,6 +7,7 @@
 
 #include "include/codec/SkBmpRustDecoder.h"
 
+#include <array>
 #include <cstring>
 #include <memory>
 #include <utility>
@@ -25,6 +26,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "modules/skcms/skcms.h"
+#include "src/codec/SkBmpRustCodec.h"
 #include "tests/ComparePixels.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
@@ -117,6 +119,103 @@ static sk_sp<SkData> make_bmp_with_icc_profile(const SkData& profile) {
     std::memcpy(bmp.data() + kPixelDataOffset, pixels, sizeof(pixels));
     std::memcpy(bmp.data() + kProfileOffset, profile.data(), profile.size());
     return SkData::MakeWithCopy(bmp.data(), bmp.size());
+}
+
+DEF_TEST(RustBmpCodec_ico_in_memory, r) {
+    for (uint16_t bitsPerPixel : {24, 32}) {
+        for (size_t encodedSize : {48, 4096, 4097, 8192, 8193}) {
+            std::vector<uint8_t> bytes(encodedSize, 0);
+            write_u32_le(bytes, 0, 40);
+            write_u32_le(bytes, 4, 1);
+            write_u32_le(bytes, 8, 2);
+            write_u16_le(bytes, 12, 1);
+            write_u16_le(bytes, 14, bitsPerPixel);
+            write_u32_le(bytes, 20, 4);
+            bytes[40] = 0x40;
+            bytes[41] = 0x80;
+            bytes[42] = 0xc0;
+            bytes[43] = 0x80;
+            sk_sp<SkData> data = SkData::MakeWithCopy(bytes.data(), bytes.size());
+            SkCodec::Result result;
+            std::unique_ptr<SkCodec> streamCodec = SkBmpRustCodec::MakeFromStream(
+                    SkMemoryStream::Make(data), &result, SkBmpRustCodec::StreamType::kICO);
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+            std::unique_ptr<SkCodec> dataCodec =
+                    SkBmpRustCodec::MakeFromData(data, &result, SkBmpRustCodec::StreamType::kICO);
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+            REPORTER_ASSERT(r, streamCodec && dataCodec);
+            if (!streamCodec || !dataCodec) {
+                continue;
+            }
+            data.reset();
+            const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
+            std::array<uint8_t, 8> expected;
+            expected.fill(0xa5);
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                    r, streamCodec->getPixels(info, expected.data(), expected.size()));
+            for (int attempt = 0; attempt < 2; ++attempt) {
+                std::array<uint8_t, 8> actual;
+                actual.fill(0xa5);
+                REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                        r, dataCodec->getPixels(info, actual.data(), actual.size()));
+                REPORTER_ASSERT(r, actual == expected);
+            }
+            std::array<uint8_t, 8> incremental;
+            incremental.fill(0xa5);
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+                    r,
+                    dataCodec->startIncrementalDecode(
+                            info, incremental.data(), incremental.size()));
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, dataCodec->incrementalDecode());
+            REPORTER_ASSERT(r, incremental == expected);
+
+            if (encodedSize == 48) {
+                for (size_t available : {0, 1, 39, 40, 43, 44, 47}) {
+                    sk_sp<SkData> partial = SkData::MakeWithCopy(bytes.data(), available);
+                    SkCodec::Result streamResult;
+                    SkCodec::Result dataResult;
+                    std::unique_ptr<SkCodec> partialStream =
+                            SkBmpRustCodec::MakeFromStream(SkMemoryStream::Make(partial),
+                                                           &streamResult,
+                                                           SkBmpRustCodec::StreamType::kICO);
+                    std::unique_ptr<SkCodec> partialData = SkBmpRustCodec::MakeFromData(
+                            partial, &dataResult, SkBmpRustCodec::StreamType::kICO);
+                    REPORTER_ASSERT(r, streamResult == dataResult);
+                    REPORTER_ASSERT(
+                            r, static_cast<bool>(partialStream) == static_cast<bool>(partialData));
+                    if (!partialStream || !partialData) {
+                        continue;
+                    }
+                    std::array<uint8_t, 8> streamPixels;
+                    std::array<uint8_t, 8> dataPixels;
+                    streamPixels.fill(0xa5);
+                    dataPixels.fill(0xa5);
+                    streamResult = partialStream->getPixels(
+                            info, streamPixels.data(), streamPixels.size());
+                    dataResult = partialData->getPixels(info, dataPixels.data(), dataPixels.size());
+                    REPORTER_ASSERT(r, streamResult == dataResult);
+                    REPORTER_ASSERT(r, streamPixels == dataPixels);
+                }
+            }
+        }
+    }
+}
+
+DEF_TEST(RustBmpCodec_ico_truncated_profile, r) {
+    std::vector<uint8_t> bytes(124 + 32 * 32 * 4 + 32 * 4, 0);
+    write_u32_le(bytes, 0, 124);
+    write_u32_le(bytes, 4, 32);
+    write_u32_le(bytes, 8, 64);
+    write_u16_le(bytes, 12, 1);
+    write_u16_le(bytes, 14, 32);
+    write_u32_le(bytes, 56, 0x4D424544);
+    write_u32_le(bytes, 112, 5000);
+    write_u32_le(bytes, 116, 128);
+    sk_sp<SkData> data = SkData::MakeWithCopy(bytes.data(), bytes.size());
+    SkCodec::Result result;
+    auto codec = SkBmpRustCodec::MakeFromData(data, &result, SkBmpRustCodec::StreamType::kICO);
+    REPORTER_ASSERT(r, !codec);
+    REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
 }
 
 // Table-based test for decoding valid BMP files.
