@@ -6,19 +6,18 @@
  */
 
 #include "include/core/SkRect.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
 #include "src/core/SkRTree.h"
 #include "src/core/SkRandom.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <vector>
 
-using namespace skia_private;
-
-static const int NUM_RECTS = 200;
+static constexpr int NUM_RECTS = 200;
 static const size_t NUM_ITERATIONS = 100;
 static const size_t NUM_QUERIES = 50;
 
@@ -34,7 +33,9 @@ static SkRect random_rect(SkRandom& rand) {
     return rect;
 }
 
-static bool verify_query(SkRect query, SkRect rects[], const std::vector<int>& found) {
+static bool verify_query(SkRect query,
+                         SkSpan<const SkRect, NUM_RECTS> rects,
+                         const std::vector<int>& found) {
     std::vector<int> expected;
     // manually intersect with every rectangle
     for (int i = 0; i < NUM_RECTS; ++i) {
@@ -52,7 +53,9 @@ static bool verify_query(SkRect query, SkRect rects[], const std::vector<int>& f
     return found == expected;
 }
 
-static void run_queries(skiatest::Reporter* reporter, SkRandom& rand, SkRect rects[],
+static void run_queries(skiatest::Reporter* reporter,
+                        SkRandom& rand,
+                        SkSpan<const SkRect, NUM_RECTS> rects,
                         const SkRTree& tree) {
     for (size_t i = 0; i < NUM_QUERIES; ++i) {
         std::vector<int> hits;
@@ -80,7 +83,7 @@ DEF_TEST(RTree, reporter) {
     }
 
     SkRandom rand;
-    AutoTArray<SkRect> rects(NUM_RECTS);
+    std::array<SkRect, NUM_RECTS> rects;
     for (size_t i = 0; i < NUM_ITERATIONS; ++i) {
         SkRTree rtree;
         REPORTER_ASSERT(reporter, 0 == rtree.getCount());
@@ -91,7 +94,7 @@ DEF_TEST(RTree, reporter) {
 
         rtree.insert(rects.data(), NUM_RECTS);
 
-        run_queries(reporter, rand, rects.data(), rtree);
+        run_queries(reporter, rand, rects, rtree);
         REPORTER_ASSERT(reporter, NUM_RECTS == rtree.getCount());
         REPORTER_ASSERT(reporter, expectedDepthMin <= rtree.getDepth() &&
                                   expectedDepthMax >= rtree.getDepth());

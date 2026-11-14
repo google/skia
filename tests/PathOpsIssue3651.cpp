@@ -1681,10 +1681,9 @@ static struct TestDesc tests[] = {
     TEST(issue3651_3),
 };
 
-static const size_t testCount = std::size(tests);
 
 static bool runReverse = false;
 
 DEF_TEST(PathOpsIssue3651, reporter) {
-    RunTestSet(reporter, tests, testCount, firstTest, skipTest, stopTest, runReverse);
+    RunTestSet(reporter, tests, firstTest, skipTest, stopTest, runReverse);
 }

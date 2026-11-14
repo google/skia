@@ -6,6 +6,7 @@
  */
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkTArray.h"
@@ -135,7 +136,7 @@ static bool angleDirection(double a1, double a2) {
     return (delta < 4 && delta > 0) || delta < -4;
 }
 
-static void setQuadHullSweep(const SkDQuad& quad, SkDVector sweep[2]) {
+static void setQuadHullSweep(const SkDQuad& quad, SkSpan<SkDVector, 2> sweep) {
     sweep[0] = quad[1] - quad[0];
     sweep[1] = quad[2] - quad[0];
 }
@@ -781,11 +782,11 @@ static double endCtrlRatio(const SkDQuad quad) {
     return longLen / shortLen;
 }
 
-static void computeMV(const SkDQuad& quad, const SkDVector& v, double m, SkDVector mV[2]) {
-        SkDPoint mPta = {quad[1].fX - m * v.fY, quad[1].fY + m * v.fX};
-        SkDPoint mPtb = {quad[1].fX + m * v.fY, quad[1].fY - m * v.fX};
-        mV[0] = mPta - quad[0];
-        mV[1] = mPtb - quad[0];
+static void computeMV(const SkDQuad& quad, const SkDVector& v, double m, SkSpan<SkDVector, 2> mV) {
+    SkDPoint mPta = {quad[1].fX - m * v.fY, quad[1].fY + m * v.fX};
+    SkDPoint mPtb = {quad[1].fX + m * v.fY, quad[1].fY - m * v.fX};
+    mV[0] = mPta - quad[0];
+    mV[1] = mPtb - quad[0];
 }
 
 static double mDistance(skiatest::Reporter* reporter, bool agrees, const SkDQuad& q1,

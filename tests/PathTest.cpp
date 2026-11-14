@@ -24,6 +24,7 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkSurface.h"
@@ -57,6 +58,7 @@
 #include <functional>
 #include <initializer_list>
 #include <memory>
+#include <utility>
 #include <vector>
 
 static void set_radii(SkVector radii[4], int index, float rad) {
@@ -1180,7 +1182,7 @@ static void test_bounds(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, path0.getBounds() == path1.getBounds());
 }
 
-static void stroke_cubic(const SkPoint pts[4]) {
+static void stroke_cubic(SkSpan<const SkPoint, 4> pts) {
     SkPath path = SkPathBuilder()
                   .moveTo(pts[0])
                   .cubicTo(pts[1], pts[2], pts[3])
@@ -1602,20 +1604,20 @@ static void test_convexity(skiatest::Reporter* reporter) {
            .detach();
     check_convexity(reporter, path, true);
 
-    struct GRec {
+    struct Rec {
         const char*           fPathStr;
         bool                  fExpectedIsConvex;
         SkPathFirstDirection  fExpectedDirection;
     };
-    static const auto gRec = std::to_array<GRec>({
-            GRec{"", true, SkPathFirstDirection::kUnknown},
-            GRec{"0 0", true, SkPathFirstDirection::kUnknown},
-            GRec{"0 0 10 10", true, SkPathFirstDirection::kUnknown},
-            GRec{"0 0 10 10 20 20 0 0 10 10", false, SkPathFirstDirection::kUnknown},
-            GRec{"0 0 10 10 10 20", true, SkPathFirstDirection::kCW},
-            GRec{"0 0 10 10 10 0", true, SkPathFirstDirection::kCCW},
-            GRec{"0 0 10 10 10 0 0 10", false, kDontCheckDir},
-            GRec{"0 0 10 0 0 10 -10 -10", false, SkPathFirstDirection::kCW},
+    static constexpr auto gRec = std::to_array<Rec>({
+            Rec{"", true, SkPathFirstDirection::kUnknown},
+            Rec{"0 0", true, SkPathFirstDirection::kUnknown},
+            Rec{"0 0 10 10", true, SkPathFirstDirection::kUnknown},
+            Rec{"0 0 10 10 20 20 0 0 10 10", false, SkPathFirstDirection::kUnknown},
+            Rec{"0 0 10 10 10 20", true, SkPathFirstDirection::kCW},
+            Rec{"0 0 10 10 10 0", true, SkPathFirstDirection::kCCW},
+            Rec{"0 0 10 10 10 0 0 10", false, kDontCheckDir},
+            Rec{"0 0 10 0 0 10 -10 -10", false, SkPathFirstDirection::kCW},
     });
 
     for (size_t i = 0; i < std::size(gRec); ++i) {
@@ -1637,14 +1639,14 @@ static void test_convexity(skiatest::Reporter* reporter) {
         check_direction(reporter, path, gRec[i].fExpectedDirection);
     }
 
-    static const SkPoint axisAlignedPts[] = {
-        { SK_ScalarMax, 0 },
-        { 0, SK_ScalarMax },
-        { SK_ScalarMin, 0 },
-        { 0, SK_ScalarMin },
-    };
+    static constexpr auto axisAlignedPts = std::to_array<SkPoint>({
+            SkPoint{ SK_ScalarMax, 0 },
+            SkPoint{ 0, SK_ScalarMax },
+            SkPoint{ SK_ScalarMin, 0 },
+            SkPoint{ 0, SK_ScalarMin },
+    });
 
-    const size_t axisAlignedPtsCount = sizeof(axisAlignedPts) / sizeof(axisAlignedPts[0]);
+    constexpr size_t axisAlignedPtsCount = axisAlignedPts.size();
 
     for (int index = 0; index < (int) (11 * axisAlignedPtsCount); ++index) {
         int f = (int) (index % axisAlignedPtsCount);
@@ -1675,12 +1677,12 @@ static void test_convexity(skiatest::Reporter* reporter) {
         }
     }
 
-    static const SkPoint diagonalPts[] = {
-        { SK_ScalarMax, SK_ScalarMax },
-        { SK_ScalarMin, SK_ScalarMin },
-    };
+    static constexpr auto diagonalPts = std::to_array<SkPoint>({
+            SkPoint{ SK_ScalarMax, SK_ScalarMax },
+            SkPoint{ SK_ScalarMin, SK_ScalarMin },
+    });
 
-    const size_t diagonalPtsCount = sizeof(diagonalPts) / sizeof(diagonalPts[0]);
+    constexpr size_t diagonalPtsCount = diagonalPts.size();
 
     for (int index = 0; index < (int) (7 * diagonalPtsCount); ++index) {
         int f = (int) (index % diagonalPtsCount);
@@ -2888,99 +2890,102 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
         const char* testPath;
         const size_t numResultPts;
         const SkRect resultBound;
-        const SkPath::Verb* resultVerbs;
-        const size_t numResultVerbs;
+        SkSpan<const SkPath::Verb> resultVerbs;
     };
 
-    static const SkPath::Verb resultVerbs1[] = { SkPath::kMove_Verb };
-    static const SkPath::Verb resultVerbs3[] = { SkPath::kMove_Verb, SkPath::kClose_Verb };
-    static const SkPath::Verb resultVerbs4[] = { SkPath::kMove_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kClose_Verb };
-    static const SkPath::Verb resultVerbs5[] = { SkPath::kMove_Verb, SkPath::kLine_Verb };
-    static const SkPath::Verb resultVerbs6[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb, SkPath::kLine_Verb };
-    static const SkPath::Verb resultVerbs7[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb };
-    static const SkPath::Verb resultVerbs8[] = {
-        SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb
+    static constexpr SkPath::Verb resultVerbs1[] = { SkPath::kMove_Verb };
+    static constexpr SkPath::Verb resultVerbs3[] = { SkPath::kMove_Verb, SkPath::kClose_Verb };
+    static constexpr SkPath::Verb resultVerbs4[] = {
+            SkPath::kMove_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kClose_Verb
     };
-    static const SkPath::Verb resultVerbs9[] = { SkPath::kMove_Verb, SkPath::kQuad_Verb };
-    static const SkPath::Verb resultVerbs10[] = { SkPath::kMove_Verb, SkPath::kQuad_Verb, SkPath::kMove_Verb, SkPath::kQuad_Verb };
-    static const SkPath::Verb resultVerbs11[] = { SkPath::kMove_Verb, SkPath::kQuad_Verb, SkPath::kClose_Verb };
-    static const SkPath::Verb resultVerbs12[] = {
-        SkPath::kMove_Verb, SkPath::kQuad_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kQuad_Verb, SkPath::kClose_Verb
+    static constexpr SkPath::Verb resultVerbs5[] = { SkPath::kMove_Verb, SkPath::kLine_Verb };
+    static constexpr SkPath::Verb resultVerbs6[] = {
+            SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb, SkPath::kLine_Verb
     };
-    static const SkPath::Verb resultVerbs13[] = { SkPath::kMove_Verb, SkPath::kCubic_Verb };
-    static const SkPath::Verb resultVerbs14[] = { SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kMove_Verb, SkPath::kCubic_Verb };
-    static const SkPath::Verb resultVerbs15[] = { SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kClose_Verb };
-    static const SkPath::Verb resultVerbs16[] = {
-        SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kClose_Verb
+    static constexpr SkPath::Verb resultVerbs7[] = {
+            SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb
     };
-    static const auto gZeroLengthTests = std::to_array<zeroPathTestData>(
-            {zeroPathTestData{"M 1 1", 1, {1, 1, 1, 1}, resultVerbs1, std::size(resultVerbs1)},
-             zeroPathTestData{"M 1 1 z", 1, {1, 1, 1, 1}, resultVerbs3, std::size(resultVerbs3)},
-             zeroPathTestData{"M 1 1 z M 2 1 z",
-                              2,
-                              {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
-                              resultVerbs4,
-                              std::size(resultVerbs4)},
-             zeroPathTestData{"M 1 1 L 1 1",
-                              2,
-                              {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1},
-                              resultVerbs5,
-                              std::size(resultVerbs5)},
-             zeroPathTestData{"M 1 1 L 1 1 M 2 1 L 2 1",
-                              4,
-                              {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
-                              resultVerbs6,
-                              std::size(resultVerbs6)},
-             zeroPathTestData{"M 1 1 L 1 1 z",
-                              2,
-                              {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1},
-                              resultVerbs7,
-                              std::size(resultVerbs7)},
-             zeroPathTestData{"M 1 1 L 1 1 z M 2 1 L 2 1 z",
-                              4,
-                              {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
-                              resultVerbs8,
-                              std::size(resultVerbs8)},
-             zeroPathTestData{"M 1 1 Q 1 1 1 1",
-                              3,
-                              {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1},
-                              resultVerbs9,
-                              std::size(resultVerbs9)},
-             zeroPathTestData{"M 1 1 Q 1 1 1 1 M 2 1 Q 2 1 2 1",
-                              6,
-                              {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
-                              resultVerbs10,
-                              std::size(resultVerbs10)},
-             zeroPathTestData{"M 1 1 Q 1 1 1 1 z",
-                              3,
-                              {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1},
-                              resultVerbs11,
-                              std::size(resultVerbs11)},
-             zeroPathTestData{"M 1 1 Q 1 1 1 1 z M 2 1 Q 2 1 2 1 z",
-                              6,
-                              {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
-                              resultVerbs12,
-                              std::size(resultVerbs12)},
-             zeroPathTestData{"M 1 1 C 1 1 1 1 1 1",
-                              4,
-                              {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1},
-                              resultVerbs13,
-                              std::size(resultVerbs13)},
-             zeroPathTestData{"M 1 1 C 1 1 1 1 1 1 M 2 1 C 2 1 2 1 2 1",
-                              8,
-                              {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
-                              resultVerbs14,
-                              std::size(resultVerbs14)},
-             zeroPathTestData{"M 1 1 C 1 1 1 1 1 1 z",
-                              4,
-                              {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1},
-                              resultVerbs15,
-                              std::size(resultVerbs15)},
-             zeroPathTestData{"M 1 1 C 1 1 1 1 1 1 z M 2 1 C 2 1 2 1 2 1 z",
-                              8,
-                              {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
-                              resultVerbs16,
-                              std::size(resultVerbs16)}});
+    static constexpr SkPath::Verb resultVerbs8[] = {
+            SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb,
+            SkPath::kLine_Verb, SkPath::kClose_Verb
+    };
+    static constexpr SkPath::Verb resultVerbs9[] = { SkPath::kMove_Verb, SkPath::kQuad_Verb };
+    static constexpr SkPath::Verb resultVerbs10[] = {
+            SkPath::kMove_Verb, SkPath::kQuad_Verb, SkPath::kMove_Verb, SkPath::kQuad_Verb
+    };
+    static constexpr SkPath::Verb resultVerbs11[] = {
+            SkPath::kMove_Verb, SkPath::kQuad_Verb, SkPath::kClose_Verb
+    };
+    static constexpr SkPath::Verb resultVerbs12[] = {
+            SkPath::kMove_Verb, SkPath::kQuad_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb,
+            SkPath::kQuad_Verb, SkPath::kClose_Verb
+    };
+    static constexpr SkPath::Verb resultVerbs13[] = { SkPath::kMove_Verb, SkPath::kCubic_Verb };
+    static constexpr SkPath::Verb resultVerbs14[] = {
+            SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kMove_Verb, SkPath::kCubic_Verb
+    };
+    static constexpr SkPath::Verb resultVerbs15[] = {
+            SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kClose_Verb
+    };
+    static constexpr SkPath::Verb resultVerbs16[] = {
+            SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb,
+            SkPath::kCubic_Verb, SkPath::kClose_Verb
+    };
+    static constexpr auto gZeroLengthTests = std::to_array<zeroPathTestData>({
+            zeroPathTestData{"M 1 1", 1, {1, 1, 1, 1}, resultVerbs1},
+            zeroPathTestData{"M 1 1 z", 1, {1, 1, 1, 1}, resultVerbs3},
+            zeroPathTestData{"M 1 1 z M 2 1 z",
+                             2,
+                             {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
+                             resultVerbs4},
+            zeroPathTestData{"M 1 1 L 1 1",
+                             2,
+                             {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1},
+                             resultVerbs5},
+            zeroPathTestData{"M 1 1 L 1 1 M 2 1 L 2 1",
+                             4,
+                             {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
+                             resultVerbs6},
+            zeroPathTestData{"M 1 1 L 1 1 z",
+                             2,
+                             {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1},
+                             resultVerbs7},
+            zeroPathTestData{"M 1 1 L 1 1 z M 2 1 L 2 1 z",
+                             4,
+                             {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
+                             resultVerbs8},
+            zeroPathTestData{"M 1 1 Q 1 1 1 1",
+                             3,
+                             {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1},
+                             resultVerbs9},
+            zeroPathTestData{"M 1 1 Q 1 1 1 1 M 2 1 Q 2 1 2 1",
+                             6,
+                             {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
+                             resultVerbs10},
+            zeroPathTestData{"M 1 1 Q 1 1 1 1 z",
+                             3,
+                             {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1},
+                             resultVerbs11},
+            zeroPathTestData{"M 1 1 Q 1 1 1 1 z M 2 1 Q 2 1 2 1 z",
+                             6,
+                             {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
+                             resultVerbs12},
+            zeroPathTestData{"M 1 1 C 1 1 1 1 1 1",
+                             4,
+                             {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1},
+                             resultVerbs13},
+            zeroPathTestData{"M 1 1 C 1 1 1 1 1 1 M 2 1 C 2 1 2 1 2 1",
+                             8,
+                             {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
+                             resultVerbs14},
+            zeroPathTestData{"M 1 1 C 1 1 1 1 1 1 z",
+                             4,
+                             {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1},
+                             resultVerbs15},
+            zeroPathTestData{"M 1 1 C 1 1 1 1 1 1 z M 2 1 C 2 1 2 1 2 1 z",
+                             8,
+                             {SK_Scalar1, SK_Scalar1, 2 * SK_Scalar1, SK_Scalar1},
+                             resultVerbs16}});
 
     for (size_t i = 0; i < std::size(gZeroLengthTests); ++i) {
         auto p = SkParsePath::FromSVGString(gZeroLengthTests[i].testPath);
@@ -2989,8 +2994,8 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, !p->isEmpty());
         REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultPts == (size_t)p->countPoints());
         REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultBound == p->getBounds());
-        REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultVerbs == verbs.size());
-        for (size_t j = 0; j < gZeroLengthTests[i].numResultVerbs; ++j) {
+        REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultVerbs.size() == verbs.size());
+        for (size_t j = 0; j < gZeroLengthTests[i].resultVerbs.size(); ++j) {
             REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultVerbs[j] == (uint8_t)verbs[j]);
         }
     }
@@ -3087,69 +3092,52 @@ static void test_iter(skiatest::Reporter* reporter) {
     struct iterTestData {
         const char* testPath;
         const bool forceClose;
-        const size_t* numResultPtsPerVerb;
-        const SkPoint* resultPts;
-        const SkPath::Verb* resultVerbs;
-        const size_t numResultVerbs;
+        SkSpan<const size_t> numResultPtsPerVerb;
+        SkSpan<const SkPoint> resultPts;
+        SkSpan<const SkPath::Verb> resultVerbs;
     };
 
     static const SkPath::Verb resultVerbs1[] = { SkPath::kDone_Verb };
     static const SkPath::Verb resultVerbs2[] = {
-        SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb, SkPath::kClose_Verb, SkPath::kDone_Verb
+            SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb, SkPath::kClose_Verb,
+            SkPath::kDone_Verb
     };
     static const SkPath::Verb resultVerbs3[] = {
-        SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kClose_Verb, SkPath::kDone_Verb
+            SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb,
+            SkPath::kClose_Verb, SkPath::kDone_Verb
     };
     static const size_t resultPtsSizes1[] = { 0 };
     static const size_t resultPtsSizes2[] = { 1, 2, 1, 1, 0 };
     static const size_t resultPtsSizes3[] = { 1, 2, 1, 1, 1, 0 };
-    static const SkPoint* resultPts1 = nullptr;
+    static constexpr SkSpan<const SkPoint> resultPts1 = {};
     static const SkPoint resultPts2[] = {
         { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { 0, 0 }, { 0, 0 }
     };
     static const SkPoint resultPts3[] = {
-        { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { 0, 0 }, { 0, 0 }
+        { SK_Scalar1, 0 }, { SK_Scalar1, 0 },
+        { SK_Scalar1, 0 }, { SK_Scalar1, 0 },
+        { 0, 0 }, { 0, 0 }
     };
-    static const auto gIterTests = std::to_array<iterTestData>(
-            {iterTestData{"M 1 0",
-                          false,
-                          resultPtsSizes1,
-                          resultPts1,
-                          resultVerbs1,
-                          std::size(resultVerbs1)},
-             iterTestData{"z",
-                          false,
-                          resultPtsSizes1,
-                          resultPts1,
-                          resultVerbs1,
-                          std::size(resultVerbs1)},
-             iterTestData{
-                     "z", true, resultPtsSizes1, resultPts1, resultVerbs1, std::size(resultVerbs1)},
-             iterTestData{"M 1 0 L 1 0 M 0 0 z",
-                          false,
-                          resultPtsSizes2,
-                          resultPts2,
-                          resultVerbs2,
-                          std::size(resultVerbs2)},
-             iterTestData{"M 1 0 L 1 0 M 0 0 z",
-                          true,
-                          resultPtsSizes3,
-                          resultPts3,
-                          resultVerbs3,
-                          std::size(resultVerbs3)}});
+    static constexpr auto gIterTests = std::to_array<iterTestData>({
+            iterTestData{"M 1 0", false, resultPtsSizes1, resultPts1, resultVerbs1},
+            iterTestData{"z", false, resultPtsSizes1, resultPts1, resultVerbs1},
+            iterTestData{"z", true, resultPtsSizes1, resultPts1, resultVerbs1},
+            iterTestData{"M 1 0 L 1 0 M 0 0 z", false, resultPtsSizes2, resultPts2, resultVerbs2},
+            iterTestData{"M 1 0 L 1 0 M 0 0 z", true, resultPtsSizes3, resultPts3, resultVerbs3}
+    });
 
-    for (size_t i = 0; i < std::size(gIterTests); ++i) {
-        auto path = SkParsePath::FromSVGString(gIterTests[i].testPath);
+    for (const iterTestData& test : gIterTests) {
+        auto path = SkParsePath::FromSVGString(test.testPath);
         REPORTER_ASSERT(reporter, path.has_value());
-        iter.setPath(*path, gIterTests[i].forceClose);
+        iter.setPath(*path, test.forceClose);
         int j = 0, l = 0;
         do {
-            REPORTER_ASSERT(reporter, iter.next(pts) == gIterTests[i].resultVerbs[j]);
-            for (int k = 0; k < (int)gIterTests[i].numResultPtsPerVerb[j]; ++k) {
-                REPORTER_ASSERT(reporter, pts[k] == gIterTests[i].resultPts[l++]);
+            REPORTER_ASSERT(reporter, iter.next(pts) == test.resultVerbs[j]);
+            for (int k = 0; k < (int)test.numResultPtsPerVerb[j]; ++k) {
+                REPORTER_ASSERT(reporter, pts[k] == test.resultPts[l++]);
             }
-        } while (gIterTests[i].resultVerbs[j++] != SkPath::kDone_Verb);
-        REPORTER_ASSERT(reporter, j == (int)gIterTests[i].numResultVerbs);
+        } while (test.resultVerbs[j++] != SkPath::kDone_Verb);
+        REPORTER_ASSERT(reporter, j == (int)test.resultVerbs.size());
     }
 
     p.reset();
@@ -5006,9 +4994,9 @@ DEF_TEST(ClipPath_nonfinite, reporter) {
 
 // skbug.com/40039046
 DEF_TEST(Path_isRect, reporter) {
-    auto makePath = [](const SkPoint* points, size_t count, bool close) -> SkPath {
+    auto makePath = [](SkSpan<const SkPoint> points, bool close) -> SkPath {
         SkPathBuilder builder;
-        for (size_t index = 0; index < count; ++index) {
+        for (size_t index = 0; index < points.size(); ++index) {
             index < 2 ? builder.moveTo(points[index]) : builder.lineTo(points[index]);
         }
         if (close) {
@@ -5016,15 +5004,17 @@ DEF_TEST(Path_isRect, reporter) {
         }
         return builder.detach();
     };
-    auto makePath2 = [](const SkPoint* points, const SkPath::Verb* verbs, size_t count) -> SkPath {
+    auto makePath2 = [](SkSpan<const SkPoint> points, SkSpan<const SkPath::Verb> verbs) -> SkPath {
         SkPathBuilder builder;
-        for (size_t index = 0; index < count; ++index) {
-            switch (verbs[index]) {
+        for (SkPath::Verb verb : verbs) {
+            switch (verb) {
                 case SkPath::kMove_Verb:
-                    builder.moveTo(*points++);
+                    builder.moveTo(points[0]);
+                    points = points.subspan(1u);
                     break;
                 case SkPath::kLine_Verb:
-                    builder.lineTo(*points++);
+                    builder.lineTo(points[0]);
+                    points = points.subspan(1u);
                     break;
                 case SkPath::kClose_Verb:
                     builder.close();
@@ -5038,17 +5028,17 @@ DEF_TEST(Path_isRect, reporter) {
     // isolated from skbug.com/40039046 (bug description)
     SkRect rect;
     SkPoint points[] = { {10, 10}, {75, 75}, {150, 75}, {150, 150}, {75, 150} };
-    SkPath path = makePath(points, std::size(points), false);
+    SkPath path = makePath(points, false);
     REPORTER_ASSERT(reporter, path.isRect(&rect));
     SkRect compare = SkRect::BoundsOrEmpty({&points[1], std::size(points) - 1});
     REPORTER_ASSERT(reporter, rect == compare);
     // isolated from skbug.com/40039046#c3
     SkPoint points3[] = { {75, 50}, {100, 75}, {150, 75}, {150, 150}, {75, 150}, {75, 50} };
-    path = makePath(points3, std::size(points3), true);
+    path = makePath(points3, true);
     REPORTER_ASSERT(reporter, !path.isRect(&rect));
     // isolated from skbug.com/40039046#c9
     SkPoint points9[] = { {10, 10}, {75, 75}, {150, 75}, {150, 150}, {75, 150} };
-    path = makePath(points9, std::size(points9), true);
+    path = makePath(points9, true);
     REPORTER_ASSERT(reporter, path.isRect(&rect));
     compare.setBounds({&points9[1], std::size(points9) - 1});
     REPORTER_ASSERT(reporter, rect == compare);
@@ -5056,7 +5046,7 @@ DEF_TEST(Path_isRect, reporter) {
     SkPath::Verb verbs11[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
                                SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb };
     SkPoint points11[] = { {75, 150}, {75, 75}, {150, 75}, {150, 150}, {75, 150}, {75, 150} };
-    path = makePath2(points11, verbs11, std::size(verbs11));
+    path = makePath2(points11, verbs11);
     REPORTER_ASSERT(reporter, path.isRect(&rect));
     compare.setBounds(points11);
     REPORTER_ASSERT(reporter, rect == compare);
@@ -5067,19 +5057,19 @@ DEF_TEST(Path_isRect, reporter) {
                                SkPath::kLine_Verb, SkPath::kClose_Verb };
     SkPoint points14[] = { {250, 75}, {250, 75}, {250, 75}, {100, 75},
                            {150, 75}, {150, 150}, {75, 150}, {75, 75}, {0, 0} };
-    path = makePath2(points14, verbs14, std::size(verbs14));
+    path = makePath2(points14, verbs14);
     REPORTER_ASSERT(reporter, !path.isRect(&rect));
     // isolated from skbug.com/40039046#c15
     SkPath::Verb verbs15[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
                                SkPath::kLine_Verb, SkPath::kMove_Verb };
     SkPoint points15[] = { {75, 75}, {150, 75}, {150, 150}, {75, 150}, {250, 75} };
-    path = makePath2(points15, verbs15, std::size(verbs15));
+    path = makePath2(points15, verbs15);
     REPORTER_ASSERT(reporter, path.isRect(&rect));
     compare.setBounds({&points15[0], std::size(points15) - 1});
     REPORTER_ASSERT(reporter, rect == compare);
     // isolated from skbug.com/40039046#c17
     SkPoint points17[] = { {75, 10}, {75, 75}, {150, 75}, {150, 150}, {75, 150}, {75, 10} };
-    path = makePath(points17, std::size(points17), true);
+    path = makePath(points17, true);
     REPORTER_ASSERT(reporter, !path.isRect(&rect));
     // isolated from skbug.com/40039046#c19
     SkPath::Verb verbs19[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
@@ -5088,7 +5078,7 @@ DEF_TEST(Path_isRect, reporter) {
                                SkPath::kLine_Verb, SkPath::kLine_Verb };
     SkPoint points19[] = { {75, 75}, {75, 75}, {75, 75}, {75, 75}, {150, 75}, {150, 150},
                            {75, 150}, {10, 10}, {30, 10}, {10, 30} };
-    path = makePath2(points19, verbs19, std::size(verbs19));
+    path = makePath2(points19, verbs19);
     REPORTER_ASSERT(reporter, !path.isRect(&rect));
     // isolated from skbug.com/40039046#c23
     SkPath::Verb verbs23[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb,
@@ -5096,7 +5086,7 @@ DEF_TEST(Path_isRect, reporter) {
                                SkPath::kLine_Verb, SkPath::kClose_Verb };
     SkPoint points23[] = { {75, 75}, {75, 75}, {75, 75}, {75, 75}, {150, 75}, {150, 150},
                            {75, 150} };
-    path = makePath2(points23, verbs23, std::size(verbs23));
+    path = makePath2(points23, verbs23);
     REPORTER_ASSERT(reporter, path.isRect(&rect));
     compare.setBounds(points23);
     REPORTER_ASSERT(reporter, rect == compare);
@@ -5105,14 +5095,14 @@ DEF_TEST(Path_isRect, reporter) {
                                SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb,
                                SkPath::kClose_Verb };
     SkPoint points29[] = { {75, 75}, {150, 75}, {150, 150}, {75, 150}, {75, 250}, {75, 75} };
-    path = makePath2(points29, verbs29, std::size(verbs29));
+    path = makePath2(points29, verbs29);
     REPORTER_ASSERT(reporter, !path.isRect(&rect));
     // isolated from skbug.com/40039046#c31
     SkPath::Verb verbs31[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
                                SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb,
                                SkPath::kClose_Verb };
     SkPoint points31[] = { {75, 75}, {150, 75}, {150, 150}, {75, 150}, {75, 10}, {75, 75} };
-    path = makePath2(points31, verbs31, std::size(verbs31));
+    path = makePath2(points31, verbs31);
     REPORTER_ASSERT(reporter, path.isRect(&rect));
         compare.setBounds({&points31[0], 4});
     REPORTER_ASSERT(reporter, rect == compare);
@@ -5120,13 +5110,13 @@ DEF_TEST(Path_isRect, reporter) {
     SkPath::Verb verbs36[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
                                SkPath::kLine_Verb, SkPath::kMove_Verb, SkPath::kLine_Verb  };
     SkPoint points36[] = { {75, 75}, {150, 75}, {150, 150}, {10, 150}, {75, 75}, {75, 75} };
-    path = makePath2(points36, verbs36, std::size(verbs36));
+    path = makePath2(points36, verbs36);
     REPORTER_ASSERT(reporter, !path.isRect(&rect));
     // isolated from skbug.com/40039046#c39
     SkPath::Verb verbs39[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
                                SkPath::kLine_Verb };
     SkPoint points39[] = { {150, 75}, {150, 150}, {75, 150}, {75, 100} };
-    path = makePath2(points39, verbs39, std::size(verbs39));
+    path = makePath2(points39, verbs39);
     REPORTER_ASSERT(reporter, !path.isRect(&rect));
     // isolated from zero_length_paths_aa
     SkPath::Verb verbsAA[] = { SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
@@ -5134,7 +5124,7 @@ DEF_TEST(Path_isRect, reporter) {
                                SkPath::kLine_Verb, SkPath::kClose_Verb };
     SkPoint pointsAA[] = { {32, 9.5f}, {32, 9.5f}, {32, 17}, {17, 17}, {17, 9.5f}, {17, 2},
                            {32, 2} };
-    path = makePath2(pointsAA, verbsAA, std::size(verbsAA));
+    path = makePath2(pointsAA, verbsAA);
     REPORTER_ASSERT(reporter, path.isRect(&rect));
     compare.setBounds(pointsAA);
     REPORTER_ASSERT(reporter, rect == compare);
@@ -5143,7 +5133,7 @@ DEF_TEST(Path_isRect, reporter) {
                                SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb,
                                SkPath::kClose_Verb };
     SkPoint points41[] = { {75, 75}, {150, 75}, {150, 150}, {140, 150}, {140, 75}, {75, 75} };
-    path = makePath2(points41, verbs41, std::size(verbs41));
+    path = makePath2(points41, verbs41);
     REPORTER_ASSERT(reporter, path.isRect(&rect));
         compare.setBounds({&points41[1], 4});
     REPORTER_ASSERT(reporter, rect == compare);
@@ -5152,7 +5142,7 @@ DEF_TEST(Path_isRect, reporter) {
                                SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kMove_Verb,
                                SkPath::kClose_Verb };
     SkPoint points53[] = { {75, 75}, {150, 75}, {150, 150}, {140, 150}, {140, 75}, {75, 75} };
-    path = makePath2(points53, verbs53, std::size(verbs53));
+    path = makePath2(points53, verbs53);
     REPORTER_ASSERT(reporter, path.isRect(&rect));
         compare.setBounds({&points53[1], 4});
     REPORTER_ASSERT(reporter, rect == compare);

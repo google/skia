@@ -13,6 +13,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRandom.h"
 #include "tests/Test.h"
@@ -73,7 +74,7 @@ DEF_TEST(pathbuilder_filltype, reporter) {
     }
 }
 
-static bool check_points(const SkPath& path, const SkPoint expected[], size_t count) {
+static bool check_points(const SkPath& path, SkSpan<const SkPoint> expected) {
     std::vector<SkPoint> iter_pts;
 
     for (auto [v, p, w] : SkPathPriv::Iterate(path)) {
@@ -98,10 +99,10 @@ static bool check_points(const SkPath& path, const SkPoint expected[], size_t co
                 break;
         }
     }
-    if (iter_pts.size() != count) {
+    if (iter_pts.size() != expected.size()) {
         return false;
     }
-    for (size_t i = 0; i < count; ++i) {
+    for (size_t i = 0; i < expected.size(); ++i) {
         if (iter_pts[i] != expected[i]) {
             return false;
         }
@@ -116,14 +117,14 @@ DEF_TEST(pathbuilder_missing_move, reporter) {
     const SkPoint pts0[] = {
         {0, 0}, {10, 10}, {20, 30},
     };
-    REPORTER_ASSERT(reporter, check_points(b.snapshot(), pts0, std::size(pts0)));
+    REPORTER_ASSERT(reporter, check_points(b.snapshot(), pts0));
 
     b.reset().moveTo(20, 20).lineTo(10, 10).lineTo(20, 30).close().lineTo(60, 60);
     const SkPoint pts1[] = {
         {20, 20}, {10, 10}, {20, 30},
         {20, 20}, {60, 60},
     };
-    REPORTER_ASSERT(reporter, check_points(b.snapshot(), pts1, std::size(pts1)));
+    REPORTER_ASSERT(reporter, check_points(b.snapshot(), pts1));
 }
 
 DEF_TEST(pathbuilder_addRect, reporter) {

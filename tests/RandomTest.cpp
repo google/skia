@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMath.h"
 #include "src/core/SkRandom.h"
@@ -15,13 +16,13 @@
 #include <cmath>
 #include <cstring>
 
-static bool anderson_darling_test(double p[32]) {
+static bool anderson_darling_test(SkSpan<double, 32> p) {
     // Min and max Anderson-Darling values allowable for k=32
     const double kADMin32 = 0.202;        // p-value of ~0.1
     const double kADMax32 = 3.89;         // p-value of ~0.99
 
     // sort p values
-    SkTQSort<double>(p, p + 32);
+    SkTQSort<double>(p.begin(), p.end());
 
     // and compute Anderson-Darling statistic to ensure these are uniform
     double s = 0.0;
@@ -37,7 +38,7 @@ static bool anderson_darling_test(double p[32]) {
     return (kADMin32 < a2 && a2 < kADMax32);
 }
 
-static bool chi_square_test(int bins[256], int e) {
+static bool chi_square_test(SkSpan<const int, 256> bins, int e) {
     // Min and max chisquare values allowable
     const double kChiSqMin256 = 206.3179;        // probability of chance = 0.99 with k=256
     const double kChiSqMax256 = 311.5603;        // probability of chance = 0.01 with k=256
@@ -71,7 +72,7 @@ static void test_random_byte(skiatest::Reporter* reporter, int shift) {
         bins[(rand.nextU() >> shift) & 0xff]++;
     }
 
-    REPORTER_ASSERT(reporter, chi_square_test(bins.data(), 10000));
+    REPORTER_ASSERT(reporter, chi_square_test(bins, 10000));
 }
 
 static void test_random_float(skiatest::Reporter* reporter) {
@@ -84,7 +85,7 @@ static void test_random_float(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 0.0f <= f && f < 1.0f);
         bins[(int)(f*256.f)]++;
     }
-    REPORTER_ASSERT(reporter, chi_square_test(bins.data(), 10000));
+    REPORTER_ASSERT(reporter, chi_square_test(bins, 10000));
 
     double p[32];
     for (int j = 0; j < 32; ++j) {
@@ -180,7 +181,7 @@ static void test_range(skiatest::Reporter* reporter) {
         bins[u - 17]++;
     }
 
-    REPORTER_ASSERT(reporter, chi_square_test(bins.data(), 10000));
+    REPORTER_ASSERT(reporter, chi_square_test(bins, 10000));
 }
 
 DEF_TEST(Random, reporter) {

@@ -8,6 +8,7 @@
 #define PathOpsExtendedTest_DEFINED
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkSpan.h"
 #include "include/pathops/SkPathOps.h"
 
 #include <cstddef>
@@ -53,10 +54,12 @@ extern bool testSimplifyFuzz(skiatest::Reporter* reporter, const SkPath& path,
 
 void initializeTests(skiatest::Reporter* reporter, const char* testName);
 
-void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
-                void (*firstTest)(skiatest::Reporter* , const char* filename),
-                void (*skipTest)(skiatest::Reporter* , const char* filename),
-                void (*stopTest)(skiatest::Reporter* , const char* filename), bool reverse);
+void RunTestSet(skiatest::Reporter* reporter,
+                SkSpan<TestDesc> tests,
+                void (*firstTest)(skiatest::Reporter*, const char* filename),
+                void (*skipTest)(skiatest::Reporter*, const char* filename),
+                void (*stopTest)(skiatest::Reporter*, const char* filename),
+                bool reverse);
 void ShowFunctionHeader(const char* name);
 void ShowPath(const SkPath& path, const char* pathName);
 void ShowOp(SkPathOp op, const char* pathOne, const char* pathTwo);

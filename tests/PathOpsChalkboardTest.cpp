@@ -189,9 +189,8 @@ static TestDesc tests[] = {
     TEST(chalkboard_threaded),
 };
 
-static const size_t testCount = std::size(tests);
 static bool runReverse = false;
 
 DEF_TEST(PathOpsChalkboard, reporter) {
-    RunTestSet(reporter, tests, testCount, firstTest, skipTest, stopTest, runReverse);
+    RunTestSet(reporter, tests, firstTest, skipTest, stopTest, runReverse);
 }

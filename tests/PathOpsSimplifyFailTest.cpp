@@ -14,19 +14,20 @@
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cstddef>
 
-static const SkPoint finitePts[] = {
-    { 0, 0 },
-    { SK_ScalarMax, 0 },
-    { 0, SK_ScalarMax },
-    { SK_ScalarMax, SK_ScalarMax },
-    { SK_ScalarMin, 0 },
-    { 0, SK_ScalarMin },
-    { SK_ScalarMin, SK_ScalarMin },
-};
+static constexpr auto finitePts = std::to_array<SkPoint>({
+        SkPoint{ 0, 0 },
+        SkPoint{ SK_ScalarMax, 0 },
+        SkPoint{ 0, SK_ScalarMax },
+        SkPoint{ SK_ScalarMax, SK_ScalarMax },
+        SkPoint{ SK_ScalarMin, 0 },
+        SkPoint{ 0, SK_ScalarMin },
+        SkPoint{ SK_ScalarMin, SK_ScalarMin },
+});
 
-const size_t finitePtsCount = sizeof(finitePts) / sizeof(finitePts[0]);
+constexpr size_t finitePtsCount = finitePts.size();
 
 static void dontFailOne(skiatest::Reporter* reporter, int index) {
     SkPathBuilder path;

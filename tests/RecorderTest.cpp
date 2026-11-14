@@ -16,11 +16,12 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
-#include "include/private/SkMalloc.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordCanvas.h"
 #include "src/core/SkRecords.h"
 #include "tests/Test.h"
+
+#include <array>
 
 #define COUNT(T) + 1
 static const int kRecordTypes = SK_RECORD_TYPES(COUNT);
@@ -29,7 +30,7 @@ static const int kRecordTypes = SK_RECORD_TYPES(COUNT);
 // Tallies the types of commands it sees into a histogram.
 class Tally {
 public:
-    Tally() { sk_bzero(&fHistogram, sizeof(fHistogram)); }
+    Tally() = default;
 
     template <typename T>
     void operator()(const T&) { ++fHistogram[T::kType]; }
@@ -44,7 +45,7 @@ public:
     }
 
 private:
-    int fHistogram[kRecordTypes];
+    std::array<int, kRecordTypes> fHistogram = {};
 };
 
 DEF_TEST(Recorder, r) {

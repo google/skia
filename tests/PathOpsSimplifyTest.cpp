@@ -9961,14 +9961,12 @@ static TestDesc tests[] = {
     TEST(testDegenerates),
 };
 
-static const size_t testCount = std::size(tests);
 
 static TestDesc subTests[] = {
     TEST(fuzz994s_3414),
     TEST(fuzz994s_11),
 };
 
-static const size_t subTestCount = std::size(subTests);
 
 static void (*firstSubTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
@@ -9978,11 +9976,11 @@ static bool runReverse = false;
 
 DEF_TEST(PathOpsSimplify, reporter) {
     if (runSubTests && runSubTestsFirst) {
-        RunTestSet(reporter, subTests, subTestCount, firstSubTest, nullptr, stopTest, runReverse);
+        RunTestSet(reporter, subTests, firstSubTest, nullptr, stopTest, runReverse);
     }
-    RunTestSet(reporter, tests, testCount, firstTest, skipTest, stopTest, runReverse);
+    RunTestSet(reporter, tests, firstTest, skipTest, stopTest, runReverse);
     if (runSubTests && !runSubTestsFirst) {
-        RunTestSet(reporter, subTests, subTestCount, firstSubTest, nullptr, stopTest, runReverse);
+        RunTestSet(reporter, subTests, firstSubTest, nullptr, stopTest, runReverse);
     }
 }
 

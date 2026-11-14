@@ -36,6 +36,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSerialProcs.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
@@ -201,11 +202,11 @@ template<> struct SerializationUtils<SkScalar> {
 };
 
 template<typename T, bool testInvalid> struct SerializationTestUtils {
-    static void InvalidateData(unsigned char* data) {}
+    static void InvalidateData(SkSpan<unsigned char>) {}
 };
 
 template<> struct SerializationTestUtils<SkString, true> {
-    static void InvalidateData(unsigned char* data) {
+    static void InvalidateData(SkSpan<unsigned char> data) {
         data[3] |= 0x80; // Reverse sign of 1st integer
     }
 };
@@ -1070,27 +1071,21 @@ struct AnnotationRec {
 };
 
 class TestAnnotationCanvas : public SkCanvas {
-    skiatest::Reporter*     fReporter;
-    const AnnotationRec*    fRec;
-    int                     fCount;
-    int                     fCurrIndex;
+    skiatest::Reporter*         fReporter;
+    SkSpan<const AnnotationRec> fRec;
+    size_t                      fCurrIndex;
 
 public:
-    TestAnnotationCanvas(skiatest::Reporter* reporter, const AnnotationRec rec[], int count)
-        : SkCanvas(100, 100)
-        , fReporter(reporter)
-        , fRec(rec)
-        , fCount(count)
-        , fCurrIndex(0)
-    {}
+    TestAnnotationCanvas(skiatest::Reporter* reporter, SkSpan<const AnnotationRec> rec)
+            : SkCanvas(100, 100), fReporter(reporter), fRec(rec), fCurrIndex(0) {}
 
     ~TestAnnotationCanvas() override {
-        REPORTER_ASSERT(fReporter, fCount == fCurrIndex);
+        REPORTER_ASSERT(fReporter, fRec.size() == fCurrIndex);
     }
 
 protected:
     void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) override {
-        REPORTER_ASSERT(fReporter, fCurrIndex < fCount);
+        REPORTER_ASSERT(fReporter, fCurrIndex < fRec.size());
         REPORTER_ASSERT(fReporter, rect == fRec[fCurrIndex].fRect);
         REPORTER_ASSERT(fReporter, !strcmp(key, fRec[fCurrIndex].fKey));
         REPORTER_ASSERT(fReporter, value->equals(fRec[fCurrIndex].fValue.get()));
@@ -1130,7 +1125,7 @@ DEF_TEST(Annotations, reporter) {
     sk_sp<SkPicture> pict0(recorder.finishRecordingAsPicture());
     sk_sp<SkPicture> pict1(copy_picture_via_serialization(pict0.get()));
 
-    TestAnnotationCanvas canvas(reporter, recs, std::size(recs));
+    TestAnnotationCanvas canvas(reporter, recs);
     canvas.drawPicture(pict1);
 }
 

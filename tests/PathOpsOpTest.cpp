@@ -9498,7 +9498,6 @@ static struct TestDesc tests[] = {
     TEST(cubicOp1d),
 };
 
-static const size_t testCount = std::size(tests);
 
 static struct TestDesc subTests[] = {
     TEST(loops47i),
@@ -9507,7 +9506,6 @@ static struct TestDesc subTests[] = {
     TEST(issue3517),
 };
 
-static const size_t subTestCount = std::size(subTests);
 
 static void (*firstSubTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
@@ -9517,11 +9515,11 @@ static bool runReverse = false;
 
 DEF_TEST(PathOpsOp, reporter) {
     if (runSubTests && runSubTestsFirst) {
-        RunTestSet(reporter, subTests, subTestCount, firstSubTest, nullptr, stopTest, runReverse);
+        RunTestSet(reporter, subTests, firstSubTest, nullptr, stopTest, runReverse);
     }
-    RunTestSet(reporter, tests, testCount, firstTest, skipTest, stopTest, runReverse);
+    RunTestSet(reporter, tests, firstTest, skipTest, stopTest, runReverse);
     if (runSubTests && !runSubTestsFirst) {
-        RunTestSet(reporter, subTests, subTestCount, firstSubTest, nullptr, stopTest, runReverse);
+        RunTestSet(reporter, subTests, firstSubTest, nullptr, stopTest, runReverse);
     }
 }
 
@@ -12543,10 +12541,9 @@ static struct TestDesc failTests[] = {
     TEST(bufferOverflow),
 };
 
-static const size_t failTestCount = std::size(failTests);
 
 DEF_TEST(PathOpsFailOp, reporter) {
-    RunTestSet(reporter, failTests, failTestCount, nullptr, nullptr, nullptr, false);
+    RunTestSet(reporter, failTests, nullptr, nullptr, nullptr, false);
 }
 
 static struct TestDesc repTests[] = {
@@ -12558,6 +12555,6 @@ DEF_TEST(PathOpsRepOp, reporter) {
         return;
     }
   for (int index = 0; index < 1; ++index)
-    RunTestSet(reporter, repTests, std::size(repTests), nullptr, nullptr, nullptr, false);
+    RunTestSet(reporter, repTests, nullptr, nullptr, nullptr, false);
 }
 
