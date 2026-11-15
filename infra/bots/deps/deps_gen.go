@@ -34,7 +34,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/chromium/agents": {
 		Id:      "chromium.googlesource.com/chromium/agents",
-		Version: "915560017c2c2131bd38d24e893362cc8887b65b",
+		Version: "ab85c358032bec093f83f1bba41c5df73eda58a3",
 		Path:    "_agents/chromium-shared",
 	},
 	"chromium.googlesource.com/chromium/deps/icu": {
