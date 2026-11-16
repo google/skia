@@ -1023,3 +1023,31 @@ DEF_TEST(SkUnicode_Apple_Ideographic, reporter) {
     SkUnicode_Ideographic(apple.get(), reporter);
 }
 #endif
+
+// UAX #14 mandatory breaks (LF and BK) must set kHardLineBreakBefore after the break code point
+// in every backend. U+2028/U+2029 are 3 UTF-8 code units, so a check of one byte misses them
+DEF_TEST_UNICODES(SkUnicode_HardLineBreakAfterBK, reporter) {
+    if (!unicode) {
+        return;
+    }
+    const std::pair<const char*, std::string> kHardBreaks[] = {
+            {"LF", "\n"}, {"VT", "\v"}, {"FF", "\f"}, {"LS", "\u2028"}, {"PS", "\u2029"}};
+    // An empty tail puts the break at the end of the text, the last segment of the backend loop
+    for (const std::string tail : {"cd", ""}) {
+        for (const auto& [name, hardBreak] : kHardBreaks) {
+            skiatest::ReporterContext context(reporter, name + (" + \"" + tail + "\""));
+            std::string text = "ab" + hardBreak + tail;
+            TArray<SkUnicode::CodeUnitFlags, true> flags;
+            REPORTER_ASSERT(reporter,
+                            unicode->computeCodeUnitFlags(text.data(), text.size(), false, &flags));
+            REPORTER_ASSERT(reporter, flags.size() == SkToInt(text.size() + 1),
+                            "got %d flags for %zu code units", flags.size(), text.size());
+            const size_t breakEnd = 2 + hardBreak.size();
+            for (size_t i = 0; i <= text.size(); ++i) {
+                REPORTER_ASSERT(reporter,
+                                SkUnicode::hasHardLineBreakFlag(flags[i]) == (i == breakEnd),
+                                "index %zu, hard break ends at %zu", i, breakEnd);
+            }
+        }
+    }
+}

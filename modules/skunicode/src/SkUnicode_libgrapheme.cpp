@@ -16,6 +16,7 @@
 #include "modules/skunicode/src/SkUnicode_hardcoded.h"
 #include "modules/skunicode/src/SkUnicode_icu_bidi.h"
 #include "src/core/SkBitmaskEnum.h"
+#include "src/core/SkUTF.h"
 
 extern "C" {
 #include <grapheme.h>
@@ -67,9 +68,16 @@ public:
         size_t lineBreak = 0;
         (*results)[lineBreak] |= CodeUnitFlags::kSoftLineBreakBefore;
         while (lineBreak < SkToSizeT(utf8Units)) {
+            const size_t segmentStart = lineBreak;
             lineBreak += grapheme_next_line_break_utf8(utf8 + lineBreak, utf8Units - lineBreak);
-            // Check if the previous code unit is a hard break.
-            auto codePoint = utf8[lineBreak - 1];
+            // The break is hard if the segment ends with a hard break code point. Step back over
+            // UTF-8 continuation bytes: BK U+2028/U+2029 take 3 code units
+            size_t lastStart = lineBreak - 1;
+            while (lastStart > segmentStart && (utf8[lastStart] & 0xC0) == 0x80) {
+                --lastStart;
+            }
+            const char* last = utf8 + lastStart;
+            const SkUnichar codePoint = SkUTF::NextUTF8(&last, utf8 + lineBreak);
             (*results)[lineBreak] |= this->isHardBreak(codePoint)
                                     ? CodeUnitFlags::kHardLineBreakBefore
                                     : CodeUnitFlags::kSoftLineBreakBefore;
