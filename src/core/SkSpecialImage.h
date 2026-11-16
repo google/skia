@@ -41,7 +41,7 @@ enum {
  *      - it can only be backed by raster or gpu (no generators)
  *      - it can be backed by a GrTextureProxy larger than its nominal bounds
  *      - it can't be drawn tiled
- *      - it can't be drawn with MIPMAPs
+ *      - [Ganesh] it can't be drawn with MIPMAPs unless its subset covers its entire backing store
  * It is similar to SkImage in that it abstracts how the pixels are stored/represented.
  *
  * Note: the contents of the backing storage outside of the subset rect are undefined.
@@ -65,6 +65,17 @@ public:
     virtual size_t getSize() const = 0;
 
     bool isExactFit() const { return fSubset == SkIRect::MakeSize(this->backingStoreDimensions()); }
+
+    /**
+     * Returns 'sampling' adjusted so that it is safe to use when drawing or sampling this special
+     * image. Mipmapped and anisotropic sampling build the mip chain from the entire backing store,
+     * and the texels outside of subset() may never have been written (e.g., an approx-fit texture
+     * reused from the scratch pool). So, unless the subset covers the entire backing store (i.e.,
+     * isExactFit()), those are downgraded to bilinear filtering of the base level. Note that the
+     * fit of the underlying texture can't be used for this since it may be shared with other
+     * special images and may already have been exactified by an earlier use.
+     */
+    SkSamplingOptions ganeshSafeSampling(const SkSamplingOptions& sampling) const;
 
     const SkColorInfo& colorInfo() const { return fColorInfo; }
     SkAlphaType alphaType() const { return fColorInfo.alphaType(); }
