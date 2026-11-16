@@ -192,29 +192,36 @@ skgpu::UniqueKey GenerateClipMaskKey(uint32_t stackRecordID,
     // if the element list is too large we just use the stackRecordID
     if (elementsForMask->size() <= kMaxShapeCountForKey) {
         Rect unclippedBounds = Rect::InfiniteInverted();
+        bool canUsePathKey = true;
         for (int i = 0; i < elementsForMask->size(); ++i) {
             const ClipStack::Element* element = (*elementsForMask)[i];
+            // If any of the transforms have perspective, skip and use the stackRecordID instead.
+            if (element->fLocalToDevice.type() >= Transform::Type::kPerspective) {
+                canUsePathKey = false;
+                break;
+            }
             unclippedBounds.join(element->fLocalToDevice.mapRect(element->fShape.bounds()));
         }
 
         // The keyBounds are the maskDeviceBounds relative to the full transformed mask. We use
         // this to ensure we capture the situation where the maskDeviceBounds are equal in two
-        // cases but actually enclose different regions of the full mask due to an integer
-        // translation (which is not captured in the key) in the element transforms.
-        const SkIRect pathKeyBounds =
-                maskDeviceBounds.makeOffset(-sk_float_floor2int(unclippedBounds.left()),
-                                            -sk_float_floor2int(unclippedBounds.top()));
+        // cases but actually enclose different regions of the full mask due to a whole-stack
+        // integer translation.
+        const int32_t maskOriginX = sk_float_floor2int(unclippedBounds.left());
+        const int32_t maskOriginY = sk_float_floor2int(unclippedBounds.top());
+        const SkIRect pathKeyBounds = maskDeviceBounds.makeOffset(-maskOriginX, -maskOriginY);
 
         // The clip atlas relies on keyBounds being an exact translation of maskDeviceBounds, and
         // the ProxyCache key packs them into 16 bits. If the result can't fit within 16 bits,
         // fall back to the SaveRecord key below.
-        if (SkTFitsIn<int16_t>(pathKeyBounds.left()) &&
+        if (canUsePathKey &&
+            SkTFitsIn<int16_t>(pathKeyBounds.left()) &&
             SkTFitsIn<int16_t>(pathKeyBounds.top()) &&
             SkTFitsIn<int16_t>(pathKeyBounds.right()) &&
             SkTFitsIn<int16_t>(pathKeyBounds.bottom())) {
             SkASSERT(pathKeyBounds.size() == maskDeviceBounds.size());
 
-            static constexpr int kXformKeySize = 5;
+            static constexpr int kXformKeySize = 7;
             uint16_t keySize = includeBounds ? 2 : 0;
             // Iterate through to get key size; given kMaxShapeCountForKey and Shape's own key size
             // limitations, this should always fit safely within a 16-bit number
@@ -233,6 +240,19 @@ skgpu::UniqueKey GenerateClipMaskKey(uint32_t stackRecordID,
                                                       element->fLocalToDevice);
                 uint32_t opBits = static_cast<uint32_t>(element->fOp);
                 builder[elementKeyIndex + 4] = fracBits | (opBits << 16);
+
+                // Include each element's integer translation relative to the combined mask
+                // origin. `fracBits` above already accounts for any fractional translations that
+                // would impact the coverage mask values of the clip, so the integer portion is all
+                // that's needed to disambiguate relative shifts between elements.
+                builder[elementKeyIndex + 5] =
+                        static_cast<uint32_t>(
+                                sk_float_floor2int(element->fLocalToDevice.matrix().rc(0, 3))) -
+                        static_cast<uint32_t>(maskOriginX);
+                builder[elementKeyIndex + 6] =
+                        static_cast<uint32_t>(
+                                sk_float_floor2int(element->fLocalToDevice.matrix().rc(1, 3))) -
+                        static_cast<uint32_t>(maskOriginY);
 
                 const Shape& shape = element->fShape;
                 shape.writeKey(&builder[elementKeyIndex + kXformKeySize],
