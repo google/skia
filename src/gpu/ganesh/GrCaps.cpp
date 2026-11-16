@@ -17,13 +17,16 @@
 #include "include/private/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/core/SkSafeMath.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrWindowRectangles.h"
 
+#include <algorithm>
 #include <array>
+#include <cstdint>
 
 GrCaps::GrCaps(const GrContextOptions& options) {
     fNPOTTextureTileSupport = false;
@@ -98,6 +101,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fAvoidReorderingRenderTasks = false;
     fAvoidDithering = false;
     fAvoidLineDraws = false;
+    fEnforceImageFootprintFitsIn32Bits = false;
     fDisablePerspectiveSDFText = false;
 
     fPreferVRAMUseOverFlushes = true;
@@ -331,6 +335,41 @@ bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
     return this->onCanCopySurface(dst, dstRect, src, srcRect);
 }
 
+bool GrCaps::imageFootprintFitsInto32Bits(SkISize dimensions,
+                                          const GrBackendFormat& format,
+                                          int actualSampleCnt) const {
+    // Account for both the color attachment and any multisampled stencil attachment
+    // (e.g. DEPTH24_STENCIL8 = 4 B/px on an R8/RGB565 color target).
+    const size_t stencilBpp = this->avoidStencilBuffers() ? 0 : this->maxStencilBytesPerBlock();
+    const size_t bytesPerBlock = std::max(GrBackendFormatBytesPerBlock(format), stencilBpp);
+    if (dimensions.width() < 1 || dimensions.height() < 1 || bytesPerBlock == 0) {
+        return false;
+    }
+
+    // Round dimensions and texel stride (e.g. RGB8 = 3 B -> 4 B) up to powers of two.
+    SkSafeMath safe;
+    const size_t alignedBpp = safe.ceilPow2(bytesPerBlock);
+    const size_t potW = safe.ceilPow2(static_cast<size_t>(dimensions.width()));
+    const size_t potH = safe.ceilPow2(static_cast<size_t>(dimensions.height()));
+    const size_t potPixels = safe.mul(potW, potH);
+    const size_t bytesPerPixelAllSamples =
+            safe.mul(static_cast<size_t>(actualSampleCnt), alignedBpp);
+    const size_t totalBytes = safe.mul(bytesPerPixelAllSamples, potPixels);
+    (void)safe.castTo<uint32_t>(totalBytes);
+    return safe.ok();
+}
+
+int GrCaps::getRenderTargetSampleCount(int requestedCount,
+                                       const GrBackendFormat& format,
+                                       SkISize dimensions) const {
+    int count = this->getRenderTargetSampleCount(requestedCount, format);
+    if (count > 1 && fEnforceImageFootprintFitsIn32Bits &&
+        !this->imageFootprintFitsInto32Bits(dimensions, format, count)) {
+        return 0;
+    }
+    return count;
+}
+
 bool GrCaps::validateSurfaceParams(const SkISize& dimensions, const GrBackendFormat& format,
                                    GrRenderable renderable, int renderTargetSampleCnt,
                                    skgpu::Mipmapped mipped, GrTextureType textureType) const {
@@ -354,6 +393,9 @@ bool GrCaps::validateSurfaceParams(const SkISize& dimensions, const GrBackendFor
         }
         int maxRTSize = this->maxRenderTargetSize();
         if (dimensions.width() > maxRTSize || dimensions.height() > maxRTSize) {
+            return false;
+        }
+        if (!this->getRenderTargetSampleCount(renderTargetSampleCnt, format, dimensions)) {
             return false;
         }
     } else {
@@ -475,8 +517,13 @@ GrDstSampleFlags GrCaps::getDstSampleFlagsForProxy(const GrRenderTargetProxy* rt
 }
 
 bool GrCaps::supportsDynamicMSAA(const GrRenderTargetProxy* rtProxy) const {
+    const int internalSamples = this->internalMultisampleCount(rtProxy->backendFormat());
     return rtProxy->numSamples() == 1 &&
-           this->internalMultisampleCount(rtProxy->backendFormat()) > 1 &&
+           internalSamples > 1 &&
+           (!fEnforceImageFootprintFitsIn32Bits ||
+            this->imageFootprintFitsInto32Bits(rtProxy->backingStoreDimensions(),
+                                               rtProxy->backendFormat(),
+                                               internalSamples)) &&
            this->onSupportsDynamicMSAA(rtProxy);
 }
 

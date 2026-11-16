@@ -355,6 +355,11 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
         backendTex.height() > caps->maxRenderTargetSize()) {
         return nullptr;
     }
+    sampleCnt = caps->getRenderTargetSampleCount(
+            sampleCnt, backendTex.getBackendFormat(), backendTex.dimensions());
+    if (!sampleCnt) {
+        return nullptr;
+    }
     sk_sp<GrTexture> tex =
             this->onWrapRenderableBackendTexture(backendTex, sampleCnt, ownership, cacheable);
     SkASSERT(!tex || tex->asRenderTarget());
@@ -369,7 +374,11 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
 
     const GrCaps* caps = this->caps();
 
-    if (!caps->isFormatRenderable(backendRT.getBackendFormat(), backendRT.sampleCnt())) {
+    // Check that the format is renderable and that any multisampled attachment (including a
+    // Skia-managed stencil companion) fits within the 32-bit byte limit.
+    if (!caps->isFormatRenderable(backendRT.getBackendFormat(), backendRT.sampleCnt()) ||
+        !caps->getRenderTargetSampleCount(
+                backendRT.sampleCnt(), backendRT.getBackendFormat(), backendRT.dimensions())) {
         return nullptr;
     }
 

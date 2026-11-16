@@ -599,6 +599,12 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const GrContextOptions& context
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
 
+    // Check MSAA sample allocation using 32-bit power-of-two arithmetic
+    // when MSAA is enabled via `fAllowMSAAOnImagination`.
+    if (skgpu::kImagination_VkVendor == properties.vendorID) {
+        fEnforceImageFootprintFitsIn32Bits = true;
+    }
+
     if (skgpu::kARM_VkVendor == properties.vendorID) {
         fAvoidWritePixelsFastPath = true; // bugs.skia.org/8064
     }
@@ -1849,6 +1855,11 @@ bool GrVkCaps::onSupportsDynamicMSAA(const GrRenderTargetProxy* rtProxy) const {
     return this->supportsDiscardableMSAAForDMSAA() &&
            rtProxy->supportsVkInputAttachment() &&
            rtProxy->numSamples() == 1;
+}
+
+size_t GrVkCaps::maxStencilBytesPerBlock() const {
+    // Vulkan selects a single preferred stencil format up front during caps initialization.
+    return skgpu::VkFormatBytesPerBlock(fPreferredStencilFormat);
 }
 
 bool GrVkCaps::renderTargetSupportsDiscardableMSAA(const GrVkRenderTarget* rt) const {

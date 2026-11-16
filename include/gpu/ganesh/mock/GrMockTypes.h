@@ -149,6 +149,8 @@ struct GrMockOptions {
     int fMaxRenderTargetSize = 2048;
     int fMaxWindowRectangles = 0;
     int fMaxVertexAttributes = 16;
+    // Simulates drivers that round MSAA attachment dimensions/bpp to powers of two in uint32_t.
+    bool fEnforceImageFootprintFitsIn32Bits = false;
     std::array<ConfigOptions, kGrColorTypeCnt> fConfigOptions;
     std::array<ConfigOptions, kSkTextureCompressionTypeCount> fCompressedOptions;
 

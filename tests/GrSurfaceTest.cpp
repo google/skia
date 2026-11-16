@@ -18,14 +18,21 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextureCompressionType.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrContextOptions.h"
+#include "include/gpu/ganesh/GrContextThreadSafeProxy.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/mock/GrMockBackendSurface.h"
+#include "include/gpu/ganesh/mock/GrMockTypes.h"
 #include "include/private/SkTo.h"
+#include "include/private/chromium/GrSurfaceCharacterization.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
@@ -33,6 +40,7 @@
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
@@ -41,6 +49,7 @@
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
@@ -538,5 +547,124 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture,
                     dContext->priv().getGpu()->regenerateMipMapLevels(proxy->peekTexture());
             REPORTER_ASSERT(reporter, regenResult == (ioType == kRW_GrIOType));
         }
+    }
+}
+
+// Regression test verifying that multisampled attachments whose power-of-two byte footprint
+// (`samples * alignedBpp * bit_ceil(w) * bit_ceil(h)`) exceeds UINT32_MAX are rejected when
+// `fEnforceImageFootprintFitsIn32Bits` is enabled.
+DEF_TEST(GrSurfaceMultisamplePOTLimit, reporter) {
+    using Renderability = GrMockOptions::ConfigOptions::Renderability;
+
+    GrMockOptions mockOptions;
+    mockOptions.fMaxTextureSize = 16384;
+    mockOptions.fMaxRenderTargetSize = 16384;
+    mockOptions.fEnforceImageFootprintFitsIn32Bits = true;
+    mockOptions.fConfigOptions[(int)GrColorType::kRGBA_8888].fRenderability = Renderability::kMSAA;
+    mockOptions.fConfigOptions[(int)GrColorType::kRGBA_8888].fTexturable = true;
+    mockOptions.fConfigOptions[(int)GrColorType::kRGBA_F16].fRenderability = Renderability::kMSAA;
+    mockOptions.fConfigOptions[(int)GrColorType::kRGBA_F16].fTexturable = true;
+
+    GrContextOptions ctxOptions;
+    ctxOptions.fInternalMultisampleCount = 4;
+
+    sk_sp<GrDirectContext> dContext = GrDirectContext::MakeMock(&mockOptions, ctxOptions);
+    REPORTER_ASSERT(reporter, dContext);
+    if (!dContext) {
+        return;
+    }
+
+    const GrCaps* caps = dContext->priv().caps();
+    const GrBackendFormat rgbaFormat =
+            caps->getDefaultBackendFormat(GrColorType::kRGBA_8888, GrRenderable::kYes);
+    const SkImageInfo rgba8193x8192 =
+            SkImageInfo::Make(8193, 8192, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    const SkImageInfo rgba8193x8193 =
+            SkImageInfo::Make(8193, 8193, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    // 1. RenderTarget (`validateSurfaceParams`):
+    // 8193x8192 @ 4x RGBA8 (2^31 B) and 8193x8193 @ 1x fit; 8193x8193 @ 4x RGBA8 (2^32 B) and
+    // 8193x8192 @ 4x RGBA_F16 (2^32 B) exceed UINT32_MAX.
+    REPORTER_ASSERT(reporter,
+                    SkSurfaces::RenderTarget(
+                            dContext.get(), skgpu::Budgeted::kNo, rgba8193x8192, 4, nullptr));
+    REPORTER_ASSERT(reporter,
+                    !SkSurfaces::RenderTarget(
+                            dContext.get(), skgpu::Budgeted::kNo, rgba8193x8193, 4, nullptr));
+    REPORTER_ASSERT(reporter,
+                    SkSurfaces::RenderTarget(
+                            dContext.get(), skgpu::Budgeted::kNo, rgba8193x8193, 1, nullptr));
+    REPORTER_ASSERT(
+            reporter,
+            !SkSurfaces::RenderTarget(
+                    dContext.get(),
+                    skgpu::Budgeted::kNo,
+                    SkImageInfo::Make(8193, 8192, kRGBA_F16_SkColorType, kPremul_SkAlphaType),
+                    4,
+                    nullptr));
+
+    // 2. WrapBackendTexture + supportsDynamicMSAA:
+    // 8193x8193 fails with sampleCnt=4, and succeeds at sampleCnt=1 with dynamic MSAA disabled.
+    GrBackendTexture beTex8193 = dContext->createBackendTexture(
+            8193, 8193, kRGBA_8888_SkColorType, skgpu::Mipmapped::kNo, GrRenderable::kYes);
+    REPORTER_ASSERT(reporter, beTex8193.isValid());
+    REPORTER_ASSERT(reporter,
+                    !SkSurfaces::WrapBackendTexture(dContext.get(),
+                                                    beTex8193,
+                                                    kTopLeft_GrSurfaceOrigin,
+                                                    /*sampleCnt=*/4,
+                                                    kRGBA_8888_SkColorType,
+                                                    /*colorSpace=*/nullptr,
+                                                    /*surfaceProps=*/nullptr));
+    auto wrappedSingle = SkSurfaces::WrapBackendTexture(dContext.get(),
+                                                        beTex8193,
+                                                        kTopLeft_GrSurfaceOrigin,
+                                                        /*sampleCnt=*/1,
+                                                        kRGBA_8888_SkColorType,
+                                                        /*colorSpace=*/nullptr,
+                                                        /*surfaceProps=*/nullptr);
+    REPORTER_ASSERT(reporter, wrappedSingle);
+    if (wrappedSingle) {
+        auto* rtp = skgpu::ganesh::TopDeviceTargetProxy(wrappedSingle->getCanvas());
+        REPORTER_ASSERT(reporter, rtp && !caps->supportsDynamicMSAA(rtp));
+    }
+    wrappedSingle.reset();
+    dContext->deleteBackendTexture(beTex8193);
+
+    // 3. WrapBackendRenderTarget & DDL createCharacterization:
+    GrMockRenderTargetInfo mockRTInfo(GrColorType::kRGBA_8888, /*id=*/1);
+    GrBackendRenderTarget beRT8193 =
+            GrBackendRenderTargets::MakeMock(8193, 8193, /*sampleCnt=*/4, 0, mockRTInfo);
+    REPORTER_ASSERT(reporter,
+                    !SkSurfaces::WrapBackendRenderTarget(dContext.get(),
+                                                         beRT8193,
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         kRGBA_8888_SkColorType,
+                                                         /*colorSpace=*/nullptr,
+                                                         /*surfaceProps=*/nullptr));
+
+    SkSurfaceProps props;
+    auto invalidChar = dContext->threadSafeProxy()->createCharacterization(
+            /*cacheMaxResourceBytes=*/0,
+            rgba8193x8193,
+            rgbaFormat,
+            /*sampleCount=*/4,
+            kTopLeft_GrSurfaceOrigin,
+            props,
+            skgpu::Mipmapped::kNo);
+    REPORTER_ASSERT(reporter, !invalidChar.isValid());
+
+    // 4. When `fEnforceImageFootprintFitsIn32Bits` is unset, 8193x8193 @ 4x RGBA8 is allowed.
+    mockOptions.fEnforceImageFootprintFitsIn32Bits = false;
+    sk_sp<GrDirectContext> unrestrictedContext =
+            GrDirectContext::MakeMock(&mockOptions, ctxOptions);
+    REPORTER_ASSERT(reporter, unrestrictedContext);
+    if (unrestrictedContext) {
+        REPORTER_ASSERT(reporter,
+                        SkSurfaces::RenderTarget(unrestrictedContext.get(),
+                                                 skgpu::Budgeted::kNo,
+                                                 rgba8193x8193,
+                                                 /*sampleCount=*/4,
+                                                 nullptr));
     }
 }
