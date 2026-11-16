@@ -98,8 +98,10 @@
 #include <array>
 #include <cstdint>
 #include <cstring>
+#include <functional>
 #include <limits>
 #include <utility>
+#include <vector>
 
 using namespace skia_private;
 
@@ -2648,3 +2650,405 @@ DEF_TEST(ImageFilter_UnboundedInputMagnifier_EdgeLeak, reporter) {
 
     REPORTER_ASSERT(reporter, !leaked, "Edge padding leaked by magnifier");
 }
+
+namespace {
+
+using CreateSurfaceProc = std::function<sk_sp<SkSurface>(const SkImageInfo&)>;
+using FlushAndSubmitProc = std::function<void()>;
+
+// Fill the scratch texture pool with green 128x128 textures. Approximate-fit textures created
+// afterwards (e.g., 73x73 binned up to 128x128) are then likely to reuse one of them, leaving green
+// in the texels outside of the region that was actually written.
+void seed_green_scratch_textures(const CreateSurfaceProc& createSurface,
+                                 const FlushAndSubmitProc& flushAndSubmit) {
+    const SkImageInfo ii = SkImageInfo::MakeN32Premul(128, 128);
+
+    std::vector<sk_sp<SkSurface>> seeds(8);
+    for (int i = 0; i < 8; ++i) {
+        seeds[i] = createSurface(ii);
+        if (!seeds[i]) {
+            continue;
+        }
+        seeds[i]->getCanvas()->clear(SK_ColorGREEN);
+    }
+
+    flushAndSubmit();  // ensure the green is written to all the textures
+    seeds.clear();     // return the textures to the scratch pool
+    flushAndSubmit();
+}
+
+// The source content of the mipmap tests is white, so every correctly filtered pixel is a shade of
+// gray (r==g==b) over the black background. Any pixel whose green channel exceeds its red/blue
+// channels has absorbed green data from a scratch texture.
+void check_for_green(skiatest::Reporter* reporter, SkSurface* surface) {
+    SkBitmap readback;
+    readback.allocPixels(surface->imageInfo());
+    if (!surface->readPixels(readback, 0, 0)) {
+        ERRORF(reporter, "Read pixels failed");
+        return;
+    }
+
+    static constexpr int kTolerance = 2;
+    int numCorrupted = 0;
+    int maxExcess = 0;
+    for (int y = 0; y < readback.height(); ++y) {
+        for (int x = 0; x < readback.width(); ++x) {
+            SkColor c = readback.getColor(x, y);
+            int r = SkColorGetR(c), g = SkColorGetG(c), b = SkColorGetB(c);
+            int excess = std::max(g - r, g - b);
+            if (excess > kTolerance) {
+                ++numCorrupted;
+                maxExcess = std::max(maxExcess, excess);
+            }
+        }
+    }
+    REPORTER_ASSERT(reporter, numCorrupted == 0,
+                    "%d pixels corrupted (max excess %d)",
+                    numCorrupted,
+                    maxExcess);
+}
+
+// This test tries to get image filtering to use mipmapping and, combined with scratch
+// texture reuse, allow data from a scratch texture to be absorbed into the filtered result.
+void test_mipmap(skiatest::Reporter* reporter,
+                 const CreateSurfaceProc& createSurface,
+                 const FlushAndSubmitProc& flushAndSubmit) {
+    sk_sp<SkSurface> finalSurface = createSurface(SkImageInfo::MakeN32Premul(128, 128));
+
+    // Create a bunch of, appropriately sized, scratch textures that could be reused in
+    // the image filtering process.
+    seed_green_scratch_textures(createSurface, flushAndSubmit);
+
+    // Create the input image filter (solid white). The 73x73 dimensions will be binned
+    // to 128x128.
+    sk_sp<SkImageFilter> input;
+    {
+        const SkImageInfo tmpII = SkImageInfo::MakeN32Premul(73, 73);
+        sk_sp<SkSurface> tmp = createSurface(tmpII);
+        SkCanvas* canvas = tmp->getCanvas();
+        canvas->clear(SK_ColorWHITE);
+        input = SkImageFilters::Image(tmp->makeImageSnapshot(), {});
+    }
+
+    sk_sp<SkImageFilter> innerBlur = SkImageFilters::Blur(2, 2, SkTileMode::kDecal, input);
+
+    sk_sp<SkImageFilter> matrix = SkImageFilters::MatrixTransform(
+            SkMatrix::Scale(0.25, 0.25), {SkFilterMode::kLinear, SkMipmapMode::kLinear}, innerBlur);
+
+    sk_sp<SkImageFilter> outerBlur = SkImageFilters::Blur(2, 2, SkTileMode::kDecal, matrix);
+
+    SkPaint p;
+    p.setImageFilter(outerBlur);
+
+    SkCanvas* finalCanvas = finalSurface->getCanvas();
+    finalCanvas->drawRect(SkRect::MakeWH(128, 128), p);
+
+    check_for_green(reporter, finalSurface.get());
+}
+
+using MakeWithFilterProc = std::function<sk_sp<SkImage>(sk_sp<SkImage> src,
+                                                        const SkImageFilter* filter,
+                                                        const SkIRect& subset,
+                                                        const SkIRect& clipBounds,
+                                                        SkIRect* outSubset,
+                                                        SkIPoint* offset)>;
+
+// SkImages::MakeWithFilter() returns its result via SkSpecialImage::asImage(). On Ganesh, that
+// image wraps an exactified proxy whose texels outside of 'outSubset' were never written. Feeding
+// that image back into SkImageFilters::Image() (correctly using 'outSubset' as the src rect)
+// creates a special image over an already exact-fit proxy. Mipmapped sampling of that special
+// image must still not absorb the unwritten texels.
+void test_make_with_filter_mipmap(skiatest::Reporter* reporter,
+                                  const CreateSurfaceProc& createSurface,
+                                  const FlushAndSubmitProc& flushAndSubmit,
+                                  const MakeWithFilterProc& makeWithFilter) {
+    sk_sp<SkSurface> finalSurface = createSurface(SkImageInfo::MakeN32Premul(128, 128));
+
+    seed_green_scratch_textures(createSurface, flushAndSubmit);
+
+    // A solid white, exact-fit, source image
+    sk_sp<SkImage> src;
+    {
+        sk_sp<SkSurface> tmp = createSurface(SkImageInfo::MakeN32Premul(73, 73));
+        tmp->getCanvas()->clear(SK_ColorWHITE);
+        src = tmp->makeImageSnapshot();
+    }
+
+    // The filter's 73x73 result will be rendered into a texture binned to 128x128
+    sk_sp<SkImageFilter> blur = SkImageFilters::Blur(2, 2, SkTileMode::kDecal, nullptr);
+    SkIRect outSubset;
+    SkIPoint offset;
+    sk_sp<SkImage> filtered =
+            makeWithFilter(src, blur.get(), src->bounds(), src->bounds(), &outSubset, &offset);
+    if (!filtered) {
+        ERRORF(reporter, "MakeWithFilter failed");
+        return;
+    }
+
+    sk_sp<SkImageFilter> input = SkImageFilters::Image(
+            filtered,
+            SkRect::Make(outSubset),
+            SkRect::MakeWH(outSubset.width(), outSubset.height()),
+            SkSamplingOptions(SkFilterMode::kLinear));
+
+    sk_sp<SkImageFilter> matrix = SkImageFilters::MatrixTransform(
+            SkMatrix::Scale(0.25f, 0.25f), {SkFilterMode::kLinear, SkMipmapMode::kLinear}, input);
+
+    sk_sp<SkImageFilter> outerBlur = SkImageFilters::Blur(2, 2, SkTileMode::kDecal, matrix);
+
+    SkPaint p;
+    p.setImageFilter(outerBlur);
+
+    finalSurface->getCanvas()->drawRect(SkRect::MakeWH(128, 128), p);
+
+    check_for_green(reporter, finalSurface.get());
+}
+
+using MakeTextureImageProc = std::function<sk_sp<SkImage>(sk_sp<SkImage>)>;
+
+// The flip side of the tests above: when an image filter samples an image whose subset covers its
+// entire, exact-fit, backing store, mipmapping is safe and should still be used. This is checked
+// for both the SkDevice::drawSpecial() and SkSpecialImage::asShader() code paths.
+//
+// The source image has vertical stripes with a period of 4 texels (3 white columns followed by 1
+// black column). When it is downscaled by 4x, each destination pixel center maps to the boundary
+// between two white source columns. So, bilinear sampling of the base level stays white, while
+// mipmapped sampling averages each period into ~75% gray.
+void test_mipmap_exact_fit(skiatest::Reporter* reporter,
+                           const CreateSurfaceProc& createSurface,
+                           const MakeTextureImageProc& makeTextureImage) {
+    static constexpr int kSrcSize = 128;
+    static constexpr int kDstSize = kSrcSize / 4;
+
+    SkBitmap stripes;
+    stripes.allocPixels(SkImageInfo::MakeN32Premul(kSrcSize, kSrcSize));
+    stripes.eraseColor(SK_ColorWHITE);
+    for (int x = 3; x < kSrcSize; x += 4) {
+        stripes.erase(SK_ColorBLACK, SkIRect::MakeXYWH(x, 0, 1, kSrcSize));
+    }
+    stripes.setImmutable();
+
+    sk_sp<SkImage> src = makeTextureImage(stripes.asImage());
+    if (!src) {
+        ERRORF(reporter, "Could not create texture image");
+        return;
+    }
+
+    // The full image is used as the src rect so the resulting special image is exact-fit
+    sk_sp<SkImageFilter> image = SkImageFilters::Image(src,
+                                                       SkRect::Make(src->bounds()),
+                                                       SkRect::MakeWH(kDstSize, kDstSize),
+                                                       {SkFilterMode::kLinear,
+                                                        SkMipmapMode::kLinear});
+
+    struct {
+        const char* fName;
+        sk_sp<SkImageFilter> fFilter;
+        SkIRect fCheckBounds;
+    } kCases[] = {
+        // The downscaled image is drawn directly with drawSpecial(). Avoid the outermost pixels.
+        {"drawSpecial", image, SkIRect::MakeWH(kDstSize, kDstSize).makeInset(2, 2)},
+        // The downscaled image is sampled by the blur via asShader(). Avoid the pixels that are
+        // affected by the blur's decal edges.
+        {"asShader",
+         SkImageFilters::Blur(2, 2, SkTileMode::kDecal, image),
+         SkIRect::MakeWH(kDstSize, kDstSize).makeInset(8, 8)},
+    };
+
+    for (const auto& c : kCases) {
+        skiatest::ReporterContext ctx(reporter, c.fName);
+
+        sk_sp<SkSurface> surface = createSurface(SkImageInfo::MakeN32Premul(64, 64));
+        if (!surface) {
+            ERRORF(reporter, "Could not create surface");
+            return;
+        }
+
+        SkCanvas* canvas = surface->getCanvas();
+        canvas->clear(SK_ColorBLACK);
+
+        SkPaint p;
+        p.setImageFilter(c.fFilter);
+        canvas->drawRect(SkRect::MakeWH(64, 64), p);
+
+        SkBitmap readback;
+        readback.allocPixels(surface->imageInfo());
+        if (!surface->readPixels(readback, 0, 0)) {
+            ERRORF(reporter, "Read pixels failed");
+            return;
+        }
+
+        // Without mipmapping, the pixels would be (nearly) white. With mipmapping they should be
+        // ~75% gray (191).
+        static constexpr int kMinMipmapped = 160;
+        static constexpr int kMaxMipmapped = 220;
+        int numNotMipmapped = 0;
+        int minValue = 255, maxValue = 0;
+        for (int y = c.fCheckBounds.fTop; y < c.fCheckBounds.fBottom; ++y) {
+            for (int x = c.fCheckBounds.fLeft; x < c.fCheckBounds.fRight; ++x) {
+                int r = SkColorGetR(readback.getColor(x, y));
+                minValue = std::min(minValue, r);
+                maxValue = std::max(maxValue, r);
+                if (r < kMinMipmapped || r > kMaxMipmapped) {
+                    ++numNotMipmapped;
+                }
+            }
+        }
+        REPORTER_ASSERT(reporter, numNotMipmapped == 0,
+                        "%d pixels not mipmapped (range [%d, %d])",
+                        numNotMipmapped,
+                        minValue,
+                        maxValue);
+    }
+}
+
+}  // anonymous namespace
+
+#if defined(SK_GANESH)
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMipmap_Ganesh,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNextRelease) {
+    GrDirectContext* dContext = ctxInfo.directContext();
+
+    test_mipmap(reporter,
+                [dContext](const SkImageInfo& ii) -> sk_sp<SkSurface> {
+                    return SkSurfaces::RenderTarget(
+                            dContext, skgpu::Budgeted::kYes, ii, 0, kTestSurfaceOrigin, nullptr);
+                },
+                [dContext]() { dContext->flushAndSubmit(GrSyncCpu::kYes); });
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMipmap_MakeWithFilter_Ganesh,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNextRelease) {
+    GrDirectContext* dContext = ctxInfo.directContext();
+
+    test_make_with_filter_mipmap(
+            reporter,
+            [dContext](const SkImageInfo& ii) -> sk_sp<SkSurface> {
+                return SkSurfaces::RenderTarget(
+                        dContext, skgpu::Budgeted::kYes, ii, 0, kTestSurfaceOrigin, nullptr);
+            },
+            [dContext]() { dContext->flushAndSubmit(GrSyncCpu::kYes); },
+            [dContext](sk_sp<SkImage> src,
+                       const SkImageFilter* filter,
+                       const SkIRect& subset,
+                       const SkIRect& clipBounds,
+                       SkIRect* outSubset,
+                       SkIPoint* offset) {
+                return SkImages::MakeWithFilter(
+                        dContext, std::move(src), filter, subset, clipBounds, outSubset, offset);
+            });
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMipmap_ExactFit_Ganesh,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNextRelease) {
+    GrDirectContext* dContext = ctxInfo.directContext();
+
+    test_mipmap_exact_fit(
+            reporter,
+            [dContext](const SkImageInfo& ii) -> sk_sp<SkSurface> {
+                return SkSurfaces::RenderTarget(
+                        dContext, skgpu::Budgeted::kYes, ii, 0, kTestSurfaceOrigin, nullptr);
+            },
+            [dContext](sk_sp<SkImage> img) {
+                // Ganesh generates the mipmaps on demand, so start w/ a non-mipmapped texture
+                return SkImages::TextureFromImage(dContext, img, skgpu::Mipmapped::kNo);
+            });
+}
+
+// Special images frequently share a single proxy (e.g., via makeSubset() or makePixelOutset()) and
+// any use that goes through SkSpecialImage::asImage() or Device::drawSpecial() exactifies that
+// shared proxy. A later special image wrapping the same proxy then sees an exact-fit proxy even
+// though the texels outside of its subset were never written. Mipmapped sampling of that later
+// special image must still not absorb those texels. This is Ganesh-only since exactification is a
+// Ganesh concept.
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMipmap_SharedExactifiedProxy_Ganesh,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNextRelease) {
+    GrDirectContext* dContext = ctxInfo.directContext();
+    GrRecordingContext* rContext = dContext;
+
+    auto createSurface = [dContext](const SkImageInfo& ii) -> sk_sp<SkSurface> {
+        return SkSurfaces::RenderTarget(
+                dContext, skgpu::Budgeted::kYes, ii, 0, kTestSurfaceOrigin, nullptr);
+    };
+
+    sk_sp<SkSurface> finalSurface = createSurface(SkImageInfo::MakeN32Premul(32, 32));
+    sk_sp<SkSurface> earlierSurface = createSurface(SkImageInfo::MakeN32Premul(32, 32));
+    if (!finalSurface || !earlierSurface) {
+        ERRORF(reporter, "Could not create surfaces");
+        return;
+    }
+
+    seed_green_scratch_textures(createSurface,
+                                [dContext]() { dContext->flushAndSubmit(GrSyncCpu::kYes); });
+
+    // A solid white special image whose 73x73 approx-fit backing store is binned to 128x128
+    sk_sp<SkDevice> device =
+            rContext->priv().createDevice(skgpu::Budgeted::kYes,
+                                          SkImageInfo::MakeN32Premul(73, 73),
+                                          SkBackingFit::kApprox,
+                                          /*sampleCount=*/1,
+                                          skgpu::Mipmapped::kNo,
+                                          skgpu::Protected::kNo,
+                                          kTestSurfaceOrigin,
+                                          /*props=*/{},
+                                          skgpu::ganesh::Device::InitContents::kUninit);
+    if (!device) {
+        ERRORF(reporter, "Could not create device");
+        return;
+    }
+
+    // Fill the device with white via an image draw. A solid color draw would be converted into a
+    // clear, and Ganesh allows clears of the logical bounds to overflow into the approx-fit
+    // padding, which would overwrite the green we're trying to detect.
+    SkBitmap whiteBM;
+    whiteBM.allocPixels(SkImageInfo::MakeN32Premul(73, 73));
+    whiteBM.eraseColor(SK_ColorWHITE);
+    SkPaint srcPaint;
+    srcPaint.setBlendMode(SkBlendMode::kSrc);
+    device->drawImageRect(whiteBM.asImage().get(),
+                          /*src=*/nullptr,
+                          SkRect::MakeWH(73, 73),
+                          SkSamplingOptions(),
+                          srcPaint,
+                          SkCanvas::kFast_SrcRectConstraint);
+
+    sk_sp<SkSpecialImage> special = device->snapSpecial(SkIRect::MakeWH(73, 73));
+    if (!special) {
+        ERRORF(reporter, "Could not snap special image");
+        return;
+    }
+    REPORTER_ASSERT(reporter, !special->isExactFit());
+
+    // An earlier draw of the special image exactifies the shared proxy
+    special->draw(earlierSurface->getCanvas(), 0, 0);
+
+    // A second special image over the same, now exactified, proxy. Its subset still doesn't cover
+    // the entire backing store.
+    sk_sp<SkSpecialImage> sibling = special->makeSubset(SkIRect::MakeWH(73, 73));
+    REPORTER_ASSERT(reporter, !sibling->isExactFit());
+
+    // Downscale by 4x so that mip level 2 would be sampled. The strict subset constraint clamps the
+    // base level sampling to the white subset, so the only way for green to reach the final result
+    // is through a mip chain built from the entire backing store.
+    SkPaint p;
+    p.setShader(sibling->asShader(SkTileMode::kClamp,
+                                  {SkFilterMode::kLinear, SkMipmapMode::kLinear},
+                                  SkMatrix::Scale(0.25f, 0.25f),
+                                  /*strict=*/true));
+    p.setBlendMode(SkBlendMode::kSrc);
+
+    SkCanvas* finalCanvas = finalSurface->getCanvas();
+    finalCanvas->clear(SK_ColorBLACK);
+    finalCanvas->drawPaint(p);
+
+    check_for_green(reporter, finalSurface.get());
+}
+#endif // SK_GANESH

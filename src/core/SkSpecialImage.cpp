@@ -39,12 +39,27 @@ void SkSpecialImage::draw(SkCanvas* canvas,
                                                   : SkCanvas::kFast_SrcRectConstraint);
 }
 
+SkSamplingOptions SkSpecialImage::ganeshSafeSampling(const SkSamplingOptions& sampling) const {
+    if (this->isExactFit()) {
+        return sampling;
+    }
+    if (sampling.isAniso() || sampling.useCubic || sampling.mipmap != SkMipmapMode::kNone) {
+        // if we were "fancier" than just bilerp, only do bilerp
+        return SkSamplingOptions(SkFilterMode::kLinear);
+    }
+    return sampling;
+}
+
 // TODO(skbug.com/40043877): Once bitmap images work with SkImageShader::MakeSubset(), this does not
 // need to be virtual anymore.
 sk_sp<SkShader> SkSpecialImage::asShader(SkTileMode tileMode,
                                          const SkSamplingOptions& sampling,
                                          const SkMatrix& lm,
                                          bool strict) const {
+    const SkSamplingOptions safeSampling = this->isGaneshBacked()
+            ? this->ganeshSafeSampling(sampling)
+            : sampling;
+
     // The special image's logical (0,0) is at its subset's topLeft() so we need to account for
     // that in the local matrix used when sampling.
     SkMatrix subsetOrigin = SkMatrix::Translate(-this->subset().topLeft());
@@ -58,10 +73,10 @@ sk_sp<SkShader> SkSpecialImage::asShader(SkTileMode tileMode,
         // asImage() w/o a subset makes no copy; create the SkImageShader directly to remember
         // the subset used to access the image.
         return SkImageShader::MakeSubset(
-                this->asImage(), subset, tileMode, tileMode, sampling, &subsetOrigin);
+                this->asImage(), subset, tileMode, tileMode, safeSampling, &subsetOrigin);
     } else {
         // Ignore 'subset' other than its origin translation applied to the local matrix.
-        return this->asImage()->makeShader(tileMode, tileMode, sampling, subsetOrigin);
+        return this->asImage()->makeShader(tileMode, tileMode, safeSampling, subsetOrigin);
     }
 }
 
