@@ -7,15 +7,27 @@
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
 
 #include "src/core/SkVx.h"
+#include "src/gpu/graphite/sparse_strips/FlattenUtils.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
-#include "src/gpu/tessellate/WangsFormula.h"
 
 namespace skgpu::graphite {
 
 namespace {
 
+using flatten_utils::approx_parabola_integral;
+using flatten_utils::approx_parabola_inv_integral;
+using flatten_utils::estimate_num_quads_from_cubic;
+using flatten_utils::is_completely_culled;
+using flatten_utils::is_completely_left;
+using flatten_utils::split_conic_to_cubics;
+
+// The tolerances of lowering cubics to quads, and conics to cubics (see Flatten.h).
+constexpr double kInvCubicErrThreshold =
+        flatten_utils::inv_cubic_err_threshold(Flatten::kCubicErrTolerance);
+constexpr float kInvConicToCubicTol = 1.0f / Flatten::kConicToCubicErrTolerance;
+
 // An intermediate helper struct used to pass values between anonymous namespace functions and
-// Flatten class functions. Used for flattenning both quads and cubics.
+// Flatten class functions. Used for flattening both quads and cubics.
 struct FlattenParams {
     // The starting value of the parabolic integral for each quadratic segment. Maps the start of
     // the curve into uniform arc-length space.
@@ -31,103 +43,6 @@ struct FlattenParams {
     // of subdivisions.
     double fCurvatureIntegral;
 };
-
-SK_ALWAYS_INLINE double approx_parabola_integral(double x) {
-    constexpr double kD = 0.67;
-    constexpr double kDPow4 = kD * kD * kD * kD;
-    return x / ( 1.0 - kD + std::sqrt(std::sqrt(kDPow4 + 0.25 * x * x)));
-}
-
-SK_ALWAYS_INLINE double approx_parabola_inv_integral(double x) {
-    constexpr double kB = 0.39;
-    return x * (1.0 - kB + std::sqrt(kB * kB + 0.25 * x * x));
-}
-
-/*
- * Determing the number of quads from a cubic:
- *
- * 1. Error Budgeting (kCubicAccuracy):
- *    Flattening cubics happens in two steps: Cubic -> Quads, then Quads -> Lines. If the first step
- *    uses the full visual tolerance, the final lines will look jagged. kCubicAccuracy allocates
- *    only 10% (kCubicErrTolerance) of the total allowed pixel error to the Cubic -> Quads steps,
- *    saving 90% (kQuadToLineTolFromCubic) for the final lines.
- *
- * 2. Wang's Formula and the Vector Error (errV):
- *    Wang's formula gives the minimum number of evenly spaced (in parametric space) line segments
- *    that a bezier curve of degree "n" must be chopped into to guarantee all lines stay within a
- *    distance of "1/precision" pixels from the true curve:
- *
- *    maxLength = max([length(p[i+2] - 2p[i+1] + p[i]) for (0 <= i <= n-2)])
- *    numParametricSegments = sqrt(maxLength * precision * n*(n - 1)/8)
- *
- *    (Goldman, Ron. (2003). 5.6.3 Wang's Formula. "Pyramid Algorithms: A Dynamic Programming
- *    Approach to Curves and Surfaces for Geometric Modeling". Morgan Kaufmann Publishers.)
- *
- *    Since we are flattening a cubic to a *quadratic*, we shift the math up one degree and evaluate
- *    the third derivative instead: (3*P2 - P3) - (3*P1 - P0). If this evaluates to zero, the second
- *    derivative is constant, meaning the curve is a perfect parabola. We use this expression 'errV'
- *    as a measure of how much the cubic "bulges" away from an ideal quadratic shape.
- *
- * 3. Error Quantization and Lookup Table
- *    From Wang's formula, the maximum geometric error of the un-chopped cubic is
- *    ||errV|| / (12*sqrt(3)). By Taylor's theorem, if we chop the curve into n segments, the
- *    approximation error shrinks cubically (Base Error / n^3). Thus, to satisfy our desired
- *    tolerance, we must find the minimum n where:
- *
- *    ((||errV|| / (12*sqrt(3)) / n^3) <= kCubicErrTolerance.
- *
- *    To avoid calling sqrt, we square the equation: (12*sqrt(3))^2 = 432. Correspondingly,
- *    (n^3)^2 = n^6, so errDiv scales at n^6. To avoid calculating 6th roots, and because we know we
- *    can only have an integer number of subdivisions, we precompute a lookup table (kPowSixLut) of
- *    6th powers to find the required number of subdivisions.
- *
- * 4. Subdivision limit:
- *    As a guard against pathological inputs, and to avoid dynamic memory allocation, we bound the
- *    maximum number of quads that can be produced by a cubic. If errDiv exceeds the table, the
- *    function returns kMaxQuadsFromCubic.
- */
-SK_ALWAYS_INLINE uint32_t estimate_num_quads_from_cubic(const SkPoint pts[4]) {
-    // (12 * sqrt(3))^2 * kCubicErrTolerance^2, inverted to avoid division
-    constexpr double kWangErrThreshold =
-            1.0 / (432.0 * Flatten::kCubicErrTolerance * Flatten::kCubicErrTolerance);
-
-    // A cubic is a perfect quadratic if (3*P1 - P0) == (3*P2 - P3)
-    SkPoint leftQuadCtrlX2 = pts[1] * 3.0f - pts[0];
-    SkPoint rightQuadCtrlX2 = pts[2] * 3.0f - pts[3];
-    SkPoint errV = rightQuadCtrlX2 - leftQuadCtrlX2;
-
-    // Squared error distance
-    double errSq = SkPoint::DotProduct(errV, errV);
-
-    // The relative error mapped into n^6
-    double errDiv = errSq * kWangErrThreshold;
-
-    constexpr double kPowSixLut[Flatten::kMaxQuadsFromCubic] = {
-            1.0,
-            64.0,
-            729.0,
-            4096.0,
-            15625.0,
-            46656.0,
-            117649.0,
-            262144.0,
-            531441.0,
-            1000000.0,
-            1771561.0,
-            2985984.0,
-            4826809.0,
-            7529536.0,
-            11390625.0,
-            16777216.0,
-    };
-
-    for (uint32_t i = 0; i < Flatten::kMaxQuadsFromCubic; ++i) {
-        if (errDiv <= kPowSixLut[i]) {
-            return i + 1;
-        }
-    }
-    return Flatten::kMaxQuadsFromCubic;
-}
 
 SK_ALWAYS_INLINE FlattenParams estimate_lines_from_quad(const SkPoint pts[3],
                                                         double kSqrtErrTolerance) {
@@ -178,85 +93,6 @@ SK_ALWAYS_INLINE FlattenParams estimate_lines_from_quad(const SkPoint pts[3],
     return {a0, da, u0, uScale, val};
 }
 
-/*
- * 1. Error Proxy
- *    The vector `errV = p0 - 2*p1 + p2` is the second difference of the control points. If the
- *    curve were a standard polynomial quadratic (w = 1), this vector's length would directly bound
- *    the deviation between the curve and its chord. We use this as our baseline metric for the
- *    polygon's curvature. Because conics are rational, weights (0 < w < 1) cause the curve to
- *    parameterize non-uniformly. This significantly increases the worst-case error when
- *    approximating it with a cubic polynomial. We multiply by `algFactor` (1 / w^2) to
- *    heuristically overestimate the distortion and force enough subdivisions to hide visual errors.
- *
- * 2. Midpoint Approximation
- *    This implementation uses the G1 mid-point approximation from Proposition 5 of Floater, M. S.
- *    (1996). Floater demonstrates that the error of this approximation is O(h^6), where h is the
- *    parametric interval. Thus, bisecting the curve at t=0.5 reduces the worst-case error bound
- *    by a factor of 64 (2^6).
- *
- * Returns the total number of generated cubics (1 << bisections).
- */
-SK_ALWAYS_INLINE uint32_t split_conics_to_cubics(
-        const SkPoint pts[3], float w, SkPoint outCubics[Flatten::kMaxCubicsFromConic][4]) {
-    skvx::float2 p0 = skvx::float2::Load(&pts[0]);
-    skvx::float2 p1 = skvx::float2::Load(&pts[1]);
-    skvx::float2 p2 = skvx::float2::Load(&pts[2]);
-
-    float algFactor = (w < 1.0f && w > 0.0f) ? 1.0f / (w * w) : 1.0f;
-    skvx::float2 errV = p0 - p1 * 2.0f + p2;
-    float err = algFactor * skvx::length(errV);
-
-    constexpr float invTol = 1.0f / Flatten::kConicToCubicErrTolerance;
-    int32_t bisections = std::min(skgpu::wangs_formula::nextlog64(err * invTol),
-                                  static_cast<int32_t>(Flatten::kMaxBisections));
-
-    struct ConicState {
-        skvx::float2 p0, p1, p2;
-        float w;
-        int32_t level;
-    };
-
-    ConicState stack[Flatten::kMaxBisections + 1];
-    int32_t stackIdx = 0;
-
-    stack[stackIdx++] = {p0, p1, p2, w, bisections};
-    int32_t cubicIdx = 0;
-
-    // Use unrolled recursion with fixed-size array
-    constexpr int32_t kMaxTreeNodes = (Flatten::kMaxCubicsFromConic * 2) - 1;
-    for (int32_t i = 0; i < kMaxTreeNodes; ++i) {
-        if (stackIdx == 0) break;
-
-        ConicState c = stack[--stackIdx];
-
-        if (c.level == 0) {
-            // Approximate conic as cubic
-            float k = (4.0f / 3.0f) * (c.w / (1.0f + c.w));
-            skvx::float2 c1 = c.p0 + (c.p1 - c.p0) * k;
-            skvx::float2 c2 = c.p2 + (c.p1 - c.p2) * k;
-
-            c.p0.store(&outCubics[cubicIdx][0]);
-            c1.store(&outCubics[cubicIdx][1]);
-            c2.store(&outCubics[cubicIdx][2]);
-            c.p2.store(&outCubics[cubicIdx][3]);
-
-            cubicIdx++;
-        } else {
-            // Bisect conic
-            float inv = 1.0f / (1.0f + c.w);
-            skvx::float2 p01 = (c.p0 + c.p1 * c.w) * inv;
-            skvx::float2 p12 = (c.p1 * c.w + c.p2) * inv;
-            skvx::float2 M   = (p01 + p12) * 0.5f;
-            float newWeight = std::sqrt((1.0f + c.w) * 0.5f);
-
-            stack[stackIdx++] = {M, p12, c.p2, newWeight, c.level - 1};
-            stack[stackIdx++] = {c.p0, p01, M, newWeight, c.level - 1};
-        }
-    }
-
-    return 1u << bisections;
-}
-
 SK_ALWAYS_INLINE double determine_quad_subdiv_t(const FlattenParams& params, double x) {
     double a = params.fA0 + params.fDa * x;
     double u = approx_parabola_inv_integral(a);
@@ -274,28 +110,6 @@ SK_ALWAYS_INLINE SkPoint eval_cubic_scalar(const SkPoint pts[4], float t) {
     float t2 = t * t;
     return pts[0] * (mt2 * mt) + pts[1] * (3.0f * mt2 * t) + pts[2] * (3.0f * mt * t2) +
            pts[3] * (t2 * t);
-}
-
-template <int N>
-SK_ALWAYS_INLINE bool is_completely_culled(const SkPoint pts[N], const SkIRect& clip) {
-    bool top = true;
-    bool right = true;
-    bool bottom = true;
-    for (int i = 0; i < N; ++i) {
-        top    &= (pts[i].fY < clip.top());
-        right  &= (pts[i].fX > clip.right());
-        bottom &= (pts[i].fY > clip.bottom());
-    }
-    return top || right || bottom;
-}
-
-template <int N>
-SK_ALWAYS_INLINE bool is_completely_left(const SkPoint pts[N], const SkIRect& clip) {
-    bool left = true;
-    for (int i = 0; i < N; ++i) {
-        left &= (pts[i].fX < clip.left());
-    }
-    return left;
 }
 
 SK_ALWAYS_INLINE bool is_within_dist_sq(SkPoint p, SkPoint a, SkPoint b, float kErrTolerance) {
@@ -327,29 +141,6 @@ static const skvx::float8 kIota2 =
 SK_ALWAYS_INLINE skvx::float8 splat_pt_simd(SkPoint pt) {
     skvx::float4 xyxy(pt.fX, pt.fY, pt.fX, pt.fY);
     return skvx::join(xyxy, xyxy);
-}
-
-SK_ALWAYS_INLINE skvx::float4 approx_parabola_integral_simd(skvx::float4 x) {
-    constexpr float kD = 0.67f;
-    constexpr float kDPow4 = kD * kD * kD * kD;
-    skvx::float4 x2 = x * x;
-    skvx::float4 temp =
-            skvx::sqrt(skvx::sqrt(skvx::fma(x2, skvx::float4(0.25f), skvx::float4(kDPow4))));
-    skvx::float4 denom = temp + (1.0f - kD);
-
-    return x / denom;
-}
-
-SK_ALWAYS_INLINE skvx::float8 approx_parabola_inv_integral_simd(skvx::float8 x) {
-    constexpr float kB = 0.39f;
-    constexpr float kOneMinusB = 1.0f - kB;
-    constexpr float kB2 = kB * kB;
-
-    skvx::float8 x2 = x * x;
-    skvx::float8 temp = skvx::sqrt(skvx::fma(x2, skvx::float8(0.25f), skvx::float8(kB2)));
-    skvx::float8 factor = temp + kOneMinusB;
-
-    return x * factor;
 }
 
 SK_ALWAYS_INLINE skvx::int4 is_finite_simd(skvx::float4 x) {
@@ -526,7 +317,7 @@ SK_ALWAYS_INLINE void Flatten::flattenQuadScalar(const SkPoint pts[3], Polyline*
 
 template <double kSqrtQuadTol>
 SK_ALWAYS_INLINE uint32_t Flatten::flattenCubicScalar(const SkPoint pts[4]) {
-    uint32_t numQuads = estimate_num_quads_from_cubic(pts);
+    uint32_t numQuads = estimate_num_quads_from_cubic(pts, kInvCubicErrThreshold);
     fContext.fNumQuads = numQuads;
     static constexpr float kHalfOverN[kMaxQuadsFromCubic + 1] = {
         0.0f,
@@ -601,7 +392,7 @@ SK_ALWAYS_INLINE uint32_t Flatten::flattenCubicScalar(const SkPoint pts[4]) {
             for (uint32_t j = 0; j < dn; ++j) {
                 float x = x0 + j * dx;
                 float a = a0 + da * x;
-                float u = approx_parabola_inv_integral(a);
+                float u = approx_parabola_inv_integral<double>(a);
                 float t = (u - u0) * uScale;
 
                 float mt = 1.0f - t;
@@ -642,7 +433,7 @@ SK_ALWAYS_INLINE void Flatten::flattenQuadSimd(const SkPoint pts[3], Polyline* p
         skvx::float8 x = (kIota2 + skvx::float8(static_cast<float>(i))) * step;
 
         skvx::float8 a = skvx::fma(vDa, x, vA0);
-        skvx::float8 u = approx_parabola_inv_integral_simd(a);
+        skvx::float8 u = approx_parabola_inv_integral(a);
         skvx::float8 t = (u - vU0) * vUScale;
 
         skvx::float8 p = skvx::fma(skvx::fma(A, t, B), t, C);
@@ -729,8 +520,8 @@ SK_ALWAYS_INLINE void Flatten::estimateLinesFromQuadSimd() {
         skvx::float4 ddHypot = skvx::sqrt(ddSq);
         skvx::float4 scale = (cross * cross) / (ddHypot * ddSq);
 
-        skvx::float4 a0 = approx_parabola_integral_simd(x0);
-        skvx::float4 a2 = approx_parabola_integral_simd(x2);
+        skvx::float4 a0 = approx_parabola_integral(x0);
+        skvx::float4 a2 = approx_parabola_integral(x2);
         skvx::float4 da = a2 - a0;
         skvx::float4 absDa = skvx::abs(da);
         skvx::float4 sqrtScale = skvx::sqrt(scale);
@@ -741,7 +532,7 @@ SK_ALWAYS_INLINE void Flatten::estimateLinesFromQuadSimd() {
 
         skvx::float4 nonCusp = absDa * sqrtScale;
         skvx::float4 xMin = static_cast<float>(kSqrtQuadTol) / sqrtScale;
-        skvx::float4 approxInt = approx_parabola_integral_simd(xMin);
+        skvx::float4 approxInt = approx_parabola_integral(xMin);
         skvx::float4 cusp = (static_cast<float>(kSqrtQuadTol) * absDa) / approxInt;
 
         skvx::float4 valRaw = skvx::if_then_else(mask, nonCusp, cusp);
@@ -749,7 +540,7 @@ SK_ALWAYS_INLINE void Flatten::estimateLinesFromQuadSimd() {
         skvx::int4 finiteMask = is_finite_simd(valRaw);
         skvx::float4 val = skvx::if_then_else(finiteMask, valRaw, skvx::float4(0.0f));
 
-        skvx::float8 u0U2 = approx_parabola_inv_integral_simd(skvx::join(a0, a2));
+        skvx::float8 u0U2 = approx_parabola_inv_integral(skvx::join(a0, a2));
         skvx::float4 u0 = u0U2.lo;
         skvx::float4 u2 = u0U2.hi;
         skvx::float4 uScale = 1.0f / (u2 - u0);
@@ -785,7 +576,7 @@ SK_ALWAYS_INLINE void Flatten::outputLinesFromQuadSimd(
 
     uint32_t chunks = (numSegments + 3) / 4;
     for (uint32_t j = 0; j < chunks; ++j) {
-        skvx::float8 u = approx_parabola_inv_integral_simd(a);
+        skvx::float8 u = approx_parabola_inv_integral(a);
         skvx::float8 t = (u - u0) * uScale;
         skvx::float8 p = skvx::fma(skvx::fma(A, t, B), t, C);
 
@@ -804,7 +595,7 @@ template <double kSqrtQuadTol>
 uint32_t Flatten::flattenCubicsSimd(SkSpan<const SkPoint[4]> cubics) {
     uint32_t totalQuads = 0;
     for (size_t i = 0; i < cubics.size(); ++i) {
-        uint32_t numQuads = estimate_num_quads_from_cubic(cubics[i]);
+        uint32_t numQuads = estimate_num_quads_from_cubic(cubics[i], kInvCubicErrThreshold);
         this->evalCubicsSimd(cubics[i], numQuads, totalQuads);
         totalQuads += numQuads;
     }
@@ -909,7 +700,7 @@ SK_ALWAYS_INLINE void Flatten::processPathsSimdImpl(
         }
 
         SkPoint cubics[kMaxCubicsFromConic][4];
-        uint32_t numCubics = split_conics_to_cubics(pts, weight, cubics);
+        uint32_t numCubics = split_conic_to_cubics(pts, weight, kInvConicToCubicTol, cubics);
 
         uint32_t numSegments = this->flattenCubicsSimd<kSqrtQuadFromCubicTolForConic>(
                 {cubics, (size_t)numCubics});

@@ -527,6 +527,7 @@ skia_graphite_sparse_strips_sources = [
   "$_src/gpu/graphite/sparse_strips/AlphaAtlasManager.h",
   "$_src/gpu/graphite/sparse_strips/Flatten.cpp",
   "$_src/gpu/graphite/sparse_strips/Flatten.h",
+  "$_src/gpu/graphite/sparse_strips/FlattenUtils.h",
   "$_src/gpu/graphite/sparse_strips/MSAA_LUT.h",
   "$_src/gpu/graphite/sparse_strips/MakeStrips.h",
   "$_src/gpu/graphite/sparse_strips/Polyline.h",
