@@ -96,8 +96,10 @@ GrSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return {};
     }
 
-    sampleCnt = fCaps->getRenderTargetSampleCount(sampleCnt, backendFormat);
-    SkASSERT(sampleCnt);
+    sampleCnt = fCaps->getRenderTargetSampleCount(sampleCnt, backendFormat, ii.dimensions());
+    if (!sampleCnt) {
+        return {};
+    }
 
     if (willUseGLFBO0 && isTextureable) {
         return {};

@@ -4114,6 +4114,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fTransferPixelsToRowBytesSupport = false;
     }
 
+    // Check MSAA allocation sizes using 32-bit power-of-two arithmetic
+    if (ctxInfo.vendor() == GrGLVendor::kImagination ||
+        ctxInfo.angleVendor() == GrGLVendor::kImagination ||
+        ctxInfo.driver() == GrGLDriver::kImagination) {
+        fEnforceImageFootprintFitsIn32Bits = true;
+    }
+
     // Using MIPs on this GPU seems to be a source of trouble.
     if (ctxInfo.renderer() == GrGLRenderer::kPowerVR54x) {
         fMipmapSupport = false;
@@ -5369,6 +5376,16 @@ GrDstSampleFlags GrGLCaps::onGetDstSampleFlagsForProxy(const GrRenderTargetProxy
 
 bool GrGLCaps::onSupportsDynamicMSAA(const GrRenderTargetProxy* rtProxy) const {
     return !fDisallowDynamicMSAA;
+}
+
+size_t GrGLCaps::maxStencilBytesPerBlock() const {
+    // GL probes candidate stencil formats lazily when attaching to an FBO, so conservatively use
+    // the largest supported stencil format (e.g. DEPTH24_STENCIL8 = 4 B/px).
+    size_t maxBytes = 0;
+    for (GrGLFormat format : fStencilFormats) {
+        maxBytes = std::max(maxBytes, GrGLFormatBytesPerBlock(format));
+    }
+    return maxBytes;
 }
 
 uint64_t GrGLCaps::computeFormatKey(const GrBackendFormat& format) const {

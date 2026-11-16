@@ -696,8 +696,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
-    sampleCnt = caps->getRenderTargetSampleCount(sampleCnt, backendTex.getBackendFormat());
-    SkASSERT(sampleCnt);
+    sampleCnt = caps->getRenderTargetSampleCount(
+            sampleCnt, backendTex.getBackendFormat(), backendTex.dimensions());
+    if (!sampleCnt) {
+        return nullptr;
+    }
 
     sk_sp<GrTexture> tex = resourceProvider->wrapRenderableBackendTexture(
             backendTex, sampleCnt, ownership, cacheable);

@@ -133,3 +133,25 @@ DEF_TEST(SafeMath_Int_Failure, r) {
     (void)safe.modInt(minInt, -1);
     REPORTER_ASSERT(r, !safe.ok());
 }
+
+DEF_TEST(SafeMath_CeilPow2, r) {
+    constexpr size_t max = std::numeric_limits<size_t>::max();
+    constexpr size_t maxPow2 = size_t(1) << (std::numeric_limits<size_t>::digits - 1);
+
+    SkSafeMath safe;
+    REPORTER_ASSERT(r, safe.ceilPow2(0) == 1);
+    REPORTER_ASSERT(r, safe.ceilPow2(1) == 1);
+    REPORTER_ASSERT(r, safe.ceilPow2(2) == 2);
+    REPORTER_ASSERT(r, safe.ceilPow2(3) == 4);
+    REPORTER_ASSERT(r, safe.ceilPow2(8192) == 8192);
+    REPORTER_ASSERT(r, safe.ceilPow2(8193) == 16384);
+    REPORTER_ASSERT(r, safe.ceilPow2(maxPow2) == maxPow2);
+    REPORTER_ASSERT(r, safe.ok());
+
+    (void)safe.ceilPow2(maxPow2 + 1);
+    REPORTER_ASSERT(r, !safe.ok());
+
+    safe = {};
+    (void)safe.ceilPow2(max);
+    REPORTER_ASSERT(r, !safe.ok());
+}

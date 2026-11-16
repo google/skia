@@ -51,6 +51,7 @@ public:
         fMaxVertexAttributes = options.fMaxVertexAttributes;
         fSampleLocationsSupport = true;
         fSupportsProtectedContent = true;
+        fEnforceImageFootprintFitsIn32Bits = options.fEnforceImageFootprintFitsIn32Bits;
 
         fShaderCaps = std::make_unique<GrShaderCaps>();
         fShaderCaps->fIntegerSupport = options.fIntegerSupport;
