@@ -91,8 +91,7 @@ public:
                                            DrawContext* drawContext,
                                            sk_sp<TextureProxy> target,
                                            const SkImageInfo& targetInfo,
-                                           DstReadStrategy dstReadStrategy,
-                                           const SkIRect& dstCopyBounds) override;
+                                           DstReadStrategy dstReadStrategy) override;
 
     // Discard all previously recorded draws and set to the requested load op (with optional clear
     // color).
@@ -101,17 +100,11 @@ public:
 private:
     struct Draw {
     public:
-        Draw(const Renderer* renderer,
-             const Transform& transform,
-             const Geometry& geometry,
-             const Clip& clip,
-             DrawOrder order,
-             BarrierType barrierBeforeDraws,
-             bool readsDst,
+        Draw(const Renderer* renderer, const Transform& transform, const Geometry& geometry,
+             const Clip& clip, DrawOrder order, BarrierType barrierBeforeDraws,
              const StrokeStyle* stroke)
                 : fRenderer(renderer)
-                , fDrawParams(
-                          transform, geometry, clip, order, stroke, barrierBeforeDraws, readsDst) {}
+                , fDrawParams(transform, geometry, clip, order, stroke, barrierBeforeDraws) {}
 
         const Renderer* renderer()              const { return fRenderer;   }
         const DrawParams& drawParams()          const { return fDrawParams; }

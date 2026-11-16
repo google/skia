@@ -7,7 +7,6 @@
 #ifndef skgpu_graphite_DrawListBase_DEFINED
 #define skgpu_graphite_DrawListBase_DEFINED
 
-#include "include/core/SkRect.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 
 #include "include/private/SkAttributes.h"
@@ -75,8 +74,7 @@ public:
                                                    DrawContext* drawContext,
                                                    sk_sp<TextureProxy> target,
                                                    const SkImageInfo& targetInfo,
-                                                   const DstReadStrategy dstReadStrategy,
-                                                   const SkIRect& dstCopyBounds) = 0;
+                                                   const DstReadStrategy dstReadStrategy) = 0;
 
     bool avoidDepth() const { return fAvoidDepth; }
 

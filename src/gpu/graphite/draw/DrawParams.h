@@ -170,8 +170,7 @@ public:
                const Clip& clip,
                DrawOrder drawOrder,
                const StrokeStyle* stroke,
-               BarrierType barrierBeforeDraws,
-               bool readsDst)
+               BarrierType barrierBeforeDraws)
             : fTransform(transform)
             , fGeometry(geometry)
             , fDrawBounds(clip.drawBounds())
@@ -179,7 +178,6 @@ public:
             , fScissor(clip.scissor())
             , fOrder(drawOrder)
             , fBarrierBeforeDraws(barrierBeforeDraws)
-            , fReadsDst(readsDst)
             , fStroke(stroke ? std::optional<StrokeStyle>(*stroke) : std::nullopt) {}
 
     const Transform& transform() const { return fTransform; }
@@ -191,7 +189,6 @@ public:
     Rect drawBounds() const { return fDrawBounds; }
     Rect transformedShapeBounds() const { return fTransformedShapeBounds; }
     BarrierType barrierBeforeDraws() const {return fBarrierBeforeDraws; }
-    bool readsDst() const { return fReadsDst; }
     const SkIRect& scissor() const { return fScissor; }
 
     // Optional stroke parameters if the geometry is stroked instead of filled
@@ -225,9 +222,6 @@ private:
     SkIRect          fScissor;
     DrawOrder        fOrder;
     BarrierType      fBarrierBeforeDraws;
-    // Retained from recordDraw (DstUsage::kDstReadRequired) so RenderStep::getScissor can restrict
-    // dst-reading draws to the copied dst bounds when DstReadStrategy::kTextureCopy is active.
-    bool fReadsDst;
 
     std::optional<StrokeStyle> fStroke; // Not present implies fill
 };
