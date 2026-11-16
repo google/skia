@@ -389,6 +389,7 @@ private:
     GrDstSampleFlags onGetDstSampleFlagsForProxy(const GrRenderTargetProxy*) const override;
 
     bool onSupportsDynamicMSAA(const GrRenderTargetProxy*) const override;
+    size_t maxStencilBytesPerBlock() const override;
 
     // ColorTypeInfo for a specific format
     struct ColorTypeInfo {

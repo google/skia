@@ -10,6 +10,7 @@
 
 #include "include/core/SkCapabilities.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrDriverBugWorkarounds.h"
@@ -289,6 +290,10 @@ public:
     // sample count is 1 then 1 will be returned if non-MSAA rendering is supported, otherwise 0.
     // For historical reasons requestedCount==0 is handled identically to requestedCount==1.
     virtual int getRenderTargetSampleCount(int requestedCount, const GrBackendFormat&) const = 0;
+    // Returns 0 if the requested dimensions and format would exceed device MSAA capabilities.
+    int getRenderTargetSampleCount(int requestedCount,
+                                   const GrBackendFormat&,
+                                   SkISize dimensions) const;
 
     /**
      * Backends may have restrictions on what types of surfaces support GrGpu::writePixels().
@@ -589,6 +594,9 @@ protected:
 #endif
 
     virtual bool onSupportsDynamicMSAA(const GrRenderTargetProxy*) const { return false; }
+    // Maximum bytes-per-pixel of any stencil format Ganesh may attach to a render target, used when
+    // validating multisampled attachment footprints.
+    virtual size_t maxStencilBytesPerBlock() const { return 0; }
 
     std::unique_ptr<GrShaderCaps> fShaderCaps;
 
@@ -642,6 +650,8 @@ protected:
     bool fAvoidDithering                             : 1;
     bool fDisablePerspectiveSDFText                  : 1;
     bool fAvoidLineDraws                             : 1;
+    // Enforce MSAA allocations with 32-bit power-of-two arithmetic.
+    bool fEnforceImageFootprintFitsIn32Bits          : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
@@ -686,6 +696,12 @@ protected:
 
 private:
     void applyOptionsOverrides(const GrContextOptions& options);
+
+    // Returns true if an attachment's `samples * alignedBpp * bit_ceil(w) * bit_ceil(h)` byte
+    // footprint fits in uint32_t.
+    bool imageFootprintFitsInto32Bits(SkISize dimensions,
+                                      const GrBackendFormat& format,
+                                      int actualSampleCnt) const;
 
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
     virtual void onDumpJSON(SkJSONWriter*) const {}

@@ -668,6 +668,9 @@ static GrGLVendor get_angle_vulkan_vendor(const char* innerString) {
     if (strstr(innerString, "ARM")) {
         return GrGLVendor::kARM;
     }
+    if (strstr(innerString, "Imagination")) {
+        return GrGLVendor::kImagination;
+    }
 
     return GrGLVendor::kOther;
 }

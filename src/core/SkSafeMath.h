@@ -12,6 +12,7 @@
 #include "include/private/SkDebug.h" // IWYU pragma: keep
 #include "include/private/SkTFitsIn.h"
 
+#include <bit>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -94,6 +95,15 @@ public:
         }
         size_t aligned = add(x, alignment - 1);
         return (aligned / alignment) * alignment;
+    }
+
+    size_t ceilPow2(size_t x) {
+        constexpr size_t kMaxPow2 = size_t(1) << (std::numeric_limits<size_t>::digits - 1);
+        if (x > kMaxPow2) {
+            fOK = false;
+            return 0;
+        }
+        return std::bit_ceil(x);
     }
 
     size_t lcm(size_t a, size_t b) {
