@@ -62,7 +62,8 @@ public:
                                            DrawContext* drawContext,
                                            sk_sp<TextureProxy> target,
                                            const SkImageInfo& targetInfo,
-                                           const DstReadStrategy dstReadStrategy) override;
+                                           const DstReadStrategy dstReadStrategy,
+                                           const SkIRect& dstCopyBounds) override;
 
     // Discard all previously recorded draws and set to the requested load op (with optional clear
     // color).

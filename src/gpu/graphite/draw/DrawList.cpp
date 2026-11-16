@@ -50,6 +50,7 @@ std::pair<DrawParams*, Layer*> DrawList::recordDraw(
                                            clip,
                                            ordering,
                                            barrierBeforeDraws,
+                                           SkToBool(dstUsage & DstUsage::kDstReadRequired),
                                            stroke);
 
     fRenderStepCount += renderer->numRenderSteps();
@@ -106,7 +107,8 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
                                                  DrawContext* drawContext,
                                                  sk_sp<TextureProxy> target,
                                                  const SkImageInfo& targetInfo,
-                                                 DstReadStrategy dstReadStrategy) {
+                                                 DstReadStrategy dstReadStrategy,
+                                                 const SkIRect& dstCopyBounds) {
     // NOTE: This assert is here to ensure SortKey is as tightly packed as possible. Any change to
     // its size should be done with care and good reason. The performance of sorting the keys is
     // heavily tied to the total size.
@@ -163,6 +165,7 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
     // TODO(b/372953722): Remove this forced binding command behavior once dst copies are always
     // bound separately from the rest of the textures.
     const bool rebindTexturesOnPipelineChange = dstReadStrategy == DstReadStrategy::kTextureCopy;
+    SkASSERT(dstCopyBounds.isEmpty() || dstReadStrategy == DstReadStrategy::kTextureCopy);
     // Keep track of the prior draw's PaintOrder. If the current draw requires barriers and there
     // is no pipeline or state change, then we must compare the current and prior draw's PaintOrders
     // to determine if the draws overlap. If they do, we must inject a flush between them such that
@@ -197,7 +200,7 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
                  key.textureBindingIndex() != TextureDataCache::kInvalidIndex);
 
         std::optional<SkIRect> newScissor =
-                renderStep.getScissor(draw.drawParams(), lastScissor, targetBounds);
+                renderStep.getScissor(draw.drawParams(), lastScissor, targetBounds, dstCopyBounds);
 
         const bool stateChange = uniformBindingChange  || textureBindingsChange ||
                                  newScissor.has_value();
