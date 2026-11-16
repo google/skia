@@ -2778,9 +2778,9 @@ void check_for_green(skiatest::Reporter* reporter, SkSurface* surface) {
 
 // This test tries to get image filtering to use mipmapping and, combined with scratch
 // texture reuse, allow data from a scratch texture to be absorbed into the filtered result.
-void test_mipmap(skiatest::Reporter* reporter,
-                 const CreateSurfaceProc& createSurface,
-                 const FlushAndSubmitProc& flushAndSubmit) {
+[[maybe_unused]] void test_mipmap(skiatest::Reporter* reporter,
+                                  const CreateSurfaceProc& createSurface,
+                                  const FlushAndSubmitProc& flushAndSubmit) {
     sk_sp<SkSurface> finalSurface = createSurface(SkImageInfo::MakeN32Premul(128, 128));
 
     // Create a bunch of, appropriately sized, scratch textures that could be reused in
@@ -2826,10 +2826,10 @@ using MakeWithFilterProc = std::function<sk_sp<SkImage>(sk_sp<SkImage> src,
 // that image back into SkImageFilters::Image() (correctly using 'outSubset' as the src rect)
 // creates a special image over an already exact-fit proxy. Mipmapped sampling of that special
 // image must still not absorb the unwritten texels.
-void test_make_with_filter_mipmap(skiatest::Reporter* reporter,
-                                  const CreateSurfaceProc& createSurface,
-                                  const FlushAndSubmitProc& flushAndSubmit,
-                                  const MakeWithFilterProc& makeWithFilter) {
+[[maybe_unused]] void test_make_with_filter_mipmap(skiatest::Reporter* reporter,
+                                                   const CreateSurfaceProc& createSurface,
+                                                   const FlushAndSubmitProc& flushAndSubmit,
+                                                   const MakeWithFilterProc& makeWithFilter) {
     sk_sp<SkSurface> finalSurface = createSurface(SkImageInfo::MakeN32Premul(128, 128));
 
     seed_green_scratch_textures(createSurface, flushAndSubmit);
@@ -2882,9 +2882,9 @@ using MakeTextureImageProc = std::function<sk_sp<SkImage>(sk_sp<SkImage>)>;
 // black column). When it is downscaled by 4x, each destination pixel center maps to the boundary
 // between two white source columns. So, bilinear sampling of the base level stays white, while
 // mipmapped sampling averages each period into ~75% gray.
-void test_mipmap_exact_fit(skiatest::Reporter* reporter,
-                           const CreateSurfaceProc& createSurface,
-                           const MakeTextureImageProc& makeTextureImage) {
+[[maybe_unused]] void test_mipmap_exact_fit(skiatest::Reporter* reporter,
+                                            const CreateSurfaceProc& createSurface,
+                                            const MakeTextureImageProc& makeTextureImage) {
     static constexpr int kSrcSize = 128;
     static constexpr int kDstSize = kSrcSize / 4;
 
