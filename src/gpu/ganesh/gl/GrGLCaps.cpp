@@ -3345,7 +3345,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         }
 
         if (r16Supported) {
-            info.fColorTypeInfoCount = 1;
+            info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
             int ctIdx = 0;
             // Format: R16, Surface: kAlpha_16
@@ -3377,6 +3377,38 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 {
                     auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
                     ioFormat.fColorType = GrColorType::kAlpha_8xxx;
+                    ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
+                    ioFormat.fExternalTexImageFormat = 0;
+                    ioFormat.fExternalReadFormat = GR_GL_RGBA;
+                }
+            }
+            // Format: R16, Surface: kR_16
+            {
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = GrColorType::kR_16;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(GrColorType::kR_16, GrGLFormat::kR16);
+
+                // External IO ColorTypes:
+                ctInfo.fExternalIOFormatCount = 2;
+                ctInfo.fExternalIOFormats = std::make_unique<ColorTypeInfo::ExternalIOFormats[]>(
+                        ctInfo.fExternalIOFormatCount);
+                int ioIdx = 0;
+                // Format: R16, Surface: kR_16, Data: kR_16
+                {
+                    auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
+                    ioFormat.fColorType = GrColorType::kR_16;
+                    ioFormat.fExternalType = GR_GL_UNSIGNED_SHORT;
+                    ioFormat.fExternalTexImageFormat = GR_GL_RED;
+                    ioFormat.fExternalReadFormat = GR_GL_RED;
+                    // Not guaranteed by ES/WebGL.
+                    ioFormat.fRequiresImplementationReadQuery = !GR_IS_GR_GL(standard);
+                }
+
+                // Format: R16, Surface: kR_16, Data: kR_8xxx
+                {
+                    auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
+                    ioFormat.fColorType = GrColorType::kR_8xxx;
                     ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
                     ioFormat.fExternalTexImageFormat = 0;
                     ioFormat.fExternalReadFormat = GR_GL_RGBA;
@@ -5436,6 +5468,8 @@ std::vector<GrTest::TestFormatColorTypeCombination> GrGLCaps::getTestingCombinat
           GrBackendFormats::MakeGL(GR_GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GR_GL_TEXTURE_2D) },
         { GrColorType::kRGBA_8888,
           GrBackendFormats::MakeGL(GR_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GR_GL_TEXTURE_2D) },
+        { GrColorType::kR_8,
+          GrBackendFormats::MakeGL(GR_GL_R8, GR_GL_TEXTURE_2D) },
         { GrColorType::kRG_88,
           GrBackendFormats::MakeGL(GR_GL_RG8, GR_GL_TEXTURE_2D) },
         { GrColorType::kRGBA_1010102,
@@ -5463,6 +5497,8 @@ std::vector<GrTest::TestFormatColorTypeCombination> GrGLCaps::getTestingCombinat
         { GrColorType::kRGB_F16F16F16x,
           GrBackendFormats::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_2D) },
         { GrColorType::kAlpha_16,
+          GrBackendFormats::MakeGL(GR_GL_R16, GR_GL_TEXTURE_2D) },
+        { GrColorType::kR_16,
           GrBackendFormats::MakeGL(GR_GL_R16, GR_GL_TEXTURE_2D) },
         { GrColorType::kRG_1616,
           GrBackendFormats::MakeGL(GR_GL_RG16, GR_GL_TEXTURE_2D) },

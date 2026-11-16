@@ -292,12 +292,21 @@ constexpr SkColorType SkYUVAPixmapInfo::DefaultColorTypeForDataType(DataType dat
                                                                     int numChannels) {
     switch (numChannels) {
         case 1:
+#if defined(SK_YUVA_DEFAULT_RED)
+            switch (dataType) {
+                case DataType::kUnorm8:         return kR8_unorm_SkColorType;
+                case DataType::kUnorm16:        return kR16_unorm_SkColorType;
+                case DataType::kFloat16:        return kR16_float_SkColorType;
+                case DataType::kUnorm10_Unorm2: return kUnknown_SkColorType;
+            }
+#else
             switch (dataType) {
                 case DataType::kUnorm8:         return kGray_8_SkColorType;
                 case DataType::kUnorm16:        return kA16_unorm_SkColorType;
                 case DataType::kFloat16:        return kA16_float_SkColorType;
                 case DataType::kUnorm10_Unorm2: return kUnknown_SkColorType;
             }
+#endif
             break;
         case 2:
             switch (dataType) {

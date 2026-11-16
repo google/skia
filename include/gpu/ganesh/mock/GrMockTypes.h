@@ -126,6 +126,8 @@ struct GrMockOptions {
         fConfigOptions[(int)GrColorType::kAlpha_8].fTexturable = true;
         fConfigOptions[(int)GrColorType::kBGR_565].fTexturable = true;
         fConfigOptions[(int)GrColorType::kRGB_565].fTexturable = true;
+        fConfigOptions[(int)GrColorType::kR_8].fTexturable = true;
+        fConfigOptions[(int)GrColorType::kR_16].fTexturable = true;
 
         fConfigOptions[(int)GrColorType::kBGRA_8888] = fConfigOptions[(int)GrColorType::kRGBA_8888];
 
