@@ -1,0 +1,1 @@
+Added `oomed()` to `skgpu::graphite::Context`, which returns true if the underlying backend device reports an out-of-memory error. Subsequent calls will return false until another OOM error occurs. This matches the same behavior as `GrDirectContext::oomed()`.

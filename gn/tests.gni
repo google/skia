@@ -403,6 +403,7 @@ graphite_metal_tests_sources = [ "$_tests/graphite/MtlBackendTextureTest.cc" ]
 graphite_vulkan_tests_sources = [
   "$_tests/graphite/VulkanBackendTextureTest.cpp",
   "$_tests/graphite/VulkanDstReadRenderpassReuseTest.cpp",
+  "$_tests/graphite/VulkanOOMTest.cpp",
 ]
 
 pathops_tests_sources = [

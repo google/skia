@@ -290,8 +290,7 @@ bool VulkanSharedContext::checkVkResult(VkResult result) const {
         return false;
     case VK_ERROR_OUT_OF_DEVICE_MEMORY:
     case VK_ERROR_OUT_OF_HOST_MEMORY:
-        // TODO: determine how we'll track this in a thread-safe manner
-        //this->setOOMed();
+        this->setOOMed();
         return false;
     default:
         return false;

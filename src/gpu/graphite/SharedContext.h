@@ -20,6 +20,7 @@
 #include "src/gpu/graphite/PipelineManager.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
+#include <atomic>
 #include <memory>
 
 class SkCaptureManager;
@@ -86,6 +87,10 @@ public:
     // gotten into an unrecoverable, lost state.
     virtual bool isDeviceLost() const { return false; }
 
+    // Checks if we detected an OOM from the underlying backend and if so returns true and resets
+    // the internal OOM state to false. Otherwise, returns false.
+    bool checkAndResetOOMed() { return fOOMed.exchange(false, std::memory_order_relaxed); }
+
     virtual void deviceTick(Context*) {}
 
     virtual void syncPipelineData(PersistentPipelineStorage*, size_t maxSize) {}
@@ -108,6 +113,8 @@ protected:
                   BackendApi,
                   ExecutorType* executor,
                   SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
+
+    void setOOMed() const { fOOMed.store(true, std::memory_order_relaxed); }
 
     // All the resources in the ThreadSafeResourceProvider should be 0-sized.
     static constexpr size_t kThreadedSafeResourceBudget = 256;
@@ -141,6 +148,7 @@ private:
     std::unique_ptr<RendererProvider> fRendererProvider;
     ShaderCodeDictionary fShaderDictionary;
     sk_sp<SkCaptureManager> fCaptureManager;
+    mutable std::atomic<bool> fOOMed{false};
     // Last because we want the threads shutdown before the rest of the SharedContext gets shutdown
     PipelineManager fPipelineManager;
 };

@@ -271,6 +271,15 @@ public:
     bool isDeviceLost() const override;
 
     /**
+     * Checks if the underlying backend reported an out-of-memory error. If this returns true it is
+     * reset and will return false until another out-of-memory error is reported by the backend.
+     *
+     * Currently this is only implemented for Vulkan, which reports true if
+     * VK_ERROR_OUT_OF_HOST_MEMORY or VK_ERROR_OUT_OF_DEVICE_MEMORY has occurred.
+     */
+    bool oomed();
+
+    /**
      * Returns the maximum texture dimension supported by the underlying backend.
      */
     int maxTextureSize() const override;

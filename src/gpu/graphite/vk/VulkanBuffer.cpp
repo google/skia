@@ -142,9 +142,9 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
     auto allocator = sharedContext->memoryAllocator();
     bool shouldPersistentlyMapCpuToGpu =
         sharedContext->vulkanCaps().shouldPersistentlyMapCpuToGpuBuffers();
-    //AllocBufferMemory
-    auto checkResult = [](VkResult result) {
-        return result == VK_SUCCESS;
+    // AllocBufferMemory
+    auto checkResult = [sharedContext](VkResult result) {
+        return sharedContext->checkVkResult(result);
     };
     if (!skgpu::VulkanMemory::AllocBufferMemory(allocator,
                                                 buffer,

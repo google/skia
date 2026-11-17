@@ -1014,6 +1014,10 @@ bool Context::isDeviceLost() const {
     return fSharedContext->isDeviceLost();
 }
 
+bool Context::oomed() {
+    return fSharedContext->checkAndResetOOMed();
+}
+
 int Context::maxTextureSize() const {
     return fSharedContext->caps()->maxTextureSize();
 }
