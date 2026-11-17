@@ -972,7 +972,11 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
         // produce output, or that the filter DAG has no references to the dynamic source image.
         // In this case it still has an output that we need to render, but do so now since there is
         // no new layer pushed on the stack and the paired restore() will be a no-op.
-        if (!filters.empty() && !priorDevice->isNoPixelsDevice()) {
+        //
+        // Because abortLayer() clips out inner draws and no Layer is restored in internalRestore(),
+        // call predrawNotify() here to trigger surface copy-on-write (which updates priorDevice's
+        // backing store in-place) and skip drawing if COW allocation fails.
+        if (!filters.empty() && !priorDevice->isNoPixelsDevice() && this->predrawNotify()) {
             SkColorInfo filterColorInfo = priorDevice->imageInfo().colorInfo();
             if (rec.fColorSpace) {
                 filterColorInfo = filterColorInfo.makeColorSpace(sk_ref_sp(rec.fColorSpace));
@@ -1161,7 +1165,9 @@ void SkCanvas::internalRestore() {
     this->topDevice()->popClipStack();
     this->topDevice()->setGlobalCTM(fMCRec->fMatrix);
 
-    if (backImage) {
+    // Notify the surface before restoring backImage in case a snapshot was taken between
+    // saveBehind and restore().
+    if (backImage && this->predrawNotify()) {
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kDstOver);
         this->topDevice()->drawSpecial(backImage->fImage.get(),
@@ -1291,6 +1297,16 @@ void* SkCanvas::accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoi
 }
 
 bool SkCanvas::onAccessTopLayerPixels(SkPixmap* pmap) {
+    // Check peekPixels() first so non-raster devices fail without triggering unnecessary COW.
+    SkPixmap temp;
+    if (!this->topDevice()->peekPixels(&temp)) {
+        return false;
+    }
+    // If exposing writable pixels for the root device, trigger surface copy-on-write first so any
+    // outstanding snapshot is detached before topDevice()->accessPixels() reads the backing bitmap.
+    if (this->topDevice() == this->rootDevice() && !this->predrawNotify()) {
+        return false;
+    }
     return this->topDevice()->accessPixels(pmap);
 }
 
