@@ -452,5 +452,29 @@ class CheckNoBannedPatternsTest(unittest.TestCase):
         self.assertEqual(0, len(results))
 
 
+class CheckBannedAPIsTest(unittest.TestCase):
+    def _run(self, contents, path):
+        mock_input_api = MockInputApi()
+        mock_input_api.files = [MockFile(path, contents)]
+        return PRESUBMIT._CheckBannedAPIs(mock_input_api, MockOutputApi())
+
+    # std::thread stays banned in library sources, including modules/*/src, per G3 stdlib rules
+    def testStdThreadBannedInProductionSources(self):
+        paths = (
+            'src/core/SkFoo.cpp',
+            'modules/skparagraph/src/ParagraphImpl.cpp',
+            'modules/skparagraph/src/tests_helper.cpp',
+        )
+        for path in paths:
+            results = self._run(['std::thread worker;'], path=path)
+            self.assertEqual(1, len(results), f'{path}: got {results}')
+
+    # Moving or adding unit tests under tests/ or modules/*/tests/ must allow std::thread
+    def testStdThreadAllowedInTestsAndModuleTests(self):
+        for path in ('tests/FooTest.cpp', 'modules/skparagraph/tests/SkParagraphCacheTest.cpp'):
+            results = self._run(['std::thread worker;'], path=path)
+            self.assertEqual(0, len(results), f'{path}: got {results}')
+
+
 if __name__ == '__main__':
     unittest.main()
