@@ -439,6 +439,7 @@ public:
     virtual void waitSemaphore(GrSemaphore* semaphore) = 0;
 
     virtual std::optional<GrTimerQuery> startTimerQuery() { return {}; }
+    virtual void endTimerQuery(const GrTimerQuery&) { SK_ABORT("timer query not supported."); }
 
     virtual void addFinishedCallback(skgpu::AutoCallback, std::optional<GrTimerQuery> = {}) = 0;
     virtual void checkFinishedCallbacks() = 0;
@@ -724,8 +725,6 @@ protected:
     void initCaps(sk_sp<const GrCaps> caps);
 
 private:
-    virtual void endTimerQuery(const GrTimerQuery&) { SK_ABORT("timer query not supported."); }
-
     virtual GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                                     const GrBackendFormat&,
                                                     GrRenderable,

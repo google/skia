@@ -122,6 +122,12 @@ void GrOpFlushState::abort() {
     }
 }
 
+void GrOpFlushState::abandon() {
+    this->abort();
+    this->reset();
+    fTokenTracker = nullptr;
+}
+
 void GrOpFlushState::reset() {
     SkASSERT(fCurrDraw == fDraws.end());
     SkASSERT(fCurrUpload == fInlineUploads.end());

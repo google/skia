@@ -381,7 +381,7 @@ public:
 
     GrProtected isProtected() const { return fIsProtected; }
 
-    bool isPromiseProxy() { return fIsPromiseProxy; }
+    bool isPromiseProxy() const { return fIsPromiseProxy; }
 
 protected:
     // Deferred version - takes a new UniqueID from the shared resource/proxy pool.
