@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
@@ -26,8 +27,10 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkTArray.h"
+#include "include/private/chromium/GrDeferredDisplayList.h"
 #include "include/private/chromium/GrDeferredDisplayListRecorder.h"
 #include "include/private/chromium/GrPromiseImageTexture.h"
+#include "include/private/chromium/GrSurfaceCharacterization.h"
 #include "include/private/chromium/SkImageChromium.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -391,6 +394,21 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache,
     dContext->deleteBackendTexture(backendTex);
 }
 
+// Checks that 'surface' can still be drawn to and read back (i.e., its context is still usable).
+static void check_surface_is_usable(skiatest::Reporter* reporter,
+                                    GrDirectContext* dContext,
+                                    SkSurface* surface) {
+    surface->getCanvas()->clear(SK_ColorRED);
+    dContext->flushAndSubmit(surface, GrSyncCpu::kYes);
+    REPORTER_ASSERT(reporter, !dContext->abandoned());
+
+    SkBitmap bm;
+    bm.allocPixels(SkImageInfo::MakeN32Premul(surface->width(), surface->height()));
+    REPORTER_ASSERT(reporter, surface->readPixels(bm, 0, 0));
+    REPORTER_ASSERT(reporter, bm.getColor(0, 0) == SK_ColorRED,
+                    "expected 0x%08x, got 0x%08x", SK_ColorRED, bm.getColor(0, 0));
+}
+
 // Test case where promise image fulfill returns nullptr.
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
                                        reporter,
@@ -450,4 +468,82 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
     // We should only call each callback once and we should have made all the calls by this point.
     REPORTER_ASSERT(reporter, counts.fFulfillCount == 1);
     REPORTER_ASSERT(reporter, counts.fReleaseCount == 1);
+
+    // A promise image that fails to fulfill is not fatal: the flush's work is dropped but the
+    // context must not be abandoned (Chrome relies on this, e.g. when a promise image's backing
+    // texture has been deleted before the compositor draws it).
+    REPORTER_ASSERT(reporter, !dContext->abandoned());
+    check_surface_is_usable(reporter, dContext, surface.get());
+}
+
+// Same as PromiseImageNullFulfill but the promise image is drawn via a DDL (as Chrome's compositor
+// does).
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfillDDL,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
+    const int kWidth = 10;
+    const int kHeight = 10;
+
+    auto dContext = ctxInfo.directContext();
+
+    GrBackendFormat backendFormat =
+            dContext->defaultBackendFormat(kRGBA_8888_SkColorType, GrRenderable::kYes);
+    if (!backendFormat.isValid()) {
+        ERRORF(reporter, "No valid default kRGBA_8888 texture format.");
+        return;
+    }
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info);
+    if (!surface) {
+        ERRORF(reporter, "Could not create surface.");
+        return;
+    }
+
+    GrSurfaceCharacterization characterization;
+    if (!surface->characterize(&characterization)) {
+        ERRORF(reporter, "Could not characterize surface.");
+        return;
+    }
+
+    struct Counts {
+        int fFulfillCount = 0;
+        int fReleaseCount = 0;
+    } counts;
+    auto fulfill = [](SkImages::PromiseImageTextureContext ctx) {
+        ++static_cast<Counts*>(ctx)->fFulfillCount;
+        return sk_sp<GrPromiseImageTexture>();
+    };
+    auto release = [](SkImages::PromiseImageTextureContext ctx) {
+        ++static_cast<Counts*>(ctx)->fReleaseCount;
+    };
+
+    sk_sp<const GrDeferredDisplayList> ddl;
+    {
+        GrDeferredDisplayListRecorder recorder(characterization);
+        SkCanvas* ddlCanvas = recorder.getCanvas();
+        sk_sp<SkImage> refImg(SkImages::PromiseTextureFrom(dContext->threadSafeProxy(),
+                                                           backendFormat,
+                                                           {kWidth, kHeight},
+                                                           skgpu::Mipmapped::kNo,
+                                                           kTopLeft_GrSurfaceOrigin,
+                                                           kRGBA_8888_SkColorType,
+                                                           kPremul_SkAlphaType,
+                                                           nullptr,
+                                                           fulfill,
+                                                           release,
+                                                           &counts));
+        REPORTER_ASSERT(reporter, refImg);
+        ddlCanvas->drawImage(refImg, 0, 0);
+        ddl = recorder.detach();
+    }
+    REPORTER_ASSERT(reporter, ddl);
+
+    REPORTER_ASSERT(reporter, skgpu::ganesh::DrawDDL(surface.get(), std::move(ddl)));
+    dContext->flushAndSubmit(surface.get(), GrSyncCpu::kYes);
+    REPORTER_ASSERT(reporter, counts.fFulfillCount == 1);
+
+    REPORTER_ASSERT(reporter, !dContext->abandoned());
+    check_surface_is_usable(reporter, dContext, surface.get());
 }

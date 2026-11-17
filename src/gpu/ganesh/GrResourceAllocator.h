@@ -122,6 +122,15 @@ public:
 
     bool failedInstantiation() const { return fFailedInstantiation; }
 
+    // Returns true if instantiation failed and every failure was due to a promise image proxy
+    // (i.e., the client's fulfill proc did not provide a usable texture). Unlike other
+    // instantiation failures, this is an expected, recoverable condition for clients (e.g.,
+    // Chrome's compositor can race with the deletion of a promise image's backing texture) so
+    // it does not warrant abandoning the context.
+    bool failedOnlyPromiseInstantiation() const {
+        return fFailedInstantiation && !fFailedNonPromiseInstantiation;
+    }
+
     // Generate an internal plan for resource allocation. After this you can optionally call
     // `makeBudgetHeadroom` to check whether that plan would go over our memory budget.
     // Fully-lazy proxies are also instantiated at this point so that their size can
@@ -152,6 +161,9 @@ private:
     // These two methods wrap the interactions with the free pool
     void recycleRegister(Register* r);
     Register* findOrCreateRegisterFor(GrSurfaceProxy* proxy);
+
+    // Records that 'proxy' failed to instantiate (see failedOnlyPromiseInstantiation()).
+    void recordFailedInstantiation(const GrSurfaceProxy* proxy);
 
     struct FreePoolTraits {
         static const skgpu::ScratchKey& GetKey(const Register& r) {
@@ -313,6 +325,8 @@ private:
     unsigned int fNumOps = 0;
 
     bool fFailedInstantiation = false;
+    // Set if any of the failed instantiations was for a proxy that is not a promise proxy.
+    bool fFailedNonPromiseInstantiation = false;
 
 #if defined(SK_DEBUG)
     bool fPlanned = false;
