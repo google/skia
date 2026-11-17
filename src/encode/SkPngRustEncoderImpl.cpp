@@ -130,6 +130,7 @@ std::vector<uint8_t> GetSbitData(SkColorType colorType) {
         case kGray_8_SkColorType:
             return {8};
         case kRGB_888x_SkColorType:
+        case kBGR_888x_SkColorType:
             return {8, 8, 8};
         case kARGB_4444_SkColorType:
             return {4, 4, 4, 4};

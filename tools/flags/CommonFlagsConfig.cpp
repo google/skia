@@ -225,6 +225,7 @@ static const char configExtendedHelp[] =
         "\t    Options:\n"
         "\t\t8888\t\t\tLinear 8888.\n"
         "\t\t888x\t\t\tLinear 888x.\n"
+        "\t\tbgr888x\t\t\tLinear BGR 888x.\n"
         "\t\t4444\t\t\tLinear 4444.\n"
         "\t\t565\t\t\tLinear 565.\n"
         "\t\t1010102\t\t\tLinear 1010102.\n"
@@ -453,6 +454,8 @@ static bool parse_option_gpu_color(const SkString& value,
         *outColorType  = kRGB_888x_SkColorType;
     } else if (value.equals("bgra8")) {
         *outColorType  = kBGRA_8888_SkColorType;
+    } else if (value.equals("bgr888x")) {
+        *outColorType  = kBGR_888x_SkColorType;
     } else if (value.equals("4444")) {
         *outColorType  = kARGB_4444_SkColorType;
     } else if (value.equals("565")) {

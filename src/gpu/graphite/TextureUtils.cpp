@@ -97,6 +97,7 @@ SkColorType renderable_colortype(SkColorType srcCT, SkColorType dstCT) {
         // this copied image will be read back to the CPU, it's best to match the color type's
         // channel ordering.
         case kRGB_888x_SkColorType:       return kRGBA_8888_SkColorType;
+        case kBGR_888x_SkColorType:       return kBGRA_8888_SkColorType;
 
         // Normally kGray is never renderable from arbitrary RGB color data because calculating the
         // luminance/gray level is a dot product. However, if the source color type is also gray,

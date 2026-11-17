@@ -235,6 +235,30 @@ DEF_TEST(MipMap_F16, reporter) {
     sk_sp<SkMipmap> mipmap(SkMipmap::Build(bmp, nullptr));
 }
 
+DEF_TEST(MipMap_888x_101010x, reporter) {
+    for (SkColorType ct : {kRGB_888x_SkColorType,
+                           kBGR_888x_SkColorType,
+                           kRGB_101010x_SkColorType,
+                           kBGR_101010x_SkColorType}) {
+        SkBitmap bm;
+        bm.allocPixels(SkImageInfo::Make(16, 16, ct, kOpaque_SkAlphaType));
+        bm.eraseColor(SkColorSetARGB(0xFF, 0x40, 0x80, 0xC0));
+
+        sk_sp<SkMipmap> mm(SkMipmap::Build(bm.pixmap(), nullptr));
+        REPORTER_ASSERT(reporter, mm);
+        if (!mm) {
+            continue;
+        }
+        REPORTER_ASSERT(reporter, mm->countLevels() > 0);
+        for (int i = 0; i < mm->countLevels(); ++i) {
+            SkMipmap::Level level;
+            REPORTER_ASSERT(reporter, mm->getLevel(i, &level));
+            REPORTER_ASSERT(reporter, level.fPixmap.colorType() == ct);
+            REPORTER_ASSERT(reporter, SkColorGetA(level.fPixmap.getColor(0, 0)) == 0xFF);
+        }
+    }
+}
+
 static void fill_in_mips(SkMipmapBuilder* builder, sk_sp<SkImage> img) {
     int count = builder->countLevels();
     for (int i = 0; i < count; ++i) {

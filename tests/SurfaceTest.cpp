@@ -151,7 +151,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface,
 
     Protected isProtected = Protected(context->priv().caps()->supportsProtectedContent());
 
-    for (int ct = 0; ct < kLastEnum_SkColorType; ++ct) {
+    for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {
         static constexpr int kSize = 10;
 
         SkColorType colorType = static_cast<SkColorType>(ct);
@@ -253,7 +253,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType,
 
     static constexpr int kSize = 10;
 
-    for (int ct = 0; ct < kLastEnum_SkColorType; ++ct) {
+    for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {
 
         SkColorType colorType = static_cast<SkColorType>(ct);
         int maxSampleCnt = context->maxSurfaceSampleCountForColorType(colorType);

@@ -118,6 +118,9 @@ bool SkJpegEncoderMgr::initializeRGB(const SkImageInfo& srcInfo,
     } else if (!applyPremul && srcCT == kRGBA_8888_SkColorType){
         jpegColorType = JCS_EXT_RGBA;
         numComponents = 4;
+    } else if (srcCT == kBGR_888x_SkColorType) {
+        jpegColorType = JCS_EXT_BGRX;
+        numComponents = 4;
     } else if (!applyPremul && srcCT == kBGRA_8888_SkColorType) {
         jpegColorType = JCS_EXT_BGRA;
         numComponents = 4;

@@ -172,6 +172,7 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
             // Patch `ct` if possible:
             switch (ct) {
                 case kRGBA_8888_SkColorType:    ct = kRGB_888x_SkColorType; break;
+                case kBGRA_8888_SkColorType:    ct = kBGR_888x_SkColorType; break;
                 case kRGBA_1010102_SkColorType: ct = kRGB_101010x_SkColorType; break;
                 case kBGRA_1010102_SkColorType: ct = kBGR_101010x_SkColorType; break;
                 case kRGBA_F16_SkColorType:     ct = kRGB_F16F16F16x_SkColorType; break;

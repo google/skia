@@ -1,0 +1,1 @@
+`kBGR_888x_SkColorType` has been added. It has the same memory layout as `kBGRA_8888_SkColorType`, but the 4th byte is ignored and alpha is always treated as opaque (just as `kRGB_888x_SkColorType` relates to `kRGBA_8888_SkColorType`). It is supported by the CPU backend, encoders, Ganesh (GL, Vulkan, Metal, Direct3D, and Mock), and Graphite.

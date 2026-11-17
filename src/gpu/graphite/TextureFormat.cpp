@@ -464,8 +464,11 @@ SkSpan<const TextureFormat> PreferredTextureFormats(SkColorType ct) {
         // NOTE: kARGB_4444_SkColorType is misnamed and natively matches ABGR4
         CASE(kARGB_4444_SkColorType,          TF::kABGR4,      TF::kARGB4)
         CASE(kRGBA_8888_SkColorType,          TF::kRGBA8,      TF::kBGRA8)
-        CASE(kRGB_888x_SkColorType,           TF::kRGB8,       TF::kRGBA8,      TF::kBGRA8)
+        CASE(kRGB_888x_SkColorType,           TF::kRGB8,       TF::kRGBA8,      TF::kBGRA8,
+                                              TF::kBGR8)
         CASE(kBGRA_8888_SkColorType,          TF::kBGRA8,      TF::kRGBA8)
+        CASE(kBGR_888x_SkColorType,           TF::kBGR8,       TF::kBGRA8,      TF::kRGBA8,
+                                              TF::kRGB8)
         CASE(kRGBA_1010102_SkColorType,       TF::kRGB10_A2,   TF::kBGR10_A2)
         CASE(kBGRA_1010102_SkColorType,       TF::kBGR10_A2,   TF::kRGB10_A2)
         CASE(kRGB_101010x_SkColorType,        TF::kRGB10_A2,   TF::kBGR10_A2)
@@ -515,7 +518,7 @@ TextureFormatColorTypeInfo(TextureFormat format) {
         CASE(TF::kRG16F,          kR16G16_float_SkColorType,       X::kIdentity)
         CASE(TF::kRG32F,          kR16G16_float_SkColorType,       X::kDisabled)
         CASE(TF::kRGB8,           kRGB_888x_SkColorType,           X::kDropAlpha)
-        CASE(TF::kBGR8,           kRGB_888x_SkColorType,           X::kSwapRB | X::kDropAlpha)
+        CASE(TF::kBGR8,           kBGR_888x_SkColorType,           X::kDropAlpha)
         // NOTE: kRGB_565_SkColorType is misnamed and natively matches TextureFormat::kB5_G6_R5
         CASE(TF::kB5_G6_R5,       kRGB_565_SkColorType,            X::kIdentity)
         CASE(TF::kR5_G6_B5,       kRGB_565_SkColorType,            X::kSwapRB)
@@ -588,6 +591,11 @@ bool AreColorTypeAndFormatCompatible(SkColorType targetColorType, TextureFormat 
     // and compressed formats those two functions aren't quite descriptive enough.
     if (targetColorType == kRGB_888x_SkColorType &&
         AreColorTypeAndFormatCompatible(kRGBA_8888_SkColorType, format)) {
+        return true;
+    }
+    // And likewise for kBGR_888x and kBGRA_8888.
+    if (targetColorType == kBGR_888x_SkColorType &&
+        AreColorTypeAndFormatCompatible(kBGRA_8888_SkColorType, format)) {
         return true;
     }
 

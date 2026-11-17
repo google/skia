@@ -785,7 +785,7 @@ void GrMtlCaps::initFormatTable() {
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatBGRA8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
-        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfoCount = 2;
         info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: BGRA8Unorm, Surface: kBGRA_8888
@@ -793,6 +793,13 @@ void GrMtlCaps::initFormatTable() {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = GrColorType::kBGRA_8888;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+        // Format: BGRA8Unorm, Surface: kBGR_888x
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kBGR_888x;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+            ctInfo.fReadSwizzle = skgpu::Swizzle::RGB1();
         }
     }
 
@@ -1025,6 +1032,7 @@ void GrMtlCaps::initFormatTable() {
     this->setColorType(GrColorType::kR_8,               { MTLPixelFormatR8Unorm });
     this->setColorType(GrColorType::kRG_88,             { MTLPixelFormatRG8Unorm });
     this->setColorType(GrColorType::kBGRA_8888,         { MTLPixelFormatBGRA8Unorm });
+    this->setColorType(GrColorType::kBGR_888x,          { MTLPixelFormatBGRA8Unorm });
     this->setColorType(GrColorType::kRGBA_1010102,      { MTLPixelFormatRGB10A2Unorm });
     if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         this->setColorType(GrColorType::kBGRA_1010102,  { MTLPixelFormatBGR10A2Unorm });
@@ -1299,6 +1307,7 @@ std::vector<GrTest::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombina
         { GrColorType::kR_8,              GrBackendFormats::MakeMtl(MTLPixelFormatR8Unorm)         },
         { GrColorType::kRG_88,            GrBackendFormats::MakeMtl(MTLPixelFormatRG8Unorm)        },
         { GrColorType::kBGRA_8888,        GrBackendFormats::MakeMtl(MTLPixelFormatBGRA8Unorm)      },
+        { GrColorType::kBGR_888x,         GrBackendFormats::MakeMtl(MTLPixelFormatBGRA8Unorm)      },
         { GrColorType::kRGBA_1010102,     GrBackendFormats::MakeMtl(MTLPixelFormatRGB10A2Unorm)    },
         { GrColorType::kBGRA_1010102,     GrBackendFormats::MakeMtl(MTLPixelFormatBGR10A2Unorm)    },
         { GrColorType::kRGB_101010x,      GrBackendFormats::MakeMtl(MTLPixelFormatRGB10A2Unorm)    },

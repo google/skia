@@ -993,7 +993,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
         auto& info = this->getFormatInfo(format);
         info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
-            info.fColorTypeInfoCount = 2;
+            info.fColorTypeInfoCount = 3;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
             int ctIdx = 0;
             // Format: VK_FORMAT_B8G8R8A8_UNORM, Surface: kBGRA_8888
@@ -1004,13 +1004,23 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
                 ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
+            // Format: VK_FORMAT_B8G8R8A8_UNORM, Surface: kBGR_888x
+            {
+                constexpr GrColorType ct = GrColorType::kBGR_888x;
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+                ctInfo.fReadSwizzle = skgpu::Swizzle::RGB1();
+            }
             // Format: VK_FORMAT_B8G8R8A8_UNORM, Surface: kRGB_888x
-            // TODO: add and use kBGR_888X instead
+            // This predates kBGR_888x and is kept for clients that wrap BGRA images as kRGB_888x.
+            // Data is converted to/from BGR_888x when transferring.
             {
                 constexpr GrColorType ct = GrColorType::kRGB_888x;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
-                ctInfo.fTransferColorType = GrColorType::kBGRA_8888;
+                ctInfo.fTransferColorType = GrColorType::kBGR_888x;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
                 ctInfo.fReadSwizzle = skgpu::Swizzle::RGB1();
             }
@@ -1496,6 +1506,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     this->setColorType(GrColorType::kR_8,              { VK_FORMAT_R8_UNORM });
     this->setColorType(GrColorType::kRG_88,            { VK_FORMAT_R8G8_UNORM });
     this->setColorType(GrColorType::kBGRA_8888,        { VK_FORMAT_B8G8R8A8_UNORM });
+    this->setColorType(GrColorType::kBGR_888x,         { VK_FORMAT_B8G8R8A8_UNORM });
     this->setColorType(GrColorType::kRGBA_1010102,     { VK_FORMAT_A2B10G10R10_UNORM_PACK32 });
     this->setColorType(GrColorType::kBGRA_1010102,     { VK_FORMAT_A2R10G10B10_UNORM_PACK32 });
     this->setColorType(GrColorType::kRGB_101010x,      { VK_FORMAT_A2B10G10R10_UNORM_PACK32 });
@@ -2210,6 +2221,7 @@ std::vector<GrTest::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinat
         { GrColorType::kR_8,              GrBackendFormats::MakeVk(VK_FORMAT_R8_UNORM)            },
         { GrColorType::kRG_88,            GrBackendFormats::MakeVk(VK_FORMAT_R8G8_UNORM)          },
         { GrColorType::kBGRA_8888,        GrBackendFormats::MakeVk(VK_FORMAT_B8G8R8A8_UNORM)      },
+        { GrColorType::kBGR_888x,         GrBackendFormats::MakeVk(VK_FORMAT_B8G8R8A8_UNORM)      },
         { GrColorType::kRGBA_1010102,     GrBackendFormats::MakeVk(VK_FORMAT_A2B10G10R10_UNORM_PACK32)},
         { GrColorType::kBGRA_1010102,     GrBackendFormats::MakeVk(VK_FORMAT_A2R10G10B10_UNORM_PACK32)},
         { GrColorType::kRGB_101010x,      GrBackendFormats::MakeVk(VK_FORMAT_A2B10G10R10_UNORM_PACK32)},

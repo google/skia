@@ -566,7 +566,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage,
 
     static constexpr int kSize = 10;
 
-    for (int ct = 0; ct < kLastEnum_SkColorType; ++ct) {
+    for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {
         SkColorType colorType = static_cast<SkColorType>(ct);
         bool can = dContext->colorTypeSupportedAsImage(colorType);
 

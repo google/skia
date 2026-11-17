@@ -681,6 +681,10 @@ std::pair<PixelData, bool> transfer_data(const TextureFormatXferFn& xferFn,
                                                         {'b', 8, sRGB},
                                                         {'a', 8, UNorm}}},
     {kR8_unorm_SkColorType,           Swizzle("r001"), {{'r', 8, UNorm}}},
+    {kBGR_888x_SkColorType,           Swizzle("rgb1"), {{'b', 8, UNorm},
+                                                        {'g', 8, UNorm},
+                                                        {'r', 8, UNorm},
+                                                        {'x', 8, Pad}}},
 };
 // Must include one per SkColorType except for kUnknown
 static_assert(std::size(kColorTypeChannels) == kSkColorTypeCnt - 1,
@@ -745,12 +749,14 @@ static const FormatExpectation kExpectations[] {
     {.fFormat=TextureFormat::kRGB8,
      .fChannels={{'r', 8, UNorm}, {'g', 8, UNorm}, {'b', 8, UNorm}},
      .fXferSwizzle=Swizzle("rgb1"),
-     .fCompatibleColorTypes={{kRGB_888x_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()}}},
+     .fCompatibleColorTypes={{kRGB_888x_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()},
+                             {kBGR_888x_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()}}},
 
     {.fFormat=TextureFormat::kBGR8,
      .fChannels={{'b', 8, UNorm}, {'g', 8, UNorm}, {'r', 8, UNorm}},
      .fXferSwizzle=Swizzle("rgb1"),
-     .fCompatibleColorTypes={{kRGB_888x_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()}}},
+     .fCompatibleColorTypes={{kBGR_888x_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()},
+                             {kRGB_888x_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()}}},
 
     {.fFormat=TextureFormat::kB5_G6_R5,
      .fChannels={{'b', 5, UNorm}, {'g', 6, UNorm}, {'r', 5, UNorm}},
@@ -791,8 +797,9 @@ static const FormatExpectation kExpectations[] {
      .fChannels={{'r', 8, UNorm}, {'g', 8, UNorm}, {'b', 8, UNorm}, {'a', 8, UNorm}},
      .fXferSwizzle=Swizzle("rgba"),
      .fCompatibleColorTypes={{kRGBA_8888_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()},
+                             {kRGB_888x_SkColorType,  Swizzle::RGB1(), std::nullopt},
                              {kBGRA_8888_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()},
-                             {kRGB_888x_SkColorType,  Swizzle::RGB1(), std::nullopt}}},
+                             {kBGR_888x_SkColorType,  Swizzle::RGB1(), std::nullopt}}},
 
     {.fFormat=TextureFormat::kRGBA16,
      .fChannels={{'r', 16, UNorm}, {'g', 16, UNorm}, {'b', 16, UNorm}, {'a', 16, UNorm}},
@@ -834,6 +841,7 @@ static const FormatExpectation kExpectations[] {
      .fChannels={{'b', 8, UNorm}, {'g', 8, UNorm}, {'r', 8, UNorm}, {'a', 8, UNorm}},
      .fXferSwizzle=Swizzle("rgba"),
      .fCompatibleColorTypes={{kBGRA_8888_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()},
+                             {kBGR_888x_SkColorType,  Swizzle::RGB1(), std::nullopt},
                              {kRGBA_8888_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()},
                              {kRGB_888x_SkColorType,  Swizzle::RGB1(), std::nullopt}}},
 

@@ -3364,6 +3364,11 @@ DEF_TEST(RustJpegEncode_color_formats, r) {
              kOpaque_SkAlphaType,
              SK_ColorRED,
              SkJpegEncoder::AlphaOption::kIgnore},
+            {"BGR_888x (4-byte opaque)",
+             kBGR_888x_SkColorType,
+             kOpaque_SkAlphaType,
+             SK_ColorRED,
+             SkJpegEncoder::AlphaOption::kIgnore},
     };
 
     for (const auto& tc : kTestCases) {

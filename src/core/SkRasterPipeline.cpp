@@ -398,6 +398,11 @@ void SkRasterPipeline::appendLoad(SkColorType ct, const SkRasterPipelineContexts
                                              this->append(Op::swap_rb);
                                              break;
 
+        case kBGR_888x_SkColorType:          this->append(Op::load_8888, ctx);
+                                             this->append(Op::force_opaque);
+                                             this->append(Op::swap_rb);
+                                             break;
+
         case kSRGBA_8888_SkColorType:
             this->append(Op::load_8888, ctx);
             this->appendTransferFunction(*skcms_sRGB_TransferFunction());
@@ -469,6 +474,11 @@ void SkRasterPipeline::appendLoadDst(SkColorType ct,
                                               this->append(Op::swap_rb_dst);
                                               break;
 
+        case kBGR_888x_SkColorType:           this->append(Op::load_8888_dst, ctx);
+                                              this->append(Op::force_opaque_dst);
+                                              this->append(Op::swap_rb_dst);
+                                              break;
+
         case kSRGBA_8888_SkColorType:
             // TODO: We could remove the double-swap if we had _dst versions of all the TF stages
             this->append(Op::load_8888_dst, ctx);
@@ -536,6 +546,11 @@ void SkRasterPipeline::appendStore(SkColorType ct, const SkRasterPipelineContext
                                               break;
 
         case kBGRA_8888_SkColorType:          this->append(Op::swap_rb);
+                                              this->append(Op::store_8888, ctx);
+                                              break;
+
+        case kBGR_888x_SkColorType:           this->append(Op::force_opaque);
+                                              this->append(Op::swap_rb);
                                               this->append(Op::store_8888, ctx);
                                               break;
 

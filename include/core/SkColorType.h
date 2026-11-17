@@ -141,8 +141,12 @@ enum SkColorType : int {
     // opaque.
     //    Bits: [R:7..0]
     kR8_unorm_SkColorType,
+    // Three channel BGR data (8 bits per channel) packed into a LE 32-bit word. The remaining bits
+    // are ignored and alpha is forced to opaque. R and B are swapped relative to kRGB_888x.
+    //   Bits: [x:31..24 R:23..16 G:15..8 B:7..0]
+    kBGR_888x_SkColorType,
 
-    kLastEnum_SkColorType     = kR8_unorm_SkColorType, //!< last valid value
+    kLastEnum_SkColorType     = kBGR_888x_SkColorType, //!< last valid value
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
     kN32_SkColorType          = kBGRA_8888_SkColorType,//!< native 32-bit BGRA encoding

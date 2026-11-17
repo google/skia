@@ -435,6 +435,7 @@ bool account_for_luminance(SkColorType srcCT,
 bool rgbx_to_rgba(SkColorType* ct) {
     switch (*ct) {
         case kRGB_888x_SkColorType: *ct = kRGBA_8888_SkColorType; return true;
+        case kBGR_888x_SkColorType: *ct = kBGRA_8888_SkColorType; return true;
         case kRGB_101010x_SkColorType: *ct = kRGBA_1010102_SkColorType; return true;
         case kRGB_F16F16F16x_SkColorType: *ct = kRGBA_F16_SkColorType; return true;
         case kBGR_101010x_SkColorType: *ct = kBGRA_1010102_SkColorType; return true;
@@ -447,6 +448,7 @@ bool rgbx_to_rgba(SkColorType* ct) {
 bool bgra_to_rgba(SkColorType* ct) {
     switch (*ct) {
         case kBGRA_8888_SkColorType:    *ct = kRGBA_8888_SkColorType;    return true;
+        case kBGR_888x_SkColorType:     *ct = kRGB_888x_SkColorType;     return true;
         case kBGRA_1010102_SkColorType: *ct = kRGBA_1010102_SkColorType; return true;
         case kBGR_101010x_SkColorType:  *ct = kRGB_101010x_SkColorType;  return true;
         // NOTE: For now there's no RGBA version of the _XR color types, so they can't be swapped

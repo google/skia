@@ -170,6 +170,7 @@ bool SkPngEncoderMgr::setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
             sigBit.gray = 8;
             break;
         case kRGB_888x_SkColorType:
+        case kBGR_888x_SkColorType:
             sigBit.red = 8;
             sigBit.green = 8;
             sigBit.blue = 8;

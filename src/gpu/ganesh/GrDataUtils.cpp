@@ -141,6 +141,9 @@ static skgpu::Swizzle get_load_and_src_swizzle(GrColorType ct, SkRasterPipelineO
         case GrColorType::kRGB_888x:         *load = SkRasterPipelineOp::load_8888;
                                              swizzle = skgpu::Swizzle("rgb1");
                                              break;
+        case GrColorType::kBGR_888x:         *load = SkRasterPipelineOp::load_8888;
+                                             swizzle = skgpu::Swizzle("bgr1");
+                                             break;
         case GrColorType::kR_16:             *load = SkRasterPipelineOp::load_r16;
                                              swizzle = skgpu::Swizzle("r001");
                                              break;
@@ -223,6 +226,9 @@ static skgpu::Swizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline
                                              *store = SkRasterPipelineOp::store_8888;
                                              break;
         case GrColorType::kRGB_888x:         swizzle = skgpu::Swizzle("rgb1");
+                                             *store = SkRasterPipelineOp::store_8888;
+                                             break;
+        case GrColorType::kBGR_888x:         swizzle = skgpu::Swizzle("bgr1");
                                              *store = SkRasterPipelineOp::store_8888;
                                              break;
         case GrColorType::kR_8xxx:           swizzle = skgpu::Swizzle("r001");

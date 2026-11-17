@@ -451,6 +451,9 @@ std::unique_ptr<SkMipmapDownSampler> SkMipmap::MakeDownSampler(const SkPixmap& r
     switch (root.colorType()) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
+        // The ignored channel of the 888x formats is filtered just like alpha, which is harmless.
+        case kRGB_888x_SkColorType:
+        case kBGR_888x_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_8888>;
             proc_1_3 = downsample_1_3<ColorTypeFilter_8888>;
             proc_2_1 = downsample_2_1<ColorTypeFilter_8888>;
@@ -536,6 +539,10 @@ std::unique_ptr<SkMipmapDownSampler> SkMipmap::MakeDownSampler(const SkPixmap& r
             break;
         case kRGBA_1010102_SkColorType:
         case kBGRA_1010102_SkColorType:
+        // The ignored channel of the 101010x formats is filtered just like alpha, which is
+        // harmless.
+        case kRGB_101010x_SkColorType:
+        case kBGR_101010x_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_1010102>;
             proc_1_3 = downsample_1_3<ColorTypeFilter_1010102>;
             proc_2_1 = downsample_2_1<ColorTypeFilter_1010102>;
@@ -578,9 +585,6 @@ std::unique_ptr<SkMipmapDownSampler> SkMipmap::MakeDownSampler(const SkPixmap& r
             break;
 
         case kUnknown_SkColorType:
-        case kRGB_888x_SkColorType:     // TODO: use 8888?
-        case kRGB_101010x_SkColorType:  // TODO: use 1010102?
-        case kBGR_101010x_SkColorType:  // TODO: use 1010102?
         case kBGR_101010x_XR_SkColorType:  // TODO: use 1010102?
         case kRGB_F16F16F16x_SkColorType:  // TODO: use F16?
         case kBGRA_10101010_XR_SkColorType:

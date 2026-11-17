@@ -61,6 +61,7 @@ std::vector<GrTest::TestFormatColorTypeCombination> GrMockCaps::getTestingCombin
         { GCT::kR_8,              GrBackendFormats::MakeMockColorType(GCT::kR_8)},
         { GCT::kRG_88,            GrBackendFormats::MakeMockColorType(GCT::kRG_88)},
         { GCT::kBGRA_8888,        GrBackendFormats::MakeMockColorType(GCT::kBGRA_8888)},
+        { GCT::kBGR_888x,         GrBackendFormats::MakeMockColorType(GCT::kBGR_888x)},
         { GCT::kRGBA_1010102,     GrBackendFormats::MakeMockColorType(GCT::kRGBA_1010102)},
         { GCT::kBGRA_1010102,     GrBackendFormats::MakeMockColorType(GCT::kBGRA_1010102)},
         { GCT::kGray_8,           GrBackendFormats::MakeMockColorType(GCT::kGray_8)},

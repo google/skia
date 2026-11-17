@@ -32,6 +32,10 @@ DEF_TEST(GetColor, reporter) {
             Rec{   kAlpha_8_SkColorType,   0,              0           },
             Rec{   kRGB_565_SkColorType,   0xFF00FF00,     0xFF00FF00  },
             Rec{   kRGB_565_SkColorType,   0xFFFF00FF,     0xFFFF00FF  },
+            Rec{   kRGB_888x_SkColorType,  0xFF224466,     0xFF224466  },
+            Rec{   kRGB_888x_SkColorType,  0,              0xFF000000  },
+            Rec{   kBGR_888x_SkColorType,  0xFF224466,     0xFF224466  },
+            Rec{   kBGR_888x_SkColorType,  0,              0xFF000000  },
             Rec{   kN32_SkColorType,       0xFFFFFFFF,     0xFFFFFFFF  },
             Rec{   kN32_SkColorType,       0,              0           },
             Rec{   kN32_SkColorType,       0xFF224466,     0xFF224466  },
@@ -54,5 +58,31 @@ DEF_TEST(GetColor, reporter) {
 
         SkColor c = bm.getColor(1, 1);
         REPORTER_ASSERT(reporter, c == gRec[i].fOutColor);
+    }
+
+    // Verify that BGR_888x stores B,G,R,x in memory and ignores the 4th byte on read.
+    {
+        SkBitmap bm;
+        bm.allocPixels(SkImageInfo::Make(1, 1, kBGR_888x_SkColorType, kOpaque_SkAlphaType));
+        uint8_t* p = static_cast<uint8_t*>(bm.getPixels());
+        p[0] = 0x33;  // B
+        p[1] = 0x22;  // G
+        p[2] = 0x11;  // R
+        p[3] = 0x00;  // x (ignored)
+        constexpr SkColor kExpected = SkColorSetARGB(0xFF, 0x11, 0x22, 0x33);
+        REPORTER_ASSERT(reporter, bm.getColor(0, 0) == kExpected);
+        REPORTER_ASSERT(reporter, bm.getColor4f(0, 0) == SkColor4f::FromColor(kExpected));
+    }
+
+    // Verify that getColor() and getColor4f() agree on R/B channel order for 1010102/101010x.
+    for (SkColorType ct : {kRGBA_1010102_SkColorType,
+                           kBGRA_1010102_SkColorType,
+                           kRGB_101010x_SkColorType,
+                           kBGR_101010x_SkColorType}) {
+        SkBitmap bm;
+        bm.allocPixels(SkImageInfo::Make(1, 1, ct, kUnpremul_SkAlphaType));
+        bm.eraseColor(SK_ColorRED);
+        REPORTER_ASSERT(reporter, bm.getColor(0, 0) == SK_ColorRED);
+        REPORTER_ASSERT(reporter, bm.getColor4f(0, 0) == SkColors::kRed);
     }
 }
