@@ -176,6 +176,9 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
     } else {
         fCurrentPipelineBounds.setEmpty();
     }
+    if (!fCurrentPipelineBounds.intersect(info.pipeline().dstReadBounds())) {
+        fCurrentPipelineBounds.setEmpty();
+    }
 
     GrD3DRenderTarget* d3dRT = static_cast<GrD3DRenderTarget*>(fRenderTarget);
     fCurrentPipelineState =
@@ -192,7 +195,7 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
     set_blend_factor(fGpu, info);
     set_primitive_topology(fGpu, info);
     if (!info.pipeline().isScissorTestEnabled()) {
-        // "Disable" scissor by setting it to the full pipeline bounds.
+        // "Disable" scissor by setting it to the pipeline bounds.
         set_scissor_rects(fGpu, fRenderTarget, fOrigin, fCurrentPipelineBounds);
     }
     set_viewport(fGpu, fRenderTarget);

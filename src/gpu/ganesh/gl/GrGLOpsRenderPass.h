@@ -115,6 +115,8 @@ private:
     // the indices, or nullptr if they reside physically in GPU memory.
     const uint16_t* fIndexPointer;
 
+    SkIRect fCurrentPipelineBounds;
+
     // This tracks whether or not we bound the respective buffers during the bindBuffers call.
     SkDEBUGCODE(bool fDidBindVertexBuffer = false;)
     SkDEBUGCODE(bool fDidBindInstanceBuffer = false;)

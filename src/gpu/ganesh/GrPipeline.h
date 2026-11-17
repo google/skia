@@ -9,12 +9,14 @@
 #define GrPipeline_DEFINED
 
 #include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkRectPriv.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDstProxyView.h"
@@ -155,6 +157,18 @@ public:
     SkIPoint dstTextureOffset() const { return fDstProxy.offset(); }
 
     GrDstSampleFlags dstSampleFlags() const { return fDstProxy.dstSampleFlags(); }
+
+    /**
+     * Device-space bounds that rasterization must be restricted to so that this pipeline's reads of
+     * the dst only see valid values. This is only restricted when the dst is read from a partial
+     * copy of the render target (see GrDstProxyView::validBounds()), otherwise it is unbounded.
+     */
+    SkIRect dstReadBounds() const {
+        return this->usesDstTexture() ? fDstProxy.validBounds() : SkRectPriv::MakeILarge();
+    }
+
+    /** Whether dstReadBounds() is from a partial copy. */
+    bool hasDstReadBounds() const { return this->dstReadBounds() != SkRectPriv::MakeILarge(); }
 
     /** If this GrXferProcessor uses a texture to access the dst color, returns that texture. */
     GrTexture* peekDstTexture() const {
