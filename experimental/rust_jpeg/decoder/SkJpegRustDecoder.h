@@ -52,7 +52,9 @@ SK_API std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream>,
  *  not make this promise. Input state is immutable, including across rewind.
  *  To finalize incremental or raw decoding of a growing source without EOI,
  *  construct a new complete-input codec and restart decoding.
- *  Full-frame getPixels is best-effort independently of this state.
+ *  For supported full-size sequential input, kComplete enables non-strict
+ *  best-effort final-EOF recovery in getPixels, getScanlines, and incremental
+ *  decoding.
  *  Incremental decoding can still report incomplete
  *  input and publish only the current buffered scan's valid row prefix.
  *  Metadata is written only on successful creation

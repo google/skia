@@ -169,10 +169,10 @@ crate.spec(
     # Pin a specific revision to enable rapid iteration with SkJpegRustCodec rather than
     # wait for a crate release. This is acceptable while SkJpegRustCodec is experimental
     # and is not shipping in Chromium or other Skia clients.
-    # Tested combination of the published JPEG PRs tracked in zune-image issue503.
+    # Keep the tested JPEG combination and add PR534's final-input scanline API.
     git = "https://github.com/telecos/zune-image.git",
     package = "zune-jpeg",
-    rev = "8f3ad58e9a7dc6bca100cf276ecc11324e339cef",
+    rev = "12e4aa53ab5bd147832125da9085bfccd687939c",
 )
 crate.spec(
     features = ["std"],

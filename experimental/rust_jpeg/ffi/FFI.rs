@@ -176,6 +176,7 @@ mod ffi {
         ) -> DecodingResult;
         fn output_height(self: &Reader) -> u32;
         fn supports_streaming_full_decode(self: &Reader) -> bool;
+        fn supports_streaming_incremental_decode(self: &Reader) -> bool;
         fn supports_direct_packed_output(self: &Reader) -> bool;
         fn full_image_buffer_capacity_for_testing(self: &Reader) -> u64;
         fn reset_decode_state(self: &mut Reader);
@@ -524,6 +525,7 @@ pub struct Reader {
     bytes_per_pixel: u32,
     output_format: PackedOutputFormat,
     supports_streaming_full_decode: bool,
+    single_scan: bool,
     image_data: Vec<u8>,
     image_data_loaded: bool,
     /// Append-only stable output prefix. May be less than height for truncated images.
@@ -610,6 +612,7 @@ impl Reader {
             bytes_per_pixel: 3,
             output_format: PackedOutputFormat::Source,
             supports_streaming_full_decode: false,
+            single_scan: false,
             image_data: Vec::new(),
             image_data_loaded: false,
             valid_rows: 0,
@@ -847,6 +850,15 @@ impl Reader {
             return DecodingResult::MemoryError;
         }
 
+        // A single scan's SOS has 8 + 2 * components bytes including its marker.
+        // Match zune's header cursor as well, so scanner disagreements stay buffered.
+        let header_end = decoder.inner_reader().position().ok();
+        self.single_scan = self.scanner.segments.last().is_some_and(|segment| {
+            segment.marker == jpeg_marker::SOS
+                && raw_component_count != 0
+                && header_end
+                    == Some(u64::from(segment.offset) + 8 + 2 * u64::from(raw_component_count))
+        });
         self.width = width;
         self.height = height;
         self.color = color;
@@ -1040,7 +1052,12 @@ impl Reader {
     }
 
     pub fn image_data_loaded(&self) -> bool {
+        // Streaming output completes the frame without retaining packed pixels.
         self.image_data_loaded
+            || matches!(
+                self.output_sequence,
+                OutputSequence::Scanline { complete: true }
+            )
     }
 
     fn finish_buffered_image(&mut self, buffered_rows: Option<usize>) -> DecodingResult {
@@ -1244,6 +1261,10 @@ impl Reader {
 
     pub fn supports_streaming_full_decode(&self) -> bool {
         self.supports_streaming_full_decode && self.output_scale.is_none()
+    }
+
+    pub fn supports_streaming_incremental_decode(&self) -> bool {
+        self.single_scan && self.supports_streaming_full_decode()
     }
 
     pub fn supports_direct_packed_output(&self) -> bool {
@@ -1577,6 +1598,9 @@ impl Reader {
         };
         let status = {
             let mut scanlines = decoder.scanline_output();
+            if self.input_complete {
+                scanlines.set_input_complete();
+            }
             scanlines.start()
         };
         match status {

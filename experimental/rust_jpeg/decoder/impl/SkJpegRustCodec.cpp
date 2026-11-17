@@ -861,7 +861,11 @@ SkCodec::Result SkJpegRustCodec::onStartIncrementalDecode(const SkImageInfo& dst
     if (result != kSuccess) {
         return result;
     }
-    result = this->initializeSwizzler(dstInfo, options);
+    // Other output formats need separate CPU/memory validation.
+    const bool useScanlines = dstInfo.colorType() == kN32_SkColorType &&
+                              fReader->supports_streaming_incremental_decode();
+    fDirectPackedOutput = useScanlines && this->shouldUseDirectPackedOutput(dstInfo, options);
+    result = fDirectPackedOutput ? kSuccess : this->initializeSwizzler(dstInfo, options);
     if (result != kSuccess) {
         return result;
     }
@@ -875,6 +879,7 @@ SkCodec::Result SkJpegRustCodec::onStartIncrementalDecode(const SkImageInfo& dst
 
     state.fDst = SkSpan(static_cast<uint8_t*>(dst), totalDstSize);
     state.fDstRowStride = dstRowBytes;
+    state.fUseScanlines = useScanlines;
 
     fIncrementalDecodingState = std::move(state);
 
@@ -896,6 +901,45 @@ SkCodec::Result SkJpegRustCodec::onIncrementalDecode(int* rowsDecoded) {
 }
 
 SkCodec::Result SkJpegRustCodec::incrementalDecode(DecodingState& state, int* rowsDecodedPtr) {
+    if (state.fUseScanlines) {
+        if (rowsDecodedPtr) {
+            *rowsDecodedPtr = state.fTotalRowsInitialized;
+        }
+        Result start = this->startScanlineSession();
+        if (start != kSuccess) {
+            return start;
+        }
+        const int remainingRows = this->dstInfo().height() - state.fTotalRowsInitialized;
+        if (remainingRows > 0) {
+            SkSafeMath safe;
+            const size_t offset =
+                    safe.mul(safe.castTo<size_t>(state.fTotalRowsInitialized), state.fDstRowStride);
+            if (!safe.ok()) {
+                return kInternalError;
+            }
+            ScanlineDecodeResult decoded = this->decodeScanlines(
+                    state.fDst.subspan(offset).data(), remainingRows, state.fDstRowStride);
+            state.fTotalRowsInitialized += decoded.fRowsDecoded;
+            if (rowsDecodedPtr) {
+                *rowsDecodedPtr = state.fTotalRowsInitialized;
+            }
+            if (decoded.fResult != kSuccess) {
+                return decoded.fResult;
+            }
+        }
+        rust_jpeg::ScanlineOutputResult finish = fReader->finish_scanline_output();
+        switch (finish.status) {
+            case rust_jpeg::OutputStatus::Complete:
+                return kSuccess;
+            case rust_jpeg::OutputStatus::NeedMoreInput:
+                return kIncompleteInput;
+            case rust_jpeg::OutputStatus::Error:
+                return MapDecodingResult(finish.result);
+            default:
+                return kInternalError;
+        }
+    }
+
     const size_t srcRowBytes = fReader->row_bytes();
 
     rust_jpeg::DecodingResult readResult = fReader->read_incremental_image_data();

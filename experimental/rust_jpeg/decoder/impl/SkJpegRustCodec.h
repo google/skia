@@ -92,8 +92,6 @@ private:
                        const Options& options,
                        int* rowsDecoded) override;
 
-    // Unscaled incremental decoding exposes stable baseline scanlines and
-    // replaceable progressive previews. Reduced output is frame-buffered.
     Result onStartIncrementalDecode(const SkImageInfo& dstInfo,
                                     void* dst,
                                     size_t dstRowBytes,
@@ -129,6 +127,7 @@ private:
         SkSpan<uint8_t> fDst;
         size_t fDstRowStride;
         int fTotalRowsInitialized = 0;
+        bool fUseScanlines = false;
     };
 
     Result incrementalDecode(DecodingState& state, int* rowsDecoded);
