@@ -1871,6 +1871,19 @@ void Device::drawGeometry(const Transform& localToDevice,
                                      clipElements.empty() &&
                                      clip.scissor().contains(this->bounds());
     if (overwritesAllPixels) {
+        if (fCurrentDepth != DrawOrder::kClearDepth) {
+            // Both branches below drop every draw recorded so far from the DrawList. Reset the
+            // Device-side ordering state for those dropped draws so the 16-bit sequences cannot
+            // saturate or wrap across clear-delimited batches. Guarding on fCurrentDepth avoids
+            // redundant resets on start-of-pass clears (which would otherwise drop
+            // HybridBoundsManager's cached grid allocation).
+            if (!fRecorder->priv().caps()->useDrawListLayer()) {
+                fColorDepthBoundsManager->reset();
+                fDisjointStencilSet->reset();
+            }
+            fCurrentDepth = DrawOrder::kClearDepth;
+        }
+
         if (std::optional<SkColor4f> color = extract_paint_color(paint, fDC->colorInfo())) {
             // Fullscreen clear, so nothing has to be rendered at all
             fDC->clear(*color);
