@@ -62,6 +62,10 @@ public:
 
     // Updates the internal pipeline state for drawing with the provided GrProgramInfo. Enters an
     // internal "bad" state if the pipeline could not be set.
+    //
+    // If the pipeline reads the dst from a partial copy of the render target (see
+    // GrPipeline::hasDstReadBounds()), every backend restricts rasterization to the pipeline's dst
+    // read bounds so that dst reads only see valid values, even if drawBounds is wrong.
     void bindPipeline(const GrProgramInfo&, const SkRect& drawBounds);
 
     // The scissor rect is always dynamic state and therefore not stored on GrPipeline. If scissor

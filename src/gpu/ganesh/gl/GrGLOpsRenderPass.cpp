@@ -18,8 +18,10 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrDrawIndirectCommand.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
+#include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
+#include "src/gpu/ganesh/GrScissorState.h"
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLProgram.h"
@@ -95,11 +97,33 @@ void GrGLOpsRenderPass::onEnd() {
 bool GrGLOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
                                        const SkRect& drawBounds) {
     fPrimitiveType = programInfo.primitiveType();
-    return fGpu->flushGLState(fRenderTarget, fUseMultisampleFBO, programInfo);
+    if (!fGpu->flushGLState(fRenderTarget, fUseMultisampleFBO, programInfo)) {
+        return false;
+    }
+
+    const GrPipeline& pipeline = programInfo.pipeline();
+    fCurrentPipelineBounds = SkIRect::MakeSize(fRenderTarget->dimensions());
+    if (pipeline.hasDstReadBounds() &&
+        !fCurrentPipelineBounds.intersect(pipeline.dstReadBounds())) {
+        fCurrentPipelineBounds.setEmpty();
+    }
+    if (!pipeline.isScissorTestEnabled()) {
+        // "Disable" scissor by restricting it to the pipeline bounds (which disables
+        // GL_SCISSOR_TEST entirely when fCurrentPipelineBounds covers the full render target).
+        GrScissorState scissorState(fRenderTarget->dimensions());
+        scissorState.set(fCurrentPipelineBounds);
+        fGpu->flushScissor(scissorState, fRenderTarget->height(), fOrigin);
+    } // else we will end up scissoring in GrGLOpsRenderPass::onSetScissorRect.
+    return true;
 }
 
 void GrGLOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
-    fGpu->flushScissorRect(scissor, fRenderTarget->height(), fOrigin);
+    GrScissorState scissorState(fRenderTarget->dimensions());
+    if (scissorState.set(fCurrentPipelineBounds)) {
+        // If this ends up empty we still flush it, so that nothing is drawn.
+        (void)scissorState.intersect(scissor);
+    }
+    fGpu->flushScissor(scissorState, fRenderTarget->height(), fOrigin);
 }
 
 bool GrGLOpsRenderPass::onBindTextures(const GrGeometryProcessor& geomProc,

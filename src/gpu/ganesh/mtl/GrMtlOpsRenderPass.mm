@@ -109,13 +109,17 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
         fActiveRenderCmdEncoder->setTriangleFillMode(MTLTriangleFillModeFill);
     }
 
-    if (!programInfo.pipeline().isScissorTestEnabled()) {
-        // "Disable" scissor by setting it to the full pipeline bounds.
-        SkISize dimensions = fFramebuffer->colorAttachment()->dimensions();
-        GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder,
-                                                       dimensions, fOrigin,
-                                                       SkIRect::MakeWH(dimensions.width(),
-                                                                       dimensions.height()));
+    SkISize dimensions = fFramebuffer->colorAttachment()->dimensions();
+    const GrPipeline& pipeline = programInfo.pipeline();
+    fCurrentPipelineBounds = SkIRect::MakeSize(dimensions);
+    if (pipeline.hasDstReadBounds() &&
+        !fCurrentPipelineBounds.intersect(pipeline.dstReadBounds())) {
+        fCurrentPipelineBounds.setEmpty();
+    }
+    if (!pipeline.isScissorTestEnabled()) {
+        // "Disable" scissor by setting it to the pipeline bounds.
+        GrMtlPipelineState::SetDynamicScissorRectState(
+                fActiveRenderCmdEncoder, dimensions, fOrigin, fCurrentPipelineBounds);
     }
 
     fActivePrimitiveType = gr_to_mtl_primitive(programInfo.primitiveType());
@@ -126,9 +130,14 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
 void GrMtlOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
     SkASSERT(fActivePipelineState);
     SkASSERT(fActiveRenderCmdEncoder);
+    SkIRect combinedScissorRect;
+    if (!combinedScissorRect.intersect(fCurrentPipelineBounds, scissor)) {
+        combinedScissorRect = SkIRect::MakeEmpty();
+    }
     GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder,
                                                    fFramebuffer->colorAttachment()->dimensions(),
-                                                   fOrigin, scissor);
+                                                   fOrigin,
+                                                   combinedScissorRect);
 }
 
 bool GrMtlOpsRenderPass::onBindTextures(const GrGeometryProcessor& geomProc,
