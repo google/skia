@@ -122,7 +122,8 @@ public:
     // that should be active for all draws recorded by a subsequent call to writeVertices().
     std::optional<SkIRect> getScissor(const DrawParams&,
                                       SkIRect currentScissor,
-                                      SkIRect deviceBounds) const;
+                                      SkIRect deviceBounds,
+                                      SkIRect dstCopyBounds) const;
 
     // The DrawWriter is configured with the vertex and instance strides of the RenderStep, and its
     // primitive type. The recorded draws will be executed with a graphics pipeline compatible with

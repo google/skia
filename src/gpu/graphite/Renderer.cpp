@@ -77,7 +77,24 @@ RenderStep::RenderStep(Layout layout,
 
 std::optional<SkIRect> RenderStep::getScissor(const DrawParams& params,
                                               SkIRect currentScissor,
-                                              SkIRect deviceBounds) const {
+                                              SkIRect deviceBounds,
+                                              SkIRect dstCopyBounds) const {
+    if (!dstCopyBounds.isEmpty() && params.readsDst()) {
+        // When reading from an SkBackingFit::kApprox dstCopy texture, GPU vertex overhang (e.g.
+        // tessellation or FMA divergence) must not rasterize outside dstCopyBounds where recycled
+        // scratch padding is uninitialized. Even if dstCopyBounds unions multiple disjoint draws,
+        // each draw's bounds were clipped to deviceBounds so the entire bounding box (including any
+        // gaps between draws) lies within the target's logical bounds and is blitted in full into
+        // dstCopy by DrawContext::flush. Scissoring to (params.scissor() & dstCopyBounds) is
+        // therefore safe and avoids thrashing the scissor across draws or multi-step renderers.
+        SkIRect scissor = params.scissor();
+        SkAssertResult(scissor.intersect(dstCopyBounds));
+        if (currentScissor == scissor) {
+            return {};
+        }
+        return scissor;
+    }
+
     if (currentScissor == params.scissor()) {
         return {}; // Trivially no change in scissor state is required
     }

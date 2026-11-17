@@ -578,6 +578,7 @@ filegroup(
         "graphite/crbug_513836996.cpp",
         "graphite/DeviceTest.cpp",
         "graphite/DrawAtlasTest.cpp",
+        "graphite/DstReadCopyBoundsTest.cpp",
         "graphite/GraphiteContextRecorderTest.cpp",
         "graphite/GraphitePromiseImageTest.cpp",
         "graphite/GraphiteResourceCacheTest.cpp",
