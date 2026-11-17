@@ -102,6 +102,10 @@ void SkPixelRef::callGenIDChangeListeners() {
 }
 
 void SkPixelRef::notifyPixelsChanged() {
+    // Verifying kTemporarilyImmutable is not set since it's an internal-only state. Public
+    // kImmutable bitmaps (via setImmutable()) historically only log in debug builds to avoid
+    // crashing external callers.
+    SkASSERT(!this->isTemporarilyImmutable());
 #ifdef SK_DEBUG
     if (this->isImmutable()) {
         SkDebugf("========== notifyPixelsChanged called on immutable pixelref");

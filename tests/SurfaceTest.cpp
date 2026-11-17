@@ -33,6 +33,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkColorMatrix.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
@@ -551,6 +552,163 @@ static void test_copy_on_write(skiatest::Reporter* reporter, SkSurface* surface)
     EXPECT_COPY_ON_WRITE(drawImageRect(testBitmap.asImage(), testRect, SkSamplingOptions()))
     EXPECT_COPY_ON_WRITE(drawString(testText, 0, 1, ToolUtils::DefaultPortableFont(), testPaint))
 }
+
+// Checks that every pixel of 'img' inside 'quad' equals 'insideColor' and every other pixel
+// equals 'outsideColor'.
+static void check_image_quad_colors(skiatest::Reporter* reporter,
+                                    GrDirectContext* dContext,
+                                    const sk_sp<SkImage>& img,
+                                    const SkIRect& quad,
+                                    SkColor insideColor,
+                                    SkColor outsideColor) {
+    REPORTER_ASSERT(reporter, img != nullptr);
+    if (!img) {
+        return;
+    }
+    SkBitmap bm;
+    bm.allocPixels(SkImageInfo::MakeN32Premul(img->width(), img->height()));
+    REPORTER_ASSERT(reporter, img->readPixels(dContext, bm.pixmap(), 0, 0));
+    for (int y = 0; y < bm.height(); ++y) {
+        for (int x = 0; x < bm.width(); ++x) {
+            const SkColor expected = quad.contains(x, y) ? insideColor : outsideColor;
+            if (bm.getColor(x, y) != expected) {
+                ERRORF(reporter, "Expected 0x%08x at (%d, %d), got 0x%08x",
+                       expected, x, y, bm.getColor(x, y));
+                return;
+            }
+        }
+    }
+}
+
+static void test_copy_on_write_pixel_preservation(skiatest::Reporter* reporter,
+                                                  SkSurface* surface,
+                                                  GrDirectContext* dContext) {
+    REPORTER_ASSERT(reporter, surface->width() >= 2 && surface->height() >= 2);
+    SkCanvas* canvas = surface->getCanvas();
+    const SkIRect quadIRect = SkIRect::MakeWH(surface->width() / 2, surface->height() / 2);
+    const SkRect quadRect = SkRect::Make(quadIRect);
+    const SkRect fullRect = SkRect::MakeWH(surface->width(), surface->height());
+
+    // Runs 'mutateFn' twice: first after dropping a snapshot (verifying aboutToDraw() restores
+    // mutability without tripping SkPixelRef's kTemporarilyImmutable assert), and second while
+    // retaining a snapshot (verifying kRetain copy-on-write and pixel preservation).
+    auto verifyQuadCOW = [&](SkColor expectedQuadColor, auto&& mutateFn) {
+        canvas->clear(SK_ColorGREEN);
+        const uint32_t droppedID = surface->makeImageSnapshot()->uniqueID();
+        mutateFn();
+        REPORTER_ASSERT(reporter, surface->makeImageSnapshot()->uniqueID() != droppedID);
+
+        canvas->clear(SK_ColorGREEN);
+        const uint32_t genIDBefore = surface->generationID();
+        sk_sp<SkImage> snapBefore = surface->makeImageSnapshot();
+        mutateFn();
+        REPORTER_ASSERT(reporter, surface->generationID() != genIDBefore);
+        sk_sp<SkImage> snapAfter = surface->makeImageSnapshot();
+        REPORTER_ASSERT(reporter, snapBefore != snapAfter);
+        check_image_quad_colors(reporter, dContext, snapBefore,
+                                SkIRect::MakeEmpty(), SK_ColorGREEN, SK_ColorGREEN);
+        check_image_quad_colors(reporter, dContext, snapAfter,
+                                quadIRect, expectedQuadColor, SK_ColorGREEN);
+    };
+
+    // 1. Source-free image filters (Image / <feImage> and Shader / <feFlood>) in saveLayer.
+    SkBitmap filterBM;
+    filterBM.allocPixels(SkImageInfo::MakeN32Premul(quadIRect.width(), quadIRect.height()));
+    filterBM.eraseColor(SK_ColorRED);
+    filterBM.setImmutable();
+    const sk_sp<SkImageFilter> kNoSrcFilters[] = {
+        SkImageFilters::Image(filterBM.asImage(), quadRect, quadRect, SkSamplingOptions()),
+        SkImageFilters::Shader(SkShaders::Color(SK_ColorRED), quadRect),
+    };
+    for (const sk_sp<SkImageFilter>& filter : kNoSrcFilters) {
+        verifyQuadCOW(SK_ColorRED, [&]() {
+            SkPaint filterPaint;
+            filterPaint.setImageFilter(filter);
+            canvas->saveLayer(SkCanvas::SaveLayerRec(nullptr, &filterPaint));
+            canvas->drawRect(fullRect, SkPaint());
+            canvas->restore();
+        });
+    }
+
+    // 2. Snapshot captured between partial saveBehind and restore().
+    {
+        canvas->clear(SK_ColorGREEN);
+        SkCanvasPriv::SaveBehind(canvas, &quadRect);
+        const uint32_t droppedID = surface->makeImageSnapshot()->uniqueID();
+        canvas->restore();
+        REPORTER_ASSERT(reporter, surface->makeImageSnapshot()->uniqueID() != droppedID);
+
+        canvas->clear(SK_ColorGREEN);
+        SkCanvasPriv::SaveBehind(canvas, &quadRect);
+        const uint32_t genIDBefore = surface->generationID();
+        sk_sp<SkImage> snapDuringBehind = surface->makeImageSnapshot();
+        canvas->restore();
+        REPORTER_ASSERT(reporter, surface->generationID() != genIDBefore);
+        sk_sp<SkImage> snapAfterRestore = surface->makeImageSnapshot();
+        REPORTER_ASSERT(reporter, snapDuringBehind != snapAfterRestore);
+        check_image_quad_colors(reporter, dContext, snapDuringBehind,
+                                quadIRect, SK_ColorTRANSPARENT, SK_ColorGREEN);
+        check_image_quad_colors(reporter, dContext, snapAfterRestore,
+                                SkIRect::MakeEmpty(), SK_ColorGREEN, SK_ColorGREEN);
+    }
+
+    // 3. accessTopLayerPixels(): root COW and non-root layer no-COW on raster; no-COW fail on GPU.
+    SkPixmap rootPM;
+    if (surface->peekPixels(&rootPM)) {
+        verifyQuadCOW(SK_ColorRED, [&]() {
+            SkImageInfo info;
+            size_t rowBytes = 0;
+            void* addr = canvas->accessTopLayerPixels(&info, &rowBytes);
+            REPORTER_ASSERT(reporter, addr != nullptr);
+            SkPixmap(info, addr, rowBytes).erase(SK_ColorRED, quadIRect);
+        });
+
+        verifyQuadCOW(SK_ColorBLUE, [&]() {
+            const uint32_t genIDBeforeLayer = surface->generationID();
+            SkPixmap rootBefore;
+            REPORTER_ASSERT(reporter, surface->peekPixels(&rootBefore));
+
+            canvas->saveLayer(nullptr, nullptr);
+            SkImageInfo info;
+            size_t rowBytes = 0;
+            void* layerAddr = canvas->accessTopLayerPixels(&info, &rowBytes);
+            REPORTER_ASSERT(reporter, layerAddr != nullptr);
+            SkPixmap rootDuring;
+            REPORTER_ASSERT(reporter, surface->peekPixels(&rootDuring));
+            REPORTER_ASSERT(reporter, rootDuring.addr() == rootBefore.addr());
+            REPORTER_ASSERT(reporter, surface->generationID() == genIDBeforeLayer);
+            SkPixmap(info, layerAddr, rowBytes).erase(SK_ColorBLUE, quadIRect);
+            canvas->restore();
+        });
+    } else {
+        canvas->clear(SK_ColorGREEN);
+        const uint32_t genIDBefore = surface->generationID();
+        sk_sp<SkImage> snapBefore = surface->makeImageSnapshot();
+        SkImageInfo info;
+        size_t rowBytes = 0;
+        REPORTER_ASSERT(reporter, canvas->accessTopLayerPixels(&info, &rowBytes) == nullptr);
+        REPORTER_ASSERT(reporter, surface->generationID() == genIDBefore);
+        REPORTER_ASSERT(reporter, surface->makeImageSnapshot() == snapBefore);
+    }
+}
+
+DEF_TEST(SurfaceCopyOnWrite_SaveLayerNoSrcInput, reporter) {
+    for (auto& surface_func : {&create_surface, &create_direct_surface}) {
+        auto surface = surface_func(kPremul_SkAlphaType, nullptr);
+        test_copy_on_write_pixel_preservation(reporter, surface.get(), nullptr);
+    }
+}
+#if defined(SK_GANESH)
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceCopyOnWrite_SaveLayerNoSrcInput_Gpu,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNextRelease) {
+    for (auto& surface_func : {&create_gpu_surface, &create_gpu_scratch_surface}) {
+        auto surface = surface_func(ctxInfo.directContext(), kPremul_SkAlphaType, nullptr);
+        test_copy_on_write_pixel_preservation(reporter, surface.get(), ctxInfo.directContext());
+    }
+}
+#endif
 DEF_TEST(SurfaceCopyOnWrite, reporter) {
     test_copy_on_write(reporter, create_surface().get());
 }
