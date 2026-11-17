@@ -77,6 +77,7 @@ private:
     MTLPrimitiveType            fActivePrimitiveType;
     MTLRenderPassDescriptor*    fRenderPassDesc;
     SkRect                      fBounds;
+    SkIRect                     fCurrentPipelineBounds;
     size_t                      fCurrentVertexStride;
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     bool                        fDebugGroupActive = false;

@@ -112,6 +112,8 @@ private:
     GrPrimitiveType fPrimitiveType;
     raw_ptr<GrGLAttribArrayState> fAttribArrayState;
 
+    SkIRect fCurrentPipelineBounds;
+
     // This tracks whether or not we bound the respective buffers during the bindBuffers call.
     SkDEBUGCODE(bool fDidBindVertexBuffer = false;)
     SkDEBUGCODE(bool fDidBindInstanceBuffer = false;)
