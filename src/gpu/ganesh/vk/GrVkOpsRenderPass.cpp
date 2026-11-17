@@ -661,6 +661,9 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
     } else {
         fCurrentPipelineBounds.setEmpty();
     }
+    if (!fCurrentPipelineBounds.intersect(programInfo.pipeline().dstReadBounds())) {
+        fCurrentPipelineBounds.setEmpty();
+    }
 
     GrVkCommandBuffer* currentCB = this->currentCommandBuffer();
     SkASSERT(fCurrentRenderPass);
@@ -685,7 +688,7 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
     }
 
     if (!programInfo.pipeline().isScissorTestEnabled()) {
-        // "Disable" scissor by setting it to the full pipeline bounds.
+        // "Disable" scissor by setting it to the pipeline bounds.
         GrVkPipeline::SetDynamicScissorRectState(
                 fGpu, currentCB, colorAttachment->dimensions(), fOrigin,
                                                  fCurrentPipelineBounds);

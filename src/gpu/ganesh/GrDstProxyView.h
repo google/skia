@@ -9,8 +9,10 @@
 #define GrDstProxyView_DEFINED
 
 #include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/private/SkTypeTraits.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkRectPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
 #include <type_traits>
@@ -34,6 +36,7 @@ public:
     GrDstProxyView& operator=(const GrDstProxyView& other) {
         fProxyView = other.fProxyView;
         fOffset = other.fOffset;
+        fValidBounds = other.fValidBounds;
         fDstSampleFlags = other.fDstSampleFlags;
         return *this;
     }
@@ -41,6 +44,7 @@ public:
     bool operator==(const GrDstProxyView& that) const {
         return fProxyView == that.fProxyView &&
                fOffset == that.fOffset &&
+               fValidBounds == that.fValidBounds &&
                fDstSampleFlags == that.fDstSampleFlags;
     }
     bool operator!=(const GrDstProxyView& that) const { return !(*this == that); }
@@ -57,8 +61,15 @@ public:
         fProxyView = std::move(view);
         if (!fProxyView.proxy()) {
             fOffset = {0, 0};
+            fValidBounds = SkRectPriv::MakeILarge();
         }
     }
+
+    // The device-space bounds within which the texture holds valid destination values. This is
+    // only restricted when the texture is a partial copy of the render target; otherwise it is
+    // unbounded.
+    const SkIRect& validBounds() const { return fValidBounds; }
+    void setValidBounds(const SkIRect& validBounds) { fValidBounds = validBounds; }
 
     GrDstSampleFlags dstSampleFlags() const { return fDstSampleFlags; }
 
@@ -69,10 +80,12 @@ public:
 private:
     GrSurfaceProxyView       fProxyView;
     SkIPoint                 fOffset = {0, 0};
+    SkIRect                  fValidBounds = SkRectPriv::MakeILarge();
     GrDstSampleFlags         fDstSampleFlags = GrDstSampleFlags::kNone;
 
     static_assert(::sk_is_trivially_relocatable<decltype(fProxyView)>::value);
     static_assert(::sk_is_trivially_relocatable<decltype(fOffset)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fValidBounds)>::value);
     static_assert(::sk_is_trivially_relocatable<decltype(fDstSampleFlags)>::value);
 };
 
