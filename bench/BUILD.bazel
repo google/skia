@@ -1,3 +1,4 @@
+load("@skia_user_config//:linkopts.bzl", "DEFAULT_LINKOPTS")
 load(
     "//bazel:skia_rules.bzl",
     "skia_cc_binary",
@@ -190,10 +191,15 @@ skia_cc_binary(
     data = [
         "//resources",
     ],
-    linkopts = [
-        "dwrite.lib",  # DirectWrite Typography
-        "opengl32.lib",  # OpenGL Runtime & WGL Extensions
-    ],
+    # Overriding linkopts drops the skia_cc_binary default, so keep it and add the Windows
+    # system libraries only on Windows, where non-Windows linkers cannot resolve .lib names
+    linkopts = DEFAULT_LINKOPTS + select({
+        "@platforms//os:windows": [
+            "dwrite.lib",  # DirectWrite Typography
+            "opengl32.lib",  # OpenGL Runtime & WGL Extensions
+        ],
+        "//conditions:default": [],
+    }),
     deps = [
         "//:bmp_decode_codec",
         "//:core",
