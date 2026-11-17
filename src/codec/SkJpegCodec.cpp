@@ -849,10 +849,8 @@ static bool is_yuv_supported(const jpeg_decompress_struct* dinfo,
         return false;
     }
     if (yuvaPixmapInfo) {
-        SkColorType colorTypes[SkYUVAPixmapInfo::kMaxPlanes];
-        size_t rowBytes[SkYUVAPixmapInfo::kMaxPlanes];
+        std::array<size_t, SkYUVAPixmapInfo::kMaxPlanes> rowBytes = {};
         for (int i = 0; i < 3; ++i) {
-            colorTypes[i] = kAlpha_8_SkColorType;
             rowBytes[i] = dinfo->comp_info[i].width_in_blocks * DCTSIZE;
         }
         SkYUVAInfo yuvaInfo(codec.dimensions(),
@@ -862,7 +860,8 @@ static bool is_yuv_supported(const jpeg_decompress_struct* dinfo,
                             codec.getOrigin(),
                             SkYUVAInfo::Siting::kCentered,
                             SkYUVAInfo::Siting::kCentered);
-        *yuvaPixmapInfo = SkYUVAPixmapInfo(yuvaInfo, colorTypes, rowBytes);
+        *yuvaPixmapInfo =
+                SkYUVAPixmapInfo(yuvaInfo, SkYUVAPixmapInfo::DataType::kUnorm8, rowBytes.data());
     }
     return true;
 }
@@ -902,7 +901,6 @@ SkCodec::Result SkJpegCodec::onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
         SkASSERT(is_yuv_supported(dinfo, *this, nullptr, &info));
         SkASSERT(info.yuvaInfo() == yuvaPixmaps.yuvaInfo());
         for (int i = 0; i < info.numPlanes(); ++i) {
-            SkASSERT(planes[i].colorType() == kAlpha_8_SkColorType);
             SkASSERT(info.planeInfo(i) == planes[i].info());
         }
     }

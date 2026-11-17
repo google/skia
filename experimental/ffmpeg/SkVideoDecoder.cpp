@@ -13,6 +13,8 @@
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 
+#include <array>
+
 static SkYUVColorSpace get_yuvspace(AVColorSpace space) {
     // this is pretty incomplete -- TODO: look to convert more AVColorSpaces
     switch (space) {
@@ -172,13 +174,14 @@ static sk_sp<SkImage> make_yuv_420(GrRecordingContext* rContext,
                         SkYUVAInfo::PlaneConfig::kY_U_V,
                         SkYUVAInfo::Subsampling::k420,
                         yuvSpace);
-    SkPixmap pixmaps[3];
-    pixmaps[0].reset(SkImageInfo::MakeA8(w, h), data[0], strides[0]);
-    w = (w + 1)/2;
-    h = (h + 1)/2;
-    pixmaps[1].reset(SkImageInfo::MakeA8(w, h), data[1], strides[1]);
-    pixmaps[2].reset(SkImageInfo::MakeA8(w, h), data[2], strides[2]);
-    auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, pixmaps);
+    const std::array<size_t, SkYUVAPixmapInfo::kMaxPlanes> rowBytes = {
+            SkToSizeT(strides[0]), SkToSizeT(strides[1]), SkToSizeT(strides[2])};
+    SkYUVAPixmapInfo pixmapInfo(yuvaInfo, SkYUVAPixmapInfo::DataType::kUnorm8, rowBytes.data());
+    std::array<SkPixmap, SkYUVAPixmapInfo::kMaxPlanes> pixmaps;
+    for (int i = 0; i < pixmapInfo.numPlanes(); ++i) {
+        pixmaps[i].reset(pixmapInfo.planeInfo(i), data[i], pixmapInfo.rowBytes(i));
+    }
+    auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, pixmaps.data());
 
     return SkImages::TextureFromYUVAPixmaps(
             rContext, yuvaPixmaps, skgpu::Mipmapped::kNo, false, std::move(cs));

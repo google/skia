@@ -168,11 +168,9 @@ bool GetYUVAInfo(const rust_jpeg::Reader& reader,
                                   origin,
                                   SkYUVAInfo::Siting::kCentered,
                                   SkYUVAInfo::Siting::kCentered);
-        SkColorType colorTypes[SkYUVAPixmapInfo::kMaxPlanes] = {
-                kAlpha_8_SkColorType, kAlpha_8_SkColorType, kAlpha_8_SkColorType};
-        size_t rowBytes[SkYUVAPixmapInfo::kMaxPlanes] = {
+        const std::array<size_t, SkYUVAPixmapInfo::kMaxPlanes> rowBytes = {
                 planes[0].row_bytes, planes[1].row_bytes, planes[2].row_bytes};
-        *yuvaPixmapInfo = SkYUVAPixmapInfo(yuvaInfo, colorTypes, rowBytes);
+        *yuvaPixmapInfo = SkYUVAPixmapInfo(yuvaInfo, kDataType, rowBytes.data());
         if (!yuvaPixmapInfo->isValid()) {
             return false;
         }
@@ -612,7 +610,7 @@ SkCodec::Result SkJpegRustCodec::onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmap
 
     const auto& planes = yuvaPixmaps.planes();
     for (int index = 0; index < 3; ++index) {
-        if (planes[index].colorType() != kAlpha_8_SkColorType ||
+        if (planes[index].colorType() != expectedInfo.planeInfo(index).colorType() ||
             planes[index].dimensions() != expectedInfo.planeInfo(index).dimensions() ||
             planes[index].rowBytes() < static_cast<size_t>(planes[index].width()) ||
             planes[index].rowBytes() > std::numeric_limits<uint32_t>::max() ||
