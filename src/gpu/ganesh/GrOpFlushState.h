@@ -88,6 +88,7 @@ public:
 
     void reset();
     void abort();
+    void abandon();
 
     /** Additional data required on a per-op basis when executing GrOps. */
     struct OpArgs {

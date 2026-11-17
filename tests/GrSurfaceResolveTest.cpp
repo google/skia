@@ -407,7 +407,6 @@ DEF_GANESH_TEST(SurfaceResolveProxyStateAfterFailedFlush,
                 ERRORF(reporter, "could not create mock context");
                 continue;
             }
-            GrDrawingManager* drawingManager = dContext->priv().drawingManager();
             auto bef = dContext->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                         GrRenderable::kYes);
 
@@ -489,7 +488,13 @@ DEF_GANESH_TEST(SurfaceResolveProxyStateAfterFailedFlush,
                 REPORTER_ASSERT(reporter, !testMSAA || !rtProxy->isMSAADirty());
 
                 dContext->flush();
-                drawingManager->testingOnly_removeOnFlushCallbackObject(&failCB);
+#if defined(SK_LEGACY_FLUSH_FAILURE)
+                REPORTER_ASSERT(reporter, !dContext->abandoned());
+#else
+                // A failed flush abandons the context (destroying the drawing manager).
+                REPORTER_ASSERT(reporter, dContext->abandoned());
+#endif
+                dContext->priv().testingOnly_removeOnFlushCallbackObject(&failCB);
             }
 
             // The resolve never executed so the proxy must once again report dirty mips/MSAA.
@@ -500,6 +505,7 @@ DEF_GANESH_TEST(SurfaceResolveProxyStateAfterFailedFlush,
                                 rtProxy->msaaDirtyRect() == SkIRect::MakeSize(proxy->dimensions()));
             }
 
+#if defined(SK_LEGACY_FLUSH_FAILURE)
             // A subsequent dependency must therefore record a new resolve task and the proxy
             // should be clean once that flush succeeds.
             {
@@ -509,6 +515,7 @@ DEF_GANESH_TEST(SurfaceResolveProxyStateAfterFailedFlush,
             }
             REPORTER_ASSERT(reporter, !texProxy->mipmapsAreDirty());
             REPORTER_ASSERT(reporter, !testMSAA || !rtProxy->isMSAADirty());
+#endif
         }
     }
 }
@@ -540,10 +547,9 @@ static bool read_backing_pixel(GrDirectContext* dContext,
 // This test wraps a backend texture as an MSAA render target twice. The first wrap establishes a
 // known baseline color in the single-sample texture via a *successful* flush. The second wrap
 // creates a *fresh, never-written* MSAA color attachment (on GL a new renderbuffer, on Vulkan a
-// scratch/new GrVkImage), records a draw, forces the flush to fail via a failing preFlush
-// callback, and then reads back the single-sample texture. The read-back must not show the
-// uninitialized MSAA attachment contents; if it does, resolve_and_mipmap() ran despite the failed
-// flush and copied uninitialized GPU memory into the client-visible texture.
+// scratch/new GrVkImage), records a draw and forces the flush to fail via a failing preFlush
+// callback. The failed flush must abandon the context without running resolve_and_mipmap(), which
+// would copy uninitialized GPU memory into the client-visible texture.
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceResolveAfterFailedFlush,
                                        reporter,
                                        ctxInfo,
@@ -613,13 +619,14 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceResolveAfterFailedFlush,
 
     surface->getCanvas()->clear(kIntended);
     GrSemaphoresSubmitted result = dContext->flush(surface.get(), GrFlushInfo{});
-    dContext->submit(GrSyncCpu::kYes);
-
-    GrDrawingManager* drawingManager = dContext->priv().drawingManager();
-    drawingManager->testingOnly_removeOnFlushCallbackObject(&failCB);
 
     REPORTER_ASSERT(reporter, result == GrSemaphoresSubmitted::kNo,
                     "expected flush to report semaphores not submitted");
+
+#if defined(SK_LEGACY_FLUSH_FAILURE)
+    dContext->submit(GrSyncCpu::kYes);
+    dContext->priv().testingOnly_removeOnFlushCallbackObject(&failCB);
+    REPORTER_ASSERT(reporter, !dContext->abandoned());
 
     // 4. Read back the single-sample backing texture.
     REPORTER_ASSERT(reporter, read_backing_pixel(dContext, tex, info, &pixel));
@@ -633,4 +640,12 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceResolveAfterFailedFlush,
     REPORTER_ASSERT(reporter, pixel == kBaseline,
                     "Invalid resolve after a failed flush: expected 0x%x, actual 0x%x",
                     kBaseline, pixel);
+#else
+    // 4. A failed flush abandons the context. GrDrawingManager::flushSurfaces() returns before
+    //    resolve_and_mipmap() in that case, so the uninitialized MSAA attachment can never be
+    //    resolved into the client-visible texture. (The texture can no longer be read back through
+    //    this context.)
+    REPORTER_ASSERT(reporter, dContext->abandoned(), "expected failed flush to abandon context");
+    dContext->priv().testingOnly_removeOnFlushCallbackObject(&failCB);
+#endif
 }
