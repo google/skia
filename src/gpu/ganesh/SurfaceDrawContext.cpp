@@ -2092,6 +2092,7 @@ bool SurfaceDrawContext::setupDstProxyView(const SkRect& opBounds,
         SkIRect conservativeDrawBounds = opBounds.roundOut();
         conservativeDrawBounds.outset(1, 1);
         SkAssertResult(copyRect.intersect(conservativeDrawBounds));
+        dstProxyView->setValidBounds(copyRect);
     }
 
     SkIPoint dstOffset;
