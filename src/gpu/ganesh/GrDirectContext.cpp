@@ -440,12 +440,7 @@ skgpu::GpuStatsFlags GrDirectContext::supportedGpuStats() const {
 GrDirectContext::FlushResult GrDirectContext::flush(const GrFlushInfo& info) {
     ASSERT_SINGLE_OWNER
     if (this->abandoned()) {
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
-        if (info.fSubmittedProc) {
-            info.fSubmittedProc(info.fSubmittedContext, false);
-        }
+        GrDirectContextPriv::CallFlushInfoFailureProcs(info);
         return {false, GrSemaphoresSubmitted::kNo};
     }
 

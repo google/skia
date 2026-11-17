@@ -103,12 +103,7 @@ GrDirectContext::FlushResult GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> pro
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
     if (fFlushing || this->wasAbandoned()) {
-        if (info.fSubmittedProc) {
-            info.fSubmittedProc(info.fSubmittedContext, false);
-        }
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
+        GrDirectContextPriv::CallFlushInfoFailureProcs(info);
         return {false, GrSemaphoresSubmitted::kNo};
     }
 
@@ -116,6 +111,7 @@ GrDirectContext::FlushResult GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> pro
 
     // As of now we only short-circuit if we got an explicit list of surfaces to flush.
     if (!proxies.empty() && !info.fNumSemaphores && !info.fFinishedProc &&
+        !info.fFinishedWithStatsProc &&
         access == SkSurfaces::BackendSurfaceAccess::kNoAccess && !newState) {
         bool allUnused = std::all_of(proxies.begin(), proxies.end(), [&](GrSurfaceProxy* proxy) {
             bool used = std::any_of(fDAG.begin(), fDAG.end(), [&](auto& task) {
@@ -268,12 +264,7 @@ GrDirectContext::FlushResult GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> pro
 
         // Notify the client last, after the context has been abandoned, so that the callbacks
         // observe the abandoned state. 'info' is owned by the caller and is still valid here.
-        if (info.fSubmittedProc) {
-            info.fSubmittedProc(info.fSubmittedContext, false);
-        }
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
+        GrDirectContextPriv::CallFlushInfoFailureProcs(info);
         return {false, GrSemaphoresSubmitted::kNo};
     }
 #endif  // !defined(SK_LEGACY_FLUSH_FAILURE)
@@ -613,12 +604,7 @@ GrDirectContext::FlushResult GrDrawingManager::flushSurfaces(
         const GrFlushInfo& info,
         const skgpu::MutableTextureState* newState) {
     if (this->wasAbandoned()) {
-        if (info.fSubmittedProc) {
-            info.fSubmittedProc(info.fSubmittedContext, false);
-        }
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
+        GrDirectContextPriv::CallFlushInfoFailureProcs(info);
         return {false, GrSemaphoresSubmitted::kNo};
     }
     SkDEBUGCODE(this->validate());

@@ -81,6 +81,14 @@ public:
     sktext::gpu::StrikeCache* getStrikeCache() { return this->context()->fStrikeCache.get(); }
 
     /**
+     * Notifies the client that a flush has failed and that none of its work will be sent to the
+     * GPU. The GrFlushInfo's submitted proc is called with 'false' and then its finished proc is
+     * called. As in GrGpu::executeFlushInfo, fFinishedWithStatsProc is preferred over
+     * fFinishedProc; it receives an empty GpuStats.
+     */
+    static void CallFlushInfoFailureProcs(const GrFlushInfo&);
+
+    /**
      * Finalizes all pending reads and writes to the surfaces and also performs an MSAA resolves
      * if necessary. The GrSurfaceProxy array is treated as a hint. If it is supplied the context
      * will guarantee that the draws required for those proxies are flushed but it could do more.

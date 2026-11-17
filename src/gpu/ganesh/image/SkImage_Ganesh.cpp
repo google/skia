@@ -256,12 +256,7 @@ bool SkImage_Ganesh::onIsProtected() const {
 GrDirectContext::FlushResult SkImage_Ganesh::flush(GrDirectContext* dContext,
                                                    const GrFlushInfo& info) const {
     if (!fContext->priv().matches(dContext) || dContext->abandoned()) {
-        if (info.fSubmittedProc) {
-            info.fSubmittedProc(info.fSubmittedContext, false);
-        }
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
+        GrDirectContextPriv::CallFlushInfoFailureProcs(info);
         return {false, GrSemaphoresSubmitted::kNo};
     }
 

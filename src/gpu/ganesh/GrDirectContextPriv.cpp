@@ -17,6 +17,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/SingleOwner.h"
@@ -64,6 +65,17 @@ using MaskFormat = skgpu::MaskFormat;
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this->context())
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->context()->singleOwner())
 
+void GrDirectContextPriv::CallFlushInfoFailureProcs(const GrFlushInfo& info) {
+    if (info.fSubmittedProc) {
+        info.fSubmittedProc(info.fSubmittedContext, false);
+    }
+    if (info.fFinishedWithStatsProc) {
+        info.fFinishedWithStatsProc(info.fFinishedContext, skgpu::GpuStats{});
+    } else if (info.fFinishedProc) {
+        info.fFinishedProc(info.fFinishedContext);
+    }
+}
+
 GrDirectContext::FlushResult GrDirectContextPriv::flushSurfaces(
         SkSpan<GrSurfaceProxy*> proxies,
         SkSurfaces::BackendSurfaceAccess access,
@@ -73,12 +85,7 @@ GrDirectContext::FlushResult GrDirectContextPriv::flushSurfaces(
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDirectContextPriv", "flushSurfaces", this->context());
 
     if (this->context()->abandoned()) {
-        if (info.fSubmittedProc) {
-            info.fSubmittedProc(info.fSubmittedContext, false);
-        }
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
+        CallFlushInfoFailureProcs(info);
         return {false, GrSemaphoresSubmitted::kNo};
     }
 
