@@ -1308,6 +1308,23 @@ void run_texture_format_test(skiatest::Reporter* r, const Caps* caps, TextureFor
             REPORTER_ASSERT(r, e.fCompatibleColorTypes[0].fColorType == baseColorType);
         }
 
+        // Verify identity transfers (including compressed formats)
+        std::optional<TextureFormatXferFn> identityXfer = TextureFormatXferFn::MakeIdentity(format);
+        const bool expectIdentityXfer =
+                e.fXferSwizzle.has_value() || e.fCompressionType != SkTextureCompressionType::kNone;
+        REPORTER_ASSERT(r, identityXfer.has_value() == expectIdentityXfer);
+        if (identityXfer.has_value()) {
+            REPORTER_ASSERT(r, identityXfer->isIdentity());
+            const size_t blockBytes = e.bytesPerBlock();
+            const size_t blockBits = blockBytes * 8;
+            PixelData srcBlock{};
+            for (size_t b = 0; b < blockBytes; ++b) {
+                srcBlock[b] = static_cast<uint8_t>(b + 1);
+            }
+            auto [dstBlock, success] = transfer_data(*identityXfer, srcBlock, blockBits, blockBits);
+            REPORTER_ASSERT(r, success && memcmp(&srcBlock, &dstBlock, blockBytes) == 0);
+        }
+
         for (int c = 0; c <= kLastEnum_SkColorType; ++c) {
             SkColorType ct = static_cast<SkColorType>(c);
 

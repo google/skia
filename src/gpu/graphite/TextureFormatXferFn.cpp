@@ -19,6 +19,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
+#include "src/core/SkRectMemcpy.h"
 #include "src/core/SkSwizzlePriv.h"
 #include "src/core/SkVx.h"
 
@@ -907,6 +908,17 @@ void TextureFormatXferFn::run(int width, int height,
                               const void* src, size_t srcRowBytes,
                               void* dst, size_t dstRowBytes) const {
     SkASSERT(width >= 1 && height >= 1);
+    if (this->isIdentity()) {
+        // Identity transfers can use the existing SkRectMemcpy which coalesces dense copies.
+        // SkRectMemcpy computes the number of bytes n using (size_t) trimRowBytes * (int) rowCount,
+        // which is safer than the previous int-based calculation (int) bpp * (int) width, which
+        // is prone to overflow if bpp * width > INT_MAX.
+        const size_t trimRowBytes =
+                static_cast<size_t>(TextureFormatBytesPerBlock(fFormat)) * width;
+        SkRectMemcpy(dst, dstRowBytes, src, srcRowBytes, trimRowBytes, height);
+        return;
+    }
+
     const int rowInvokeCount = this->getRowInvokeCount(&width, &height, srcRowBytes, dstRowBytes);
 
     SkAutoMalloc tempRowStorage; // empty if not mixing transfer methods
@@ -916,7 +928,7 @@ void TextureFormatXferFn::run(int width, int height,
         if (fRP) {
             // We need a temporary buffer equal to srcBpp*width to hold the output of the preOps
             // that is used as the source of data for SkRasterPipeline (executed per row).
-            tempRowStorage.reset(fRP->fSrcBpp * width);
+            tempRowStorage.reset(static_cast<size_t>(fRP->fSrcBpp) * width);
         }
         rowFns.push_back(get_xfer_row_fn(fFormat, fPreOps));
     }
@@ -947,18 +959,12 @@ void TextureFormatXferFn::run(int width, int height,
         if (fRP) {
             // We need a temporary buffer equal to dstBpp*width to hold the output of the
             // SkRasterPipeline conversion that is used as the input to postOps (executed per row).
-            tempRowStorage.reset(fRP->fDstBpp * width);
+            tempRowStorage.reset(static_cast<size_t>(fRP->fDstBpp) * width);
         }
         rowFns.push_back(get_xfer_row_fn(fFormat, fPostOps));
     }
 
-    if (rowFns.empty()) {
-        // Identity conversion function still needs to move the data
-        const int bpp = TextureFormatBytesPerBlock(fFormat);
-        rowFns.push_back([bpp](const char* src, char* dst, int width) {
-            SK_UNSAFE_TODO(memcpy(dst, src, bpp * width));
-        });
-    }
+    SkASSERT(!rowFns.empty());
 
     for (int y = 0; y < rowInvokeCount; ++y) {
         // Always start by processing `src`
