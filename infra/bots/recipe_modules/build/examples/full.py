@@ -75,6 +75,7 @@ TEST_BUILDERS = [
   'Build-Debian11-GCC-x86_64-Release-NoGPU_Docker',
   'Build-Debian11-GCC-x86_64-Release-Shared_Docker',
   'Build-Mac-Clang-arm64-Debug-Android_Vulkan',
+  'Build-Mac-Clang-arm64-Debug-AppleUnicode',
   'Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal',
   'Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGPU',
   'Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoPrecompile',

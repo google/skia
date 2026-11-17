@@ -231,6 +231,9 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
     args['skia_use_fontations'] = 'true'
     args['skia_use_freetype'] = 'true' # we compare with freetype in tests
     args['skia_use_system_freetype2'] = 'false'
+  if 'AppleUnicode' in extra_tokens:
+    # No other job builds SkUnicode_apple or its tests
+    args['skia_use_apple_unicode'] = 'true'
   if 'RustPNG' in extra_tokens or 'RustPNGAndroid' in extra_tokens:
     args['skia_use_rust_png_decode'] = 'true'
     args['skia_use_rust_png_encode'] = 'true'

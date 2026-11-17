@@ -126,6 +126,9 @@
     "name": "Build-Mac-Clang-arm64-Debug-Android"
   },
   {
+    "name": "Build-Mac-Clang-arm64-Debug-AppleUnicode"
+  },
+  {
     "name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal"
   },
   {
@@ -240,6 +243,9 @@
   },
   {
     "name": "Build-Mac-Clang-x86_64-Debug-Fontations"
+  },
+  {
+    "name": "Build-Mac-Clang-x86_64-Debug-Fontations_AppleUnicode"
   },
   {
     "name": "Build-Mac-Clang-x86_64-Debug-Graphite_Dawn_Metal",
@@ -1647,6 +1653,9 @@
     "name": "Test-Mac14-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts"
   },
   {
+    "name": "Test-Mac14-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts_AppleUnicode"
+  },
+  {
     "name": "Test-Mac14-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts_PDF"
   },
   {
@@ -1710,6 +1719,9 @@
   },
   {
     "name": "Test-Mac15-Clang-MacBookPro15.1-CPU-AppleIntel-x86_64-Debug-All-NativeFonts_Fontations"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacBookPro15.1-CPU-AppleIntel-x86_64-Debug-All-NativeFonts_Fontations_AppleUnicode"
   },
   {
     "name": "Test-Mac15-Clang-MacBookPro15.1-GPU-IntelUHDGraphics630-x86_64-Debug-All"

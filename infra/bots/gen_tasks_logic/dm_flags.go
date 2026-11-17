@@ -1804,6 +1804,16 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 	}
 
+	if b.ExtraConfig("AppleUnicode") {
+		// Only text tests can reach SkUnicode_apple; the rest of dm already runs on the
+		// other Mac jobs. Assign, not append: any ~ entry makes dm run unmatched names too
+		match = []string{
+			"CoreText",
+			"SkParagraph",
+			"SkUnicode",
+		}
+	}
+
 	if len(skipped) > 0 {
 		args = append(args, "--skip")
 		args = append(args, skipped...)
