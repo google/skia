@@ -10,6 +10,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkTArray.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
@@ -91,7 +92,7 @@ static double lerp(double x, double y, double T) {
 }
 
 // Evaluates the cubic and 1st and 2nd derivatives at T.
-static std::tuple<double, double, double> eval_cubic(double x[], double T) {
+static std::tuple<double, double, double> eval_cubic(SkSpan<const double, 4> x, double T) {
     // Use De Casteljau's algorithm for better accuracy and stability.
     double ab = lerp(x[0], x[1], T);
     double bc = lerp(x[1], x[2], T);
@@ -109,7 +110,7 @@ static std::tuple<double, double, double> eval_cubic(double x[], double T) {
 //     error' = 2xx' + 2yy'
 //     error'' = 2xx'' + 2yy'' + 2x'^2 + 2y'^2
 //
-double find_max_error_T(double cubicX[4], double cubicY[4]) {
+double find_max_error_T(SkSpan<const double, 4> cubicX, SkSpan<const double, 4> cubicY) {
     constexpr static double kInitialT = .25;
     double T = kInitialT;
     for (int i = 0; i < 64; ++i) {
@@ -131,15 +132,15 @@ void SampleFitCubicToCircle::fitCubic() {
                                               &X, &Y);
     fInfoStrings.push_back().printf("control length=%0.14f", fControlLength);
 
-    fMaxErrorT = find_max_error_T(X.data(), Y.data());
+    fMaxErrorT = find_max_error_T(X, Y);
     fInfoStrings.push_back().printf("max error T=%0.14f", fMaxErrorT);
 
     for (int i = 0; i < 4; ++i) {
         fCubicX[i] = X[i] * kRadius + kCenterX;
         fCubicY[i] = Y[i] * kRadius + kCenterY;
     }
-    double errX = std::get<0>(eval_cubic(fCubicX.data(), fMaxErrorT)) - kCenterX;
-    double errY = std::get<0>(eval_cubic(fCubicY.data(), fMaxErrorT)) - kCenterY;
+    double errX = std::get<0>(eval_cubic(fCubicX, fMaxErrorT)) - kCenterX;
+    double errY = std::get<0>(eval_cubic(fCubicY, fMaxErrorT)) - kCenterY;
     fMaxError = std::sqrt(errX*errX + errY*errY) - kRadius;
     fInfoStrings.push_back().printf("max error=%.5gpx", fMaxError);
 
@@ -247,8 +248,8 @@ bool SampleFitCubicToCircle::onChar(SkUnichar unichar) {
             double rads = theta * M_PI/180;
             std::array<double, 4> X, Y;
             fit_cubic_to_unit_circle(1, 0, std::cos(rads), std::sin(rads), &X, &Y);
-            auto [x, dx, ddx] = eval_cubic(X.data(), kMaxErrorT);
-            auto [y, dy, ddy] = eval_cubic(Y.data(), kMaxErrorT);
+            auto [x, dx, ddx] = eval_cubic(X, kMaxErrorT);
+            auto [y, dy, ddy] = eval_cubic(Y, kMaxErrorT);
             double error = std::sqrt(x*x + y*y) * kRadius - kRadius;
             if ((float)error <= 0) {
                 error = 0;

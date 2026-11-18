@@ -5,12 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkBitmap.h"
-#include "include/core/SkColor.h"
-#include "include/core/SkTypes.h"
-#include "src/core/SkColorPriv.h"
 #include "tools/skdiff/skdiff.h"
 
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkSpan.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkColorPriv.h"
+
+#include <algorithm>
 #include <array>
 
 /*static*/ char const * const DiffRecord::ResultNames[DiffRecord::kResultCount] = {
@@ -31,13 +34,13 @@ DiffRecord::Result DiffRecord::getResultByName(const char *name) {
     return DiffRecord::kResultCount;
 }
 
-static const std::array<const char *, DiffRecord::kResultCount> ResultDescriptions = {
-    "contain exactly the same bits",
-    "contain the same pixel values, but not the same bits",
-    "have identical dimensions but some differing pixels",
-    "have differing dimensions",
-    "could not be compared",
-    "not compared yet",
+static constexpr std::array<const char*, DiffRecord::kResultCount> ResultDescriptions = {
+        "contain exactly the same bits",
+        "contain the same pixel values, but not the same bits",
+        "have identical dimensions but some differing pixels",
+        "have differing dimensions",
+        "could not be compared",
+        "not compared yet",
 };
 
 const char* DiffRecord::getResultDescription(DiffRecord::Result result) {
@@ -69,20 +72,20 @@ DiffResource::Status DiffResource::getStatusByName(const char *name) {
     return DiffResource::kStatusCount;
 }
 
-static const std::array<const char *, DiffResource::kStatusCount> StatusDescriptions = {
-    "decoded",
-    "could not be decoded",
+static constexpr std::array<const char*, DiffResource::kStatusCount> StatusDescriptions = {
+        "decoded",
+        "could not be decoded",
 
-    "read",
-    "could not be read",
+        "read",
+        "could not be read",
 
-    "found",
-    "not found",
+        "found",
+        "not found",
 
-    "specified",
-    "unspecified",
+        "specified",
+        "unspecified",
 
-    "unknown",
+        "unknown",
 };
 
 const char* DiffResource::getStatusDescription(DiffResource::Status status) {
@@ -97,17 +100,13 @@ bool DiffResource::isStatusFailed(DiffResource::Status status) {
            DiffResource::kUnknown_Status == status;
 }
 
-bool DiffResource::getMatchingStatuses(char* selector, bool statuses[kStatusCount]) {
+bool DiffResource::getMatchingStatuses(char* selector, SkSpan<bool, kStatusCount> statuses) {
     if (!strcmp(selector, "any")) {
-        for (int statusIndex = 0; statusIndex < kStatusCount; ++statusIndex) {
-            statuses[statusIndex] = true;
-        }
+        std::fill(statuses.begin(), statuses.end(), true);
         return true;
     }
 
-    for (int statusIndex = 0; statusIndex < kStatusCount; ++statusIndex) {
-        statuses[statusIndex] = false;
-    }
+    std::fill(statuses.begin(), statuses.end(), false);
 
     static const char kDelimiterChar = ',';
     bool understood = true;

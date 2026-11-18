@@ -10,6 +10,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkColorPriv.h"
@@ -71,7 +72,7 @@ struct DiffResource {
      *  Selector may be a comma delimited list of status names, "any", or "failed".
      *  Returns true if the selector was entirely understood, false otherwise.
      */
-    static bool getMatchingStatuses(char* selector, bool statuses[kStatusCount]);
+    static bool getMatchingStatuses(char* selector, SkSpan<bool, kStatusCount> statuses);
 
     DiffResource() : fFilename(), fFullPath(), fBitmap(), fStatus(kUnknown_Status) { }
 

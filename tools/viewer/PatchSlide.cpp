@@ -15,6 +15,7 @@
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkVertices.h"
@@ -32,7 +33,9 @@
 #include "tools/viewer/ClickHandlerSlide.h"
 #include "tools/viewer/Slide.h"
 
+#include <algorithm>
 #include <array>
+#include <tuple>
 
 namespace {
 static sk_sp<SkShader> make_shader0(SkIPoint* size) {
@@ -51,11 +54,13 @@ static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
 
 class Patch {
 public:
-    Patch() { sk_bzero(fPts, sizeof(fPts)); }
+    Patch() = default;
     ~Patch() {}
 
-    void setPatch(const SkPoint pts[12]) {
-        memcpy(fPts, pts, 12 * sizeof(SkPoint));
+    void setPatch(SkSpan<const SkPoint, 12> pts) {
+        // The last slot repeats pts[0].
+        static_assert(decltype(pts)::extent + 1 == std::tuple_size_v<decltype(fPts)>);
+        std::copy(pts.begin(), pts.end(), fPts.begin());
         fPts[12] = pts[0];  // the last shall be first
     }
     void setBounds(int w, int h) { fW = w; fH = h; }
@@ -64,18 +69,18 @@ public:
               bool doTextures, bool doColors);
 
 private:
-    SkPoint fPts[13];
+    std::array<SkPoint, 13> fPts{};
     int     fW, fH;
 };
 
-static void eval_patch_edge(const SkPoint cubic[], SkPoint samples[], int segs) {
+static void eval_patch_edge(SkSpan<const SkPoint, 4> cubic, SkPoint samples[], int segs) {
     SkScalar t = 0;
     SkScalar dt = SK_Scalar1 / segs;
 
     samples[0] = cubic[0];
     for (int i = 1; i < segs; i++) {
         t += dt;
-        SkEvalCubicAt(cubic, t, &samples[i], nullptr, nullptr);
+        SkEvalCubicAt(cubic.data(), t, &samples[i], nullptr, nullptr);
     }
 }
 
@@ -122,10 +127,11 @@ void Patch::draw(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
     SkPoint* edge3 = edge2 + nu;
 
     // evaluate the edge points
-    eval_patch_edge(fPts + 0, edge0, nu);
-    eval_patch_edge(fPts + 3, edge1, nv);
-    eval_patch_edge(fPts + 6, edge2, nu);
-    eval_patch_edge(fPts + 9, edge3, nv);
+    SkSpan<const SkPoint> pts(fPts);
+    eval_patch_edge(pts.subspan<0, 4>(), edge0, nu);
+    eval_patch_edge(pts.subspan<3, 4>(), edge1, nv);
+    eval_patch_edge(pts.subspan<6, 4>(), edge2, nu);
+    eval_patch_edge(pts.subspan<9, 4>(), edge3, nv);
     edge3[nv] = edge0[0];   // the last shall be first
 
     for (i = 0; i < npts; i++) {
@@ -262,7 +268,7 @@ public:
         }
         patch.setBounds(fSize0.fX, fSize0.fY);
 
-        patch.setPatch(fPts.data());
+        patch.setPatch(fPts);
         drawpatches(canvas, paint, nu, nv, &patch);
 
         paint.setShader(nullptr);

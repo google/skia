@@ -8,8 +8,10 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkRandom.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/MaskFormat.h"
@@ -85,14 +87,14 @@ public:
         SkFont font(fTypeface, 56);
         font.getMetrics(&fMetrics);
 
-        SkUnichar glyphs[kWordLength];
+        std::array<SkUnichar, kWordLength> glyphs;
         for (int32_t i = 0; i < kNumBlobs; ++i) {
             this->createRandomWord(glyphs);
 
             SkTextBlobBuilder builder;
             ToolUtils::add_to_text_blob_w_len(&builder,
-                                              (const char*)glyphs,
-                                              kWordLength * 4,
+                                              reinterpret_cast<const char*>(glyphs.data()),
+                                              glyphs.size() * sizeof(SkUnichar),
                                               SkTextEncoding::kUTF32,
                                               font,
                                               0,
@@ -103,7 +105,7 @@ public:
     }
 
     // Construct a random kWordLength character 'word' drawing from the full Chinese set
-    void createRandomWord(SkUnichar glyphs[kWordLength]) {
+    void createRandomWord(SkSpan<SkUnichar, kWordLength> glyphs) {
         for (int i = 0; i < kWordLength; ++i) {
             glyphs[i] = fRand.nextRangeU(0x4F00, 0x9FA0);
         }
@@ -195,18 +197,19 @@ public:
         SkPaint paint;
         paint.setColor(0xDE000000);
 
-        SkUnichar glyphs[45];
+        std::array<SkUnichar, 45> glyphs;
         for (int32_t i = 0; i < kNumBlobs; ++i) {
             SkTextBlobBuilder builder;
             auto paragraphLength = kParagraphLength;
             SkScalar y = 0;
             while (paragraphLength - 45 > 0) {
-                auto currentLineLength = std::min(45, paragraphLength - 45);
-                this->createRandomLine(glyphs, currentLineLength);
+                auto currentLineLength = SkToSizeT(std::min(45, paragraphLength - 45));
+                SkSpan<SkUnichar> line = SkSpan<SkUnichar>(glyphs).first(currentLineLength);
+                this->createRandomLine(line);
 
                 ToolUtils::add_to_text_blob_w_len(&builder,
-                                                  (const char*)glyphs,
-                                                  currentLineLength * 4,
+                                                  reinterpret_cast<const char*>(line.data()),
+                                                  line.size_bytes(),
                                                   SkTextEncoding::kUTF32,
                                                   font,
                                                   0,
@@ -219,9 +222,9 @@ public:
     }
 
     // Construct a random kWordLength character 'word' drawing from the full Chinese set
-    void createRandomLine(SkUnichar glyphs[45], int lineLength) {
-        for (auto i = 0; i < lineLength; ++i) {
-            glyphs[i] = fRand.nextRangeU(0x4F00, 0x9FA0);
+    void createRandomLine(SkSpan<SkUnichar> glyphs) {
+        for (SkUnichar& g : glyphs) {
+            g = fRand.nextRangeU(0x4F00, 0x9FA0);
         }
     }
 };
@@ -318,12 +321,12 @@ public:
         for (int i = 0; i < kNumBlobs; ++i) {
             SkTextBlobBuilder builder;
             for (int j = 0; j < kLinesPerBlob; ++j) {
-                SkUnichar glyphs[kLineLength];
-                this->createRandomLine(glyphs, kLineLength, usedGlyphs);
+                std::array<SkUnichar, kLineLength> glyphs;
+                this->createRandomLine(glyphs, usedGlyphs);
 
                 ToolUtils::add_to_text_blob_w_len(&builder,
-                                                  (const char*)glyphs,
-                                                  kLineLength * 4,
+                                                  reinterpret_cast<const char*>(glyphs.data()),
+                                                  glyphs.size() * sizeof(SkUnichar),
                                                   SkTextEncoding::kUTF32,
                                                   font,
                                                   0,
@@ -337,12 +340,12 @@ public:
 
     // Construct a random lineLength character 'word' drawing from the full Chinese set
     // but not using glyphs in usedGlyphs.
-    void createRandomLine(SkUnichar glyphs[], int lineLength, auto& usedGlyphs) {
-        for (auto i = 0; i < lineLength; ++i) {
+    void createRandomLine(SkSpan<SkUnichar> glyphs, auto& usedGlyphs) {
+        for (SkUnichar& g : glyphs) {
             do {
-                glyphs[i] = fRand.nextRangeU(0x4F00, 0x9FA0);
-            } while (usedGlyphs.contains(glyphs[i]));
-            usedGlyphs.add(glyphs[i]);
+                g = fRand.nextRangeU(0x4F00, 0x9FA0);
+            } while (usedGlyphs.contains(g));
+            usedGlyphs.add(g);
         }
     }
 };

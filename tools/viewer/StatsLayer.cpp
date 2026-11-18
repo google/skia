@@ -32,14 +32,14 @@ StatsLayer::StatsLayer()
     , fCumulativeMeasurementTime(0)
     , fCumulativeMeasurementCount(0)
     , fDisplayScale(1.0f) {
-    memset(fTotalTimes, 0, sizeof(fTotalTimes));
+    fTotalTimes.fill(0.0);
 }
 
 void StatsLayer::resetMeasurements() {
-    for (int i = 0; i < fTimers.size(); ++i) {
-        memset(fTimers[i].fTimes, 0, sizeof(fTimers[i].fTimes));
+    for (auto& timer : fTimers) {
+        timer.fTimes.fill(0.0);
     }
-    memset(fTotalTimes, 0, sizeof(fTotalTimes));
+    fTotalTimes.fill(0.0);
     fCurrentMeasurement = -1;
     fLastTotalBegin = 0;
     fCumulativeMeasurementTime = 0;
@@ -49,7 +49,7 @@ void StatsLayer::resetMeasurements() {
 StatsLayer::Timer StatsLayer::addTimer(const char* label, SkColor color, SkColor labelColor) {
     Timer newTimer = fTimers.size();
     TimerData& newData = fTimers.push_back();
-    memset(newData.fTimes, 0, sizeof(newData.fTimes));
+    newData.fTimes.fill(0.0);
     newData.fLabel = label;
     newData.fColor = color;
     newData.fLabelColor = labelColor ? labelColor : color;
@@ -70,7 +70,7 @@ void StatsLayer::endTiming(Timer timer) {
 
 void StatsLayer::enableGpuTimer(SkColor color) {
     fGpuTimer.fColor = color;
-    std::fill_n(fGpuTimer.fTimes, std::size(fGpuTimer.fTimes), 0);
+    fGpuTimer.fTimes.fill(0.0);
     fGpuTimerEnabled = true;
 }
 

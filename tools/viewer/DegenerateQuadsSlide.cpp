@@ -13,6 +13,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkSpan.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkTPin.h"
@@ -164,8 +165,11 @@ static SkScalar get_edge_dist_coverage(SkSpan<const bool> edgeAA, SkSpan<const S
     return minCoverage < 0.f ? 0.f : minCoverage;
 }
 
-static bool inside_triangle(const SkPoint& point, const SkPoint& t0, const SkPoint& t1,
-                            const SkPoint& t2, SkScalar bary[3]) {
+static bool inside_triangle(const SkPoint& point,
+                            const SkPoint& t0,
+                            const SkPoint& t1,
+                            const SkPoint& t2,
+                            SkSpan<SkScalar, 3> bary) {
     // Check sign of t0 to (t1,t2). If it is positive, that means the normals point into the
     // triangle otherwise the normals point outside the triangle so update edge distances as
     // necessary
@@ -202,9 +206,12 @@ static bool inside_triangle(const SkPoint& point, const SkPoint& t0, const SkPoi
     return true;
 }
 
-static SkScalar get_framed_coverage(const SkPoint outer[4], const SkScalar outerCoverages[4],
-                                    const SkPoint inner[4], const SkScalar innerCoverages[4],
-                                    const SkRect& geomDomain, const SkPoint& point) {
+static SkScalar get_framed_coverage(SkSpan<const SkPoint, 4> outer,
+                                    SkSpan<const SkScalar, 4> outerCoverages,
+                                    SkSpan<const SkPoint, 4> inner,
+                                    SkSpan<const SkScalar, 4> innerCoverages,
+                                    const SkRect& geomDomain,
+                                    const SkPoint& point) {
     // Triangles are ordered clock wise. Indices >= 4 refer to inner[i - 4]. Otherwise its outer[i].
     static constexpr auto kFrameTris = std::to_array<int>({
             0, 1, 4,   4, 1, 5,
@@ -426,8 +433,11 @@ private:
         return path.isConvex(); // todo: should we expose this as a helper (sans Path object)
     }
 
-    void getTessellatedPoints(SkPoint inset[4], SkScalar insetCoverage[4], SkPoint outset[4],
-                              SkScalar outsetCoverage[4], SkRect* domain) const {
+    void getTessellatedPoints(SkSpan<SkPoint, 4> inset,
+                              SkSpan<SkScalar, 4> insetCoverage,
+                              SkSpan<SkPoint, 4> outset,
+                              SkSpan<SkScalar, 4> outsetCoverage,
+                              SkRect* domain) const {
         // Fixed vertex spec for extracting the picture frame geometry
         static const VertexSpec kSpec =
             {GrQuad::Type::kGeneral, ColorType::kNone,

@@ -5,10 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkTDArray.h"
-#include "src/core/SkTSort.h"
 #include "tools/flags/CommandLineFlags.h"
 
+#include "include/core/SkSpan.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkTSort.h"
+
+#include <array>
 #include <stdlib.h>
 
 template <typename T> static void ignore_result(const T&) {}
@@ -58,9 +61,9 @@ void SkFlagInfo::SetDefaultStrings(CommandLineFlags::StringArray* pStrings,
     }
 }
 
-static bool string_is_in(const char* target, const char* set[], size_t len) {
-    for (size_t i = 0; i < len; i++) {
-        if (0 == strcmp(target, set[i])) {
+static bool string_is_in(const char* target, SkSpan<const char* const> set) {
+    for (const char* s : set) {
+        if (0 == strcmp(target, s)) {
             return true;
         }
     }
@@ -75,13 +78,13 @@ static bool string_is_in(const char* target, const char* set[], size_t len) {
  *  @param boolean True if the string represents a boolean, false otherwise.
  */
 static bool parse_bool_arg(const char* string, bool* result) {
-    static const char* trueValues[] = {"1", "TRUE", "true"};
-    if (string_is_in(string, trueValues, std::size(trueValues))) {
+    static constexpr auto kTrueValues = std::to_array<const char*>({"1", "TRUE", "true"});
+    if (string_is_in(string, kTrueValues)) {
         *result = true;
         return true;
     }
-    static const char* falseValues[] = {"0", "FALSE", "false"};
-    if (string_is_in(string, falseValues, std::size(falseValues))) {
+    static constexpr auto kFalseValues = std::to_array<const char*>({"0", "FALSE", "false"});
+    if (string_is_in(string, kFalseValues)) {
         *result = false;
         return true;
     }

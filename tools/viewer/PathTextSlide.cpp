@@ -9,6 +9,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkSpan.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRandom.h"
 #include "src/core/SkStrike.h"
@@ -347,7 +348,7 @@ private:
     class Waves {
     public:
         void reset(SkRandom& rand, int w, int h);
-        SkPoint apply(float tsec, const skvx::float2 matrix[3], const SkPoint& pt) const;
+        SkPoint apply(float tsec, SkSpan<const skvx::float2, 3> matrix, const SkPoint& pt) const;
 
     private:
         constexpr static double kAverageAngle = SK_ScalarPI / 8.0;
@@ -386,8 +387,9 @@ void PathTextSlide::WavyGlyphAnimator::Waves::reset(SkRandom& rand, int w, int h
     }
 }
 
-SkPoint PathTextSlide::WavyGlyphAnimator::Waves::apply(float tsec, const skvx::float2 matrix[3],
-                                                  const SkPoint& pt) const {
+SkPoint PathTextSlide::WavyGlyphAnimator::Waves::apply(float tsec,
+                                                       SkSpan<const skvx::float2, 3> matrix,
+                                                       const SkPoint& pt) const {
     constexpr static int kTablePeriod = 1 << 12;
     static std::array<float, kTablePeriod + 1> sin2table;
     static SkOnce initTable;

@@ -654,7 +654,7 @@ int main(int argc, char** argv) {
                 continue;
             }
             std::array<bool, DiffResource::kStatusCount> baseStatuses;
-            if (!DiffResource::getMatchingStatuses(argv[i], baseStatuses.data())) {
+            if (!DiffResource::getMatchingStatuses(argv[i], baseStatuses)) {
                 SkDebugf("unrecognized base status <%s>\n", argv[i]);
             }
 
@@ -663,7 +663,7 @@ int main(int argc, char** argv) {
                 continue;
             }
             std::array<bool, DiffResource::kStatusCount> comparisonStatuses;
-            if (!DiffResource::getMatchingStatuses(argv[i], comparisonStatuses.data())) {
+            if (!DiffResource::getMatchingStatuses(argv[i], comparisonStatuses)) {
                 SkDebugf("unrecognized comarison status <%s>\n", argv[i]);
             }
 

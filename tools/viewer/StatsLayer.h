@@ -13,6 +13,8 @@
 #include "include/private/SkTArray.h"
 #include "tools/sk_app/Window.h"
 
+#include <array>
+
 class SkSurface;
 
 class StatsLayer : public sk_app::Window::Layer {
@@ -39,13 +41,13 @@ public:
 private:
     static const int kMeasurementCount = 1 << 6;  // should be power of 2 for fast mod
     struct TimerData {
-        double fTimes[kMeasurementCount];
+        std::array<double, kMeasurementCount> fTimes;
         SkString fLabel;
         SkColor fColor;
         SkColor fLabelColor;
     };
     skia_private::TArray<TimerData> fTimers;
-    double fTotalTimes[kMeasurementCount];
+    std::array<double, kMeasurementCount> fTotalTimes;
 
     TimerData fGpuTimer;
     bool fGpuTimerEnabled = false;

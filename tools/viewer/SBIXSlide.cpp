@@ -10,6 +10,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkGraphics.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkTime.h"
@@ -62,6 +63,13 @@ static inline ShortCoordinate sk_float_saturate2sm8(float x) {
     x = x <  255 ? x :  255;
     x = x > -255 ? x : -255;
     return ShortCoordinate{ negative, negative ? (uint8_t)-x : (uint8_t)x };
+}
+
+template <typename T>
+static SkSpan<T> reinterpret_sfnt_span(SkSpan<uint8_t> bytes, size_t count) {
+    SkASSERT_RELEASE(count <= bytes.size() / sizeof(T));
+    // TODO(crbug.com/582862856): Reinterpreting validated sfnt bytes as T[count].
+    return SK_UNSAFE_TODO(SkSpan(reinterpret_cast<T*>(bytes.data()), count));
 }
 
 struct SBIXSlide : public ClickHandlerSlide {
@@ -244,8 +252,6 @@ private:
                 SkTAddOffset<SkOTTableHorizontalHeader>(sfntHeader, hheaTableOffset);
 
         size_t hmtxTableOffset = SkEndian_SwapBE32(hmtxTableEntry->offset);
-        SkOTTableHorizontalMetrics* hmtxTable =
-                SkTAddOffset<SkOTTableHorizontalMetrics>(sfntHeader, hmtxTableOffset);
 
         size_t locaTableOffset = SkEndian_SwapBE32(locaTableEntry->offset);
         SkOTTableIndexToLocation* locaTable =
@@ -408,8 +414,12 @@ private:
             }
         }
 
+        SkSpan<uint8_t> hmtxBytes = dataCopy->writableByteSpan().subspan(
+                hmtxTableOffset, SkEndian_SwapBE32(hmtxTableEntry->logicalLength));
         int numberOfFullMetrics = SkEndian_SwapBE16(hheaTable->numberOfHMetrics);
-        SkOTTableHorizontalMetrics::FullMetric* fullMetrics = hmtxTable->longHorMetric;
+        SkSpan<SkOTTableHorizontalMetrics::FullMetric> fullMetrics =
+                reinterpret_sfnt_span<SkOTTableHorizontalMetrics::FullMetric>(hmtxBytes,
+                                                                              numberOfFullMetrics);
         SK_OT_SHORT lsb = SkEndian_SwapBE16(sk_float_saturate2int16(fPts[kGlyfLSB].location.x()*toEm));
         if (kGlyphID < numberOfFullMetrics) {
             if (setPts) {
@@ -418,9 +428,12 @@ private:
                 fullMetrics[kGlyphID].lsb = lsb;
             }
         } else {
-            SkOTTableHorizontalMetrics::ShortMetric* shortMetrics =
-                    SkTAfter<SkOTTableHorizontalMetrics::ShortMetric>(fullMetrics, numberOfFullMetrics);
             int shortMetricIndex = kGlyphID - numberOfFullMetrics;
+            SkSpan<uint8_t> shortBytes = hmtxBytes.subspan(fullMetrics.size_bytes());
+            using ShortMetric = SkOTTableHorizontalMetrics::ShortMetric;
+            SkASSERT_RELEASE((size_t)shortMetricIndex < shortBytes.size() / sizeof(ShortMetric));
+            SkSpan<ShortMetric> shortMetrics = reinterpret_sfnt_span<ShortMetric>(
+                    shortBytes, shortBytes.size() / sizeof(ShortMetric));
             if (setPts) {
                 fPts[kGlyfLSB].location.fX = (int16_t)SkEndian_SwapBE16(shortMetrics[shortMetricIndex].lsb) / toEm;
             } else {
