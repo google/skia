@@ -250,6 +250,11 @@
         "Build-Mac-Clang-arm64-Debug-iOS18"
       ]
     },
+    "Build-Mac-Clang-arm64-Debug-iOS18_AppleUnicode": {
+      "tasks": [
+        "Build-Mac-Clang-arm64-Debug-iOS18_AppleUnicode"
+      ]
+    },
     "Build-Mac-Clang-arm64-Debug-iOS18_Metal": {
       "tasks": [
         "Build-Mac-Clang-arm64-Debug-iOS18_Metal"
@@ -3751,6 +3756,11 @@
     "Test-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Release-All-Metal": {
       "tasks": [
         "Test-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Release-All-Metal"
+      ]
+    },
+    "Test-iOS18-Clang-iPhone15Pro-CPU-AppleA17-arm64-Debug-All-NativeFonts_AppleUnicode": {
+      "tasks": [
+        "Test-iOS18-Clang-iPhone15Pro-CPU-AppleA17-arm64-Debug-All-NativeFonts_AppleUnicode"
       ]
     },
     "Test-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Debug-All": {
@@ -7856,6 +7866,89 @@
         "${ISOLATED_OUTDIR}",
         "compile",
         "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-iOS18\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "mac_model:Mac16,11",
+        "os:Mac-15.7",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-arm64-Debug-iOS18_AppleUnicode": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "casSpec": "compile",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/${platform}",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.14.10.chromium.4"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e91c778d73cde10d6d995c3cb003616b9d57fc78"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:e91c778d73cde10d6d995c3cb003616b9d57fc78"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e91c778d73cde10d6d995c3cb003616b9d57fc78"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:0cb1e51344de158f72524c384f324465aebbcef2"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-iOS18_AppleUnicode\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -70434,6 +70527,96 @@
       "dimensions": [
         "device:iPhone12,1",
         "os:iOS-18.4",
+        "pool:SkiaIOS"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages/gcloud/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-iOS18-Clang-iPhone15Pro-CPU-AppleA17-arm64-Debug-All-NativeFonts_AppleUnicode": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/${platform}",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.14.10.chromium.4"
+        },
+        {
+          "name": "infra/3pp/tools/gcloud/${platform}",
+          "path": "cipd_bin_packages/gcloud",
+          "version": "version:3@577.0.0.chromium.4"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e91c778d73cde10d6d995c3cb003616b9d57fc78"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:e91c778d73cde10d6d995c3cb003616b9d57fc78"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e91c778d73cde10d6d995c3cb003616b9d57fc78"
+        },
+        {
+          "name": "skia/bots/skparagraph",
+          "path": "skia/resources/extra_fonts",
+          "version": "version:4"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS18-Clang-iPhone15Pro-CPU-AppleA17-arm64-Debug-All-NativeFonts_AppleUnicode\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"arm64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AppleA17\\\",\\\"extra_config\\\",\\\"NativeFonts_AppleUnicode\\\",\\\"model\\\",\\\"iPhone15Pro\\\",\\\"os\\\",\\\"iOS18\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"--skip\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"frame_larger_than_image.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc2.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc3.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc4.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc5.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc6.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc7.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc8.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc9.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc10.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc11.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc12.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc13.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc14.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"butterfly.gif\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"BigImageTest_Ganesh\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"GrStyledShape\\\",\\\"--match\\\",\\\"CoreText\\\",\\\"SkParagraph\\\",\\\"SkUnicode\\\",\\\"--nativeFonts\\\",\\\"--paragraph_fonts\\\",\\\"extra_fonts\\\",\\\"--norun_paragraph_tests_needing_system_fonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-iOS18-Clang-iPhone15Pro-CPU-AppleA17-arm64-Debug-All-NativeFonts_AppleUnicode\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://gold.skia.org/json/v1/hashes\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Debug-iOS18_AppleUnicode",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device:iPhone16,1",
+        "os:iOS-18.2.1",
         "pool:SkiaIOS"
       ],
       "environment": {

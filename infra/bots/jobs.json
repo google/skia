@@ -165,6 +165,9 @@
     "name": "Build-Mac-Clang-arm64-Debug-iOS18"
   },
   {
+    "name": "Build-Mac-Clang-arm64-Debug-iOS18_AppleUnicode"
+  },
+  {
     "name": "Build-Mac-Clang-arm64-Debug-iOS18_Metal"
   },
   {
@@ -2423,6 +2426,9 @@
   },
   {
     "name": "Test-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Release-All-Metal"
+  },
+  {
+    "name": "Test-iOS18-Clang-iPhone15Pro-CPU-AppleA17-arm64-Debug-All-NativeFonts_AppleUnicode"
   },
   {
     "name": "Test-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Debug-All"

@@ -1154,7 +1154,8 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "gm", ALL, "wacky_yuv_formats_limited_fromimages")
 	}
 
-	if b.MatchOs("iOS") {
+	// glPrefix stays empty on CPU jobs, which run no GL configs to skip
+	if b.MatchOs("iOS") && b.GPU() {
 		skip(glPrefix, "skp", ALL, ALL)
 	}
 
@@ -1806,7 +1807,8 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.ExtraConfig("AppleUnicode") {
 		// Only text tests can reach SkUnicode_apple; the rest of dm already runs on the
-		// other Mac jobs. Assign, not append: any ~ entry makes dm run unmatched names too
+		// other Mac and iOS jobs. Assign, not append: any ~ entry makes dm run unmatched
+		// names too
 		match = []string{
 			"CoreText",
 			"SkParagraph",
