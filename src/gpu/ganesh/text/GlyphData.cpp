@@ -190,6 +190,7 @@ std::tuple<bool, int> GlyphData::regenerateAtlas(int begin,
                                                  sktext::gpu::GlyphVector& glyphVector,
                                                  GrMeshDrawTarget* target) {
     SkASSERT(glyphVector.hasBackendData());
+    SkASSERT(0 <= begin && begin < end && end <= glyphVector.glyphCount());
     GrAtlasManager* atlasManager = target->atlasManager();
     GrDeferredUploadTarget* uploadTarget = target->deferredUploadTarget();
 
@@ -248,13 +249,12 @@ std::tuple<bool, int> GlyphData::regenerateAtlas(int begin,
         return {success, glyphsPlacedInAtlas};
     } else {
         // The atlas hasn't changed, so our texture coordinates are still valid.
-        if (end == glyphVector.glyphCount()) {
-            // The atlas hasn't changed and the texture coordinates are all still valid. Update
-            // all the plots used to the new use token.
-            atlasManager->setUseTokenBulk(fBulkUseUpdater,
-                                          uploadTarget->tokenTracker()->nextDrawToken(),
-                                          fResolvedMaskFormat);
-        }
+        // Stamp all plots on every slice: AtlasTextOp queues this slice's draw before preparing
+        // the next one, and the final slice may never run (resetVertexBuffer() can fail and abort
+        // onPrepareDraws), which would leave plots read by the queued draw evictable by later ops
+        atlasManager->setUseTokenBulk(fBulkUseUpdater,
+                                      uploadTarget->tokenTracker()->nextDrawToken(),
+                                      fResolvedMaskFormat);
         return {true, end - begin};
     }
 }

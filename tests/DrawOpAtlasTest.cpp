@@ -12,14 +12,19 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkScalerContext.h"
+#include "src/core/SkStrikeCache.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrAtlasTypes.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -29,6 +34,7 @@
 #include "src/gpu/ganesh/GrDstProxyView.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
@@ -36,17 +42,26 @@
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/ops/SmallPathAtlasMgr.h"
+#include "src/gpu/ganesh/text/GlyphData.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
+#include "src/text/GlyphRun.h"
+#include "src/text/gpu/GlyphVector.h"
+#include "src/text/gpu/SubRunContainer.h"
+#include "src/text/gpu/SubRunControl.h"
+#include "src/text/gpu/TextBlob.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/ganesh/AtlasTextOpTools.h"
 #include "tools/ganesh/GrAtlasTools.h"
+#include "tools/text/gpu/TextBlobTools.h"
 
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <string_view>
+#include <utility>
 
 class GrResourceProvider;
 struct GrContextOptions;
@@ -89,6 +104,36 @@ bool fill_plot(GrDrawOpAtlas* atlas,
     code = atlas->addToAtlas(resourceProvider, target, kPlotSize, kPlotSize,
                              data.getAddr(0, 0), atlasLocator);
     return GrDrawOpAtlas::ErrorCode::kSucceeded == code;
+}
+
+sk_sp<sktext::gpu::TextBlob> make_atlas_blob(GrDirectContext* dContext,
+                                             sk_sp<SkTypeface> typeface,
+                                             SkScalar size,
+                                             std::string_view text) {
+    SkFont font(std::move(typeface), size);
+    font.setEdging(SkFont::Edging::kAlias);
+    SkPaint paint;
+    sktext::GlyphRunBuilder builder;
+    const sktext::GlyphRunList& glyphRunList =
+            builder.textToGlyphRunList(font, paint, text.data(), text.size(), {16, 16});
+    sktext::gpu::SubRunControl control = dContext->priv().getSubRunControl(false);
+    SkStrikeDeviceInfo strikeDeviceInfo{SkSurfaceProps(), SkScalerContextFlags::kNone, &control};
+    return sktext::gpu::TextBlob::Make(glyphRunList,
+                                       paint,
+                                       SkMatrix::I(),
+                                       strikeDeviceInfo,
+                                       SkStrikeCache::GlobalStrikeCache());
+}
+
+GlyphData& init_glyph_data(const sktext::gpu::AtlasSubRun& subRun,
+                           GrOpFlushState* flushState,
+                           GrAtlasManager* atlasManager) {
+    subRun.glyphVector().initBackendData<GlyphData>(flushState->strikeCache(),
+                                                    atlasManager,
+                                                    subRun.maskFormat(),
+                                                    subRun.glyphSrcPadding(),
+                                                    subRun.glyphParams().isSDF);
+    return subRun.glyphVector().accessBackendData<GlyphData>();
 }
 }  // anonymous namespace
 
@@ -464,3 +509,83 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SmallPathAtlasMgrOnFlushFailed,
 }
 #endif
 
+// Regenerating a cached non-final slice of a GlyphVector must still update its plots' use token
+// so later atlas uploads in the same draw cannot evict glyphs queued by that partial slice
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GlyphDataRegenerateAtlasPartialSliceUpdatesUseToken,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNextRelease) {
+    GrDirectContext* dContext = ctxInfo.directContext();
+    GrAtlasManager* atlasManager = dContext->priv().getAtlasManager();
+    REPORTER_ASSERT(reporter, atlasManager != nullptr);
+    GrAtlasManagerTools::SetAtlasDimensionsToMinimum(atlasManager);
+    unsigned int numProxies = 0;
+    REPORTER_ASSERT(reporter, atlasManager->getViews(MaskFormat::kA8, &numProxies) != nullptr);
+    GrAtlasManagerTools::SetMaxPages(atlasManager, 1);
+
+    sk_sp<SkTypeface> typeface = ToolUtils::DefaultPortableTypeface();
+    sk_sp<sktext::gpu::TextBlob> blob = make_atlas_blob(dContext, typeface, 24, "ab");
+    const sktext::gpu::AtlasSubRun* subRun = sktext::gpu::TextBlobTools::FirstSubRun(blob.get());
+    REPORTER_ASSERT(reporter, subRun != nullptr);
+    if (!subRun) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, subRun->glyphCount() == 2, "got %d", subRun->glyphCount());
+    REPORTER_ASSERT(reporter, subRun->maskFormat() == MaskFormat::kA8);
+
+    constexpr std::string_view kFillerText =
+            "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    sk_sp<sktext::gpu::TextBlob> fillerBlob =
+            make_atlas_blob(dContext, std::move(typeface), 128, kFillerText);
+    const sktext::gpu::AtlasSubRun* fillerSubRun =
+            sktext::gpu::TextBlobTools::FirstSubRun(fillerBlob.get());
+    REPORTER_ASSERT(reporter, fillerSubRun != nullptr);
+    if (!fillerSubRun) {
+        return;
+    }
+    const int fillerCount = fillerSubRun->glyphCount();
+    REPORTER_ASSERT(reporter, fillerCount > 0, "got %d", fillerCount);
+    REPORTER_ASSERT(reporter, fillerSubRun->maskFormat() == MaskFormat::kA8);
+
+    TestingUploadTarget uploadTarget;
+    GrOpFlushState flushState(dContext->priv().getGpu(),
+                              dContext->priv().resourceProvider(),
+                              uploadTarget.writeableTokenTracker());
+    GlyphData& glyphData = init_glyph_data(*subRun, &flushState, atlasManager);
+    GlyphData& fillerGlyphData = init_glyph_data(*fillerSubRun, &flushState, atlasManager);
+    SkSpan<const Glyph> glyphs = subRun->glyphVector().accessBackendGlyphs<Glyph>();
+    REPORTER_ASSERT(reporter, glyphs.size() == 2, "got %zu", glyphs.size());
+
+    // Flush 1 populates the full GlyphVector (caching fAtlasGeneration) and fills all plots
+    auto [ok1, placed1] = glyphData.regenerateAtlas(0, 2, subRun->glyphVector(), &flushState);
+    REPORTER_ASSERT(reporter, ok1 && placed1 == 2, "ok1=%d placed1=%d", ok1, placed1);
+    auto [fillOk1, fillPlaced1] = fillerGlyphData.regenerateAtlas(
+            0, fillerCount, fillerSubRun->glyphVector(), &flushState);
+    REPORTER_ASSERT(reporter,
+                    fillOk1 && fillPlaced1 > 0 && fillPlaced1 < fillerCount,
+                    "fillOk1=%d fillPlaced1=%d fillerCount=%d",
+                    fillOk1,
+                    fillPlaced1,
+                    fillerCount);
+    REPORTER_ASSERT(reporter, atlasManager->hasGlyph(glyphs[0].entry()));
+    uploadTarget.issueDrawToken();
+    flushState.abort();
+    flushState.reset();
+
+    // Flush 2 prepares only slice [0, 1); subsequent uploads in the same draw must not evict it
+    auto [ok2, placed2] = glyphData.regenerateAtlas(0, 1, subRun->glyphVector(), &flushState);
+    REPORTER_ASSERT(reporter, ok2 && placed2 == 1, "ok2=%d placed2=%d", ok2, placed2);
+    auto [fillOk2, fillPlaced2] = fillerGlyphData.regenerateAtlas(
+            fillPlaced1, fillerCount, fillerSubRun->glyphVector(), &flushState);
+    REPORTER_ASSERT(reporter,
+                    fillOk2 && fillPlaced2 > 0 && fillPlaced1 + fillPlaced2 < fillerCount,
+                    "fillOk2=%d fillPlaced1=%d fillPlaced2=%d fillerCount=%d",
+                    fillOk2,
+                    fillPlaced1,
+                    fillPlaced2,
+                    fillerCount);
+    REPORTER_ASSERT(reporter, atlasManager->hasGlyph(glyphs[0].entry()));
+    flushState.abort();
+    flushState.reset();
+}
