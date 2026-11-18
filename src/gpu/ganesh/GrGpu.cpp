@@ -49,7 +49,13 @@ void GrGpu::initCaps(sk_sp<const GrCaps> caps) {
     fCaps = std::move(caps);
 }
 
-void GrGpu::disconnect(DisconnectType type) {}
+void GrGpu::disconnect(DisconnectType type) {
+    // The context is going away (abandoned or cleanly torn down) and nothing
+    // will ever be submitted again.  Deliver the pending submitted-procs now,
+    // while the clients that registered them can still be alive, instead of
+    // deferring them to ~GrGpu() at an arbitrary later time.
+    this->callSubmittedProcs(false);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
