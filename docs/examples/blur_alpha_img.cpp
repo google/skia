@@ -6,10 +6,13 @@ sk_sp<SkImage> foo() {
     int w = 240, h = 240;
     SkScalar scale = 10.0f;
     SkPathBuilder path;
-    static const int8_t pts[] = {2, 2, 1, 3, 0, 3, 2, 1, 3, 1, 4, 0, 4, 1,
-                                 5, 1, 4, 2, 4, 3, 2, 5, 2, 4, 3, 3, 2, 3};
+    static constexpr auto pts = std::to_array<int8_t>({
+            2, 2, 1, 3, 0, 3, 2, 1, 3, 1, 4, 0, 4, 1,
+            5, 1, 4, 2, 4, 3, 2, 5, 2, 4, 3, 3, 2, 3,
+    });
+    static_assert(pts.size() % 2 == 0);
     path.moveTo(2 * scale, 3 * scale);
-    for (size_t i = 0; i < sizeof(pts) / sizeof(pts[0]); i += 2) {
+    for (size_t i = 0; i < pts.size(); i += 2) {
         path.lineTo(pts[i] * scale, pts[i + 1] * scale);
     }
     path.close();

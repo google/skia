@@ -8,37 +8,37 @@ static void draw_utf8_string(SkCanvas* c, const char* t, SkScalar x, SkScalar y,
 }
 
 void draw(SkCanvas* canvas) {
-    SkBlendMode modes[] = {
-        SkBlendMode::kClear,
-        SkBlendMode::kSrc,
-        SkBlendMode::kDst,
-        SkBlendMode::kSrcOver,
-        SkBlendMode::kDstOver,
-        SkBlendMode::kSrcIn,
-        SkBlendMode::kDstIn,
-        SkBlendMode::kSrcOut,
-        SkBlendMode::kDstOut,
-        SkBlendMode::kSrcATop,
-        SkBlendMode::kDstATop,
-        SkBlendMode::kXor,
-        SkBlendMode::kPlus,
-        SkBlendMode::kModulate,
-        SkBlendMode::kScreen,
-        SkBlendMode::kOverlay,
-        SkBlendMode::kDarken,
-        SkBlendMode::kLighten,
-        SkBlendMode::kColorDodge,
-        SkBlendMode::kColorBurn,
-        SkBlendMode::kHardLight,
-        SkBlendMode::kSoftLight,
-        SkBlendMode::kDifference,
-        SkBlendMode::kExclusion,
-        SkBlendMode::kMultiply,
-        SkBlendMode::kHue,
-        SkBlendMode::kSaturation,
-        SkBlendMode::kColor,
-        SkBlendMode::kLuminosity,
-    };
+    static constexpr auto modes = std::to_array<SkBlendMode>({
+            SkBlendMode::kClear,
+            SkBlendMode::kSrc,
+            SkBlendMode::kDst,
+            SkBlendMode::kSrcOver,
+            SkBlendMode::kDstOver,
+            SkBlendMode::kSrcIn,
+            SkBlendMode::kDstIn,
+            SkBlendMode::kSrcOut,
+            SkBlendMode::kDstOut,
+            SkBlendMode::kSrcATop,
+            SkBlendMode::kDstATop,
+            SkBlendMode::kXor,
+            SkBlendMode::kPlus,
+            SkBlendMode::kModulate,
+            SkBlendMode::kScreen,
+            SkBlendMode::kOverlay,
+            SkBlendMode::kDarken,
+            SkBlendMode::kLighten,
+            SkBlendMode::kColorDodge,
+            SkBlendMode::kColorBurn,
+            SkBlendMode::kHardLight,
+            SkBlendMode::kSoftLight,
+            SkBlendMode::kDifference,
+            SkBlendMode::kExclusion,
+            SkBlendMode::kMultiply,
+            SkBlendMode::kHue,
+            SkBlendMode::kSaturation,
+            SkBlendMode::kColor,
+            SkBlendMode::kLuminosity,
+    });
     SkRect rect = SkRect::MakeWH(64.0f, 64.0f);
     SkPaint stroke, src, dst;
     stroke.setStyle(SkPaint::kStroke_Style);
@@ -63,7 +63,7 @@ void draw(SkCanvas* canvas) {
     dst.setShader(SkShaders::LinearGradient(
                 dstPoints, {{dstColors, {}, SkTileMode::kClamp}, {}}));
     canvas->clear(SK_ColorWHITE);
-    size_t N = sizeof(modes) / sizeof(modes[0]);
+    size_t N = modes.size();
     size_t K = (N - 1) / 3 + 1;
     SkASSERT(K * 64 == 640);  // tall enough
     for (size_t i = 0; i < N; ++i) {

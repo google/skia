@@ -4,9 +4,10 @@
 REG_FIDDLE(SmoothBezierSplineInterpolation, 1024, 1024, false, 0) {
 // Smooth Bézier Spline Interpolation
 
-SkPath MakeCubicSplineInterpolation(const SkPoint* pts, size_t N) {
+SkPath MakeCubicSplineInterpolation(SkSpan<const SkPoint> pts) {
     // Code borrowed from https://www.particleincell.com/2012/bezier-splines/
 
+    const size_t N = pts.size();
     SkPathBuilder path;
     if (N < 2) {
         return path.detach();
@@ -73,7 +74,7 @@ void draw(SkCanvas* canvas) {
             {562, 58}, {662, 272}, {762, 99},  {862, 759}, {962, 945},
     };
 
-    canvas->drawPath(MakeCubicSplineInterpolation(pts, std::size(pts)), p);
+    canvas->drawPath(MakeCubicSplineInterpolation(pts), p);
 
     p.setStrokeWidth(10);
     p.setColor(SK_ColorBLACK);
