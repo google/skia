@@ -22,6 +22,7 @@
 #include "src/gpu/RectanizerSkyline.h"
 #include "src/gpu/Token.h"
 #include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <array>
 #include <cstdint>
@@ -401,7 +402,8 @@ private:
     const raw_ptr<GrAtlasGenerationCounter> fGenerationCounter;
     uint64_t fGenID;
     GrPlotLocator fPlotLocator;
-    raw_ptr<std::byte, DanglingUntriaged | AllowPtrArithmetic> fData;
+    // RAW_PTR_EXCLUSION: Performance: ~0.3% on GPU SKP playback (estimated).
+    RAW_PTR_EXCLUSION std::byte* fData = nullptr;
     const int fWidth;
     const int fHeight;
     const int fX;

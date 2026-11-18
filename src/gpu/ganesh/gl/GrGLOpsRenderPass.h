@@ -17,6 +17,7 @@
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <array>
 #include <cstddef>
@@ -110,7 +111,8 @@ private:
 
     // Per-pipeline state.
     GrPrimitiveType fPrimitiveType;
-    raw_ptr<GrGLAttribArrayState> fAttribArrayState;
+    // RAW_PTR_EXCLUSION: Performance: ~0.4% on GPU SKP playback (estimated).
+    RAW_PTR_EXCLUSION GrGLAttribArrayState* fAttribArrayState = nullptr;
 
     SkIRect fCurrentPipelineBounds;
 

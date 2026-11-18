@@ -274,13 +274,14 @@ private:
 
     private:
         // RAW_PTR_EXCLUSION: Performance: +11.6% on samplingoptions_filter_0_mipmap_0.
-        RAW_PTR_EXCLUSION GrSurfaceProxy*          fProxy;
-        unsigned int                               fStart;
-        unsigned int                               fEnd;
-        raw_ptr<Interval, DanglingUntriaged>       fNext;
-        unsigned int                               fUses = 0;
-        raw_ptr<Register, DanglingUntriaged>       fRegister;
-        AllowRecycling                             fAllowRecycling = AllowRecycling::kYes;
+        RAW_PTR_EXCLUSION GrSurfaceProxy*    fProxy;
+        unsigned int                         fStart;
+        unsigned int                         fEnd;
+        // RAW_PTR_EXCLUSION: Performance: ~0.2% on GPU SKP playback (estimated).
+        RAW_PTR_EXCLUSION Interval*          fNext = nullptr;
+        unsigned int                         fUses = 0;
+        raw_ptr<Register, DanglingUntriaged> fRegister;
+        AllowRecycling                       fAllowRecycling = AllowRecycling::kYes;
 
 #ifdef SK_DEBUG
         uint32_t        fUniqueID;

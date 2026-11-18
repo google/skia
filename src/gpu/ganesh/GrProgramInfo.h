@@ -87,7 +87,8 @@ private:
     GrSurfaceOrigin                              fOrigin;
     bool                                         fTargetHasVkResolveAttachmentWithInput;
     int                                          fTargetsNumSamples;
-    raw_ptr<const GrPipeline>                    fPipeline;
+    // RAW_PTR_EXCLUSION: Performance: ~0.4% on GPU SKP playback (estimated).
+    RAW_PTR_EXCLUSION const GrPipeline*          fPipeline;
     raw_ptr<const GrUserStencilSettings>         fUserStencilSettings;
     // RAW_PTR_EXCLUSION: Performance: +3.8% on blur_0.50_inner_high_quality.
     RAW_PTR_EXCLUSION const GrGeometryProcessor* fGeomProc;
