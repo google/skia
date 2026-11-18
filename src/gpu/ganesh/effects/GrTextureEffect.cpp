@@ -389,12 +389,12 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         //    complicated).
         // 1) Map the coordinates into the subset range [Repeat and MirrorRepeat], or pass
         //    through output of 0).
-        // 2) Clamp the coordinates to a 0.5 inset of the subset rect [Clamp, Repeat, and
-        //    MirrorRepeat always or ClampToBorder only when filtering] or pass through
-        //    output of 1). The clamp rect collapses to a line or point it if the subset
-        //    rect is less than one pixel wide/tall.
+        // 2) Clamp the coordinates to a 0.5 inset of the subset rect [Clamp, Repeat,
+        //    MirrorRepeat, and ClampToBorder] or pass through output of 1). The clamp rect
+        //    collapses to a line or point if the subset rect is less than one pixel
+        //    wide/tall.
         // 3) Look up texture with output of 2) [All]
-        // 3) Use the difference between 1) and 2) to apply filtering at edge [Repeat or
+        // 4) Use the difference between 1) and 2) to apply filtering at edge [Repeat or
         //    ClampToBorder]. In the Repeat case this requires extra texture lookups on the
         //    other side of the subset (up to 3 more reads). Or if ClampToBorder and not
         //    filtering do a hard less than/greater than test with the subset rect.
@@ -433,7 +433,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
               case ShaderMode::kRepeat_Nearest_Mipmap:    return true;
               case ShaderMode::kRepeat_Linear_Mipmap:     return true;
               case ShaderMode::kMirrorRepeat:             return true;
-              case ShaderMode::kClampToBorder_Nearest:    return false;
+              case ShaderMode::kClampToBorder_Nearest:    return true;
               case ShaderMode::kClampToBorder_Filter:     return true;
           }
           SkUNREACHABLE;
@@ -712,8 +712,10 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         }
 
         // Do hard-edge shader transition to border color for kClampToBorderNearest at the
-        // subset boundaries. Snap the input coordinates to nearest neighbor (with an
-        // epsilon) before comparing to the subset rect to avoid GPU interpolation errors
+        // subset boundaries. The texture read above already uses coords clamped to the
+        // texel-center-inset subset, which guarantees no out-of-subset texels are read; this
+        // test only decides border-vs-texel, using a +0.001 bias to emulate hardware
+        // fixed-point snapping of interpolated coordinates that land just below an integer.
         if (m[0] == ShaderMode::kClampToBorder_Nearest) {
             fb->codeAppendf(
                     "float snappedX = floor(inCoord.x + 0.001) + 0.5;"

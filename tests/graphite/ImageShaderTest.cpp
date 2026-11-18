@@ -9,6 +9,9 @@
 
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkYUVAInfo.h"
@@ -22,9 +25,12 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/shaders/SkImageShader.h"
+#include "tests/NearestDecalSubsetTestCases.h"
 #include "tools/ToolUtils.h"
 
 #include <algorithm>
+#include <memory>
+#include <utility>
 
 namespace skgpu::graphite {
 
@@ -388,5 +394,36 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageShaderPackedYUYVTileOriginTest, re
     INFOF(reporter, "Verified 384 packed YUYV origin/subset/tile combinations.\n");
 }
 #endif  // SK_ENABLE_YUVA_PACKED_422
+
+// Runs the nearest-filtered decal subset cases shared with Ganesh's
+// GrTextureEffect_NearestDecalSubset (see tests/NearestDecalSubsetTestCases.h). Graphite render
+// targets are always top-left origin, so unlike Ganesh this does not iterate over source surface
+// origins.
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageShader_NearestDecalSubset,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kNever) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    REPORTER_ASSERT(reporter, recorder);
+    if (!recorder) {
+        return;
+    }
+
+    auto makeSurface = [r = recorder.get()](const SkImageInfo& info) {
+        return SkSurfaces::RenderTarget(r, info);
+    };
+    skiatest::NearestDecalSubset::Factories factories;
+    factories.makeSourceSurface = makeSurface;
+    factories.makeTargetSurface = makeSurface;
+    // AsImage shares the surface's backing texture; this is safe because the shared cases never
+    // draw to a source surface again after making its image.
+    factories.makeImage = [](sk_sp<SkSurface> surface) {
+        return SkSurfaces::AsImage(std::move(surface));
+    };
+    skiatest::NearestDecalSubset::Run(reporter, factories);
+}
 
 }  // namespace skgpu::graphite
