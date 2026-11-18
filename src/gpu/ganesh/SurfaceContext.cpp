@@ -308,7 +308,9 @@ bool SurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoin
     if (!result.fSuccess) {
         return false;
     }
-    dContext->submit();
+    if (!dContext->submit()) {
+        return false;
+    }
     if (!dContext->priv().getGpu()->readPixels(srcSurface,
                                                SkIRect::MakePtSize(pt, dst.dimensions()),
                                                this->colorInfo().colorType(),
