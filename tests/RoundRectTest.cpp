@@ -1930,3 +1930,34 @@ DEF_TEST(RRect_scaleRadii_strict_isValid, r) {
         REPORTER_ASSERT(r, !offsetNinePatch.isRect());
     }
 }
+
+DEF_TEST(RRect_b582181295_circular_symmetry, r) {
+    // 1. setRectXY with equal circular radii must preserve fX == fY when yRad * scale rounds
+    //    1 ULP above HalfHeight and gets clamped down.
+    {
+        const SkRRect pill = SkRRect::MakeRectXY(SkRect::MakeWH(500.0f, 6.7f), 100.0f, 100.0f);
+        REPORTER_ASSERT(r, pill.isValid());
+        REPORTER_ASSERT(r, pill.isSimple());
+        REPORTER_ASSERT(r, pill.getSimpleRadii().fX == pill.getSimpleRadii().fY);
+    }
+
+    // 2. scaleRadii() with equal circular or simple corners on bounds straddling zero must
+    //    preserve kSimple_Type and fX == fY instead of stepping down one corner into a nine-patch.
+    {
+        constexpr SkRect kRect = SkRect::MakeLTRB(0.0f, -0.1f, 100.0f, 0.5f);
+        constexpr SkVector kCircularRadii[4] = {
+                {100.0f, 100.0f}, {100.0f, 100.0f}, {100.0f, 100.0f}, {100.0f, 100.0f}};
+        SkRRect circularPill;
+        circularPill.setRectRadii(kRect, kCircularRadii);
+        REPORTER_ASSERT(r, circularPill.isValid());
+        REPORTER_ASSERT(r, circularPill.isSimple());
+        REPORTER_ASSERT(r, circularPill.getSimpleRadii().fX == circularPill.getSimpleRadii().fY);
+
+        constexpr SkVector kSimpleRadii[4] = {
+                {10.0f, 100.0f}, {10.0f, 100.0f}, {10.0f, 100.0f}, {10.0f, 100.0f}};
+        SkRRect simpleRR;
+        simpleRR.setRectRadii(kRect, kSimpleRadii);
+        REPORTER_ASSERT(r, simpleRR.isValid());
+        REPORTER_ASSERT(r, simpleRR.isSimple());
+    }
+}

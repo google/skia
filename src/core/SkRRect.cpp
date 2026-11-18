@@ -60,6 +60,7 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
         xRad = yRad = 0;    // devolve into a simple rect
     }
 
+    const bool wasCircular = (xRad == yRad);
     if (fRect.width() < xRad+xRad || fRect.height() < yRad+yRad) {
         // At most one of these two divides will be by zero, and neither numerator is zero.
         float scale = std::min(sk_ieee_float_divide(fRect.width(), xRad + xRad),
@@ -69,6 +70,9 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
         yRad *= scale;
         xRad = std::min(xRad, SkRectPriv::HalfWidth(fRect));
         yRad = std::min(yRad, SkRectPriv::HalfHeight(fRect));
+        if (wasCircular) {
+            xRad = yRad = std::min(xRad, yRad);
+        }
     }
 
     if (xRad <= 0 || yRad <= 0) {
@@ -250,6 +254,10 @@ bool SkRRect::scaleRadii() {
     //   and Ltop = Lbottom = the width of the box,
     //   and Lleft = Lright = the height of the box.
     // If f < 1, then all corner radii are reduced by multiplying them by f."
+    const bool wasSimple =
+            fRadii[0] == fRadii[1] && fRadii[0] == fRadii[2] && fRadii[0] == fRadii[3];
+    const bool wasCircular = wasSimple && fRadii[0].fX == fRadii[0].fY;
+
     double scale = 1.0;
 
     // The sides of the rectangle may be larger than a float.
@@ -271,7 +279,17 @@ bool SkRRect::scaleRadii() {
     SkScaleToSides::AdjustRadii(scale, &fRadii[0].fY, &fRadii[3].fY, fRect.fTop, fRect.fBottom);
 
     // adjust radii may set x or y to zero; set companion to zero as well
-    clamp_to_zero(fRadii);
+    if (!clamp_to_zero(fRadii) && wasSimple) {
+        // Preserve simple (and circular) symmetry if 1-ULP clamping adjusted one side/corner.
+        SkScalar minX = std::min({fRadii[0].fX, fRadii[1].fX, fRadii[2].fX, fRadii[3].fX});
+        SkScalar minY = std::min({fRadii[0].fY, fRadii[1].fY, fRadii[2].fY, fRadii[3].fY});
+        if (wasCircular) {
+            minX = minY = std::min(minX, minY);
+        }
+        for (int i = 0; i < 4; ++i) {
+            fRadii[i].set(minX, minY);
+        }
+    }
 
     // May be simple, oval, or complex, or become a rect/empty if the radii adjustment made them 0
     this->computeType();
