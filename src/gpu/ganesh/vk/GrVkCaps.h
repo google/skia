@@ -284,6 +284,8 @@ public:
 
     bool supportsMemorylessAttachments() const { return fSupportsMemorylessAttachments; }
 
+    bool mustLeakDescriptorPoolOnError() const { return fMustLeakDescriptorPoolOnError; }
+
 #if defined(GPU_TEST_UTILS)
     std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
@@ -495,6 +497,7 @@ private:
     bool fMustLoadFullImageWithDiscardableMSAA = false;
     bool fSupportsDiscardableMSAAForDMSAA = true;
     bool fSupportsMemorylessAttachments = false;
+    bool fMustLeakDescriptorPoolOnError = false;
 
     uint32_t fMaxDrawIndirectDrawCount = 0;
 

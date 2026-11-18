@@ -716,6 +716,12 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const PhysicalDevicePropertie
     if (isQualcommProprietary && driverVersion < skgpu::DriverVersion(512, 822)) {
         fMSAARenderToSingleSampledSupport = false;
     }
+
+    // On Imagination (PowerVR) drivers, when vkAllocateDescriptorSets fails with host or device
+    // OOM, the descriptor pool cannot be destroyed safely (crbug.com/549311485).
+    if (isImagination) {
+        fMustLeakDescriptorPoolOnError = true;
+    }
 }
 
 void VulkanCaps::initShaderCaps(const EnabledFeatures enabledFeatures, const uint32_t vendorID) {

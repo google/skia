@@ -91,10 +91,12 @@ VulkanDescriptorPool::VulkanDescriptorPool(const VulkanSharedContext* context,
         , fDescSetLayout(layout) {}
 
 VulkanDescriptorPool::~VulkanDescriptorPool() {
-    // Destroying the VkDescriptorPool will automatically free and delete any VkDescriptorSets
-    // allocated from the pool.
-    VULKAN_CALL(fSharedContext->interface(),
-                DestroyDescriptorPool(fSharedContext->device(), fDescPool, nullptr));
+    if (fDescPool != VK_NULL_HANDLE) {
+        // Destroying the VkDescriptorPool will automatically free and delete any VkDescriptorSets
+        // allocated from the pool.
+        VULKAN_CALL(fSharedContext->interface(),
+                    DestroyDescriptorPool(fSharedContext->device(), fDescPool, nullptr));
+    }
     if (fDescSetLayout != VK_NULL_HANDLE) {
         VULKAN_CALL(fSharedContext->interface(),
                     DestroyDescriptorSetLayout(fSharedContext->device(), fDescSetLayout, nullptr));
