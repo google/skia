@@ -13,8 +13,6 @@
          disable_discard_framebuffer)                    \
   GPU_OP(DISABLE_DUAL_SOURCE_BLENDING_SUPPORT,           \
          disable_dual_source_blending_support)           \
-  GPU_OP(DISABLE_TEXTURE_STORAGE,                        \
-         disable_texture_storage)                        \
   GPU_OP(DISALLOW_LARGE_INSTANCED_DRAW,                  \
          disallow_large_instanced_draw)                  \
   GPU_OP(EMULATE_ABS_INT_FUNCTION,                       \
@@ -25,8 +23,6 @@
          flush_queries_before_deleting_or_unbinding_fbo) \
   GPU_OP(GL_CLEAR_BROKEN,                                \
          gl_clear_broken)                                \
-  GPU_OP(MAX_FRAGMENT_UNIFORM_VECTORS_32,                \
-         max_fragment_uniform_vectors_32)                \
   GPU_OP(MAX_MSAA_SAMPLE_COUNT_4,                        \
          max_msaa_sample_count_4)                        \
   GPU_OP(PACK_PARAMETERS_WORKAROUND_WITH_PACK_BUFFER,    \

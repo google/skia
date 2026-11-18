@@ -154,9 +154,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                           &fMaxFragmentUniformVectors);
     }
 
-    if (fDriverBugWorkarounds.max_fragment_uniform_vectors_32) {
-        fMaxFragmentUniformVectors = std::min(fMaxFragmentUniformVectors, 32);
-    }
     GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttributes);
 
     if (GR_IS_GR_GL(standard)) {
@@ -1506,9 +1503,6 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                               ctxInfo.hasExtension("GL_EXT_texture_storage");
     } else if (GR_IS_GR_WEBGL(standard)) {
         texStorageSupported = version >= GR_GL_VER(2,0);
-    }
-    if (fDriverBugWorkarounds.disable_texture_storage) {
-        texStorageSupported = false;
     }
 
     if (formatWorkarounds.fDisableTexStorage) {
