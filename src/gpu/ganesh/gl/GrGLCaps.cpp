@@ -4603,10 +4603,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fCanUseFragCoord = false;
     }
 
-    if (fDriverBugWorkarounds.add_and_true_to_loop_condition) {
-        shaderCaps->fAddAndTrueToLoopCondition = true;
-    }
-
     if (fDriverBugWorkarounds.unfold_short_circuit_as_ternary_operation) {
         shaderCaps->fUnfoldShortCircuitAsTernary = true;
     }

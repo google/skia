@@ -1725,13 +1725,7 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
         this->write("; ");
     }
     if (f.test()) {
-        if (fCaps->fAddAndTrueToLoopCondition) {
-            this->write("(");
-            this->writeExpression(*f.test(), Precedence::kLogicalAnd);
-            this->write(" && true)");
-        } else {
-            this->writeExpression(*f.test(), Precedence::kExpression);
-        }
+        this->writeExpression(*f.test(), Precedence::kExpression);
     }
     this->write("; ");
     if (f.next()) {

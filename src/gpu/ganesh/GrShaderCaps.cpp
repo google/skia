@@ -51,7 +51,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Must guard division even after explicit zero check",
                        fMustGuardDivisionEvenAfterExplicitZeroCheck);
     writer->appendBool("Can use gl_FragCoord", fCanUseFragCoord);
-    writer->appendBool("Add and true to loops workaround", fAddAndTrueToLoopCondition);
     writer->appendBool("Unfold short circuit as ternary", fUnfoldShortCircuitAsTernary);
     writer->appendBool("Emulate abs(int) function", fEmulateAbsIntFunction);
     writer->appendBool("Rewrite do while loops", fRewriteDoWhileLoops);
@@ -104,7 +103,6 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fMustObfuscateUniformColor);
         SkASSERT(!fMustGuardDivisionEvenAfterExplicitZeroCheck);
         SkASSERT(fCanUseFragCoord);
-        SkASSERT(!fAddAndTrueToLoopCondition);
         SkASSERT(!fUnfoldShortCircuitAsTernary);
         SkASSERT(!fEmulateAbsIntFunction);
         SkASSERT(!fRewriteDoWhileLoops);

@@ -7,8 +7,6 @@
 
 #ifndef GPU_DRIVER_BUG_WORKAROUNDS
 #define GPU_DRIVER_BUG_WORKAROUNDS(GPU_OP)               \
-  GPU_OP(ADD_AND_TRUE_TO_LOOP_CONDITION,                 \
-         add_and_true_to_loop_condition)                 \
   GPU_OP(DISABLE_BLEND_EQUATION_ADVANCED,                \
          disable_blend_equation_advanced)                \
   GPU_OP(DISABLE_DISCARD_FRAMEBUFFER,                    \

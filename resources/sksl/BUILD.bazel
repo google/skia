@@ -818,7 +818,6 @@ skia_filegroup(
         "workarounds/DualSourceBlending.sksl",
         "workarounds/FractNegative.sksl",
         "workarounds/FragCoords.sksl",
-        "workarounds/LoopCondition.sksl",
         "workarounds/MinAndAbsTogether.sksl",
         "workarounds/NegatedAtan.sksl",
         "workarounds/NegatedLdexp.sksl",

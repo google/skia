@@ -83,16 +83,6 @@ static bool consume_suffix(std::string* str, const char suffix[]) {
 
 class ShaderCapsTestFactory : public SkSL::ShaderCapsFactory {
 public:
-    static const SkSL::ShaderCaps* AddAndTrueToLoopCondition() {
-        static const SkSL::ShaderCaps* sCaps = []{
-            std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
-            caps->fVersionDeclString = "#version 400";
-            caps->fAddAndTrueToLoopCondition = true;
-            return caps.release();
-        }();
-        return sCaps;
-    }
-
     static const SkSL::ShaderCaps* CannotUseFractForNegativeValues() {
         static const SkSL::ShaderCaps* sCaps = [] {
             std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
@@ -388,9 +378,6 @@ static bool detect_shader_settings(const std::string& text,
             for (;;) {
                 const size_t startingLength = settingsText.length();
 
-                if (consume_suffix(&settingsText, " AddAndTrueToLoopCondition")) {
-                    *caps = Factory::AddAndTrueToLoopCondition();
-                }
                 if (consume_suffix(&settingsText, " CannotUseFractForNegativeValues")) {
                     *caps = Factory::CannotUseFractForNegativeValues();
                 }
