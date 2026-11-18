@@ -2399,6 +2399,9 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
     if (!fillable(dst) || !fillable(src)) {
         return;
     }
+    // TODO(b/587426694): Clip 'src' (adjusting 'dst' to match) to the image's integer bounds. Image
+    // dimensions > 2^24 that round up in float32 let 'src' extend past the image, which repeats
+    // edge pixels.
     this->onDrawImageRect2(image, src, dst, sampling, paint, constraint);
 }
 

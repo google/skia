@@ -2719,6 +2719,39 @@ DEF_TEST(ImageFilter_UnboundedInputMagnifier_EdgeLeak, reporter) {
     REPORTER_ASSERT(reporter, !leaked, "Edge padding leaked by magnifier");
 }
 
+// Regression test for b/581351467: ensures large images stay within bounds on blur.
+DEF_TEST(ImageFilter_Float32RoundedSubsetBlur_StaysInBounds, reporter) {
+    constexpr int kHeight = (1 << 24) + 3;  // 16,777,219 -> rounds up to 16,777,220.0f in float32
+    constexpr int kWidth = 1;
+    const SkImageInfo imgInfo = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+    const size_t rowBytes = imgInfo.minRowBytes();
+    const size_t imgBytes = imgInfo.computeByteSize(rowBytes);
+
+    // Create data on the heap with a transparent row at the bottom of the image, followed by
+    // 0xFF bytes past the end of the image that would be interpreted as white pixels.
+    sk_sp<SkData> data = SkData::MakeUninitialized(imgBytes + rowBytes);
+    auto* bytes = static_cast<uint8_t*>(data->writable_data());
+    std::memset(bytes + imgBytes - rowBytes, 0, rowBytes);
+    std::memset(bytes + imgBytes, 255, rowBytes);
+
+    // Draw the bottom 2-row slice of the float32-rounded height with a blur.
+    constexpr int kSliceHeight = 2;  // 1 in-bounds row + 1 row past kHeight
+    sk_sp<SkImage> image = SkImages::RasterFromData(imgInfo, std::move(data), rowBytes);
+    const float roundedHeight = static_cast<float>(kHeight);
+    SkRect srcRect = SkRect::MakeXYWH(0.f, roundedHeight - kSliceHeight, kWidth, kSliceHeight);
+    SkRect dstRect = SkRect::MakeWH(kWidth, kSliceHeight);
+    SkPaint paint;
+    paint.setImageFilter(SkImageFilters::Blur(
+            1.0f, 0.0f, SkImageFilters::Image(std::move(image), srcRect, dstRect, {})));
+    SkBitmap dst;
+    dst.allocPixels(SkImageInfo::MakeN32Premul(kWidth, kSliceHeight));
+    dst.eraseColor(SK_ColorTRANSPARENT);
+    SkCanvas(dst).drawRect(dstRect, paint);
+
+    // Verify that the bottom pixel is not influenced by the heap data following the image.
+    REPORTER_ASSERT(reporter, dst.getColor(0, kSliceHeight - 1) == SK_ColorTRANSPARENT);
+}
+
 namespace {
 
 using CreateSurfaceProc = std::function<sk_sp<SkSurface>(const SkImageInfo&)>;

@@ -2010,17 +2010,24 @@ FilterResult FilterResult::MakeFromImage(const Context& ctx,
     // Check for direct conversion to an SkSpecialImage and then FilterResult. Eventually this
     // whole function should be replaceable with:
     //    FilterResult(fImage, fSrcRect, fDstRect).applyTransform(mapping.layerMatrix(), fSampling);
-    SkIRect srcSubset = RoundOut(srcRect);
-    if (SkRect::Make(srcSubset) == srcRect) {
-        // Construct an SkSpecialImage from the subset directly instead of drawing.
-        sk_sp<SkSpecialImage> specialImage = ctx.backend()->makeImage(srcSubset, std::move(image));
+    SkIRect srcRectInt = RoundOut(srcRect);
+    if (SkRect::Make(srcRectInt) == srcRect) {
+
+        // Clamp srcRectInt to image bounds to ensure we do not set OOB data to the special
+        // image. This protection is notable for large images that cause >1.0 ULP in srcRect.
+        // Return if there is nothing left to draw after the clamp.
+        if (!srcRectInt.intersect(image->bounds())) {
+            return {};
+        }
+
+        sk_sp<SkSpecialImage> specialImage = ctx.backend()->makeImage(srcRectInt, std::move(image));
 
         // Treat the srcRect's top left as "layer" space since we are folding the src->dst transform
         // and the param->layer transform into a single transform step. We don't override the
         // PixelBoundary from kUnknown even if srcRect is contained within the 'image' because the
         // client could be doing their own external approximate-fit texturing.
         skif::FilterResult subset{std::move(specialImage),
-                                  skif::LayerSpace<SkIPoint>(srcSubset.topLeft())};
+                                  skif::LayerSpace<SkIPoint>(srcRectInt.topLeft())};
         SkM44 transform = ctx.mapping().layerMatrix() * SkM44::RectToRect(srcRect, SkRect(dstRect));
         return subset.applyTransform(ctx, skif::LayerSpace<SkMatrix>(transform.asM33()), sampling);
     }
