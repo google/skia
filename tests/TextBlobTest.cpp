@@ -25,6 +25,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSerialProcs.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
@@ -57,29 +58,29 @@ public:
         SkTextBlobBuilder builder;
 
         // empty run set
-        RunBuilderTest(reporter, builder, nullptr, 0, nullptr, 0);
+        RunBuilderTest(reporter, builder, {}, {});
 
         RunDef set1[] = {
             { 128, SkTextBlobRunIterator::kDefault_Positioning, 100, 100 },
         };
-        RunBuilderTest(reporter, builder, set1, std::size(set1), set1, std::size(set1));
+        RunBuilderTest(reporter, builder, set1, set1);
 
         RunDef set2[] = {
             { 128, SkTextBlobRunIterator::kHorizontal_Positioning, 100, 100 },
         };
-        RunBuilderTest(reporter, builder, set2, std::size(set2), set2, std::size(set2));
+        RunBuilderTest(reporter, builder, set2, set2);
 
         RunDef set3[] = {
             { 128, SkTextBlobRunIterator::kFull_Positioning, 100, 100 },
         };
-        RunBuilderTest(reporter, builder, set3, std::size(set3), set3, std::size(set3));
+        RunBuilderTest(reporter, builder, set3, set3);
 
         RunDef set4[] = {
             { 128, SkTextBlobRunIterator::kDefault_Positioning, 100, 150 },
             { 128, SkTextBlobRunIterator::kDefault_Positioning, 100, 150 },
             { 128, SkTextBlobRunIterator::kDefault_Positioning, 100, 150 },
         };
-        RunBuilderTest(reporter, builder, set4, std::size(set4), set4, std::size(set4));
+        RunBuilderTest(reporter, builder, set4, set4);
 
         RunDef set5[] = {
             { 128, SkTextBlobRunIterator::kHorizontal_Positioning, 100, 150 },
@@ -90,8 +91,7 @@ public:
             { 256, SkTextBlobRunIterator::kHorizontal_Positioning, 0, 150 },
             { 128, SkTextBlobRunIterator::kHorizontal_Positioning, 0, 250 },
         };
-        RunBuilderTest(reporter, builder, set5, std::size(set5), mergedSet5,
-                       std::size(mergedSet5));
+        RunBuilderTest(reporter, builder, set5, mergedSet5);
 
         RunDef set6[] = {
             { 128, SkTextBlobRunIterator::kFull_Positioning, 100, 100 },
@@ -101,8 +101,7 @@ public:
         RunDef mergedSet6[] = {
             { 384, SkTextBlobRunIterator::kFull_Positioning, 0, 0 },
         };
-        RunBuilderTest(reporter, builder, set6, std::size(set6), mergedSet6,
-                       std::size(mergedSet6));
+        RunBuilderTest(reporter, builder, set6, mergedSet6);
 
         RunDef set7[] = {
             { 128, SkTextBlobRunIterator::kDefault_Positioning, 100, 150 },
@@ -129,8 +128,7 @@ public:
             { 128, SkTextBlobRunIterator::kHorizontal_Positioning, 0, 650 },
             { 256, SkTextBlobRunIterator::kFull_Positioning, 0, 0 },
         };
-        RunBuilderTest(reporter, builder, set7, std::size(set7), mergedSet7,
-                       std::size(mergedSet7));
+        RunBuilderTest(reporter, builder, set7, mergedSet7);
     }
 
     // This unit test verifies blob bounds computation.
@@ -256,31 +254,32 @@ private:
         SkScalar                                x, y;
     };
 
-    static void RunBuilderTest(skiatest::Reporter* reporter, SkTextBlobBuilder& builder,
-                               const RunDef in[], unsigned inCount,
-                               const RunDef out[], unsigned outCount) {
+    static void RunBuilderTest(skiatest::Reporter* reporter,
+                               SkTextBlobBuilder& builder,
+                               SkSpan<const RunDef> in,
+                               SkSpan<const RunDef> out) {
         SkFont font = ToolUtils::DefaultFont();
 
-        for (unsigned i = 0; i < inCount; ++i) {
-            AddRun(font, in[i].count, in[i].pos, SkPoint::Make(in[i].x, in[i].y), builder);
+        for (const RunDef& run : in) {
+            AddRun(font, run.count, run.pos, SkPoint::Make(run.x, run.y), builder);
         }
 
         sk_sp<SkTextBlob> blob(builder.make());
-        REPORTER_ASSERT(reporter, (inCount > 0) == SkToBool(blob));
+        REPORTER_ASSERT(reporter, !in.empty() == SkToBool(blob));
         if (!blob) {
             return;
         }
 
         SkTextBlobRunIterator it(blob.get());
-        for (unsigned i = 0; i < outCount; ++i) {
+        for (const RunDef& expected : out) {
             REPORTER_ASSERT(reporter, !it.done());
-            REPORTER_ASSERT(reporter, out[i].pos == it.positioning());
-            REPORTER_ASSERT(reporter, out[i].count == it.glyphCount());
-            if (SkTextBlobRunIterator::kDefault_Positioning == out[i].pos) {
-                REPORTER_ASSERT(reporter, out[i].x == it.offset().x());
-                REPORTER_ASSERT(reporter, out[i].y == it.offset().y());
-            } else if (SkTextBlobRunIterator::kHorizontal_Positioning == out[i].pos) {
-                REPORTER_ASSERT(reporter, out[i].y == it.offset().y());
+            REPORTER_ASSERT(reporter, expected.pos == it.positioning());
+            REPORTER_ASSERT(reporter, expected.count == it.glyphCount());
+            if (SkTextBlobRunIterator::kDefault_Positioning == expected.pos) {
+                REPORTER_ASSERT(reporter, expected.x == it.offset().x());
+                REPORTER_ASSERT(reporter, expected.y == it.offset().y());
+            } else if (SkTextBlobRunIterator::kHorizontal_Positioning == expected.pos) {
+                REPORTER_ASSERT(reporter, expected.y == it.offset().y());
             }
 
             for (unsigned k = 0; k < it.glyphCount(); ++k) {

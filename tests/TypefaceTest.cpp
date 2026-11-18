@@ -15,6 +15,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
@@ -644,12 +645,14 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
     // Since this is a limitation of the underlying implementation, for now allow the test to pass
     // with the axis tag count (as opposed to the axis count). Eventually all implementations should
     // pass this test without 'alsoAcceptedAxisTagCount'.
-    auto test = [&](SkTypeface* typeface, const Axis* expected, int expectedCount,
-                    int alsoAcceptedAxisTagCount)
-    {
+    auto test = [&](SkTypeface* typeface,
+                    SkSpan<const Axis> expected,
+                    int alsoAcceptedAxisTagCount) {
         if (!typeface) {
             return;  // Not all SkFontMgr can makeFromStream().
         }
+
+        const int expectedCount = SkToInt(expected.size());
 
         int actualCount = typeface->getVariationDesignParameters({});
         if (actualCount == -1) {
@@ -738,7 +741,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
             Axis(SkSetFourByteTag('w','d','t','h'),  50.0f, 100.0f, 200.0f, false),
         };
         sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(variable), 0);
-        test(typeface.get(), &expected[0], std::size(expected), -1);
+        test(typeface.get(), expected, -1);
     }
 
     // Multiple axes with the same tag (and min, max, default) works.
@@ -756,7 +759,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
             Axis(SkSetFourByteTag('w','g','h','t'), 100.0f, 400.0f, 900.0f, false),
         };
         sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(dupTags), 0);
-        test(typeface.get(), &expected[0], std::size(expected), 1);
+        test(typeface.get(), expected, 1);
     }
 
     // Simple single axis GX variable font.
@@ -770,7 +773,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
             Axis(SkSetFourByteTag('w','g','h','t'), 0.5f, 1.0f, 2.0f, true),
         };
         sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), 0);
-        test(typeface.get(), &expected[0], std::size(expected), -1);
+        test(typeface.get(), expected, -1);
     }
 }
 

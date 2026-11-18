@@ -5,12 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include <cstddef>
-#include <cstdint>
-#include <initializer_list>
-#include <iterator>
-#include <memory>
-
 #include "include/core/SkData.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkStream.h"
@@ -21,6 +15,13 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/fonts/TestFontMgr.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <iterator>
+#include <memory>
 
 using namespace skottie;
 
@@ -527,17 +528,18 @@ DEF_TEST(Skottie_Shaper_ZeroGlyphRuns, r) {
         return;
     }
 
-    static constexpr struct {
+    struct Tests {
         size_t      glyphs,
                     missing;
         const char* text;
-    } kTests[] = {
-        {  0,  0, "\u200e"                          },
-        {  0,  0, "\u200e\u2068"                    },
-        {  3,  0, "\u2068abc"                       },
-        { 13, 13, "أنت \u200e\u2068@wren\u2069 هنا" },
-        {  5,  1, "\u200e\u2068abc\u2069 a"         },
     };
+    static constexpr auto kTests = std::to_array<Tests>({
+            Tests{  0,  0, "\u200e"                          },
+            Tests{  0,  0, "\u200e\u2068"                    },
+            Tests{  3,  0, "\u2068abc"                       },
+            Tests{ 13, 13, "أنت \u200e\u2068@wren\u2069 هنا" },
+            Tests{  5,  1, "\u200e\u2068abc\u2069 a"         },
+    });
 
     for (const auto flags : {Shaper::kNone, Shaper::kFragmentGlyphs}) {
         const Shaper::TextDesc desc = {

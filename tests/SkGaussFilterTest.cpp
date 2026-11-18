@@ -6,6 +6,9 @@
  */
 
 #include "src/core/SkGaussFilter.h"
+
+#include "include/core/SkSpan.h"
+#include "include/private/SkTo.h"
 #include "tests/Test.h"
 
 #include <array>
@@ -18,10 +21,11 @@
 // one part in a million
 static constexpr double kEpsilon = 0.000001;
 
-static double careful_add(int n, double* gauss) {
+static double careful_add(SkSpan<const double> gauss) {
+    SkASSERT(!gauss.empty());
     // Sum smallest to largest to retain precision.
     double sum = 0;
-    for (int i = n - 1; i >= 1; i--) {
+    for (size_t i = gauss.size() - 1; i >= 1; i--) {
         sum += 2.0 * gauss[i];
     }
     sum += gauss[0];
@@ -41,7 +45,7 @@ DEF_TEST(SkGaussFilterCommon, r) {
             result[n++] = d;
         }
         REPORTER_ASSERT(r, static_cast<size_t>(n) == golden.size());
-        double sum = careful_add(n, result.data());
+        double sum = careful_add(SkSpan(result).first(SkToSizeT(n)));
         REPORTER_ASSERT(r, sum == 1.0);
         for (size_t i = 0; i < golden.size(); i++) {
             REPORTER_ASSERT(r, std::abs(golden[i] - result[i]) < kEpsilon);
@@ -74,7 +78,7 @@ DEF_TEST(SkGaussFilterSweep, r) {
             result[n++] = d;
         }
         REPORTER_ASSERT(r, n <= SkGaussFilter::kGaussArrayMax);
-        double sum = careful_add(n, result.data());
+        double sum = careful_add(SkSpan(result).first(SkToSizeT(n)));
         REPORTER_ASSERT(r, sum == 1.0);
     };
 

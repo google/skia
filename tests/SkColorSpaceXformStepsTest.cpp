@@ -10,7 +10,9 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 
 #if defined(SK_GANESH)
@@ -71,7 +73,7 @@ static skcms_TransferFunction trfn_hlg_203() {
   return trfn;
 }
 
-static bool rgba_close(const float* expected, const float* actual) {
+static bool rgba_close(SkSpan<const float, 4> expected, SkSpan<const float, 4> actual) {
     // Allow 1% relative error.
     constexpr float kEpsilon = 0.01f;
     constexpr float kMinDenom = 0.001f;
@@ -350,7 +352,7 @@ static void run_color_space_xform_test(
             std::array<float, 4> xform_rgba = {
                 rec.src_rgba[0], rec.src_rgba[1], rec.src_rgba[2], rec.src_rgba[3]};
             steps.apply(xform_rgba.data());
-            REPORTER_ASSERT(reporter, rgba_close(xform_rgba.data(),  rec.expected_rgba.data()));
+            REPORTER_ASSERT(reporter, rgba_close(xform_rgba, rec.expected_rgba));
             continue;
         }
 
@@ -408,7 +410,10 @@ static void run_color_space_xform_test(
         REPORTER_ASSERT(reporter, rb_result);
 
         const float* rb_rgba = reinterpret_cast<const float*>(rb_bm.pixmap().addr(0, 0));
-        REPORTER_ASSERT(reporter, rgba_close(rb_rgba, rec.expected_rgba.data()));
+        // TODO(crbug.com/582862856): Use a span accessor once SkPixmap provides one.
+        SkSpan<const float> rb_floats = SK_UNSAFE_TODO(SkSpan<const float>(
+                rb_rgba, rb_bm.pixmap().computeByteSize() / sizeof(float)));
+        REPORTER_ASSERT(reporter, rgba_close(rb_floats.first<4>(), rec.expected_rgba));
     }
 }
 

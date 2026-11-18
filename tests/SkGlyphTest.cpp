@@ -27,6 +27,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
@@ -135,19 +136,19 @@ DEF_TEST(SkGlyph_SendWithImage, reporter) {
 
     static constexpr uint8_t X = 0xff;
     static constexpr uint8_t O = 0x00;
-    uint8_t imageData[][8] = {
-        {X,X,X,X,X,X,X,X},
-        {X,O,O,O,O,O,O,X},
-        {X,O,O,O,O,O,O,X},
-        {X,O,O,O,O,O,O,X},
-        {X,O,O,X,X,O,O,X},
-        {X,O,O,O,O,O,O,X},
-        {X,O,O,O,O,O,O,X},
-        {X,O,O,O,O,O,O,X},
-        {X,X,X,X,X,X,X,X},
-    };
+    static constexpr auto imageData = std::to_array<std::array<uint8_t, 8>>({
+            {X, X, X, X, X, X, X, X},
+            {X, O, O, O, O, O, O, X},
+            {X, O, O, O, O, O, O, X},
+            {X, O, O, O, O, O, O, X},
+            {X, O, O, X, X, O, O, X},
+            {X, O, O, O, O, O, O, X},
+            {X, O, O, O, O, O, O, X},
+            {X, O, O, O, O, O, O, X},
+            {X, X, X, X, X, X, X, X},
+    });
 
-    srcGlyph.setImage(&alloc, imageData);
+    srcGlyph.setImage(&alloc, imageData.data());
 
     SkBinaryWriteBuffer writeBuffer({});
     srcGlyph.flattenMetrics(writeBuffer);

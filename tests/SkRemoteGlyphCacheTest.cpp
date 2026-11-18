@@ -71,6 +71,7 @@
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #endif
 
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -79,6 +80,7 @@
 #include <optional>
 #include <vector>
 #include <type_traits>
+
 using namespace skia_private;
 using Slug = sktext::gpu::Slug;
 
@@ -170,7 +172,7 @@ private:
     SkDiscardableHandleId fNextHandleId = 0u;
     SkDiscardableHandleId fLastDeletedHandleId = 0u;
     THashSet<SkDiscardableHandleId> fLockedHandles;
-    int fCacheMissCount[SkStrikeClient::CacheMissType::kLast + 1u];
+    std::array<int, SkStrikeClient::CacheMissType::kLast + 1u> fCacheMissCount;
 };
 
 sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount, int textSize = 1) {

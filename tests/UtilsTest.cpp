@@ -483,10 +483,10 @@ DEF_TEST(SkMakeZip, reporter) {
     const std::vector<int> C = {{20, 30, 40, 50}};
     std::array<int, 4> D = {{100, 200, 300, 400}};
     SkSpan<const int> S = SkSpan(C);
-    uint16_t* P = &A[0];
+    SkSpan<uint16_t> P = A;
     {
         // Check make zip
-        auto zz = SkMakeZip(&A[0], B, C, D, S, P);
+        auto zz = SkMakeZip(&A[0], B, C, D, S, P.data());
 
         int i = 0;
         for (auto [a, b, c, d, s, p] : zz) {

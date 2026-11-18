@@ -14,6 +14,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
@@ -38,7 +39,7 @@ struct SkTestFontData {
     const unsigned char* fVerbs;
     const SkUnichar*     fCharCodes;
     const size_t         fCharCodesCount;
-    const SkFixed*       fWidths;
+    SkSpan<const SkFixed> fWidths;
     const SkFontMetrics& fMetrics;
     const char*          fName;
     SkFontStyle          fStyle;
@@ -54,7 +55,7 @@ public:
 private:
     const SkUnichar*     fCharCodes;
     const size_t         fCharCodesCount;
-    const SkFixed*       fWidths;
+    SkSpan<const SkFixed> fWidths;
     const SkFontMetrics& fMetrics;
     const char*          fName;
     SkPath*              fPaths;
