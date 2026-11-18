@@ -10,6 +10,7 @@
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkSpan.h"
+#include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
@@ -185,6 +186,10 @@ static inline bool check_edge_against_rect(const SkPoint& p0,
         SkScalar xT = v.fX * (rect.fTop - edgeBegin->fY);
         SkScalar yR = v.fY * (rect.fRight - edgeBegin->fX);
         SkScalar xB = v.fX * (rect.fBottom - edgeBegin->fY);
+        // Reject when any product is infinite (or NaN)
+        if (!SkIsFinite(yL, xT, yR, xB)) {
+            return false;
+        }
         if ((xT < yL) || (xT < yR) || (xB < yL) || (xB < yR)) {
             return false;
         }
