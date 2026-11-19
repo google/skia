@@ -50,7 +50,7 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
     SkASSERT(storeOp == StoreOp::kStore);
 
     RenderPassDesc desc;
-    desc.fClearColor = clearColor;
+    desc.fClearColor = writeSwizzle.applyTo(clearColor);
     // Depth and stencil is currently always cleared to 1.f or 0 if it's used. Depth is 1.0 and
     // counts down as painter's order increases due to HW preference for historic OpenGL defaults
     // of a fast hi-z clear value of 1.0 with depth test of lesser.

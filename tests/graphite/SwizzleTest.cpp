@@ -7,7 +7,17 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/Swizzle.h"
+#include "src/gpu/graphite/Surface_Graphite.h"
+#include "src/gpu/graphite/TextureFormat.h"
+#include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/TextureProxyView.h"
 
 namespace skgpu {
 
@@ -58,3 +68,51 @@ DEF_TEST(SwizzleInvertTest, r) {
 }
 
 } // namespace skgpu
+
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SwizzleTest_WriteSwizzleClear,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
+    if (context->supportsProtectedContent()) {
+        return;
+    }
+
+    constexpr int kW = 64;
+    constexpr int kH = 64;
+
+    // Choose kAlpha_8_SkColorType
+    std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();
+    const SkImageInfo ii = SkImageInfo::Make(kW, kH, kAlpha_8_SkColorType, kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), ii);
+    if (!surface) {
+        ERRORF(reporter, "Could not create surface.");
+        return;
+    }
+
+    SkBitmap bm;
+    bm.allocPixels(ii);
+
+    // Reads back the surface and returns alpha at a pixel
+    auto readSurfaceA = [&](int srcX, int srcY) {
+        bm.eraseColor(0);
+        REPORTER_ASSERT(reporter, surface->readPixels(bm, 0, 0));
+        return SkColorGetA(bm.getColor(srcX, srcY));
+    };
+
+    SkCanvas* canvas = surface->getCanvas();
+
+    // Partial alpha clear: Clearing with a=128 should read back as 128 in a
+    canvas->clear(SkColorSetARGB(128, 0, 64, 128));
+    REPORTER_ASSERT(reporter, readSurfaceA(32, 32) == 128);
+
+    // Transparent clear: Clearing with a=0 should read back as 0 in a
+    canvas->clear(SkColorSetARGB(0, 255, 255, 255));
+    REPORTER_ASSERT(reporter, readSurfaceA(32, 32) == 0);
+
+    // Unclipped solid-color drawPaint: Promotes to clear; clearing with black should
+    // read back as 255 in a
+    SkPaint paint;
+    paint.setColor(SK_ColorBLACK);
+    canvas->drawPaint(paint);
+    REPORTER_ASSERT(reporter, readSurfaceA(32, 32) == 255);
+}
