@@ -2999,10 +2999,13 @@ DEF_TEST_SUITE(NearestDecalSubsetSampling,
         return bm;
     };
 
-    // Build a 6x6 image whose outer 1px border is red and inner [1, 1, 5, 5] is blue, then
-    // decal-crop to [1, 1, 5, 5] so decal tiling operates on a strict subset surrounded on all
-    // four sides by red texels in the same backing store (immune to desiredOutput backpropagation).
-    sk_sp<SkDevice> srcDev = r.backend()->makeDevice({6, 6}, colorSpace);
+    // Build a 3x3 red image whose single center texel [1, 1, 2, 2] is blue, then decal-crop to
+    // [1, 1, 2, 2] so decal tiling operates on a strict subset surrounded on all four sides by red
+    // texels in the same backing store (immune to desiredOutput backpropagation). Keeping every
+    // decision edge at texture coordinate <= 2 avoids fp16 fragment precision limits on devices
+    // like Mali-400 (see tests/NearestDecalSubsetTestCases.h).
+    constexpr SkRect kSubset = {1.f, 1.f, 2.f, 2.f};
+    sk_sp<SkDevice> srcDev = r.backend()->makeDevice({3, 3}, colorSpace);
     if (!srcDev) {
         return;
     }
@@ -3012,19 +3015,17 @@ DEF_TEST_SUITE(NearestDecalSubsetSampling,
         SkPaint bluePaint;
         bluePaint.setColor(SK_ColorBLUE);
         bluePaint.setBlendMode(SkBlendMode::kSrc);
-        srcCanvas.drawRect(SkRect::MakeLTRB(1.f, 1.f, 5.f, 5.f), bluePaint);
+        srcCanvas.drawRect(kSubset, bluePaint);
         srcDev->setImmutable();
     }
-    sk_sp<SkSpecialImage> srcSpecial = srcDev->snapSpecial(SkIRect::MakeWH(6, 6));
+    sk_sp<SkSpecialImage> srcSpecial = srcDev->snapSpecial(SkIRect::MakeWH(3, 3));
     if (!srcSpecial) {
         return;
     }
     sk_sp<SkImageFilter> imgFilter =
             SkImageFilters::Image(srcSpecial->asImage(), SkFilterMode::kNearest);
     sk_sp<SkImageFilter> cropFilter =
-            SkImageFilters::Crop(SkRect::MakeLTRB(1.f, 1.f, 5.f, 5.f),
-                                 SkTileMode::kDecal,
-                                 std::move(imgFilter));
+            SkImageFilters::Crop(kSubset, SkTileMode::kDecal, std::move(imgFilter));
 
     auto expectPixel = [&](const SkBitmap& bm, int x, int y, SkColor expected, const char* label) {
         const SkColor actual = bm.getColor(x, y);
@@ -3041,55 +3042,51 @@ DEF_TEST_SUITE(NearestDecalSubsetSampling,
     // Case 1: Fractional translations outside Ganesh's +0.001 near-integer snap bias window but
     // within an 8-bit sub-texel sampler's round-to-nearest window (half of the 1/256 LSB, i.e.
     // 1/512 ~= 0.00195), where hardware would snap the coordinate onto the next texel:
-    // - offset 0.5015 -> local coords k - 0.0015 -> subset [1, 5] lands on pixels [2, 5].
-    // - offset 0.4985 -> local coords k + 0.0015 -> subset [1, 5] lands on pixels [1, 4].
+    // - offset 0.5015 -> local coords k - 0.0015 -> subset [1, 2] lands on pixel 2.
+    // - offset 0.4985 -> local coords k + 0.0015 -> subset [1, 2] lands on pixel 1.
     for (float offset : {0.5015f, 0.4985f}) {
-        const int firstInside = offset > 0.5f ? 2 : 1;
+        const int inside = offset > 0.5f ? 2 : 1;
         sk_sp<SkImageFilter> matrixFilter = SkImageFilters::MatrixTransform(
                 SkMatrix::Translate(offset, offset),
                 SkSamplingOptions(SkFilterMode::kNearest),
                 cropFilter);
-        SkBitmap actual = renderFilteredLayer(std::move(matrixFilter), {8, 8});
+        SkBitmap actual = renderFilteredLayer(std::move(matrixFilter), {4, 4});
         if (!actual.drawsNothing()) {
-            for (int y = 0; y < 8; ++y) {
-                for (int x = 0; x < 8; ++x) {
-                    const bool inside = x >= firstInside && x <= firstInside + 3 &&
-                                        y >= firstInside && y <= firstInside + 3;
-                    const SkColor expected = inside ? SK_ColorBLUE : SK_ColorTRANSPARENT;
+            for (int y = 0; y < 4; ++y) {
+                for (int x = 0; x < 4; ++x) {
+                    const SkColor expected =
+                            (x == inside && y == inside) ? SK_ColorBLUE : SK_ColorTRANSPARENT;
                     expectPixel(actual, x, y, expected, "Case 1");
                 }
             }
         }
     }
 
-    // Case 2: 300x nearest magnification of the strict subset [1, 1, 5, 5] along both X and Y.
+    // Case 2: 300x nearest magnification of the strict subset [1, 1, 2, 2] along both X and Y. The
+    // subset covers device pixels [300, 600) along the magnified axis and pixel 1 along the other.
     {
         sk_sp<SkImageFilter> scaleX = SkImageFilters::MatrixTransform(
-                SkMatrix::Scale(300.f, 1.f),
-                SkSamplingOptions(SkFilterMode::kNearest),
-                cropFilter);
-        SkBitmap actualX = renderFilteredLayer(std::move(scaleX), {1600, 8});
+                SkMatrix::Scale(300.f, 1.f), SkSamplingOptions(SkFilterMode::kNearest), cropFilter);
+        SkBitmap actualX = renderFilteredLayer(std::move(scaleX), {700, 3});
         if (!actualX.drawsNothing()) {
-            expectPixel(actualX, 299,  2, SK_ColorTRANSPARENT, "Case 2 X");
-            expectPixel(actualX, 300,  2, SK_ColorBLUE,        "Case 2 X");
-            expectPixel(actualX, 900,  2, SK_ColorBLUE,        "Case 2 X");
-            expectPixel(actualX, 1498, 2, SK_ColorBLUE,        "Case 2 X");
-            expectPixel(actualX, 1499, 2, SK_ColorBLUE,        "Case 2 X");
-            expectPixel(actualX, 1500, 2, SK_ColorTRANSPARENT, "Case 2 X");
+            expectPixel(actualX, 299, 1, SK_ColorTRANSPARENT, "Case 2 X");
+            expectPixel(actualX, 300, 1, SK_ColorBLUE, "Case 2 X");
+            expectPixel(actualX, 450, 1, SK_ColorBLUE, "Case 2 X");
+            expectPixel(actualX, 598, 1, SK_ColorBLUE, "Case 2 X");
+            expectPixel(actualX, 599, 1, SK_ColorBLUE, "Case 2 X");
+            expectPixel(actualX, 600, 1, SK_ColorTRANSPARENT, "Case 2 X");
         }
 
         sk_sp<SkImageFilter> scaleY = SkImageFilters::MatrixTransform(
-                SkMatrix::Scale(1.f, 300.f),
-                SkSamplingOptions(SkFilterMode::kNearest),
-                cropFilter);
-        SkBitmap actualY = renderFilteredLayer(std::move(scaleY), {8, 1600});
+                SkMatrix::Scale(1.f, 300.f), SkSamplingOptions(SkFilterMode::kNearest), cropFilter);
+        SkBitmap actualY = renderFilteredLayer(std::move(scaleY), {3, 700});
         if (!actualY.drawsNothing()) {
-            expectPixel(actualY, 2, 299,  SK_ColorTRANSPARENT, "Case 2 Y");
-            expectPixel(actualY, 2, 300,  SK_ColorBLUE,        "Case 2 Y");
-            expectPixel(actualY, 2, 900,  SK_ColorBLUE,        "Case 2 Y");
-            expectPixel(actualY, 2, 1498, SK_ColorBLUE,        "Case 2 Y");
-            expectPixel(actualY, 2, 1499, SK_ColorBLUE,        "Case 2 Y");
-            expectPixel(actualY, 2, 1500, SK_ColorTRANSPARENT, "Case 2 Y");
+            expectPixel(actualY, 1, 299, SK_ColorTRANSPARENT, "Case 2 Y");
+            expectPixel(actualY, 1, 300, SK_ColorBLUE, "Case 2 Y");
+            expectPixel(actualY, 1, 450, SK_ColorBLUE, "Case 2 Y");
+            expectPixel(actualY, 1, 598, SK_ColorBLUE, "Case 2 Y");
+            expectPixel(actualY, 1, 599, SK_ColorBLUE, "Case 2 Y");
+            expectPixel(actualY, 1, 600, SK_ColorTRANSPARENT, "Case 2 Y");
         }
     }
 }

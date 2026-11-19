@@ -46,6 +46,14 @@
 // while a dedicated bias-window case checks that neither backend ever leaks out-of-subset texels
 // there. These expectations (and SkImageShader::MakeSubset itself) are GPU-specific and must not
 // be run against raster backends.
+//
+// Every border-vs-texel decision edge that is approached from below is kept at a texture
+// coordinate <= 2. GPUs whose fragment shaders only have fp16 floats (e.g. Mali-400) can't resolve
+// coordinates within ~1/600 texel of larger edges: just below 3 or 4 the +0.001 bias rounds up a
+// full fp16 step (1/512) onto the integer, and just below 5 round-to-nearest conversion alone
+// lands on 5.0. The magnified and fractional-translation cases therefore use a 3x3 source whose
+// single blue center texel [1, 2] x [1, 2] is the subset; it is surrounded by red texels and is its
+// own Y-flip, so bottom-left origin sources see the same edges.
 namespace skiatest::NearestDecalSubset {
 
 struct Factories {
@@ -72,10 +80,12 @@ inline void DrawSolidRect(SkSurface* surface, const SkRect& rect, SkColor color)
     surface->getCanvas()->drawRect(rect, paint);
 }
 
-// Builds a 6x6 image cleared to red and then filled with each (rect, color) pair in order.
+// Builds a `size` x `size` image cleared to red and then filled with each (rect, color) pair in
+// order.
 inline sk_sp<SkImage> MakeSourceImage(const Factories& factories,
+                                      int size,
                                       std::initializer_list<std::pair<SkRect, SkColor>> fills) {
-    sk_sp<SkSurface> surface = factories.makeSourceSurface(MakeInfo(6, 6));
+    sk_sp<SkSurface> surface = factories.makeSourceSurface(MakeInfo(size, size));
     if (!surface) {
         return nullptr;
     }
@@ -158,46 +168,47 @@ inline void Run(Reporter* reporter, const Factories& factories) {
     SkASSERT(factories.makeSourceSurface && factories.makeTargetSurface && factories.makeImage);
     using namespace detail;
 
-    constexpr SkRect kSubset = {1.f, 1.f, 5.f, 5.f};
-
-    // Surround the [1, 1, 5, 5] blue subset with a 1px red border so any out-of-subset read
-    // produces red.
-    sk_sp<SkImage> srcImage = MakeSourceImage(factories, {{kSubset, SK_ColorBLUE}});
+    // A 3x3 red image whose single center texel [1, 2] x [1, 2] is blue, so any out-of-subset read
+    // produces red. All decision edges are at texture coordinates 1 and 2 for both surface origins
+    // (see the comment at the top of this file).
+    constexpr SkRect kSubset = {1.f, 1.f, 2.f, 2.f};
+    sk_sp<SkImage> srcImage = MakeSourceImage(factories, /*size=*/3, {{kSubset, SK_ColorBLUE}});
     REPORTER_ASSERT(reporter, srcImage);
     if (!srcImage) {
         return;
     }
 
-    // 1. Fractional translations into an 8x8 target:
-    // (a) ±0.0015 sits outside Ganesh's +0.001 near-integer snap bias window while staying inside
-    //     8-bit fixed-point hardware rounding (1/512 ≈ 0.00195):
-    //     - 0.5015 places local coords at k - 0.0015 (texture-space coords just below integers for
-    //       top-left sources and just above for bottom-left sources), mapping [1, 5] onto [2, 5].
-    //     - 0.4985 places local coords at k + 0.0015 (texture-space coords just above integers for
-    //       top-left sources and just below for bottom-left sources), mapping [1, 5] onto [1, 4].
-    // (b) ±0.0005 sits inside Ganesh's +0.001 bias window (e.g. texture-space 0.9995 < 1.0 is
-    //     treated as inside by Ganesh's border test while samplers with more than ~10 bits of
-    //     sub-texel precision, or that truncate rather than round, would read red texel 0 without
-    //     coordinate clamping). Because +0.001 shifts both integer subset edges (0.9995 at index 1
-    //     and 4.9995 at index 5, mapping [1, 5] to [1, 4] vs. Graphite's [2, 5]), the 1px boundary
-    //     ring of [1, 5] x [1, 5] (for 0.4995 only the Y boundary rows, since X is at k + 0.0005)
-    //     may be blue or transparent depending on backend and origin, while the remaining interior
-    //     must be blue and everything outside must be transparent.
-    if (sk_sp<SkSurface> dst8x8 = factories.makeTargetSurface(MakeInfo(8, 8))) {
+    // 1. Fractional translations into a 4x4 target:
+    // (a) +/-0.0015 sits outside Ganesh's +0.001 near-integer snap bias window while staying inside
+    //     8-bit fixed-point hardware rounding (half of the 1/256 LSB, i.e. 1/512 ~= 0.00195):
+    //     - 0.5015 places local coords at k - 0.0015, mapping the subset onto pixel 2. For top-left
+    //       sources pixel 2 samples 1.9985, which 8-bit rounding samplers would snap onto red
+    //       texel 2 without coordinate clamping.
+    //     - 0.4985 places local coords at k + 0.0015, mapping the subset onto pixel 1. For
+    //       bottom-left sources pixel 1 samples texture-space 1.9985 (3 - 1.0015), with the same
+    //       leak.
+    // (b) +/-0.0005 sits inside Ganesh's +0.001 bias window (e.g. 0.9995 < 1.0 is treated as
+    //     inside by Ganesh's border test, while samplers with more than ~10 bits of sub-texel
+    //     precision, or that truncate rather than round, would read red texel 0 without coordinate
+    //     clamping). Ganesh and Graphite intentionally disagree on which of pixels 1 and 2 shows
+    //     the texel along each axis, so exactly one pixel in [1, 2] x [1, 2] must be blue and every
+    //     other pixel must be transparent.
+    if (sk_sp<SkSurface> dst4x4 = factories.makeTargetSurface(MakeInfo(4, 4))) {
         for (float offset : {0.5015f, 0.4985f}) {
-            const int firstInside = offset > 0.5f ? 2 : 1;
+            const int inside = offset > 0.5f ? 2 : 1;
             const SkMatrix localMatrix = SkMatrix::Translate(offset, offset);
             SkString label = SkStringPrintf("FracTranslate %.4f", offset);
             CheckShaderWindow(
                     reporter,
-                    dst8x8.get(),
-                    MakeNearestSubsetShader(
-                            srcImage, kSubset, SkTileMode::kDecal, SkTileMode::kDecal, &localMatrix),
+                    dst4x4.get(),
+                    MakeNearestSubsetShader(srcImage,
+                                            kSubset,
+                                            SkTileMode::kDecal,
+                                            SkTileMode::kDecal,
+                                            &localMatrix),
                     /*canvasOffset=*/{0.f, 0.f},
-                    [firstInside](int x, int y) {
-                        const bool inside = x >= firstInside && x <= firstInside + 3 &&
-                                            y >= firstInside && y <= firstInside + 3;
-                        return inside ? SK_ColorBLUE : SK_ColorTRANSPARENT;
+                    [inside](int x, int y) {
+                        return (x == inside && y == inside) ? SK_ColorBLUE : SK_ColorTRANSPARENT;
                     },
                     label.c_str());
         }
@@ -205,46 +216,47 @@ inline void Run(Reporter* reporter, const Factories& factories) {
         for (float offset : {0.5005f, 0.4995f}) {
             const SkMatrix localMatrix = SkMatrix::Translate(offset, offset);
             SkString label = SkStringPrintf("FracTranslateBiasWindow %.4f", offset);
+            int blueCount = 0;
             CheckShaderWindow(
                     reporter,
-                    dst8x8.get(),
-                    MakeNearestSubsetShader(
-                            srcImage, kSubset, SkTileMode::kDecal, SkTileMode::kDecal, &localMatrix),
+                    dst4x4.get(),
+                    MakeNearestSubsetShader(srcImage,
+                                            kSubset,
+                                            SkTileMode::kDecal,
+                                            SkTileMode::kDecal,
+                                            &localMatrix),
                     /*canvasOffset=*/{0.f, 0.f},
-                    [offset](int x, int y, SkColor actual) {
-                        // X is only in the [k - 0.001, k) bias window for 0.5005; for 0.4995 local
-                        // X is k + 0.0005, so both backends agree X is inside [1, 4]. Y can hit
-                        // the bias window for either offset (top-left on 0.5005, bottom-left on
-                        // 0.4995).
-                        const int minX = 1;
-                        const int maxX = offset > 0.5f ? 5 : 4;
-                        if (x < minX || x > maxX || y < 1 || y > 5) {
-                            return actual == SK_ColorTRANSPARENT;
+                    [&blueCount](int x, int y, SkColor actual) {
+                        const bool candidate = x >= 1 && x <= 2 && y >= 1 && y <= 2;
+                        if (candidate && actual == SK_ColorBLUE) {
+                            ++blueCount;
+                            return true;
                         }
-                        const int strictMinX = offset > 0.5f ? 2 : 1;
-                        if (x >= strictMinX && x <= 4 && y >= 2 && y <= 4) {
-                            return actual == SK_ColorBLUE;
-                        }
-                        return actual == SK_ColorBLUE || actual == SK_ColorTRANSPARENT;
+                        return actual == SK_ColorTRANSPARENT;
                     },
                     label.c_str());
+            REPORTER_ASSERT(reporter,
+                            blueCount == 1,
+                            "%s: expected exactly 1 blue pixel, got %d",
+                            label.c_str(),
+                            blueCount);
         }
     }
 
     // 2. High-magnification (300x) nearest upscale around both the top-left (300, 300) and
-    // bottom-right (1500, 1500) subset corners, across Decal paired with Decal, Clamp, Repeat, and
-    // Mirror. With 8 bits of sub-texel precision, 300x places the outermost fragment center at
-    // 5 - 0.5/300 (≈ 4.99833), outside Ganesh's 0.001 snap bias window yet within 1/600 texel
+    // bottom-right (600, 600) subset corners, across Decal paired with Decal, Clamp, Repeat, and
+    // Mirror. With 8 bits of sub-texel precision, 300x places the outermost inside fragment center
+    // at 2 - 0.5/300 (~= 1.99833), outside Ganesh's 0.001 snap bias window yet within 1/600 texel
     // (< 1/256 sampler LSB, and < 1/512 round-to-nearest threshold) of the subset edge, where
     // hardware fixed-point conversion rounds onto the next texel unless clamped.
     if (sk_sp<SkSurface> winSurface = factories.makeTargetSurface(MakeInfo(16, 16))) {
         constexpr std::pair<SkTileMode, SkTileMode> kTileCombos[] = {
-                {SkTileMode::kDecal,  SkTileMode::kDecal},
-                {SkTileMode::kDecal,  SkTileMode::kClamp},
-                {SkTileMode::kClamp,  SkTileMode::kDecal},
-                {SkTileMode::kDecal,  SkTileMode::kRepeat},
+                {SkTileMode::kDecal, SkTileMode::kDecal},
+                {SkTileMode::kDecal, SkTileMode::kClamp},
+                {SkTileMode::kClamp, SkTileMode::kDecal},
+                {SkTileMode::kDecal, SkTileMode::kRepeat},
                 {SkTileMode::kRepeat, SkTileMode::kDecal},
-                {SkTileMode::kDecal,  SkTileMode::kMirror},
+                {SkTileMode::kDecal, SkTileMode::kMirror},
                 {SkTileMode::kMirror, SkTileMode::kDecal},
         };
         constexpr float kScale = 300.f;
@@ -254,9 +266,9 @@ inline void Run(Reporter* reporter, const Factories& factories) {
                     MakeNearestSubsetShader(srcImage, kSubset, tmx, tmy, &localMatrix);
 
             // Inspect 16x16 windows centered on the scaled subset's top-left (300, 300) and
-            // bottom-right (1500, 1500) corners.
+            // bottom-right (600, 600) corners.
             for (bool bottomRight : {false, true}) {
-                const float edge = bottomRight ? 5.f * kScale : kScale;
+                const float edge = bottomRight ? 2.f * kScale : kScale;
                 SkString label = SkStringPrintf("scale=%.0f tm=(%d,%d) br=%d",
                                                 kScale,
                                                 static_cast<int>(tmx),
@@ -282,12 +294,14 @@ inline void Run(Reporter* reporter, const Factories& factories) {
     // 3. Fractional subsets: on GPU (both Ganesh and Graphite), the clamp uses
     // floor/ceil(subset) while the border test compares the snapped texel center against the
     // fractional subset bounds (an intentional GPU behavior that includes whole texels iff
-    // their center lies inside the subset). Build a 6x6 image with outer ring [0..6] red,
-    // middle ring [1..5] green (texel centers 1.5 and 4.5), and inner [2..4] blue (texel
-    // centers 2.5 and 3.5).
+    // their center lies inside the subset). These draw at 1:1 so every sample is at a texel center
+    // (k + 0.5), far from any decision edge. Build a 6x6 image with outer ring [0..6] red, middle
+    // ring [1..5] green (texel centers 1.5 and 4.5), and inner [2..4] blue (texel centers 2.5 and
+    // 3.5).
     {
         sk_sp<SkImage> ringedImage =
                 MakeSourceImage(factories,
+                                /*size=*/6,
                                 {{SkRect{1.f, 1.f, 5.f, 5.f}, SK_ColorGREEN},
                                  {SkRect{2.f, 2.f, 4.f, 4.f}, SK_ColorBLUE}});
         sk_sp<SkSurface> dst6x6 = factories.makeTargetSurface(MakeInfo(6, 6));
@@ -296,8 +310,10 @@ inline void Run(Reporter* reporter, const Factories& factories) {
                 return (x >= 2 && x <= 3 && y >= 2 && y <= 3) ? SK_ColorBLUE : SK_ColorGREEN;
             };
             auto checkFracSubset = [&](const SkRect& subset,
-                                       int firstX, int lastX,
-                                       int firstY, int lastY,
+                                       int firstX,
+                                       int lastX,
+                                       int firstY,
+                                       int lastY,
                                        const char* label) {
                 CheckShaderWindow(
                         reporter,
@@ -329,31 +345,26 @@ inline void Run(Reporter* reporter, const Factories& factories) {
         }
     }
 
-    // 4. Sub-texel subsets (< 1 texel wide/tall): [2.2, 2.2, 2.8, 2.8] collapses the clamp
-    // rect to the single texel center (2.5, 2.5) while surrounded on all sides by red texels.
-    // Because GPU decal compares the snapped texel center (2.5) against [2.2, 2.8], texel 2
-    // fills the entire [600, 900) device range at 300x.
+    // 4. Sub-texel subsets (< 1 texel wide/tall) of the 3x3 source: [1.2, 1.2, 1.8, 1.8] collapses
+    // the clamp rect to the single texel center (1.5, 1.5) while surrounded on all sides by red
+    // texels. Because GPU decal compares the snapped texel center (1.5) against [1.2, 1.8], texel 1
+    // fills the entire [300, 600) device range at 300x.
     {
-        sk_sp<SkImage> singleTexelImage =
-                MakeSourceImage(factories, {{SkRect{2.f, 2.f, 3.f, 3.f}, SK_ColorBLUE}});
         sk_sp<SkSurface> winSurface = factories.makeTargetSurface(MakeInfo(16, 16));
-        sk_sp<SkSurface> dst6x6 = factories.makeTargetSurface(MakeInfo(6, 6));
-        if (singleTexelImage && winSurface && dst6x6) {
-            constexpr SkRect kSubTexelSubset = {2.2f, 2.2f, 2.8f, 2.8f};
+        sk_sp<SkSurface> dst3x3 = factories.makeTargetSurface(MakeInfo(3, 3));
+        if (winSurface && dst3x3) {
+            constexpr SkRect kSubTexelSubset = {1.2f, 1.2f, 1.8f, 1.8f};
             const SkMatrix scale300 = SkMatrix::Scale(300.f, 300.f);
-            sk_sp<SkShader> subTexelShader = MakeNearestSubsetShader(singleTexelImage,
-                                                                     kSubTexelSubset,
-                                                                     SkTileMode::kDecal,
-                                                                     SkTileMode::kDecal,
-                                                                     &scale300);
+            sk_sp<SkShader> subTexelShader = MakeNearestSubsetShader(
+                    srcImage, kSubTexelSubset, SkTileMode::kDecal, SkTileMode::kDecal, &scale300);
 
-            // Check both the top-left (600, 600) and bottom-right (900, 900) corners of the
-            // magnified texel [600, 900) x [600, 900).
+            // Check both the top-left (300, 300) and bottom-right (600, 600) corners of the
+            // magnified texel [300, 600) x [300, 600).
             CheckShaderWindow(
                     reporter,
                     winSurface.get(),
                     subTexelShader,
-                    /*canvasOffset=*/{-(600.f - 8.f), -(600.f - 8.f)},
+                    /*canvasOffset=*/{-(300.f - 8.f), -(300.f - 8.f)},
                     [](int x, int y) {
                         return (x >= 8 && y >= 8) ? SK_ColorBLUE : SK_ColorTRANSPARENT;
                     },
@@ -362,18 +373,18 @@ inline void Run(Reporter* reporter, const Factories& factories) {
                     reporter,
                     winSurface.get(),
                     std::move(subTexelShader),
-                    /*canvasOffset=*/{-(900.f - 8.f), -(900.f - 8.f)},
+                    /*canvasOffset=*/{-(600.f - 8.f), -(600.f - 8.f)},
                     [](int x, int y) {
                         return (x < 8 && y < 8) ? SK_ColorBLUE : SK_ColorTRANSPARENT;
                     },
                     "SubTexel 300x BottomRight");
 
-            // [2.6, 2.6, 3.4, 3.4] straddles a texel boundary without containing any texel
-            // center (2.5 < 2.6 and 3.5 > 3.4): every pixel must resolve to border.
+            // [1.6, 1.6, 2.4, 2.4] straddles a texel boundary without containing any texel
+            // center (1.5 < 1.6 and 2.5 > 2.4): every pixel must resolve to border.
             CheckShaderWindow(reporter,
-                              dst6x6.get(),
-                              MakeNearestSubsetShader(singleTexelImage,
-                                                      {2.6f, 2.6f, 3.4f, 3.4f},
+                              dst3x3.get(),
+                              MakeNearestSubsetShader(srcImage,
+                                                      {1.6f, 1.6f, 2.4f, 2.4f},
                                                       SkTileMode::kDecal,
                                                       SkTileMode::kDecal,
                                                       /*localMatrix=*/nullptr),
