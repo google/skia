@@ -5,7 +5,7 @@
 use read_fonts::{
     tables::{
         bitmap::{BitmapContent, BitmapData, BitmapDataFormat, BitmapMetrics, BitmapSize},
-        sbix::{GlyphData, Strike},
+        sbix::GlyphData,
     },
     FontRef, TableProvider,
 };
@@ -59,9 +59,9 @@ impl StrikeSizeRetrievable for &BitmapSize {
     }
 }
 
-impl StrikeSizeRetrievable for Strike<'_> {
+impl StrikeSizeRetrievable for SbixGlyph<'_> {
     fn strike_size(&self) -> f32 {
-        self.ppem() as f32
+        self.ppem as f32
     }
 }
 
@@ -94,17 +94,18 @@ fn sbix_glyph<'a>(
     font_size: Option<f32>,
 ) -> Option<SbixGlyph<'a>> {
     let sbix = font_ref.sbix().ok()?;
-    let mut strikes = sbix.strikes().iter().filter_map(|strike| strike.ok());
+    let mut strikes = sbix.strikes().iter().filter_map(|strike| {
+        let strike = strike.ok()?;
+        Some(SbixGlyph {
+            ppem: strike.ppem(),
+            glyph_data: strike.glyph_data(glyph_id).ok()??,
+        })
+    });
 
-    let best_strike = match font_size {
+    match font_size {
         Some(size) => best_strike_size(strikes, size),
         _ => strikes.next(),
-    }?;
-
-    Some(SbixGlyph {
-        ppem: best_strike.ppem(),
-        glyph_data: best_strike.glyph_data(glyph_id).ok()??,
-    })
+    }
 }
 
 fn cblc_glyph<'a>(
@@ -327,5 +328,118 @@ pub fn alpha_mask_size(bitmap_glyph: &BridgeBitmapGlyph) -> AlphaBitmapSize {
             height: *height,
         },
         _ => AlphaBitmapSize::default(),
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::fs;
+
+    use font_types::{GlyphId, Tag};
+    use read_fonts::{FontRef, Offset, TableProvider};
+
+    use crate::{
+        bitmap::{bitmap_glyph, bitmap_metrics, has_bitmap_glyph, png_data},
+        font_ref_is_valid, make_font_ref,
+    };
+
+    const TEST_SBIX_FILENAME: &str = "resources/fonts/sbix.ttf";
+    const LAST_GLYPH_ID: u16 = 3;
+
+    // Zeroes out the last glyph's data range in `strike_index` by setting its
+    // end offset equal to its start offset in `glyphDataOffsets`.
+    fn clear_last_sbix_glyph_in_strike(font_buffer: &mut [u8], strike_index: usize) {
+        let (start_offset, end_offset_pos) = {
+            let font = FontRef::new(font_buffer).unwrap();
+            let sbix_record = font
+                .table_directory
+                .table_records()
+                .iter()
+                .find(|r| r.tag() == Tag::new(b"sbix"))
+                .unwrap();
+            let sbix_offset = sbix_record.offset() as usize;
+            let sbix = font.sbix().unwrap();
+            let strike_offset =
+                sbix_offset + sbix.strike_offsets()[strike_index].get().to_usize();
+            let strike = sbix.strikes().get(strike_index).unwrap();
+            let offsets = strike.glyph_data_offsets();
+            let last_glyph_index = offsets.len() - 2;
+            assert_eq!(last_glyph_index, LAST_GLYPH_ID as usize);
+            let start = offsets[last_glyph_index].get();
+            // Strike header is ppem (u16) + ppi (u16) = 4 bytes, followed by
+            // glyphDataOffsets: [Offset32; numGlyphs + 1].
+            let end_pos = strike_offset + 4 + (last_glyph_index + 1) * 4;
+            (start, end_pos)
+        };
+        font_buffer[end_offset_pos..end_offset_pos + 4]
+            .copy_from_slice(&start_offset.to_be_bytes());
+
+        let font = FontRef::new(font_buffer).unwrap();
+        let strike = font.sbix().unwrap().strikes().get(strike_index).unwrap();
+        assert!(strike
+            .glyph_data(GlyphId::from(LAST_GLYPH_ID))
+            .unwrap()
+            .is_none());
+    }
+
+    #[test]
+    fn test_sbix_sparse_strikes() {
+        let base_buffer =
+            fs::read(TEST_SBIX_FILENAME).expect("sbix test font could not be opened.");
+
+        // Strike 0 (16 ppem) is empty for LAST_GLYPH_ID; strikes 1 (64 ppem)
+        // and 2 (128 ppem) are populated.
+        let mut missing_first_strike = base_buffer.clone();
+        clear_last_sbix_glyph_in_strike(&mut missing_first_strike, 0);
+        let font_ref = make_font_ref(&missing_first_strike, 0);
+        assert!(font_ref_is_valid(&font_ref));
+        assert!(has_bitmap_glyph(&font_ref, LAST_GLYPH_ID));
+        unsafe {
+            let glyph_at_16 = bitmap_glyph(&font_ref, LAST_GLYPH_ID, 16.0);
+            assert!(!png_data(&glyph_at_16).is_empty());
+            assert_eq!(bitmap_metrics(&glyph_at_16).ppem_x, 64.0);
+            assert_eq!(bitmap_metrics(&glyph_at_16).ppem_y, 64.0);
+
+            let glyph_at_64 = bitmap_glyph(&font_ref, LAST_GLYPH_ID, 64.0);
+            assert!(!png_data(&glyph_at_64).is_empty());
+            assert_eq!(bitmap_metrics(&glyph_at_64).ppem_x, 64.0);
+
+            let glyph_at_128 = bitmap_glyph(&font_ref, LAST_GLYPH_ID, 128.0);
+            assert!(!png_data(&glyph_at_128).is_empty());
+            assert_eq!(bitmap_metrics(&glyph_at_128).ppem_x, 128.0);
+        }
+
+        // Strike 1 (64 ppem) is empty for LAST_GLYPH_ID; strikes 0 (16 ppem)
+        // and 2 (128 ppem) are populated. Requesting 64 ppem should select the
+        // nearest larger populated strike (128 ppem).
+        let mut missing_middle_strike = base_buffer;
+        clear_last_sbix_glyph_in_strike(&mut missing_middle_strike, 1);
+        let font_ref = make_font_ref(&missing_middle_strike, 0);
+        assert!(has_bitmap_glyph(&font_ref, LAST_GLYPH_ID));
+        unsafe {
+            let glyph_at_64 = bitmap_glyph(&font_ref, LAST_GLYPH_ID, 64.0);
+            assert!(!png_data(&glyph_at_64).is_empty());
+            assert_eq!(bitmap_metrics(&glyph_at_64).ppem_x, 128.0);
+        }
+
+        // Also clear strike 2 (128 ppem), leaving only strike 0 (16 ppem).
+        // Requesting 64 ppem should fall back to the smaller populated strike.
+        clear_last_sbix_glyph_in_strike(&mut missing_middle_strike, 2);
+        let font_ref = make_font_ref(&missing_middle_strike, 0);
+        assert!(has_bitmap_glyph(&font_ref, LAST_GLYPH_ID));
+        unsafe {
+            let glyph_at_64 = bitmap_glyph(&font_ref, LAST_GLYPH_ID, 64.0);
+            assert!(!png_data(&glyph_at_64).is_empty());
+            assert_eq!(bitmap_metrics(&glyph_at_64).ppem_x, 16.0);
+        }
+
+        // Clear the remaining strike so no strikes contain data for LAST_GLYPH_ID.
+        clear_last_sbix_glyph_in_strike(&mut missing_middle_strike, 0);
+        let font_ref = make_font_ref(&missing_middle_strike, 0);
+        assert!(!has_bitmap_glyph(&font_ref, LAST_GLYPH_ID));
+        unsafe {
+            let glyph_at_16 = bitmap_glyph(&font_ref, LAST_GLYPH_ID, 16.0);
+            assert!(png_data(&glyph_at_16).is_empty());
+        }
     }
 }
