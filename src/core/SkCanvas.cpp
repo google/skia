@@ -999,7 +999,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
             // Add a buffer of padding so that image filtering can avoid accessing unitialized data
             // and switch from shader-decal'ing to clamping.
             auto paddedLayerBounds = layerBounds;
-            paddedLayerBounds.outset(skif::LayerSpace<SkISize>({1, 1}));
+            paddedLayerBounds.outset(skif::LayerSpace<SkISize>::Padding());
             if (paddedLayerBounds.left() < layerBounds.left() &&
                 paddedLayerBounds.top() < layerBounds.top() &&
                 paddedLayerBounds.right() > layerBounds.right() &&
@@ -1055,7 +1055,8 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
     // Clip while the device coordinate space is the identity so it's easy to define the rect that
     // excludes the added padding pixels. This ensures they remain cleared to transparent black.
     if (paddedLayer) {
-        newDevice->clipRect(SkRect::Make(newDevice->devClipBounds().makeInset(1, 1)),
+        newDevice->clipRect(SkRect::Make(newDevice->devClipBounds().makeInset(skif::kLayerPadding,
+                                                                              skif::kLayerPadding)),
                             SkClipOp::kIntersect, /*aa=*/false);
     }
 

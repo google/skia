@@ -625,7 +625,7 @@ public:
     }
 
 private:
-    int padding() const { return fBoundary == PixelBoundary::kUnknown ? 0 : 1; }
+    int padding() const { return fBoundary == PixelBoundary::kUnknown ? 0 : kLayerPadding; }
 
     std::optional<SkCanvas> fCanvas;
     LayerSpace<SkIRect> fDstBounds; // includes padding, if any
@@ -657,7 +657,7 @@ FilterResult FilterResult::insetForSaveLayer() const {
 
     // PixelBoundary tracking assumes the special image's subset does not include the padding, so
     // inset by a single pixel.
-    FilterResult inset = this->insetByPixel();
+    FilterResult inset = this->insetByPixels(kLayerPadding);
     // Trust that SkCanvas configured the layer's SkDevice to ensure the padding remained
     // transparent. Upgrading this pixel boundary knowledge allows the source image to use the
     // simpler clamp math (vs. decal math) when used in a shader context.
@@ -667,11 +667,11 @@ FilterResult FilterResult::insetForSaveLayer() const {
     return inset;
 }
 
-FilterResult FilterResult::insetByPixel() const {
+FilterResult FilterResult::insetByPixels(int n) const {
     // This assumes that the image is pixel aligned with its layer bounds, which is validated in
     // the call to subset().
     auto insetBounds = fLayerBounds;
-    insetBounds.inset(LayerSpace<SkISize>({1, 1}));
+    insetBounds.inset(LayerSpace<SkISize>({n, n}));
      // Shouldn't be calling this except in situations where padding was explicitly added before.
     SkASSERT(!insetBounds.isEmpty());
     return this->subset(fLayerBounds.topLeft(), insetBounds);
@@ -826,7 +826,7 @@ SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
 
     // Include the padding for sampling analysis
     if (hasPixelPadding) {
-        safeImageBounds.outset(1.f, 1.f);
+        safeImageBounds.outset(kLayerPadding, kLayerPadding);
     }
     // Inset the dst by 1/2 px to represent where shader sampling is evaluated at.
     pixelCenterBounds.inset(kHalfPixel, kHalfPixel);
@@ -1004,7 +1004,7 @@ FilterResult FilterResult::applyColorFilter(const Context& ctx,
             // Since 'colorFilter' modifies transparent black, the new result's layer bounds must
             // be the desired output. But if the current image is cropped we need to resolve the
             // image to avoid losing the effect of the current 'fLayerBounds'.
-            newLayerBounds.outset(LayerSpace<SkISize>({1, 1}));
+            newLayerBounds.outset(LayerSpace<SkISize>::Padding());
             SkAssertResult(newLayerBounds.intersect(ctx.desiredOutput()));
             FilterResult filtered = this->resolve(ctx, newLayerBounds, /*preserveDstBounds=*/true);
             filtered.fColorFilter = std::move(colorFilter);
@@ -1224,7 +1224,7 @@ FilterResult FilterResult::subset(const LayerSpace<SkIPoint>& knownOrigin,
         // If the new pixel bounds are bordered by valid data, upgrade to kInitialized
         SkIRect safeSubset = fImage->subset();
         if (fBoundary == PixelBoundary::kUnknown) {
-            safeSubset.inset(1, 1);
+            safeSubset.inset(kLayerPadding, kLayerPadding);
         }
         if (safeSubset.contains(result.fImage->subset())) {
             result.fBoundary = PixelBoundary::kInitialized;
@@ -1337,16 +1337,15 @@ void FilterResult::draw(const Context& ctx,
                 paint.setBlendMode(SkBlendMode::kSrc);
 #endif
             }
+
+            // When there are 2 pixels of transparency; we'll draw at a 1px non-AA outset so that
+            // sampling falls between the two, so no strict clamping is needed. When
+            // canClampToTransparentBoundary() is true, there's no scale factor so the amount of
+            // extrapolation into the remaining 2nd padding pixel is bounded and safe.
             netTransform.preTranslate(-1.f, -1.f);
-            // makePixelOutset() consumes the 1px transparent border, so if the draw is not
-            // pixel-aligned, clamp to the outset subset so filtering or clip-induced AA
-            // outsetting cannot sample beyond the 1px border (analyzeBounds() relies on this when
-            // returning early for canUseTransparentPadding). This is not recorded via
-            // ctx.markShaderBasedTilingRequired() because Stats tracks when kRequiresShaderTiling
-            // prevented using the transparent border optimization.
-            SkCanvas::SrcRectConstraint constraint = pixelAligned
+            SkCanvas::SrcRectConstraint constraint = kLayerPadding > 1 || pixelAligned
                     ? SkCanvas::kFast_SrcRectConstraint
-                    : SkCanvas::kStrict_SrcRectConstraint;
+                    : SkCanvas::kStrict_SrcRectConstraint; // Only 1px of padding must be strict
             device->drawSpecial(fImage->makePixelOutset().get(), netTransform, sampling, paint,
                                 constraint);
         } else {
@@ -1457,12 +1456,14 @@ sk_sp<SkShader> FilterResult::getAnalyzedShaderView(
     const bool strict = SkToBool(analysis & BoundsAnalysis::kRequiresShaderTiling);
 
     sk_sp<SkShader> imageShader;
-    if (strict && decalClampToTransparent) {
-        // Make the image shader apply to the 1px outset so that the strict subset includes the
-        // transparent pixels.
-        preDecal.preTranslate(-1.f, -1.f);
-        imageShader = fImage->makePixelOutset()->asShader(SkTileMode::kClamp, finalSampling,
-                                                          preDecal, strict);
+    if ((kLayerPadding > 1 || strict) && decalClampToTransparent) {
+        // Make the image shader apply to the full outset so that the strict subset includes the
+        // transparent pixels. If it doesn't need to be strict, only outset by 1px to match the
+        // behavior in FilterResult::draw().
+        const int outset = strict ? kLayerPadding : 1;
+        preDecal.preTranslate(-outset, -outset);
+        imageShader = fImage->makePixelOutset(outset)->asShader(SkTileMode::kClamp, finalSampling,
+                                                                preDecal, strict);
         effectiveTileMode = SkTileMode::kClamp;
     } else {
         if (!(analysis & BoundsAnalysis::kDstBoundsNotCovered) ||
@@ -1557,17 +1558,17 @@ void draw_color_filtered_border(SkCanvas* canvas,
     cfOnly.setBlendMode(SkBlendMode::kSrc);
 #endif
 
-    canvas->drawIRect({border.left(),      border.top(),
-                       border.right(),     border.top() + 1},
+    canvas->drawIRect({border.left(),                  border.top(),
+                       border.right(),                 border.top() +    kLayerPadding},
                        cfOnly); // Top (with corners)
-    canvas->drawIRect({border.left(),      border.bottom() - 1,
-                       border.right(),     border.bottom()},
+    canvas->drawIRect({border.left(),                  border.bottom() - kLayerPadding,
+                       border.right(),                 border.bottom()},
                        cfOnly); // Bottom (with corners)
-    canvas->drawIRect({border.left(),      border.top() + 1,
-                       border.left() + 1,  border.bottom() - 1},
+    canvas->drawIRect({border.left(),                  border.top()    + kLayerPadding,
+                       border.left() + kLayerPadding,  border.bottom() - kLayerPadding},
                        cfOnly); // Left (no corners)
-    canvas->drawIRect({border.right() - 1, border.top() + 1,
-                       border.right(),     border.bottom() - 1},
+    canvas->drawIRect({border.right() - kLayerPadding, border.top()    + kLayerPadding,
+                       border.right(),                 border.bottom() - kLayerPadding},
                        cfOnly); // Right (no corners)
 }
 
@@ -1579,6 +1580,21 @@ void draw_tiled_border(SkCanvas* canvas,
                        PixelSpace<SkRect> dstBorder) {
     SkASSERT(tileMode != SkTileMode::kDecal); // There are faster ways for just transparent black
 
+    // Conceptually we want to point sample `src`, or sample along a line in `src`, but that would
+    // imply the srcRect parameter to drawImageRect or SkMatrix::RectToRect() is empty, leading to
+    // a non-invertible transform. Skia doesn't make it easy to define separate texture coordinates
+    // that can be an empty shape (unless doing heap allocations with SkVertices). To get around
+    // this limitation, construct a non-empty rectangle around the theoritical point or line to
+    // sample the padding pixels.
+    //
+    // When padding is 1px, the epsilon is 1/2px (working out to a 1:1 ratio for the non-scaling
+    // axis on src->dst).  When the padding is 2px, we need the interpolated coordinates at each
+    // dst padding pixel center to effectively map back to the same src padding pixel. To do this,
+    // pick an epsilon that is equal to the fixed-point precision used in GPU sampling (accounting
+    // for the scale factor and half-pixel evaluation at the dst coords, this works out to an
+    // interpolated coordinate that is at kEpsilon/2 from the src texel center).
+    static const float kEpsilon = kLayerPadding == 1 ? 0.5f : 1 / 256.f;
+
     // Sample the border pixels directly, scaling only on an axis at a time for
     // edges, and with no scaling for corners. Since only the CTM is adjusted, these
     // 8 draws should be batchable with the primary fill that had used `paint`.
@@ -1589,14 +1605,17 @@ void draw_tiled_border(SkCanvas* canvas,
         canvas->restore();
     };
     auto drawCorner = [&](const SkPoint& src, const SkPoint& dst) {
-        drawEdge(SkRect::MakeXYWH(src.fX, src.fY, 1.f, 1.f),
-                 SkRect::MakeXYWH(dst.fX, dst.fY, 1.f, 1.f));
+        drawEdge(SkRect::MakeXYWH(src.fX + 0.5f - kEpsilon,
+                                  src.fY + 0.5f - kEpsilon,
+                                  2.f * kEpsilon,
+                                  2.f * kEpsilon),
+                 SkRect::MakeXYWH(dst.fX, dst.fY, kLayerPadding, kLayerPadding));
     };
 
     // 'dstBorder' includes the 1px padding that we are filling in. Inset to reconstruct the
     // original sampled dst.
     PixelSpace<SkRect> dstSampleBounds{dstBorder};
-    dstSampleBounds.inset(PixelSpace<SkSize>({1.f, 1.f}));
+    dstSampleBounds.inset(PixelSpace<SkSize>(PixelSpace<SkISize>::Padding()));
 
     // Reconstruct the original source coordinate bounds
     PixelSpace<SkRect> srcSampleBounds;
@@ -1616,41 +1635,43 @@ void draw_tiled_border(SkCanvas* canvas,
     // Invert the dst coordinates for repeat so that the left edge is mapped to the
     // right edge of the output, etc.
     if (tileMode == SkTileMode::kRepeat) {
-        dstBorder = PixelSpace<SkRect>({dstBorder.right() - 1.f, dstBorder.bottom() - 1.f,
-                                        dstBorder.left()  + 1.f, dstBorder.top()    + 1.f});
+        dstBorder = PixelSpace<SkRect>({dstBorder.right()  - kLayerPadding,
+                                        dstBorder.bottom() - kLayerPadding,
+                                        dstBorder.left()   + kLayerPadding,
+                                        dstBorder.top()    + kLayerPadding});
     }
 
     // Edges (excluding corners)
-    drawEdge({srcBorder.left(),        srcSampleBounds.top(),
-              srcBorder.left() + 1.f,  srcSampleBounds.bottom()},
-             {dstBorder.left(),        dstSampleBounds.top(),
-              dstBorder.left() + 1.f,  dstSampleBounds.bottom()}); // Left
+    drawEdge({srcBorder.left() + 0.5f - kEpsilon,  srcSampleBounds.top(),
+              srcBorder.left() + 0.5f + kEpsilon,  srcSampleBounds.bottom()},
+             {dstBorder.left(),                    dstSampleBounds.top(),
+              dstBorder.left() + kLayerPadding,    dstSampleBounds.bottom()}); // Left
 
-    drawEdge({srcBorder.right() - 1.f, srcSampleBounds.top(),
-              srcBorder.right(),       srcSampleBounds.bottom()},
-             {dstBorder.right() - 1.f, dstSampleBounds.top(),
-              dstBorder.right(),       dstSampleBounds.bottom()}); // Right
+    drawEdge({srcBorder.right() - 0.5f - kEpsilon, srcSampleBounds.top(),
+              srcBorder.right() - 0.5f + kEpsilon, srcSampleBounds.bottom()},
+             {dstBorder.right() - kLayerPadding,   dstSampleBounds.top(),
+              dstBorder.right(),                   dstSampleBounds.bottom()}); // Right
 
-    drawEdge({srcSampleBounds.left(),  srcBorder.top(),
-              srcSampleBounds.right(), srcBorder.top() + 1.f},
+    drawEdge({srcSampleBounds.left(),  srcBorder.top() + 0.5f - kEpsilon,
+              srcSampleBounds.right(), srcBorder.top() + 0.5f + kEpsilon},
              {dstSampleBounds.left(),  dstBorder.top(),
-              dstSampleBounds.right(), dstBorder.top() + 1.f});    // Top
+              dstSampleBounds.right(), dstBorder.top() + kLayerPadding});      // Top
 
-    drawEdge({srcSampleBounds.left(),  srcBorder.bottom() - 1.f,
-              srcSampleBounds.right(), srcBorder.bottom()},
-             {dstSampleBounds.left(),  dstBorder.bottom() - 1.f,
-              dstSampleBounds.right(), dstBorder.bottom()});       // Bottom
+    drawEdge({srcSampleBounds.left(),  srcBorder.bottom() - 0.5f - kEpsilon,
+              srcSampleBounds.right(), srcBorder.bottom() - 0.5f + kEpsilon},
+             {dstSampleBounds.left(),  dstBorder.bottom() - kLayerPadding,
+              dstSampleBounds.right(), dstBorder.bottom()});                  // Bottom
 
     // Corners (sampled directly to preserve their value since they can dominate the
     // output of a clamped blur with a large radius).
-    drawCorner({srcBorder.left(),        srcBorder.top()},
-               {dstBorder.left(),        dstBorder.top()});          // TL
-    drawCorner({srcBorder.right() - 1.f, srcBorder.top()},
-               {dstBorder.right() - 1.f, dstBorder.top()});          // TR
-    drawCorner({srcBorder.right() - 1.f, srcBorder.bottom() - 1.f},
-               {dstBorder.right() - 1.f, dstBorder.bottom() - 1.f}); // BR
-    drawCorner({srcBorder.left(),        srcBorder.bottom() - 1.f},
-               {dstBorder.left(),        dstBorder.bottom() - 1.f}); // BL
+    drawCorner({srcBorder.left(),                  srcBorder.top()},
+               {dstBorder.left(),                  dstBorder.top()});                    // TL
+    drawCorner({srcBorder.right() - 1.f,           srcBorder.top()},
+               {dstBorder.right() - kLayerPadding, dstBorder.top()});                    // TR
+    drawCorner({srcBorder.right() - 1.f,           srcBorder.bottom() - 1.f},
+               {dstBorder.right() - kLayerPadding, dstBorder.bottom() - kLayerPadding}); // BR
+    drawCorner({srcBorder.left(),                  srcBorder.bottom() - 1.f},
+               {dstBorder.left(),                  dstBorder.bottom() - kLayerPadding}); // BL
 }
 
 } // anonymous namespace
@@ -1848,7 +1869,7 @@ FilterResult FilterResult::rescale(const Context& ctx,
         } else {
             // This is roughly equivalent to using PixelBoundary::kInitialized, but keeps some of
             // the later logic simpler.
-            dstPixelBounds.outset(LayerSpace<SkISize>({1,1}));
+            dstPixelBounds.outset(LayerSpace<SkISize>::Padding());
         }
 
         AutoSurface surface{ctx, dstPixelBounds, boundary, /*renderInParameterSpace=*/false};
@@ -1917,7 +1938,7 @@ FilterResult FilterResult::rescale(const Context& ctx,
     if (deferPeriodicTiling) {
         // Inset the image to undo the manually added border of pixels, which will allow the result
         // to have the kInitialized boundary state.
-        image = image.insetByPixel();
+        image = image.insetByPixels(kLayerPadding);
     } else {
         SkASSERT(tileMode == SkTileMode::kDecal || tileMode == SkTileMode::kClamp);
         // Leave the image as-is. If it's decal tiled, this preserves the known transparent
@@ -2241,7 +2262,7 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
 
         // Include 1px of blur output so that it can be sampled during the upscale, which is needed
         // to correctly seam large blurs across crop/raster tiles (crbug.com/1500021).
-        srcRelativeOutput.outset(PixelSpace<SkISize>({1, 1}));
+        srcRelativeOutput.outset(PixelSpace<SkISize>::Padding());
     }
 
     sk_sp<SkSpecialImage> lowResBlur = lowResImage.refImage();
@@ -2250,11 +2271,11 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
     if (!algorithm->supportsOnlyDecalTiling() &&
         lowResImage.canClampToTransparentBoundary(BoundsAnalysis::kSimple)) {
         // Have to manage this manually since the BlurEngine isn't aware of the known pixel padding.
-        lowResBlur = lowResBlur->makePixelOutset();
+        lowResBlur = lowResBlur->makePixelOutset(kLayerPadding);
         // This offset() is intentional; `blurOutputBounds` already includes an outset from an
         // earlier modification of `srcRelativeOutput`. This offset is to align the SkBlurAlgorithm
         // output bounds with the adjusted source image.
-        blurOutputBounds.offset(1, 1);
+        blurOutputBounds.offset(kLayerPadding, kLayerPadding);
         tileMode = SkTileMode::kClamp;
     }
 
@@ -2274,7 +2295,7 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
     if (lowResImage.tileMode() == SkTileMode::kClamp ||
         lowResImage.tileMode() == SkTileMode::kDecal) {
         // Undo the outset padding that was added to srcRelativeOutput before invoking the blur
-        result = result.insetByPixel();
+        result = result.insetByPixels(kLayerPadding);
     }
 
     result.fTransform.postConcat(lowResImage.fTransform);

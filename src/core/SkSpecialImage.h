@@ -97,7 +97,9 @@ public:
     /**
      * Extract a subset of this special image and return it as a special image.
      * It may or may not point to the same backing memory. The input 'subset' is relative to the
-     * special image's content rect.
+     * special image's content rect. It is *not* intersected with this special image's subset, so
+     * `subset` should only have negative coordinates or extends beyond width()/height() when it's
+     * known that those outer pixels are valid.
      */
     sk_sp<SkSpecialImage> makeSubset(const SkIRect& subset) const {
         SkIRect absolute = subset.makeOffset(this->subset().topLeft());
@@ -105,11 +107,11 @@ public:
     }
 
     /**
-     * Return a special image with a 1px larger subset in the backing store compared to this image.
+     * Return a special image with a N px larger subset in the backing store compared to this image.
      * This should only be used when it's externally known that those outer pixels are valid.
      */
-    sk_sp<SkSpecialImage> makePixelOutset() const {
-        return this->onMakeBackingStoreSubset(this->subset().makeOutset(1, 1));
+    sk_sp<SkSpecialImage> makePixelOutset(int n=1) const {
+        return this->onMakeBackingStoreSubset(this->subset().makeOutset(n, n));
     }
 
     /**

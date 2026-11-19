@@ -57,6 +57,12 @@ namespace skif {
 SkIRect RoundOut(SkRect);
 SkIRect RoundIn(SkRect);
 
+// Skia-controlled surfaces in image filtering (internally to FilterResult, or
+// coordinated by SkCanvas's layers for input) add this many pixels as padding. The padding is
+// either kept transparent black or allowed to hold overflowed "offscreen" content to make for
+// higher quality sampling.
+static constexpr int kLayerPadding = 1;
+
 // skif::IVector and skif::Vector represent plain-old-data types for storing direction vectors, so
 // that the coordinate-space templating system defined below can have a separate type id for
 // directions vs. points, and specialize appropriately. As such, all operations with direction
@@ -336,6 +342,10 @@ public:
     explicit LayerSpace(SkISize&& geometry) : fData(std::move(geometry)) {}
     explicit operator const SkISize&() const { return fData; }
 
+    static LayerSpace<SkISize> Padding() {
+        return LayerSpace(SkISize{kLayerPadding, kLayerPadding});
+    }
+
     int32_t width() const { return fData.width(); }
     int32_t height() const { return fData.height(); }
 
@@ -352,6 +362,7 @@ public:
     LayerSpace() = default;
     explicit LayerSpace(const SkSize& geometry) : fData(geometry) {}
     explicit LayerSpace(SkSize&& geometry) : fData(std::move(geometry)) {}
+    explicit LayerSpace(LayerSpace<SkISize> geometry) : fData(SkSize::Make(SkISize(geometry))) {}
     explicit operator const SkSize&() const { return fData; }
 
     SkScalar width() const { return fData.width(); }
@@ -810,8 +821,8 @@ public:
 
     // SkCanvas can prepare layer source images with transparent padding, similarly to AutoSurface.
     // This adjusts the FilterResult metadata to be aware of that padding. This should only be
-    // called when it's externally known that the FilterResult has a 1px buffer of transparent
-    // black pixels and has had no further modifications.
+    // called when it's externally known that the FilterResult has a kLayerPadding buffer of
+    // transparent black pixels and has had no further modifications.
     FilterResult insetForSaveLayer() const;
 
     class Builder;
@@ -868,8 +879,8 @@ private:
     FilterResult subset(const LayerSpace<SkIPoint>& knownOrigin,
                         const LayerSpace<SkIRect>& subsetBounds,
                         bool clampSrcIfDisjoint=false) const;
-    // Convenient version of subset() that insets a single pixel.
-    FilterResult insetByPixel() const;
+    // Convenient version of subset() that insets by N pixels.
+    FilterResult insetByPixels(int n) const;
 
     enum class BoundsAnalysis : int {
         // The image can be drawn directly, without needing to apply tiling, or handling how any
