@@ -501,13 +501,13 @@ skia_cc_library(
     defines = [
         "SK_CODEC_DECODES_PNG_WITH_RUST",
     ] + select({
-        "//rust/png:captured_chunks_enabled": ["SK_CODEC_DECODES_PNG_WITH_RUST_CAPTURED_CHUNKS"],
+        "//rust/png:captured_chunks_true": ["SK_CODEC_DECODES_PNG_WITH_RUST_CAPTURED_CHUNKS"],
         "//conditions:default": [],
     }) + select({
-        "//rust/png:limit_read_enabled": ["SK_CODEC_DECODES_PNG_WITH_RUST_LIMIT_READ"],
+        "//rust/png:limit_read_true": ["SK_CODEC_DECODES_PNG_WITH_RUST_LIMIT_READ"],
         "//conditions:default": [],
     }) + select({
-        "//rust/png:disable_apng_enabled": ["SK_CODEC_DECODES_PNG_WITH_RUST_DISABLE_APNG"],
+        "//rust/png:disable_apng_true": ["SK_CODEC_DECODES_PNG_WITH_RUST_DISABLE_APNG"],
         "//conditions:default": [],
     }),
     features = ["layering_check"],

@@ -1,5 +1,5 @@
 load("@rules_rust//rust:defs.bzl", "rust_static_library")
-load("//bazel:flags.bzl", "bool_flag", "selects")
+load("//bazel:flags.bzl", "bool_flag")
 load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load(
     "//bazel:skia_rules.bzl",
@@ -14,27 +14,11 @@ package(
 
 licenses(["notice"])
 
-# Umbrella flag enabling all Android-specific Rust PNG behaviors below.
-# Note: Google3's autoroller rewrites `default = True` to `default = False` here.
-bool_flag(
-    name = "for_android",
-    default = True,
-)
-
 # Capture extra chunks (`gmAP`, `gdAT`, `cLLI`, `mDCV`, `npTc`, `npLb`, `npOl`)
 # in `FFI.rs` via `png::DecodeOptions::set_captured_chunks`.
 bool_flag(
     name = "captured_chunks",
     default = False,
-)
-
-selects.config_setting_group(
-    name = "captured_chunks_enabled",
-    match_any = [
-        ":for_android_true",
-        ":captured_chunks_true",
-    ],
-    visibility = ["//:__subpackages__"],
 )
 
 # Wrap the decoder input stream in `LimitBufReader` so reads do not overshoot
@@ -45,29 +29,11 @@ bool_flag(
     default = False,
 )
 
-selects.config_setting_group(
-    name = "limit_read_enabled",
-    match_any = [
-        ":for_android_true",
-        ":limit_read_true",
-    ],
-    visibility = ["//:__subpackages__"],
-)
-
 # Ignore APNG `acTL`/`fcTL` chunks so animated PNGs decode as static single-frame
 # images (matching `libpng`).
 bool_flag(
     name = "disable_apng",
     default = False,
-)
-
-selects.config_setting_group(
-    name = "disable_apng_enabled",
-    match_any = [
-        ":for_android_true",
-        ":disable_apng_true",
-    ],
-    visibility = ["//:__subpackages__"],
 )
 
 # Emit `sBIT` chunks when encoding PNGs with `SkPngRustEncoder`.
@@ -76,28 +42,10 @@ bool_flag(
     default = False,
 )
 
-selects.config_setting_group(
-    name = "encode_sbit_enabled",
-    match_any = [
-        ":for_android_true",
-        ":encode_sbit_true",
-    ],
-    visibility = ["//:__subpackages__"],
-)
-
 # Emit `gmAP`/`gdAT` gainmap chunks when encoding PNGs with `SkPngRustEncoder`.
 bool_flag(
     name = "encode_gainmap",
     default = False,
-)
-
-selects.config_setting_group(
-    name = "encode_gainmap_enabled",
-    match_any = [
-        ":for_android_true",
-        ":encode_gainmap_true",
-    ],
-    visibility = ["//:__subpackages__"],
 )
 
 # Set for fuzzing builds (e.g. `skia_build_fuzzers=true` in GN), so that `FFI.rs`
@@ -148,13 +96,13 @@ rust_static_library(
     name = "ffi_rs",
     srcs = [":rs_srcs"],
     crate_features = select({
-        ":captured_chunks_enabled": ["captured_chunks"],
+        ":captured_chunks_true": ["captured_chunks"],
         "//conditions:default": [],
     }) + select({
-        ":limit_read_enabled": ["limit_read"],
+        ":limit_read_true": ["limit_read"],
         "//conditions:default": [],
     }) + select({
-        ":disable_apng_enabled": ["disable_apng"],
+        ":disable_apng_true": ["disable_apng"],
         "//conditions:default": [],
     }),
     crate_root = "FFI.rs",

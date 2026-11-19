@@ -21,9 +21,6 @@ use std::borrow::Cow;
 use std::io::{BufReader, ErrorKind, Write};
 use std::pin::Pin;
 
-// TODO(b/565483339): Remove `feature = "for_android"` fallbacks once AOSP's
-// `external/skia/Android.bp` passes the granular features directly.
-
 // No `use png::...` nor `use ffi::...` because we want the code to explicitly
 // spell out if it means `ffi::ColorType` vs `png::ColorType` (or `Reader`
 // vs `png::Reader`).
@@ -435,7 +432,7 @@ fn compute_transformations(info: &png::Info) -> png::Transformations {
     result
 }
 
-#[cfg(any(feature = "for_android", feature = "limit_read"))]
+#[cfg(feature = "limit_read")]
 mod android_reader {
     use super::BufReader;
     use std::cmp;
@@ -575,9 +572,9 @@ mod android_reader {
 /// generics, so we manually monomorphize here, but still expose a minimal,
 /// somewhat tweaked API of the original type).
 struct Reader {
-    #[cfg(any(feature = "for_android", feature = "limit_read"))]
+    #[cfg(feature = "limit_read")]
     reader: png::Reader<android_reader::LimitBufReader<cxx::UniquePtr<ffi::SkStreamAdapter>>>,
-    #[cfg(not(any(feature = "for_android", feature = "limit_read")))]
+    #[cfg(not(feature = "limit_read"))]
     reader: png::Reader<BufReader<cxx::UniquePtr<ffi::SkStreamAdapter>>>,
     last_interlace_info: Option<png::InterlaceInfo>,
 }
@@ -592,9 +589,9 @@ impl Reader {
         const BUF_CAPACITY: usize = 32 * 1024;
         // TODO(https://crbug.com/399894620): Consider instead implementing `BufRead` on top of
         // `SkStream` API when/if possible in the future.
-        #[cfg(any(feature = "for_android", feature = "limit_read"))]
+        #[cfg(feature = "limit_read")]
         let input = android_reader::LimitBufReader::with_capacity(BUF_CAPACITY, input);
-        #[cfg(not(any(feature = "for_android", feature = "limit_read")))]
+        #[cfg(not(feature = "limit_read"))]
         let input = BufReader::with_capacity(BUF_CAPACITY, input);
 
         let mut decoder = {
@@ -604,7 +601,7 @@ impl Reader {
                 options.set_ignore_checksums(true);
             }
             options.set_ignore_text_chunk(true);
-            #[cfg(any(feature = "for_android", feature = "captured_chunks"))]
+            #[cfg(feature = "captured_chunks")]
             options
                 .set_captured_chunks(&[
                     png::chunk::ChunkType(*b"gmAP"),
@@ -792,11 +789,11 @@ impl Reader {
 
     /// Returns whether the `acTL` chunk exists.
     fn has_actl_chunk(&self) -> bool {
-        #[cfg(any(feature = "for_android", feature = "disable_apng"))]
+        #[cfg(feature = "disable_apng")]
         {
             false
         }
-        #[cfg(not(any(feature = "for_android", feature = "disable_apng")))]
+        #[cfg(not(feature = "disable_apng"))]
         {
             self.reader.info().animation_control.is_some()
         }
@@ -838,11 +835,11 @@ impl Reader {
     /// Returns whether a `fcTL` chunk has been parsed (and can be read using
     /// `get_fctl_info`).
     fn has_fctl_chunk(&self) -> bool {
-        #[cfg(any(feature = "for_android", feature = "disable_apng"))]
+        #[cfg(feature = "disable_apng")]
         {
             false
         }
-        #[cfg(not(any(feature = "for_android", feature = "disable_apng")))]
+        #[cfg(not(feature = "disable_apng"))]
         {
             self.reader.info().frame_control.is_some()
         }
@@ -895,33 +892,33 @@ impl Reader {
     }
 
     fn get_unknown_chunks_count(&self) -> usize {
-        #[cfg(any(feature = "for_android", feature = "captured_chunks"))]
+        #[cfg(feature = "captured_chunks")]
         {
             self.reader.info().captured_chunks.len()
         }
-        #[cfg(not(any(feature = "for_android", feature = "captured_chunks")))]
+        #[cfg(not(feature = "captured_chunks"))]
         {
             0
         }
     }
 
     fn get_unknown_chunk_name(&self, index: usize) -> &[u8; 4] {
-        #[cfg(any(feature = "for_android", feature = "captured_chunks"))]
+        #[cfg(feature = "captured_chunks")]
         {
             &self.reader.info().captured_chunks[index].name.0
         }
-        #[cfg(not(any(feature = "for_android", feature = "captured_chunks")))]
+        #[cfg(not(feature = "captured_chunks"))]
         {
             &[][index]
         }
     }
 
     fn get_unknown_chunk_data(&self, index: usize) -> &[u8] {
-        #[cfg(any(feature = "for_android", feature = "captured_chunks"))]
+        #[cfg(feature = "captured_chunks")]
         {
             self.reader.info().captured_chunks[index].data.as_slice()
         }
-        #[cfg(not(any(feature = "for_android", feature = "captured_chunks")))]
+        #[cfg(not(feature = "captured_chunks"))]
         {
             [][index]
         }
@@ -998,11 +995,11 @@ impl Reader {
     }
 
     fn finish_decoding(&mut self) -> ffi::DecodingResult {
-        #[cfg(any(feature = "for_android", feature = "limit_read"))]
+        #[cfg(feature = "limit_read")]
         {
             self.reader.finish().as_ref().err().into()
         }
-        #[cfg(not(any(feature = "for_android", feature = "limit_read")))]
+        #[cfg(not(feature = "limit_read"))]
         {
             ffi::DecodingResult::Success
         }

@@ -177,10 +177,10 @@ skia_cc_library(
     defines = [
         "SK_CODEC_ENCODES_PNG_WITH_RUST",
     ] + select({
-        "//rust/png:encode_sbit_enabled": ["SK_CODEC_ENCODES_PNG_WITH_RUST_SBIT"],
+        "//rust/png:encode_sbit_true": ["SK_CODEC_ENCODES_PNG_WITH_RUST_SBIT"],
         "//conditions:default": [],
     }) + select({
-        "//rust/png:encode_gainmap_enabled": ["SK_CODEC_ENCODES_PNG_WITH_RUST_GAINMAP"],
+        "//rust/png:encode_gainmap_true": ["SK_CODEC_ENCODES_PNG_WITH_RUST_GAINMAP"],
         "//conditions:default": [],
     }),
     features = ["layering_check"],

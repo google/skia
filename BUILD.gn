@@ -1470,12 +1470,7 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
           "=rust/png/FFI.rs.cc",
     ]
 
-    # `gn/skia.gni` already expanded `skia_use_rust_png_for_android` into the
-    # granular args below; disable Bazel's `for_android` umbrella so individual
-    # `= false` overrides in GN aren't re-enabled by Bazel's `match_any` groups.
-    # TODO(b/565483339): Remove `--//rust/png:for_android=false` once Bazel drops `for_android`.
     bazel_args += [
-      "--//rust/png:for_android=false",
       "--//rust/png:captured_chunks=$skia_use_rust_png_captured_chunks",
       "--//rust/png:limit_read=$skia_use_rust_png_limit_read",
       "--//rust/png:disable_apng=$skia_use_rust_png_disable_apng",
