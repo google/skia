@@ -16,6 +16,7 @@
 #include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/draw/DrawContext.h"
 
@@ -162,6 +163,14 @@ public:
             fStorage = SkMatrix::Concat(childLM, *fLocalMatrix);
         } else {
             fStorage = childLM;
+        }
+
+        // Each LocalMatrixShaderBlock is evaluated separately in float32 on the GPU.
+        // Disable sampling optimization if childLM or the accumulated matrix has a large
+        // translation, before a subsequent childLM can cancel it out in fStorage.
+        if (!SkMatrixPriv::TranslationHasHalfIntPrecision(childLM) ||
+            !SkMatrixPriv::TranslationHasHalfIntPrecision(fStorage)) {
+            fKeyGenFlags |= KeyGenFlags::kDisableSamplingOptimization;
         }
 
         fLocalMatrix = &fStorage;

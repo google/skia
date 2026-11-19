@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/KeyContext.h"
 
 #include "include/effects/SkRuntimeEffect.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -51,6 +52,12 @@ KeyContext::KeyContext(skgpu::graphite::Recorder* recorder,
         , fLocalMatrix(nullptr)
         , fDstColorInfo(dstColorInfo)
         , fKeyGenFlags(initialFlags) {
+    // Disable sampling optimization if fLocal2Dev has a large translation
+    // before localMatrix can cancel it out, which would cause it to be evaluated
+    // separately in float32 on the GPU.
+    if (!SkMatrixPriv::TranslationHasHalfIntPrecision(fLocal2Dev)) {
+        fKeyGenFlags |= KeyGenFlags::kDisableSamplingOptimization;
+    }
     fPaintColor = PaintParams::Color4fPrepForDst(paintColor, fDstColorInfo).makeOpaque().premul();
     fPaintColor.fA = paintColor.fA;
 }

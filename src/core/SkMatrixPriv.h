@@ -27,6 +27,11 @@ public:
         kMaxFlattenSize = 9 * sizeof(SkScalar) + sizeof(uint32_t),
     };
 
+    // Max translation magnitude where half-integer texel centers (k + 0.5f) are
+    // represented without rounding error in IEEE-754 float32 (ULP <= 0.25 up to 2^22,
+    // and sums/differences up to 2^23 have ULP <= 0.5).
+    static constexpr float kMaxHalfIntPrecisionFloat = 1 << 22;
+
     static size_t WriteToMemory(const SkMatrix& matrix, void* buffer) {
         return matrix.writeToMemory(buffer);
     }
@@ -216,6 +221,24 @@ public:
                              SkScalar tolerance = SK_ScalarNearlyZero);
 
     static SkScalar ComputeResScaleForStroking(const SkMatrix& matrix);
+
+    // Checks that m's X and Y translation magnitudes do not exceed 2^22, leaving headroom
+    // so sums/differences up to 2^23 keep float32 ULP <= 0.5.
+    static bool TranslationHasHalfIntPrecision(const SkMatrix& m) {
+        return SkScalarAbs(m.getTranslateX()) <= kMaxHalfIntPrecisionFloat &&
+               SkScalarAbs(m.getTranslateY()) <= kMaxHalfIntPrecisionFloat;
+    }
+
+    static bool TranslationHasHalfIntPrecision(const SkM44& m) {
+        return SkScalarAbs(m.rc(0, 3)) <= kMaxHalfIntPrecisionFloat &&
+               SkScalarAbs(m.rc(1, 3)) <= kMaxHalfIntPrecisionFloat;
+    }
+
+    // Checks if m is a pixel-aligned 2D translation with half-integer precision.
+    static bool IsPrecisePixelAlignedTranslation(const SkMatrix& m) {
+        return m.isTranslate() && TranslationHasHalfIntPrecision(m) &&
+               SkScalarIsInt(m.getTranslateX()) && SkScalarIsInt(m.getTranslateY());
+    }
 };
 
 #endif
