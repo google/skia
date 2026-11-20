@@ -10,6 +10,7 @@
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "src/core/SkSafeMath.h"
 
 #include <cstddef>
@@ -88,6 +89,8 @@ private:
 */
 class SkWBuffer : SkNoncopyable {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     SkWBuffer() : fData(nullptr), fPos(nullptr), fStop(nullptr) {}
     explicit SkWBuffer(void* data) { reset(data); }
     SkWBuffer(void* data, size_t size) { reset(data, size); }

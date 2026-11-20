@@ -13,6 +13,7 @@
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkNextID.h"
 #include "src/core/SkPixelRefPriv.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <atomic>
 #include <utility>
@@ -148,7 +149,9 @@ sk_sp<SkPixelRef> SkMakePixelRefWithProc(int width, int height, size_t rowBytes,
     }
     struct PixelRef final : public SkPixelRef {
         void (*fReleaseProc)(void*, void*);
-        void* fReleaseProcContext;
+        // RAW_PTR_EXCLUSION: Opaque caller context (may hold an integer or handle, not a
+        // heap pointer).
+        RAW_PTR_EXCLUSION void* fReleaseProcContext;
         PixelRef(int w, int h, void* s, size_t r, void (*proc)(void*, void*), void* ctx)
             : SkPixelRef(w, h, s, r), fReleaseProc(proc), fReleaseProcContext(ctx) {}
         ~PixelRef() override { fReleaseProc(this->pixels(), fReleaseProcContext); }

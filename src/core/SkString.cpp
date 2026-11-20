@@ -10,6 +10,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkSafeMath.h"
@@ -27,8 +28,9 @@
 static const size_t kBufferSize = 1024;
 
 struct StringBuffer {
-    char*  fText;
-    int    fLength;
+    SK_ONLY_STACK_ALLOCATABLE;
+    char* fText;
+    int   fLength;
 };
 
 template <int SIZE>

@@ -13,6 +13,7 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTemplates.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <cstddef>
 #include <memory>
@@ -52,7 +53,7 @@ private:
     SkMutex fMutex;     // could use a pool of these...
 
     Storage fStorage;
-    void* fData = nullptr;
+    raw_ptr<void> fData;
     size_t fSize = 0;
     int fRefCnt = 1;  // low-bit means we're owned by the cache
     bool fInCache = false;

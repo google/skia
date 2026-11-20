@@ -27,6 +27,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/chromium/Slug.h"
@@ -211,6 +212,8 @@ template <> void Draw::draw(const DrawDrawable& r) {
 // in for all the control ops we stashed away.
 class FillBounds : SkNoncopyable {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     FillBounds(const SkRect& cullRect, const SkRecord& record,
                SkRect bounds[], SkBBoxHierarchy::Metadata meta[])
         : fCullRect(cullRect)

@@ -11,6 +11,7 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkShader.h"
 #include "src/core/SkBlitter.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 class SkPaint;
 
@@ -35,10 +36,10 @@ public:
     static SkSpriteBlitter* ChooseL32(const SkPixmap& source, const SkPaint&, SkArenaAlloc*);
 
 protected:
-    SkPixmap        fDst;
-    const SkPixmap  fSource;
-    int             fLeft, fTop;
-    const SkPaint*  fPaint;
+    SkPixmap               fDst;
+    const SkPixmap         fSource;
+    int                    fLeft, fTop;
+    raw_ptr<const SkPaint> fPaint;
 
 private:
     using INHERITED = SkBlitter;

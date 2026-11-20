@@ -16,6 +16,7 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkColorData.h"
+#include "src/partition_alloc/raw_ptr.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -221,9 +222,9 @@ public:
     /** True if this PreBlend should be applied. When false, fR, fG, and fB are nullptr. */
     bool isApplicable() const { return SkToBool(this->fG); }
 
-    const uint8_t* fR;
-    const uint8_t* fG;
-    const uint8_t* fB;
+    raw_ptr<const uint8_t, AllowPtrArithmetic> fR;
+    raw_ptr<const uint8_t, AllowPtrArithmetic> fG;
+    raw_ptr<const uint8_t, AllowPtrArithmetic> fB;
 };
 
 template <int R_LUM_BITS, int G_LUM_BITS, int B_LUM_BITS>

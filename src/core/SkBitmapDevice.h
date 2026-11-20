@@ -19,6 +19,7 @@
 #include "src/core/SkDevice.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkRasterClipStack.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/partition_alloc/raw_ptr_exclusion.h"
 
 class SkBlender;
@@ -161,7 +162,7 @@ private:
     // RAW_PTR_EXCLUSION: Handle is an opaque client token (e.g. a Windows GDI HDC), not
     // necessarily a heap pointer.
     RAW_PTR_EXCLUSION SkRasterHandleAllocator::Handle fRasterHandle = nullptr;
-    skcpu::Recorder* fRecorder = nullptr;
+    raw_ptr<skcpu::Recorder> fRecorder;
     SkBitmap fBitmap;
     SkRasterClipStack fRCStack;
     skcpu::GlyphRunListPainter fGlyphPainter;

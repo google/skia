@@ -20,6 +20,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDraw.h"
@@ -62,6 +63,8 @@ SkOverdrawCanvas::SkOverdrawCanvas(SkCanvas* canvas)
 namespace {
 class TextDevice : public SkNoPixelsDevice, public skcpu::BitmapDevicePainter {
 public:
+    SK_ONLY_STACK_ALLOCATABLE;
+
     TextDevice(SkCanvas* overdrawCanvas, const SkSurfaceProps& props)
             : SkNoPixelsDevice{SkIRect::MakeWH(32767, 32767), props},
               fOverdrawCanvas{overdrawCanvas},

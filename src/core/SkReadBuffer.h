@@ -33,6 +33,7 @@
 #include "src/core/SkSamplingPriv.h"
 #include "src/core/SkTHash.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
+#include "src/partition_alloc/raw_ptr.h"
 #include "src/shaders/SkShaderBase.h"
 
 #include <cstddef>
@@ -267,11 +268,11 @@ private:
 
     int fVersion = 0;
 
-    sk_sp<SkTypeface>* fTFArray = nullptr;
-    int                fTFCount = 0;
+    raw_ptr<sk_sp<SkTypeface>, AllowPtrArithmetic> fTFArray = nullptr;
+    int                                            fTFCount = 0;
 
-    SkFlattenable::Factory* fFactoryArray = nullptr;
-    int                     fFactoryCount = 0;
+    raw_ptr<SkFlattenable::Factory, AllowPtrArithmetic> fFactoryArray = nullptr;
+    int                                                 fFactoryCount = 0;
 
     SkDeserialProcs fProcs;
 

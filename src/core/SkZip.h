@@ -11,6 +11,7 @@
 #include "include/core/SkSpan.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkOnlyStackAllocatable.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -27,6 +28,8 @@ class SkZip {
 
     class Iterator {
     public:
+        SK_ONLY_STACK_ALLOCATABLE;
+
         using value_type = ReturnTuple;
         using difference_type = ptrdiff_t;
         using pointer = value_type*;
