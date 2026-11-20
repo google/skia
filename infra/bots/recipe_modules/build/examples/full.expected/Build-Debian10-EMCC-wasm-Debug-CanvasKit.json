@@ -1,21 +1,6 @@
 [
   {
     "cmd": [
-      "vpython3",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0o777",
-      "[START_DIR]/cache/docker/canvaskit"
-    ],
-    "infra_step": true,
-    "name": "mkdirs out_dir"
-  },
-  {
-    "cmd": [
       "python3",
       "[START_DIR]/cache/work/skia/bin/activate-emsdk"
     ],
@@ -29,34 +14,27 @@
   },
   {
     "cmd": [
-      "docker",
-      "run",
-      "--rm",
-      "--volume",
-      "[START_DIR]/cache/work:/SRC",
-      "--volume",
-      "[START_DIR]/cache/docker/canvaskit:/OUT",
-      "gcr.io/skia-public/canvaskit-emsdk:3.1.26_v2",
-      "/SRC/skia/infra/canvaskit/build_canvaskit.sh",
+      "[START_DIR]/cache/work/skia/modules/canvaskit/compile.sh",
       "debug"
     ],
+    "cwd": "[START_DIR]/cache/work/skia",
     "env": {
+      "BUILD_DIR": "[START_DIR]/cache/work/skia/out/Build-Debian10-EMCC-wasm-Debug-CanvasKit/Debug",
       "CHROME_HEADLESS": "1",
-      "DOCKER_CONFIG": "/home/chrome-bot/.docker",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "Build CanvasKit with Docker"
+    "name": "Build CanvasKit"
   },
   {
     "cmd": [
       "python3",
-      "RECIPE_MODULE[skia::build]/resources/copy_build_products_no_delete.py",
-      "[START_DIR]/cache/docker/canvaskit",
+      "RECIPE_MODULE[skia::build]/resources/copy_build_products.py",
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-EMCC-wasm-Debug-CanvasKit/Debug",
       "[START_DIR]/[SWARM_OUT_DIR]/out/Debug",
       "canvaskit.*"
     ],
     "infra_step": true,
-    "name": "copy wasm output"
+    "name": "copy build products"
   },
   {
     "name": "$result"

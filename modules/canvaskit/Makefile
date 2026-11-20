@@ -147,13 +147,6 @@ test-continuous-headless:
 node-example:
 	node ./npm_build/node.example.js --expose-wasm
 
-docker-compile:
-	mkdir -p ${SKIA_ROOT}/out/canvaskit_wasm_docker
-	docker run --rm --volume ${SKIA_ROOT}:/SRC \
-               --volume ${SKIA_ROOT}/out/canvaskit_wasm_docker:/OUT \
-               gcr.io/skia-public/canvaskit-emsdk:2.0.0_v1 \
-               /SRC/infra/canvaskit/build_canvaskit.sh
-
 typecheck:
 	echo "Make sure you've run cd npm_build && npm ci recently"
 	cd npm_build && npm run dtslint

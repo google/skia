@@ -1267,7 +1267,7 @@ func (b *jobBuilder) compile() string {
 		b.cas(casSpec)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.swarmDimensions()
-		if b.ExtraConfig("Docker", "LottieWeb", "CMake") || b.Compiler("EMCC") {
+		if b.ExtraConfig("Docker", "LottieWeb", "CMake") {
 			b.usesDocker()
 			b.cache(CACHES_DOCKER...)
 		}

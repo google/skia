@@ -68,7 +68,6 @@ var (
 		"infra/bots/assets/clang_win/VERSION",
 		"infra/bots/run_recipe.py",
 		"infra/bots/task_drivers",
-		"infra/canvaskit",
 		"package.json",
 		"package-lock.json",
 		"requirements.txt",

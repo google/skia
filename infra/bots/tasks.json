@@ -19949,10 +19949,6 @@
           "path": "cache/ccache"
         },
         {
-          "name": "docker",
-          "path": "cache/docker"
-        },
-        {
           "name": "vpython3",
           "path": "cache/vpython3"
         }
@@ -20009,9 +20005,6 @@
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
-        "CLOUDSDK_PYTHON": [
-          "cipd_bin_packages/cpython3/bin/python3"
-        ],
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
@@ -20039,10 +20032,6 @@
         {
           "name": "ccache",
           "path": "cache/ccache"
-        },
-        {
-          "name": "docker",
-          "path": "cache/docker"
         },
         {
           "name": "vpython3",
@@ -20101,9 +20090,6 @@
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
-        "CLOUDSDK_PYTHON": [
-          "cipd_bin_packages/cpython3/bin/python3"
-        ],
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
@@ -20131,10 +20117,6 @@
         {
           "name": "ccache",
           "path": "cache/ccache"
-        },
-        {
-          "name": "docker",
-          "path": "cache/docker"
         },
         {
           "name": "vpython3",
@@ -20193,9 +20175,6 @@
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
-        "CLOUDSDK_PYTHON": [
-          "cipd_bin_packages/cpython3/bin/python3"
-        ],
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
@@ -20223,10 +20202,6 @@
         {
           "name": "ccache",
           "path": "cache/ccache"
-        },
-        {
-          "name": "docker",
-          "path": "cache/docker"
         },
         {
           "name": "vpython3",
@@ -20285,9 +20260,6 @@
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
-        "CLOUDSDK_PYTHON": [
-          "cipd_bin_packages/cpython3/bin/python3"
-        ],
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
@@ -20315,10 +20287,6 @@
         {
           "name": "ccache",
           "path": "cache/ccache"
-        },
-        {
-          "name": "docker",
-          "path": "cache/docker"
         },
         {
           "name": "vpython3",
@@ -20377,9 +20345,6 @@
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
-        "CLOUDSDK_PYTHON": [
-          "cipd_bin_packages/cpython3/bin/python3"
-        ],
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
@@ -20407,10 +20372,6 @@
         {
           "name": "ccache",
           "path": "cache/ccache"
-        },
-        {
-          "name": "docker",
-          "path": "cache/docker"
         },
         {
           "name": "vpython3",
@@ -20469,9 +20430,6 @@
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
-        "CLOUDSDK_PYTHON": [
-          "cipd_bin_packages/cpython3/bin/python3"
-        ],
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
@@ -70957,7 +70915,6 @@
         "skia/infra/bots/assets/clang_win/VERSION",
         "skia/infra/bots/run_recipe.py",
         "skia/infra/bots/task_drivers",
-        "skia/infra/canvaskit",
         "skia/modules",
         "skia/package-lock.json",
         "skia/package.json",

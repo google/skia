@@ -121,9 +121,9 @@ operations.
 
 # Infrastructure Playbook
 
-When dealing with CanvasKit in our CI, we use Docker. Check out
+When testing CanvasKit in our CI, we use Docker. Check out
 $SKIA_ROOT/infra/wasm-common/docker/README.md for more on building/editing the
-images used for building and testing.
+images used for testing.
 
 ## Updating the version of Emscripten we build/test with
 
