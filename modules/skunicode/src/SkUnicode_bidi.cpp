@@ -110,6 +110,9 @@ public:
             if (this->isIdeographic(unichar)) {
                 results->at(i) |= SkUnicode::kIdeographic;
             }
+            if (this->isDefaultIgnorable(unichar)) {
+                results->at(i) |= SkUnicode::kDefaultIgnorable;
+            }
         }
         return true;
     }

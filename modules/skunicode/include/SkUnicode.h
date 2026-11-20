@@ -97,6 +97,8 @@ class SKUNICODE_API SkUnicode : public SkRefCnt {
             kEmoji = 0x200,
             kWordBreak = 0x400,
             kSentenceBreak = 0x800,
+            // Unicode Default_Ignorable_Code_Point (U+00AD, U+200B, U+FEFF...)
+            kDefaultIgnorable = 0x1000,
         };
         enum class TextDirection {
             kLTR,

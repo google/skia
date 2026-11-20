@@ -341,6 +341,7 @@ public:
     // cluster, and an out-of-line call that reads the text on every ask made justify layout
     // noticeably slower in builds without LTO
     bool isSoftHyphen() const { return fIsSoftHyphen; }
+    bool isZeroWidthDefaultIgnorable() const { return fIsZeroWidthDefaultIgnorable; }
 
     bool isSoftBreak(const ParagraphImpl* owner) const;
     size_t startPos() const { return fStart; }
@@ -389,6 +390,8 @@ private:
     bool fIsHardBreak;
     bool fIsIdeographic;
     bool fIsSoftHyphen;
+    // Zero-advance cluster made only of Default_Ignorable_Code_Point codepoints (U+200B, U+FEFF...)
+    bool fIsZeroWidthDefaultIgnorable;
 };
 
 class InternalLineMetrics {

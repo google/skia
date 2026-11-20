@@ -51,6 +51,9 @@ static SkUnicode::CodeUnitFlags CodePointFlags(SkUnichar unichar) {
     if (SkUnicodeHardCodedCharProperties::IsIdeographic(unichar)) {
         flags |= SkUnicode::kIdeographic;
     }
+    if (SkUnicodeHardCodedCharProperties::IsDefaultIgnorable(unichar)) {
+        flags |= SkUnicode::kDefaultIgnorable;
+    }
     return flags;
 }
 
@@ -197,6 +200,9 @@ public:
             }
             if (this->isIdeographic(unichar)) {
                 results->at(i) |= SkUnicode::kIdeographic;
+            }
+            if (this->isDefaultIgnorable(unichar)) {
+                results->at(i) |= SkUnicode::kDefaultIgnorable;
             }
         }
         return true;

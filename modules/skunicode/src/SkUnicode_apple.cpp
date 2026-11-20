@@ -613,6 +613,9 @@ private:
         if (this->isIdeographic(unichar)) {
             flags |= CodeUnitFlags::kIdeographic;
         }
+        if (this->isDefaultIgnorable(unichar)) {
+            flags |= CodeUnitFlags::kDefaultIgnorable;
+        }
         // Replicate character-class flags across all UTF-8 bytes or UTF-16 surrogates in [start, end)
         for (auto i = start; i < end; ++i) {
             results->at(i) |= flags;

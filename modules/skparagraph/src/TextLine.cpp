@@ -206,7 +206,9 @@ TextLine::TextLine(ParagraphImpl* owner,
 
     // TODO: This is the fix for flutter. Must be removed...
     for (auto cluster = &start; cluster <= &end; ++cluster) {
-        if (!cluster->run(fOwner).isPlaceholder() && !cluster->run(fOwner).isCursiveScript()) {
+        // An invisible leading cluster carries no letter spacing of its own
+        if (!cluster->run(fOwner).isPlaceholder() && !cluster->run(fOwner).isCursiveScript() &&
+            !cluster->isZeroWidthDefaultIgnorable()) {
             fShift += cluster->getHalfLetterSpacing();
             break;
         }
@@ -219,13 +221,22 @@ TextLine::TextLine(ParagraphImpl* owner,
         for (auto visual = fRunsInVisualOrder.size(); visual > 0; --visual) {
             const Run& run = owner->run(fRunsInVisualOrder[visual - 1]);
             ClusterRange inLine = intersected(run.clusterRange(), fClusterRange);
-            if (run.isPlaceholder() || inLine.width() == 0) {
+            if (run.isPlaceholder()) {
                 continue;
             }
-            const Cluster& right =
-                    owner->cluster(run.leftToRight() ? inLine.end - 1 : inLine.start);
-            fShift = std::min(fShift, std::max(right.getHalfLetterSpacing(), 0.0f));
-            break;
+            // Invisible clusters get no letter spacing, so they cannot set the shift either
+            const Cluster* right = nullptr;
+            for (size_t i = 0; i < inLine.width() && right == nullptr; ++i) {
+                const Cluster& cluster = owner->cluster(
+                        run.leftToRight() ? inLine.end - 1 - i : inLine.start + i);
+                if (!cluster.isZeroWidthDefaultIgnorable()) {
+                    right = &cluster;
+                }
+            }
+            if (right != nullptr) {
+                fShift = std::min(fShift, std::max(right->getHalfLetterSpacing(), 0.0f));
+                break;
+            }
         }
     }
 }

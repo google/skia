@@ -26,7 +26,10 @@
 
 #include <string.h>
 #include <algorithm>
+#include <array>
 #include <limits>
+#include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -446,4 +449,204 @@ DEF_TEST(SkParagraph_SpacingTrailingClusterWithoutGlyphs, reporter) {
                         expectedSpace[0].rect.width(),
                         spaceBeforeEmpty[0].rect.width());
     }
+}
+
+// Collection with one resource font and no fallback, or nullptr when the font cannot be loaded
+static sk_sp<FontCollection> single_font_collection(const char* resource, const char* family) {
+    auto typeface = ToolUtils::TestFontMgr()->makeFromStream(GetResourceAsStream(resource), {});
+    if (!typeface) {
+        return nullptr;
+    }
+    auto fontProvider = sk_make_sp<TypefaceFontProvider>();
+    fontProvider->registerTypeface(typeface, SkString(family));
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setAssetFontManager(fontProvider);
+    fontCollection->disableFontFallback();
+    return fontCollection;
+}
+
+// A differently colored last byte splits the text into two styles, which forces the per-cluster
+// letter spacing path instead of the single-style fast path
+static std::unique_ptr<Paragraph> layout_letter_spaced(sk_sp<FontCollection> fontCollection,
+                                                       const char* family,
+                                                       const std::string& text,
+                                                       SkScalar letterSpacing,
+                                                       bool twoStyles = false,
+                                                       TextDirection dir = TextDirection::kLtr) {
+    ParagraphStyle paragraphStyle;
+    paragraphStyle.setTextDirection(dir);
+    TextStyle style;
+    style.setFontFamilies({SkString(family)});
+    style.setFontSize(20.0f);
+    style.setColor(SK_ColorBLACK);
+    style.setLetterSpacing(letterSpacing);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, get_unicode());
+    builder.pushStyle(style);
+    const size_t split = twoStyles ? text.size() - 1 : text.size();
+    builder.addText(text.c_str(), split);
+    if (twoStyles) {
+        style.setColor(SK_ColorRED);
+        builder.pushStyle(style);
+        builder.addText(text.c_str() + split, text.size() - split);
+        builder.pop();
+    }
+    builder.pop();
+    auto paragraph = builder.Build();
+    paragraph->layout(1000.0f);
+    return paragraph;
+}
+
+static constexpr std::array<const char*, 5> kLetterSpacingIgnorables = {
+        "\u200B", "\u200C", "\u200D", "\u2060", "\uFEFF"};
+
+// Fonts with a space glyph shape default-ignorables into zero-advance glyphs; the single-style
+// fast path must not letter-space them (flutter#160251)
+DEF_TEST(SkParagraph_LetterSpacingSkipsIgnorables_OneStyle, reporter) {
+    auto fonts = single_font_collection("fonts/Roboto-Regular.ttf", "Roboto");
+    if (!fonts) {
+        return;
+    }
+    const SkScalar expected = layout_letter_spaced(fonts, "Roboto", "OneTwo", 3)->getLongestLine();
+    for (const char* ignorable : kLetterSpacingIgnorables) {
+        auto paragraph =
+                layout_letter_spaced(fonts, "Roboto", std::string("One") + ignorable + "Two", 3);
+        REPORTER_ASSERT(reporter,
+                        SkScalarNearlyEqual(paragraph->getLongestLine(), expected, EPSILON100));
+    }
+}
+
+// The per-cluster spacing path used for multi-style text must skip default-ignorables too
+DEF_TEST(SkParagraph_LetterSpacingSkipsIgnorables_TwoStyles, reporter) {
+    auto fonts = single_font_collection("fonts/Roboto-Regular.ttf", "Roboto");
+    if (!fonts) {
+        return;
+    }
+    const SkScalar expected =
+            layout_letter_spaced(fonts, "Roboto", "OneTwo", 3, true)->getLongestLine();
+    for (const char* ignorable : kLetterSpacingIgnorables) {
+        auto paragraph = layout_letter_spaced(
+                fonts, "Roboto", std::string("One") + ignorable + "Two", 3, true);
+        REPORTER_ASSERT(reporter,
+                        SkScalarNearlyEqual(paragraph->getLongestLine(), expected, EPSILON100));
+    }
+}
+
+// A leading ignorable must not take the line's half letter spacing from the first letter
+DEF_TEST(SkParagraph_LetterSpacingSkipsIgnorables_Leading, reporter) {
+    auto fonts = single_font_collection("fonts/Roboto-Regular.ttf", "Roboto");
+    if (!fonts) {
+        return;
+    }
+    for (bool twoStyles : {false, true}) {
+        auto plain = layout_letter_spaced(fonts, "Roboto", "One", 3, twoStyles);
+        auto leading = layout_letter_spaced(fonts, "Roboto", "\u200BOne", 3, twoStyles);
+        auto plainRects =
+                plain->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        auto leadingRects =
+                leading->getRectsForRange(1, 2, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        REPORTER_ASSERT(reporter, plainRects.size() == 1 && leadingRects.size() == 1);
+        if (plainRects.size() != 1 || leadingRects.size() != 1) {
+            return;
+        }
+        REPORTER_ASSERT(reporter,
+                        SkScalarNearlyEqual(
+                                plainRects[0].rect.fLeft, leadingRects[0].rect.fLeft, EPSILON100));
+        auto impl = static_cast<ParagraphImpl*>(leading.get());
+        REPORTER_ASSERT(reporter,
+                        impl->cluster(impl->clusterIndex(0)).isZeroWidthDefaultIgnorable());
+        REPORTER_ASSERT(reporter,
+                        !impl->cluster(impl->clusterIndex(3)).isZeroWidthDefaultIgnorable());
+    }
+}
+
+// An invisible cluster at the visual end of a line has no letter spacing, so the line shift
+// follows the last visible cluster, the same as without the invisible one
+DEF_TEST(SkParagraph_LetterSpacingSkipsIgnorables_Trailing, reporter) {
+    auto fonts = single_font_collection("fonts/Roboto-Regular.ttf", "Roboto");
+    if (!fonts) {
+        return;
+    }
+    for (SkScalar spacing : {3.0f, 10.0f}) {
+        auto plain = layout_letter_spaced(fonts, "Roboto", "One", spacing);
+        auto trailing = layout_letter_spaced(fonts, "Roboto", "One\u200B", spacing);
+        auto plainRects =
+                plain->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        auto trailingRects =
+                trailing->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        REPORTER_ASSERT(reporter, plainRects.size() == 1 && trailingRects.size() == 1);
+        if (plainRects.size() != 1 || trailingRects.size() != 1) {
+            return;
+        }
+        REPORTER_ASSERT(reporter,
+                        SkScalarNearlyEqual(plainRects[0].rect.fLeft,
+                                            trailingRects[0].rect.fLeft,
+                                            EPSILON100),
+                        "%f != %f", plainRects[0].rect.fLeft, trailingRects[0].rect.fLeft);
+    }
+}
+
+// Space-less fonts delete default-ignorables in HarfBuzz, leaving a cluster without glyphs at the
+// end of the run that must not move the end of the run a second time
+DEF_TEST(SkParagraph_LetterSpacingFontWithoutSpaceGlyph, reporter) {
+    auto fonts = single_font_collection("fonts/abc/abc.ttf", "AbcFont");
+    if (!fonts) {
+        return;
+    }
+    for (SkScalar spacing : {3.0f, -2.0f}) {
+        auto ab = layout_letter_spaced(fonts, "AbcFont", "ab", spacing);
+        auto abIgn = layout_letter_spaced(fonts, "AbcFont", "ab\u200B", spacing);
+        auto abRects = ab->getRectsForRange(0, 2, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        auto abIgnRects =
+                abIgn->getRectsForRange(0, 2, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        REPORTER_ASSERT(reporter, abRects.size() == 1 && abIgnRects.size() == 1);
+        if (abRects.size() != 1 || abIgnRects.size() != 1) {
+            return;
+        }
+        REPORTER_ASSERT(reporter,
+                        SkScalarNearlyEqual(
+                                abRects[0].rect.width(), abIgnRects[0].rect.width(), EPSILON100));
+        std::vector<LineMetrics> metrics;
+        abIgn->getLineMetrics(metrics);
+        REPORTER_ASSERT(reporter, metrics.size() == 1);
+
+        auto rtlPlain =
+                layout_letter_spaced(fonts, "AbcFont", "b", spacing, false, TextDirection::kRtl);
+        auto rtlIgn = layout_letter_spaced(
+                fonts, "AbcFont", "\u200Fb", spacing, false, TextDirection::kRtl);
+        REPORTER_ASSERT(reporter,
+                        SkScalarNearlyEqual(
+                                rtlPlain->getLongestLine(), rtlIgn->getLongestLine(), EPSILON100));
+        metrics.clear();
+        rtlIgn->getLineMetrics(metrics);
+        REPORTER_ASSERT(reporter, metrics.size() == 1);
+    }
+}
+
+// Hangul fillers have Default_Ignorable_Code_Point=true in Unicode, yet shape into visible
+// positive-advance blank syllables that must keep letter spacing and leading half-spacing
+DEF_TEST(SkParagraph_LetterSpacingKeepsHangulFillers, reporter) {
+    auto fonts = sk_make_sp<ResourceFontCollection>(true);
+    if (!fonts->fontsFound()) {
+        return;
+    }
+    constexpr const char* kFamily = "Noto Sans CJK JP";
+    const SkScalar unspaced =
+            layout_letter_spaced(fonts, kFamily, "\uAC00\u115F\u1160\uAC00", 0)->getLongestLine();
+    const SkScalar spaced =
+            layout_letter_spaced(fonts, kFamily, "\uAC00\u115F\u1160\uAC00", 4)->getLongestLine();
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(spaced, unspaced + 12.0f, EPSILON100));
+
+    auto plain = layout_letter_spaced(fonts, kFamily, "\uAC00\uAC00", 4);
+    auto leadingFiller = layout_letter_spaced(fonts, kFamily, "\u3164\uAC00", 4);
+    auto plainRects =
+            plain->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    auto fillerRects =
+            leadingFiller->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, plainRects.size() == 1 && fillerRects.size() == 1);
+    if (plainRects.size() != 1 || fillerRects.size() != 1) {
+        return;
+    }
+    REPORTER_ASSERT(
+            reporter,
+            SkScalarNearlyEqual(plainRects[0].rect.fLeft, fillerRects[0].rect.fLeft, EPSILON100));
 }

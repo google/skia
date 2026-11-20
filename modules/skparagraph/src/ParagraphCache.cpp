@@ -120,6 +120,7 @@ public:
         , fBidiRegions(paragraph->fBidiRegions)
         , fHasLineBreaks(paragraph->fHasLineBreaks)
         , fHasWhitespacesInside(paragraph->fHasWhitespacesInside)
+        , fHasDefaultIgnorables(paragraph->fHasDefaultIgnorables)
         , fTrailingSpaces(paragraph->fTrailingSpaces)
         , fFontSwitches(paragraph->fFontSwitches) { }
 
@@ -139,6 +140,7 @@ public:
     std::vector<SkUnicode::BidiRegion> fBidiRegions;
     bool fHasLineBreaks;
     bool fHasWhitespacesInside;
+    bool fHasDefaultIgnorables;
     TextIndex fTrailingSpaces;
     // Reported through ParagraphImpl::resolvedFonts()
     TArray<ResolvedFontDescriptor> fFontSwitches;
@@ -336,6 +338,7 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
     paragraph->fBidiRegions = entry->fValue->fBidiRegions;
     paragraph->fHasLineBreaks = entry->fValue->fHasLineBreaks;
     paragraph->fHasWhitespacesInside = entry->fValue->fHasWhitespacesInside;
+    paragraph->fHasDefaultIgnorables = entry->fValue->fHasDefaultIgnorables;
     paragraph->fTrailingSpaces = entry->fValue->fTrailingSpaces;
     paragraph->fFontSwitches = entry->fValue->fFontSwitches;
     for (auto& run : paragraph->fRuns) {

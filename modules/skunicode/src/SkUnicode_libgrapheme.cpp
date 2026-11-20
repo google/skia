@@ -115,6 +115,9 @@ public:
                 if (this->isControl(unichar)) {
                     results->at(i) |= SkUnicode::kControl;
                 }
+                if (this->isDefaultIgnorable(unichar)) {
+                    results->at(i) |= SkUnicode::kDefaultIgnorable;
+                }
             }
         }
         return true;

@@ -487,6 +487,9 @@ class SkUnicode_icu : public SkUnicode {
         if (sk_u_hasBinaryProperty(unichar, UCHAR_IDEOGRAPHIC)) {
             flags |= SkUnicode::kIdeographic;
         }
+        if (sk_u_hasBinaryProperty(unichar, UCHAR_DEFAULT_IGNORABLE_CODE_POINT)) {
+            flags |= SkUnicode::kDefaultIgnorable;
+        }
         return flags;
     }
 
@@ -669,6 +672,9 @@ public:
                 }
                 if (this->isControl(unichar)) {
                     flags |= SkUnicode::kControl;
+                }
+                if (this->isDefaultIgnorable(unichar)) {
+                    flags |= SkUnicode::kDefaultIgnorable;
                 }
                 for (auto i = start; i < end; ++i) {
                     results->at(i) |= flags;
