@@ -494,6 +494,11 @@ void ParagraphImpl::applySpacingAndBuildClusterTable() {
                         lastSpaceCluster->run(this).extend(lastSpaceCluster, spacing);
                     } else {
                         run.addSpacesAtTheEnd(spacing, lastSpaceCluster);
+                        // A trailing empty cluster has no glyphs for shift() to move the run end
+                        if (cluster->size() == 0 && cluster->endPos() == run.size() &&
+                            run.size() > 0) {
+                            run.extend(lastSpaceCluster, spacing);
+                        }
                     }
 
                     run.shift(cluster, spacing);

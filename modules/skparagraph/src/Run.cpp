@@ -271,8 +271,9 @@ void Run::shift(const Cluster* cluster, SkScalar offset) {
     for (size_t i = cluster->startPos(); i < cluster->endPos(); ++i) {
         this->addX(i, offset);
     }
-    if (this->size() == cluster->endPos()) {
-        // To make calculations easier
+    // fPositions[size()] is the end of the run, and it already moved with the last glyph, so a
+    // cluster without glyphs at the end must not move it again; only an empty run moves it here
+    if (this->size() == cluster->endPos() && (cluster->size() > 0 || this->size() == 0)) {
         this->addX(cluster->endPos(), offset);
     }
 }
