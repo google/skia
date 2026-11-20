@@ -66,7 +66,7 @@ tools/lottiecap/filmstrip.png
 
 bazel-*
 
-Cargo.lock
+**/Cargo.lock
 target/
 
 # A user is free to specify custom builds or options here without them being checked in.
