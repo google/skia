@@ -14,10 +14,6 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
 #include "src/gpu/Swizzle.h"
-#include "src/gpu/graphite/Surface_Graphite.h"
-#include "src/gpu/graphite/TextureFormat.h"
-#include "src/gpu/graphite/TextureProxy.h"
-#include "src/gpu/graphite/TextureProxyView.h"
 
 namespace skgpu {
 
