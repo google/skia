@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkColor.h"
+#include "include/core/SkFontArguments.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkPaint.h"
@@ -31,6 +32,7 @@
 #include <chrono>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <string>
 #include <thread>
 #include <vector>
@@ -661,4 +663,126 @@ DEF_TEST(SkParagraph_CacheSharedGlyphData, reporter) {
     REPORTER_ASSERT(reporter, boxes(again.get()) == referenceJustified);
     REPORTER_ASSERT(reporter, boxes(left.get()) == referenceLeft);
     fontCollection->getParagraphCache()->setChecker([](ParagraphImpl*, const char*, bool) {});
+}
+
+// A paragraph with a NaN style value must hit the cache like any other: SkLRUCache finds the
+// entry it evicts by key equality, so a key unequal to itself crashed on eviction
+DEF_TEST(SkParagraph_CacheKeyWithNaNStyleValue, reporter) {
+    struct Styles {
+        ParagraphStyle paragraph;
+        TextStyle text;
+        std::optional<PlaceholderStyle> placeholder;
+    };
+    struct Case {
+        const char* name;
+        void (*poison)(Styles&, SkScalar nan);
+    };
+    const Case kCases[] = {
+            {"font size", [](Styles& s, SkScalar nan) { s.text.setFontSize(nan); }},
+            {"height",
+             [](Styles& s, SkScalar nan) {
+                 s.text.setHeightOverride(true);
+                 s.text.setHeight(nan);
+             }},
+            {"letter spacing", [](Styles& s, SkScalar nan) { s.text.setLetterSpacing(nan); }},
+            {"word spacing", [](Styles& s, SkScalar nan) { s.text.setWordSpacing(nan); }},
+            {"baseline shift", [](Styles& s, SkScalar nan) { s.text.setBaselineShift(nan); }},
+            {"font variation",
+             [](Styles& s, SkScalar nan) {
+                 const SkFontArguments::VariationPosition::Coordinate coordinate = {
+                         SkSetFourByteTag('w', 'g', 'h', 't'), nan};
+                 s.text.setFontArguments(
+                         SkFontArguments().setVariationDesignPosition({&coordinate, 1}));
+             }},
+            {"strut font size",
+             [](Styles& s, SkScalar nan) {
+                 StrutStyle strut;
+                 strut.setStrutEnabled(true);
+                 strut.setFontSize(nan);
+                 s.paragraph.setStrutStyle(strut);
+             }},
+            // StrutStyle::operator== compares the values of a disabled strut too
+            {"disabled strut leading",
+             [](Styles& s, SkScalar nan) {
+                 StrutStyle strut;
+                 strut.setLeading(nan);
+                 s.paragraph.setStrutStyle(strut);
+             }},
+            {"placeholder width",
+             [](Styles& s, SkScalar nan) {
+                 s.placeholder = PlaceholderStyle(nan,
+                                                  10,
+                                                  PlaceholderAlignment::kBaseline,
+                                                  TextBaseline::kAlphabetic,
+                                                  0);
+             }},
+            {"placeholder baseline offset",
+             [](Styles& s, SkScalar nan) {
+                 s.placeholder = PlaceholderStyle(10,
+                                                  10,
+                                                  PlaceholderAlignment::kBaseline,
+                                                  TextBaseline::kAlphabetic,
+                                                  nan);
+             }},
+    };
+
+    auto fonts = sk_make_sp<FontCollection>();
+    auto build = [&](const Styles& styles, const char* text) {
+        ParagraphBuilderImpl builder(styles.paragraph, fonts, get_unicode());
+        builder.pushStyle(styles.text);
+        builder.addText(text);
+        if (styles.placeholder) {
+            builder.addPlaceholder(*styles.placeholder);
+        }
+        builder.pop();
+        return builder.Build();
+    };
+    constexpr int kCacheSize = 128;  // ParagraphCache::Cache::kMaxEntries
+    for (const Case& c : kCases) {
+        skiatest::ReporterContext context(reporter, SkString(c.name));
+        ParagraphCache cache;
+        Styles poisoned;
+        c.poison(poisoned, SK_ScalarNaN);
+        auto paragraph = build(poisoned, "text");
+        cache.updateParagraph(static_cast<ParagraphImpl*>(paragraph.get()));
+        REPORTER_ASSERT(reporter, cache.count() == 1, "got %d entries", cache.count());
+
+        // 0/0 on x86 gives a NaN with the sign bit set, so the bits differ from SK_ScalarNaN
+        Styles samePoison;
+        c.poison(samePoison, -SK_ScalarNaN);
+        auto same = build(samePoison, "text");
+        REPORTER_ASSERT(reporter, cache.findParagraph(static_cast<ParagraphImpl*>(same.get())));
+        cache.updateParagraph(static_cast<ParagraphImpl*>(same.get()));
+        REPORTER_ASSERT(reporter, cache.count() == 1, "got %d entries", cache.count());
+
+        // The poisoned entry is the oldest one, so it is evicted first
+        for (int i = 0; i < kCacheSize; ++i) {
+            auto filler = build(Styles(), SkStringPrintf("filler %d", i).c_str());
+            cache.updateParagraph(static_cast<ParagraphImpl*>(filler.get()));
+        }
+        REPORTER_ASSERT(reporter, cache.count() == kCacheSize, "got %d entries", cache.count());
+    }
+}
+
+// FaceCache and VariationCache are hash maps keyed by FontArguments: a NaN axis value must find
+// its own entry instead of cloning a new typeface (and adding an entry) on every lookup
+UNIX_ONLY_TEST(SkParagraph_FontCollectionCachesNaNVariation, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    auto find = [&](SkScalar nan) {
+        const SkFontArguments::VariationPosition::Coordinate coordinate = {
+                SkSetFourByteTag('w', 'g', 'h', 't'), nan};
+        FontArguments args(SkFontArguments().setVariationDesignPosition({&coordinate, 1}));
+        return fontCollection->findTypefaces({SkString("Roboto")}, SkFontStyle(), args);
+    };
+    auto first = find(SK_ScalarNaN);
+    // The sign bit gives a NaN with other bits, as 0/0 does on x86
+    auto second = find(-SK_ScalarNaN);
+    REPORTER_ASSERT(reporter, first.size() == 1, "got %zu typefaces", first.size());
+    REPORTER_ASSERT(reporter, second.size() == 1, "got %zu typefaces", second.size());
+    if (first.size() != 1 || second.size() != 1) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, first[0]->uniqueID() == second[0]->uniqueID(),
+                    "got typefaces %u and %u", first[0]->uniqueID(), second[0]->uniqueID());
 }

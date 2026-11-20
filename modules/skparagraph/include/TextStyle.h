@@ -32,8 +32,9 @@ static inline bool nearlyEqual(SkScalar x, SkScalar y, SkScalar tolerance = SK_S
     if (SkIsFinite(x, y)) {
         return SkScalarNearlyEqual(x, y, tolerance);
     }
+    // Style comparisons back cache keys, which must equal themselves: NaN == NaN and
     // Inf == Inf, anything else is false
-    return x == y;
+    return x == y || (SkIsNaN(x) && SkIsNaN(y));
 }
 
 // Multiple decorations can be applied at once. Ex: Underline and overline is

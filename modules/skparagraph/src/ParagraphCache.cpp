@@ -60,7 +60,8 @@ namespace {
           auto threshold = SkIntToScalar(1 << 12);
           return SkFloat2Bits(SkScalarRoundToScalar(a * threshold)/threshold);
         } else {
-          return SkFloat2Bits(a);
+          // nearlyEqual treats every NaN as equal, so every NaN must hash the same
+          return SkFloat2Bits(SkIsNaN(a) ? SK_ScalarNaN : a);
         }
     }
 

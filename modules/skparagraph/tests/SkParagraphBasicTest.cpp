@@ -635,7 +635,8 @@ UNIX_ONLY_TEST(SkParagraph_Infinity, reporter) {
 
     SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarInfinity) == false);
     SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarNegativeInfinity) == false);
-    SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarNaN) == false);
+    // Style equality backs cache keys, so it must hold for a NaN value too
+    SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarNaN) == true);
 }
 
 UNIX_ONLY_TEST(SkParagraph_SimpleParagraphReset, reporter) {

@@ -4,7 +4,8 @@
 
 static bool operator==(const SkFontArguments::VariationPosition::Coordinate& a,
                        const SkFontArguments::VariationPosition::Coordinate& b) {
-   return a.axis == b.axis && a.value == b.value;
+   // FontCollection caches are keyed by FontArguments, so a NaN value must equal itself
+   return a.axis == b.axis && (a.value == b.value || (SkIsNaN(a.value) && SkIsNaN(b.value)));
 }
 
 static bool operator==(const SkFontArguments::Palette::Override& a,
@@ -19,7 +20,8 @@ size_t hash<skia::textlayout::FontArguments>::operator()(const skia::textlayout:
     hash ^= std::hash<int>()(args.fCollectionIndex);
     for (const auto& coord : args.fCoordinates) {
         hash ^= std::hash<SkFourByteTag>()(coord.axis);
-        hash ^= std::hash<float>()(coord.value);
+        // Every NaN compares equal, so every NaN must hash the same
+        hash ^= std::hash<float>()(SkIsNaN(coord.value) ? SK_FloatNaN : coord.value);
     }
     hash ^= std::hash<int>()(args.fPaletteIndex);
     for (const auto& override : args.fPaletteOverrides) {
