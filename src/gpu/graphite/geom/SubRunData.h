@@ -73,6 +73,8 @@ public:
     const sktext::gpu::AtlasSubRun* subRun() const { return fSubRun; }
     int startGlyphIndex() const { return fStartGlyphIndex; }
     int glyphCount() const { return fGlyphCount; }
+    // Set the number of glyphs placed in the atlas after paint key extraction
+    void setGlyphCount(int glyphCount) { fGlyphCount = glyphCount; }
     SkColor luminanceColor() const { return fLuminanceColor; }
     bool useGammaCorrectDistanceTable() const { return fUseGammaCorrectDistanceTable; }
     SkPixelGeometry pixelGeometry() const { return fPixelGeometry; }

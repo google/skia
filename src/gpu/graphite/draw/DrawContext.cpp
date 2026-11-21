@@ -112,7 +112,7 @@ DrawContext::DrawContext(const Caps* caps,
     // that the DC manages.
 }
 
-DrawContext::~DrawContext() = default;
+DrawContext::~DrawContext() { SkASSERT(fPendingScratchReads.empty()); }
 
 void DrawContext::clear(const SkColor4f& clearColor) {
     this->resetForClearOrDiscard();
@@ -205,6 +205,27 @@ void DrawContext::recordDependency(sk_sp<Task> task) {
     // dependent tasks and after any previous calls to flush(), but everything else that's being
     // collected on the DrawContext will execute after `task` once the next flush() is performed.
     fCurrentDrawTask->addTask(std::move(task));
+}
+
+void DrawContext::stageScratchReadDependency(sk_sp<TextureProxy> proxy, sk_sp<Task> task) {
+    SkASSERT(proxy);
+    SkASSERT(task);
+    fPendingScratchReads.push_back({std::move(proxy), std::move(task)});
+}
+
+void DrawContext::commitScratchReadDependencies(Recorder* recorder) {
+    if (fPendingScratchReads.empty()) {
+        return;
+    }
+    SkASSERT(recorder);
+    // Callers commit only after recording a draw, guaranteeing the next flush() snaps a
+    // DrawPass that balances each addPendingRead()
+    SkASSERT(this->modifiesTarget());
+    for (ScratchReadDependency& dep : fPendingScratchReads) {
+        recorder->priv().addPendingRead(dep.proxy.get());
+        this->recordDependency(std::move(dep.task));
+    }
+    fPendingScratchReads.clear();
 }
 
 PathAtlas* DrawContext::getComputePathAtlas(Recorder* recorder) {

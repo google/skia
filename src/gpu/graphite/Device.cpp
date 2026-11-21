@@ -597,15 +597,15 @@ void Device::setImmutable() {
 bool Device::notifyInUse(Recorder* recorder, DrawContext* drawContext) {
     if (this->isScratchDevice()) {
         if (fLastTask) {
-            // Increment the pending read count for the device's target
-            recorder->priv().addPendingRead(fDC->target().proxy());
             if (drawContext) {
-                // Add a reference to the device's drawTask to `drawContext` if that's provided.
-                drawContext->recordDependency(fLastTask);
+                // Defer the pending read count and DrawTask dependency until drawContext records
+                // the draw so mid-draw flushes or aborted draws cannot orphan the read count
+                drawContext->stageScratchReadDependency(fDC->target().refProxy(), fLastTask);
             } else {
                 // If there's no `drawContext` this notify represents a copy, so for now append the
                 // task to the root task list since that is where the subsequent copy task will go
                 // as well.
+                recorder->priv().addPendingRead(fDC->target().proxy());
                 recorder->priv().add(fLastTask);
             }
         } else {
@@ -1569,8 +1569,6 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                                                          rendererData);
     }
 
-    auto& glyphData = subRun->glyphVector().accessBackendData<GlyphData>();
-
     auto [bounds, maskToDevice] =
             subRun->vertexFiller().boundsAndDeviceMatrix(
                     localToDevice, drawOrigin,
@@ -1580,33 +1578,41 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
         return;
     }
 
+    // This loop must not call glyphData.regenerateAtlas() itself. regenerateAtlas() uploads glyphs
+    // into atlas plots and stamps each plot with the current flush token ("in use until this
+    // flush"). drawGeometry() runs shading.toKey(), which may replay a nested SkPictureShader or a
+    // dynamic image into a scratch device and flush the shared Recorder. That flush advances the
+    // token, so plots stamped before toKey() look free and can be evicted and overwritten before
+    // our draw records: the glyphs then sample other glyphs' pixels (crbug/586074490).
+    //
+    // So drawGeometry() calls regenerateAtlas() after toKey() and reports how many glyphs it
+    // placed through `glyphsDrawn`. Here we only walk the run: each pass starts at
+    // `subRunCursor`, and SubRunData gets glyphCount=0 as a placeholder that drawGeometry()
+    // replaces via setGlyphCount()
     for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
-        // For the remainder of the run, add any atlas uploads to the Recorder's TextAtlasManager
-        auto [ok, glyphsRegenerated] = glyphData.regenerateAtlas(subRunCursor,
-                                                                 subRunEnd,
-                                                                 subRun->glyphVector(),
-                                                                 this->recorder());
-
-        // There was a problem allocating the glyph in the atlas. Bail.
-        if (!ok) {
+        int glyphsDrawn = 0;
+        this->drawGeometry(localToDevice,
+                           Geometry(SubRunData(subRun,
+                                               subRunStorage,
+                                               bounds,
+                                               SkM44{maskToDevice},
+                                               subRunCursor,
+                                               /*glyphCount=*/0,
+                                               SkPaintPriv::ComputeLuminanceColor(paint),
+                                               useGammaCorrectDistanceTable,
+                                               this->surfaceProps().pixelGeometry(),
+                                               fRecorder)),
+                           paintParams,
+                           DefaultFillStyle(),
+                           &glyphsDrawn);
+        if (glyphsDrawn == 0) {
+            // Clipped out, dropped by drawGeometry, or glyph too large for an empty atlas.
+            // drawGeometry() already flushed and retried once, so 0 means no progress is
+            // possible; the old loop kept retrying on 0 here
             return;
         }
-        if (glyphsRegenerated) {
-            this->drawGeometry(localToDevice,
-                               Geometry(SubRunData(subRun,
-                                                   subRunStorage,
-                                                   bounds,
-                                                   SkM44{maskToDevice},
-                                                   subRunCursor,
-                                                   glyphsRegenerated,
-                                                   SkPaintPriv::ComputeLuminanceColor(paint),
-                                                   useGammaCorrectDistanceTable,
-                                                   this->surfaceProps().pixelGeometry(),
-                                                   fRecorder)),
-                               paintParams,
-                               DefaultFillStyle());
-        }
-        subRunCursor += glyphsRegenerated;
+        // Each pass draws >= 1 glyph, so the loop terminates
+        subRunCursor += glyphsDrawn;
 
         if (subRunCursor < subRunEnd) {
             // Flush if not all the glyphs are handled because the atlas is out of space.
@@ -1665,8 +1671,20 @@ void Device::drawGeometryWithPathEffect(const Transform& localToDevice,
 void Device::drawGeometry(const Transform& localToDevice,
                           Geometry&& geometry,
                           const PaintParams& paint,
-                          SkStrokeRec style) {
+                          SkStrokeRec style,
+                          int* subRunGlyphsDrawn) {
     ASSERT_SINGLE_OWNER
+    if (subRunGlyphsDrawn) {
+        *subRunGlyphsDrawn = 0;
+    }
+
+    // shading.toKey() and drawCoverageMask() (before calling here) stage scratch-device reads on
+    // fDC. Drop them on any early return so a later draw does not commit them and render scratch
+    // content for this dropped draw. Keep this at function entry to cover every return below
+    struct ScopedScratchReadCleanup {
+        DrawContext* fDC;
+        ~ScopedScratchReadCleanup() { fDC->discardScratchReadDependencies(); }
+    } cleanupScratchReads{fDC.get()};
 
     if (!localToDevice.valid()) {
         // If the transform is not invertible or not finite then drawing isn't well defined.
@@ -1946,6 +1964,42 @@ void Device::drawGeometry(const Transform& localToDevice,
         geometry.setCoverageMaskShape(*atlasMask);
         styleType = SkStrokeRec::kFill_Style;
         fAtlasedPathCount++;
+    } else if (geometry.isSubRun()) {
+        // Glyph SubRuns get their own branch, like the path atlas branch above: their atlas
+        // entries are created here, not by the caller. Uploading glyphs stamps each atlas plot
+        // with the current flush token. Every flush this draw can trigger (needsFlush above,
+        // shading.toKey() replaying a picture shader) is already behind us, and nothing between
+        // here and recordDraw() below flushes, so the stamped plots stay valid until the draw
+        // is recorded (crbug/586074490)
+        const SubRunData& subRunData = geometry.subRunData();
+        sktext::gpu::GlyphVector& glyphVector = subRunData.subRun()->glyphVector();
+        auto& glyphData = glyphVector.accessBackendData<GlyphData>();
+        const int begin = subRunData.startGlyphIndex();
+        const int end = subRunData.subRun()->glyphCount();
+        // First attempt: place as many glyphs from `begin` as fit in the atlas right now.
+        // Returns ok=false on allocation failure, otherwise how many glyphs it placed
+        auto [ok, glyphsRegenerated] =
+                glyphData.regenerateAtlas(begin, end, glyphVector, fRecorder);
+        if (ok && glyphsRegenerated == 0) {
+            // 0 placed: toKey() (e.g. SkPictureShader replay) or sibling Devices hold every plot.
+            // Flush all Devices (plots are Recorder-wide) and retry once; 0 again means the glyph
+            // cannot fit even an empty atlas. No clip-count check: needsFlushBeforeDraw() reserved
+            // room for this draw and its clips at their real step counts; a flush only frees room
+            fRecorder->priv().flushTrackedDevices(
+                    SK_DUMP_TASKS_CODE("Device::drawGeometry Glyph Atlas Flush"));
+            std::tie(ok, glyphsRegenerated) =
+                    glyphData.regenerateAtlas(begin, end, glyphVector, fRecorder);
+        }
+        // Bail if atlas allocation failed or the next glyph exceeds even an empty plot
+        if (!ok || glyphsRegenerated == 0) {
+            return;
+        }
+        // Record only the glyphs that got atlas entries; drawAtlasSubRun() draws the rest of the
+        // run in its next pass, starting right after them
+        geometry.setGlyphCount(glyphsRegenerated);
+        // drawAtlasSubRun(), the only SubRun caller, always passes the out-param
+        SkASSERT(subRunGlyphsDrawn);
+        *subRunGlyphsDrawn = glyphsRegenerated;
     }
 
     // Determine whether or not this draw will also record an inner-fill draw. This must be done
@@ -2053,6 +2107,12 @@ void Device::drawGeometry(const Transform& localToDevice,
                         styleType == SkStrokeRec::kFill_Style ? nullptr : &stroke,
                         clipLayer);
     }
+    // shading.toKey() and drawCoverageMask() only staged their scratch-device reads (see
+    // DrawContext::stageScratchReadDependency()). Commit them now, after recordDraw(): any glyph
+    // or path atlas flush during this draw has already closed the previous DrawTask, so the reads
+    // and producer tasks attach to the DrawTask that actually contains this draw. Committing
+    // earlier would hand them to a task that a mid-draw flush finalizes without this draw
+    fDC->commitScratchReadDependencies(fRecorder);
 
     if (!useDrawListLayer) {
         fColorDepthBoundsManager->recordDraw(clip.drawBounds(), order.paintOrder());

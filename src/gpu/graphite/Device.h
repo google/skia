@@ -303,10 +303,14 @@ private:
     // depth-based clipping automatically based on the current clip stack state.
     //
     // All overridden SkDevice::draw() functions should bottom-out with calls to drawGeometry().
+
+    // For SubRun geometry, populates glyph atlas entries after paint key extraction and writes the
+    // number of recorded glyphs to subRunGlyphsDrawn (0 if clipped out, dropped, or unable to fit)
     void drawGeometry(const Transform&,
                       Geometry&&,
                       const PaintParams&,
-                      SkStrokeRec);
+                      SkStrokeRec,
+                      int* subRunGlyphsDrawn = nullptr);
 
     // Like drawGeometry() but is Shape-only, depth-only, fill-only, and lets the ClipStack define
     // the transform, clip, and DrawOrder (although Device still tracks stencil buffer usage).

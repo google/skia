@@ -583,6 +583,7 @@ filegroup(
         "graphite/DeviceTest.cpp",
         "graphite/DrawAtlasTest.cpp",
         "graphite/DstReadCopyBoundsTest.cpp",
+        "graphite/GlyphAtlasTokenTest.cpp",
         "graphite/GraphiteContextRecorderTest.cpp",
         "graphite/GraphitePromiseImageTest.cpp",
         "graphite/GraphiteResourceCacheTest.cpp",

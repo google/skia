@@ -181,6 +181,12 @@ public:
     Shape& shape() { SkASSERT(this->isShape()); return fShape; }
 
     const SubRunData& subRunData() const { SkASSERT(this->isSubRun()); return fSubRunData; }
+    // Device::drawGeometry() places glyphs in the atlas after shading.toKey(), so it learns how
+    // many glyphs this draw covers only then
+    void setGlyphCount(int glyphCount) {
+        SkASSERT(this->isSubRun());
+        fSubRunData.setGlyphCount(glyphCount);
+    }
     const EdgeAAQuad& edgeAAQuad() const { SkASSERT(this->isEdgeAAQuad()); return fEdgeAAQuad; }
     const CoverageMaskShape& coverageMaskShape() const {
         SkASSERT(this->isCoverageMaskShape()); return fCoverageMaskShape;
