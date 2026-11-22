@@ -268,13 +268,14 @@ void SoftwarePathRenderer::DrawToTargetWithShapeMask(
     // initialized (0,0 to deviceSpaceRectToDraw.size()). To combat this, manually pass in the
     // subset and domain to enable subset clamping.
     SkRect maskSubset = SkRect::Make(deviceSpaceRectToDraw.size());
-    SkRect maskDomain = maskMatrix.mapRect(invert.mapRect(dstRect.makeInset(0.5f, 0.5f)));
+    // Omit a CPU-computed domain: GrTextureEffect insets kNearest bounds by 0.5 + 1/512 so an
+    // exact [0.5, size - 0.5] domain (> 1px) never skips clamping, whereas float rounding under
+    // large cancelled translations can pull it inward and expose stale approx-fit mask texels
     paint.setCoverageFragmentProcessor(GrTextureEffect::MakeSubset(std::move(view),
                                                                    kPremul_SkAlphaType,
                                                                    maskMatrix,
                                                                    GrSamplerState::Filter::kNearest,
                                                                    maskSubset,
-                                                                   maskDomain,
                                                                    *sdc->caps()));
     DrawNonAARect(sdc, std::move(paint), userStencilSettings, clip, SkMatrix::I(),
                   dstRect, invert);
