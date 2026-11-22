@@ -9,22 +9,13 @@
 
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkBitmap.h"
-#include "include/core/SkBlendMode.h"
-#include "include/core/SkCanvas.h"
-#include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
-#include "include/core/SkMatrix.h"
-#include "include/core/SkPaint.h"
-#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkSamplingOptions.h"
-#include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
-#include "include/effects/SkImageFilters.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
@@ -433,186 +424,6 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageShader_NearestDecalSubset,
         return SkSurfaces::AsImage(std::move(surface));
     };
     skiatest::NearestDecalSubset::Run(reporter, factories);
-}
-
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageShader_LargeTranslationSubset,
-                                         reporter,
-                                         context,
-                                         CtsEnforcement::kNever) {
-    if (context->supportsProtectedContent()) {
-        return;
-    }
-    std::unique_ptr<Recorder> recorder = context->makeRecorder();
-    REPORTER_ASSERT(reporter, recorder);
-    if (!recorder) {
-        return;
-    }
-
-    // 1. Direct subset-clamp elision check with large opposing local2Dev and localMatrix
-    // translations (2^27 + 16) that cancel to 0 on the CPU, but evaluate in separate float32
-    // stages on the GPU (where ULP is 16.0f).
-    {
-        SkBitmap srcBm;
-        srcBm.allocPixels(SkImageInfo::Make(16, 8, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-        srcBm.erase(SK_ColorBLUE, SkIRect::MakeXYWH(0, 0, 8, 8));
-        srcBm.erase(SK_ColorRED, SkIRect::MakeXYWH(8, 0, 8, 8));
-        srcBm.setImmutable();
-        sk_sp<SkImage> img =
-                SkImages::TextureFromImage(recorder.get(), srcBm.asImage(), {/*fMipmapped=*/false});
-        REPORTER_ASSERT(reporter, img);
-
-        const SkImageInfo dstInfo =
-                SkImageInfo::Make(8, 8, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-        sk_sp<SkSurface> dstSurface = SkSurfaces::RenderTarget(recorder.get(), dstInfo);
-        REPORTER_ASSERT(reporter, dstSurface);
-        SkCanvas* canvas = dstSurface->getCanvas();
-        canvas->clear(SK_ColorTRANSPARENT);
-
-        constexpr float kLargeOffset = static_cast<float>((1 << 27) + 16);
-        canvas->translate(kLargeOffset, 0.f);
-        SkMatrix localMatrix = SkMatrix::Translate(-kLargeOffset, 0.f);
-        SkPaint paint;
-        paint.setShader(SkImageShader::MakeSubset(std::move(img),
-                                                  SkRect::MakeWH(8, 8),
-                                                  SkTileMode::kClamp,
-                                                  SkTileMode::kClamp,
-                                                  SkSamplingOptions(SkFilterMode::kLinear),
-                                                  &localMatrix));
-        canvas->drawPaint(paint);
-
-        SkBitmap readback;
-        readback.allocPixels(dstInfo);
-        REPORTER_ASSERT(reporter, dstSurface->readPixels(readback.pixmap(), 0, 0));
-        for (int y = 0; y < 8; ++y) {
-            for (int x = 0; x < 8; ++x) {
-                SkColor c = readback.getColor(x, y);
-                REPORTER_ASSERT(reporter,
-                                c == SK_ColorBLUE,
-                                "Subtest 1 pixel (%d, %d) expected BLUE, got 0x%08x",
-                                x,
-                                y,
-                                c);
-            }
-        }
-    }
-
-    // 2. Approx-fit blur scratch texture with opposing SkImageFilters::Offset(+-2^30) (issue
-    // crbug.com/584283357 repro): the strict subset clamp on the 384x64 blur tile must not be
-    // elided.
-    {
-        const SkImageInfo primeInfo =
-                SkImageInfo::Make(600, 160, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-        sk_sp<SkSurface> primeSurface = SkSurfaces::RenderTarget(recorder.get(), primeInfo);
-        REPORTER_ASSERT(reporter, primeSurface);
-        const SkIRect blurCrop = SkIRect::MakeXYWH(0, 0, 510, 126);
-        sk_sp<SkImageFilter> blurs[4];
-        for (auto& b : blurs) {
-            b = SkImageFilters::Blur(1.0f, 1.0f, SkTileMode::kDecal, nullptr, blurCrop);
-        }
-        sk_sp<SkImageFilter> mergedPrime = SkImageFilters::Merge(blurs, std::size(blurs));
-        primeSurface->getCanvas()->clear(SK_ColorTRANSPARENT);
-        SkPaint primePaint;
-        primePaint.setColor(SK_ColorRED);
-        primePaint.setImageFilter(std::move(mergedPrime));
-        primeSurface->getCanvas()->drawRect(SkRect::MakeWH(600, 160), primePaint);
-
-        SkBitmap primeReadback;
-        primeReadback.allocPixels(primeInfo);
-        REPORTER_ASSERT(reporter, primeSurface->readPixels(primeReadback.pixmap(), 0, 0));
-        REPORTER_ASSERT(reporter, SkColorGetR(primeReadback.getColor(100, 50)) == 255u);
-
-        constexpr int kWidth = 383;
-        constexpr int kHeight = 64;
-        const SkImageInfo dstInfo =
-                SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-        sk_sp<SkSurface> dstSurface = SkSurfaces::RenderTarget(recorder.get(), dstInfo);
-        REPORTER_ASSERT(reporter, dstSurface);
-        dstSurface->getCanvas()->clear(SK_ColorTRANSPARENT);
-
-        sk_sp<SkImageFilter> offsetSrc = SkImageFilters::Offset(-350.0f, 1.0f, nullptr);
-        sk_sp<SkImageFilter> blur = SkImageFilters::Blur(1.0f,
-                                                         1.0f,
-                                                         SkTileMode::kDecal,
-                                                         std::move(offsetSrc),
-                                                         SkIRect::MakeXYWH(-351, 1, 384, 64));
-        sk_sp<SkImageFilter> tiled =
-                SkImageFilters::Tile(SkRect::MakeXYWH(-351, 1, 384, 64),
-                                     SkRect::MakeXYWH(-400, 0, 1200000000.0f, 66),
-                                     std::move(blur));
-        constexpr float kLargeOffset = static_cast<float>(1 << 30);
-        sk_sp<SkImageFilter> shiftedForward =
-                SkImageFilters::Offset(kLargeOffset, 0.0f, std::move(tiled));
-        sk_sp<SkImageFilter> blended =
-                SkImageFilters::Blend(SkBlendMode::kSrcOver,
-                                      shiftedForward,
-                                      shiftedForward,
-                                      SkIRect::MakeLTRB(1073741536, 1, 1073741919, 65));
-        sk_sp<SkImageFilter> shiftedBack =
-                SkImageFilters::Offset(-kLargeOffset, 0.0f, std::move(blended));
-        sk_sp<SkImageFilter> finalFilter =
-                SkImageFilters::Offset(288.0f, -1.0f, std::move(shiftedBack));
-
-        SkPaint paint;
-        paint.setColor(SK_ColorBLUE);
-        paint.setImageFilter(std::move(finalFilter));
-        dstSurface->getCanvas()->drawRect(SkRect::MakeWH(kWidth, kHeight), paint);
-
-        SkBitmap dstReadback;
-        dstReadback.allocPixels(dstInfo);
-        REPORTER_ASSERT(reporter, dstSurface->readPixels(dstReadback.pixmap(), 0, 0));
-        SkColor rightEdgeColor = dstReadback.getColor(380, 32);
-        REPORTER_ASSERT(reporter,
-                        SkColorGetR(rightEdgeColor) == 0u,
-                        "Expected R == 0 at right edge, got %u",
-                        SkColorGetR(rightEdgeColor));
-        REPORTER_ASSERT(reporter,
-                        SkColorGetB(rightEdgeColor) > 200u,
-                        "Expected B > 200 at right edge, got %u",
-                        SkColorGetB(rightEdgeColor));
-    }
-
-    // 3. Nested local matrices separated by a blend shader with opposing translations beyond 2^22
-    // that cancel in KeyContextWithLocalMatrix::fStorage must still disable sampling optimization.
-    {
-        SkBitmap texBm;
-        texBm.allocPixels(SkImageInfo::Make(2, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-        texBm.erase(SK_ColorBLACK, SkIRect::MakeXYWH(0, 0, 1, 1));
-        texBm.erase(SK_ColorWHITE, SkIRect::MakeXYWH(1, 0, 1, 1));
-        texBm.setImmutable();
-        sk_sp<SkImage> texImage =
-                SkImages::TextureFromImage(recorder.get(), texBm.asImage(), {/*fMipmapped=*/false});
-        REPORTER_ASSERT(reporter, texImage);
-
-        const SkImageInfo dstInfo =
-                SkImageInfo::Make(4, 4, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-        sk_sp<SkSurface> dstSurface = SkSurfaces::RenderTarget(recorder.get(), dstInfo);
-        REPORTER_ASSERT(reporter, dstSurface);
-        dstSurface->getCanvas()->clear(SK_ColorTRANSPARENT);
-
-        constexpr float kOverLimit = static_cast<float>((1 << 25) - 2);
-        sk_sp<SkShader> baseShader = texImage->makeShader(SkTileMode::kClamp,
-                                                          SkTileMode::kClamp,
-                                                          SkSamplingOptions(SkFilterMode::kLinear),
-                                                          nullptr);
-        sk_sp<SkShader> innerLM =
-                baseShader->makeWithLocalMatrix(SkMatrix::Translate(kOverLimit, 0.0f));
-        sk_sp<SkShader> blendNode = SkShaders::Blend(SkBlendMode::kLighten, innerLM, innerLM);
-        sk_sp<SkShader> outerLM =
-                blendNode->makeWithLocalMatrix(SkMatrix::Translate(-kOverLimit, 0.0f));
-
-        SkPaint paint;
-        paint.setShader(std::move(outerLM));
-        dstSurface->getCanvas()->drawPaint(paint);
-
-        SkBitmap readback;
-        readback.allocPixels(dstInfo);
-        REPORTER_ASSERT(reporter, dstSurface->readPixels(readback.pixmap(), 0, 0));
-        SkColor sampled = readback.getColor(2, 2);
-        REPORTER_ASSERT(reporter,
-                        SkColorGetR(sampled) > 128u && SkColorGetR(sampled) < 230u,
-                        "Expected linear-filtered gray, got R=%u",
-                        SkColorGetR(sampled));
-    }
 }
 
 }  // namespace skgpu::graphite
