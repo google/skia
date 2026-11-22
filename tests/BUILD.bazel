@@ -509,6 +509,7 @@ filegroup(
         "Skbug6653.cpp",
         "SlugTest.cpp",
         "SmallPathRendererTest.cpp",
+        "SoftwarePathRendererTest.cpp",
         "SrcSrcOverBatchTest.cpp",
         "StencilClearTest.cpp",
         "SurfaceDrawContextTest.cpp",
