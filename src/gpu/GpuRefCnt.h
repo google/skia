@@ -11,7 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
-#include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -72,7 +72,8 @@ public:
      * Calls Unref() on the underlying object pointer.
      */
     ~gr_sp() {
-        SafeUnref(this->release());
+        SafeUnref(fPtr);
+        SkDEBUGCODE(fPtr = nullptr);
     }
 
     gr_sp& operator=(std::nullptr_t) {
@@ -153,7 +154,8 @@ private:
         return ptr;
     }
 
-    raw_ptr<T> fPtr;
+    // RAW_PTR_EXCLUSION: Ref-counting smart pointer (like sk_sp); +1.2% on Graphite SKPs.
+    RAW_PTR_EXCLUSION T* fPtr;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
