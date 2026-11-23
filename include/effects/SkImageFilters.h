@@ -17,6 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 
@@ -445,8 +446,20 @@ public:
      *                          fails and returns nullptr.
      *  @param inputs           The image filters that will be provided as input to the runtime
      *                          shader. If any are null, the implicit source image is used instead.
-     *  @param inputCount       How many entries are present in 'childShaderNames' and 'inputs'.
+     *                          Must have the same number of entries as 'childShaderNames';
+     *                          otherwise the factory fails and returns nullptr.
      */
+    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeEffectBuilder& builder,
+                                              SkSpan<const std::string_view> childShaderNames,
+                                              SkSpan<const sk_sp<SkImageFilter>> inputs) {
+        return RuntimeShader(builder, /*maxSampleRadius=*/0.f, childShaderNames, inputs);
+    }
+
+    // DEPRECATED: Prefer the SkSpan overload above, which bounds-checks childShaderNames and
+    // inputs. This pointer overload is kept for existing clients and forwards to it.
+    // PRECONDITIONS: childShaderNames and inputs must each point to at least inputCount readable
+    // elements. A negative inputCount makes the factory fail and return nullptr.
+    // TODO(crbug.com/582862856): Remove once clients migrate to the SkSpan overload.
     static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeEffectBuilder& builder,
                                               std::string_view childShaderNames[],
                                               const sk_sp<SkImageFilter> inputs[],
@@ -467,6 +480,26 @@ public:
      *
      *  This requires a GPU backend or SkSL to be compiled in.
      */
+    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeEffectBuilder& builder,
+                                              SkScalar maxSampleRadius,
+                                              SkSpan<const std::string_view> childShaderNames,
+                                              SkSpan<const sk_sp<SkImageFilter>> inputs,
+                                              bool restrictOutputToInputBounds = false);
+
+    // Rejects calls that still pass a count after migrating to the SkSpan overload above; the
+    // count would otherwise silently convert to 'restrictOutputToInputBounds'.
+    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeEffectBuilder&,
+                                              SkScalar,
+                                              SkSpan<const std::string_view>,
+                                              SkSpan<const sk_sp<SkImageFilter>>,
+                                              int inputCount,
+                                              bool restrictOutputToInputBounds = false) = delete;
+
+    // DEPRECATED: Prefer the SkSpan overload above, which bounds-checks childShaderNames and
+    // inputs. This pointer overload is kept for existing clients and forwards to it.
+    // PRECONDITIONS: childShaderNames and inputs must each point to at least inputCount readable
+    // elements. A negative inputCount makes the factory fail and return nullptr.
+    // TODO(crbug.com/582862856): Remove once clients migrate to the SkSpan overload.
     static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeEffectBuilder& builder,
                                               SkScalar maxSampleRadius,
                                               std::string_view childShaderNames[],

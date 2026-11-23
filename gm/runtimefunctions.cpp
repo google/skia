@@ -53,7 +53,7 @@ class RuntimeFunctions : public skiagm::GM {
 
         SkV4 iResolution = { 255, 255, 0, 0 };
         auto shader = result.effect->makeShader(
-                SkData::MakeWithCopy(&iResolution, sizeof(iResolution)), nullptr, 0, &localM);
+                SkData::MakeWithCopy(&iResolution, sizeof(iResolution)), /*children=*/{}, &localM);
         SkPaint p;
         p.setShader(std::move(shader));
         canvas->drawRect({0, 0, 256, 256}, p);

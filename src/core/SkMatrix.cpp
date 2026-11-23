@@ -12,6 +12,7 @@
 #include "include/core/SkRSXform.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
@@ -1347,8 +1348,8 @@ enum MinMaxOrBoth {
 };
 
 template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask typeMask,
-                                                              const SkScalar m[9],
-                                                              SkScalar results[/*1 or 2*/]) {
+                                                              SkSpan<const SkScalar, 9> m,
+                                                              SkSpan<SkScalar> results) {
     if (typeMask & SkMatrix::kPerspective_Mask) {
         return false;
     }
@@ -1442,7 +1443,7 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
 
 SkScalar SkMatrix::getMinScale() const {
     SkScalar factor;
-    if (get_scale_factor<kMin_MinMaxOrBoth>(this->getType(), fMat, &factor)) {
+    if (get_scale_factor<kMin_MinMaxOrBoth>(this->getType(), fMat, SkSpanFromRef(factor))) {
         return factor;
     } else {
         return -1;
@@ -1451,15 +1452,20 @@ SkScalar SkMatrix::getMinScale() const {
 
 SkScalar SkMatrix::getMaxScale() const {
     SkScalar factor;
-    if (get_scale_factor<kMax_MinMaxOrBoth>(this->getType(), fMat, &factor)) {
+    if (get_scale_factor<kMax_MinMaxOrBoth>(this->getType(), fMat, SkSpanFromRef(factor))) {
         return factor;
     } else {
         return -1;
     }
 }
 
-bool SkMatrix::getMinMaxScales(SkScalar scaleFactors[2]) const {
+bool SkMatrix::getMinMaxScales(SkSpan<SkScalar, 2> scaleFactors) const {
     return get_scale_factor<kBoth_MinMaxOrBoth>(this->getType(), fMat, scaleFactors);
+}
+
+bool SkMatrix::getMinMaxScales(SkScalar scaleFactors[2]) const {
+    // TODO(crbug.com/582862856): Remove once callers migrate to the SkSpan overload.
+    return this->getMinMaxScales(SK_UNSAFE_TODO(SkSpan<SkScalar, 2>(scaleFactors, 2)));
 }
 
 const SkMatrix& SkMatrix::I() {

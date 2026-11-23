@@ -264,8 +264,9 @@ void SkSLSlide::draw(SkCanvas* canvas) {
         auto curShader = std::find_if(
                 fShaders.begin(),
                 fShaders.end(),
-                [tgt = fChildren[c.index]](const std::pair<const char*, sk_sp<SkShader>>& p) {
-                    return p.second == tgt;
+                [tgt = fChildren[c.index].shader()](
+                        const std::pair<const char*, sk_sp<SkShader>>& p) {
+                    return p.second.get() == tgt;
                 });
         SkASSERT(curShader != fShaders.end());
 
@@ -295,7 +296,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     canvas->save();
 
     sk_sp<SkSL::DebugTrace> debugTrace;
-    auto shader = fEffect->makeShader(std::move(inputs), fChildren.data(), fChildren.size());
+    auto shader = fEffect->makeShader(std::move(inputs), fChildren);
     if (writeTrace || writeDump) {
         SkIPoint traceCoord = {fTraceCoord[0], fTraceCoord[1]};
         SkRuntimeEffect::TracedShader traced = SkRuntimeEffect::MakeTraced(std::move(shader),

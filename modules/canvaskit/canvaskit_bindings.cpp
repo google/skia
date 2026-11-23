@@ -2768,8 +2768,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                           }
 
                           OptionalMatrix localMatrix(mPtr);
-                          return self.makeShader(
-                                  uniforms, nullptr, 0, mPtr ? &localMatrix : nullptr);
+                          return self.makeShader(uniforms, {}, mPtr ? &localMatrix : nullptr);
                       }))
             .function("_makeShaderWithChildren",
                       optional_override([](SkRuntimeEffect& self,
@@ -2788,19 +2787,17 @@ EMSCRIPTEN_BINDINGS(Skia) {
                               uniforms = SkData::MakeWithoutCopy(uniformData, fLen);
                           }
 
-                          sk_sp<SkShader>* children = new sk_sp<SkShader>[cLen];
+                          std::vector<SkRuntimeEffect::ChildPtr> children;
+                          children.reserve(cLen);
                           SkShader** childrenPtrs = reinterpret_cast<SkShader**>(cPtrs);
                           for (size_t i = 0; i < cLen; i++) {
                               // This bare pointer was already part of an sk_sp (owned outside of
                               // here), so we want to ref the new sk_sp so makeShader doesn't clean
                               // it up.
-                              children[i] = sk_ref_sp<SkShader>(childrenPtrs[i]);
+                              children.emplace_back(sk_ref_sp<SkShader>(childrenPtrs[i]));
                           }
                           OptionalMatrix localMatrix(mPtr);
-                          auto s = self.makeShader(
-                                  uniforms, children, cLen, mPtr ? &localMatrix : nullptr);
-                          delete[] children;
-                          return s;
+                          return self.makeShader(uniforms, children, mPtr ? &localMatrix : nullptr);
                       }))
             .function("_makeBlender",
                       optional_override([](SkRuntimeEffect& self,

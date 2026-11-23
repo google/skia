@@ -853,9 +853,12 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<const SkData> uniforms,
                                             sk_sp<SkShader> childShaders[],
                                             size_t childCount,
                                             const SkMatrix* localMatrix) const {
-    STArray<4, ChildPtr> children(childCount);
-    for (size_t i = 0; i < childCount; ++i) {
-        children.emplace_back(childShaders[i]);
+    // TODO(crbug.com/582862856): Remove once callers migrate to the SkSpan overload.
+    SkSpan<const sk_sp<SkShader>> shaders =
+            SK_UNSAFE_TODO(SkSpan<const sk_sp<SkShader>>(childShaders, childCount));
+    STArray<4, ChildPtr> children(shaders.size());
+    for (const sk_sp<SkShader>& shader : shaders) {
+        children.emplace_back(shader);
     }
     return this->makeShader(std::move(uniforms), SkSpan(children), localMatrix);
 }

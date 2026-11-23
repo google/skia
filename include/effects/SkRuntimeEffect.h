@@ -212,6 +212,10 @@ public:
         static_assert(::sk_is_trivially_relocatable<decltype(fChild)>::value);
     };
 
+    // DEPRECATED: Prefer the SkSpan<const ChildPtr> overload below, which bounds-checks
+    // children. This pointer overload is kept for existing clients and forwards to it.
+    // PRECONDITIONS: children must point to at least childCount readable elements.
+    // TODO(crbug.com/582862856): Remove once clients migrate to the SkSpan overload.
     sk_sp<SkShader> makeShader(sk_sp<const SkData> uniforms,
                                sk_sp<SkShader> children[],
                                size_t childCount,

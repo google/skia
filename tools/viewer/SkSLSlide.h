@@ -50,7 +50,7 @@ private:
     bool fCodeIsDirty;
     sk_sp<SkRuntimeEffect> fEffect;
     skia_private::AutoTMalloc<char> fInputs;
-    skia_private::TArray<sk_sp<SkShader>> fChildren;
+    skia_private::TArray<SkRuntimeEffect::ChildPtr> fChildren;
     float fSeconds = 0.0f;
 
     enum Geometry {

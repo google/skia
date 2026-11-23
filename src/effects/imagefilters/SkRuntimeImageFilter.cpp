@@ -20,6 +20,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkPicturePriv.h"
@@ -42,18 +43,18 @@ class SkRuntimeImageFilter final : public SkImageFilter_Base {
 public:
     SkRuntimeImageFilter(const SkRuntimeShaderBuilder& builder,
                          float maxSampleRadius,
-                         std::string_view childShaderNames[],
-                         const sk_sp<SkImageFilter> inputs[],
-                         int inputCount,
+                         SkSpan<const std::string_view> childShaderNames,
+                         SkSpan<const sk_sp<SkImageFilter>> inputs,
                          bool restrictOutputToInputBounds)
-            : SkImageFilter_Base(inputs, inputCount)
+            : SkImageFilter_Base(inputs)
             , fRuntimeEffectBuilder(builder)
             , fMaxSampleRadius(maxSampleRadius)
             , fRestrictOutputToInputBounds(restrictOutputToInputBounds) {
         SkASSERT(maxSampleRadius >= 0.f);
-        fChildShaderNames.reserve_exact(inputCount);
-        for (int i = 0; i < inputCount; i++) {
-            fChildShaderNames.push_back(SkString(childShaderNames[i]));
+        SkASSERT(childShaderNames.size() == inputs.size());
+        fChildShaderNames.reserve_exact(SkToInt(childShaderNames.size()));
+        for (std::string_view name : childShaderNames) {
+            fChildShaderNames.push_back(SkString(name));
         }
     }
 
@@ -114,8 +115,43 @@ sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder&
         childShaderName = children.front().name;
     }
 
-    return SkImageFilters::RuntimeShader(builder, sampleRadius, &childShaderName, &input, 1,
-                                         restrictOutputToInputBounds);
+    return SkImageFilters::RuntimeShader(builder, sampleRadius, SkSpanFromRef(childShaderName),
+                                         SkSpanFromRef(input), restrictOutputToInputBounds);
+}
+
+sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder& builder,
+                                                   SkScalar maxSampleRadius,
+                                                   SkSpan<const std::string_view> childShaderNames,
+                                                   SkSpan<const sk_sp<SkImageFilter>> inputs,
+                                                   bool restrictOutputToInputBounds) {
+    if (maxSampleRadius < 0.f) {
+        return nullptr; // invalid sample radius
+    }
+    if (childShaderNames.size() != inputs.size()) {
+        return nullptr; // every input must be bound to exactly one child shader name
+    }
+
+    auto child_is_shader = [](const SkRuntimeEffect::Child* child) {
+        return child && child->type == SkRuntimeEffect::ChildType::kShader;
+    };
+
+    for (size_t i = 0; i < childShaderNames.size(); i++) {
+        std::string_view name = childShaderNames[i];
+        // All names must be non-empty, and present as a child shader in the effect:
+        if (name.empty() || !child_is_shader(builder.effect()->findChild(name))) {
+            return nullptr;
+        }
+
+        // We don't allow duplicates, either:
+        for (size_t j = 0; j < i; j++) {
+            if (name == childShaderNames[j]) {
+                return nullptr;
+            }
+        }
+    }
+
+    return sk_sp<SkImageFilter>(new SkRuntimeImageFilter(builder, maxSampleRadius, childShaderNames,
+                                                         inputs, restrictOutputToInputBounds));
 }
 
 sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder& builder,
@@ -124,32 +160,16 @@ sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder&
                                                    const sk_sp<SkImageFilter> inputs[],
                                                    int inputCount,
                                                    bool restrictOutputToInputBounds) {
-    if (maxSampleRadius < 0.f) {
-        return nullptr; // invalid sample radius
+    if (inputCount < 0) {
+        return nullptr; // invalid input count
     }
-
-    auto child_is_shader = [](const SkRuntimeEffect::Child* child) {
-        return child && child->type == SkRuntimeEffect::ChildType::kShader;
-    };
-
-    for (int i = 0; i < inputCount; i++) {
-        std::string_view name = childShaderNames[i];
-        // All names must be non-empty, and present as a child shader in the effect:
-        if (name.empty() || !child_is_shader(builder.effect()->findChild(name))) {
-            return nullptr;
-        }
-
-        // We don't allow duplicates, either:
-        for (int j = 0; j < i; j++) {
-            if (name == childShaderNames[j]) {
-                return nullptr;
-            }
-        }
-    }
-
-    return sk_sp<SkImageFilter>(new SkRuntimeImageFilter(builder, maxSampleRadius, childShaderNames,
-                                                         inputs, inputCount,
-                                                         restrictOutputToInputBounds));
+    // TODO(crbug.com/582862856): Remove once callers migrate to the SkSpan overload.
+    return SkImageFilters::RuntimeShader(
+            builder,
+            maxSampleRadius,
+            SK_UNSAFE_TODO(SkSpan<const std::string_view>(childShaderNames, inputCount)),
+            SK_UNSAFE_TODO(SkSpan<const sk_sp<SkImageFilter>>(inputs, inputCount)),
+            restrictOutputToInputBounds);
 }
 
 void SkRegisterRuntimeImageFilterFlattenable() {
@@ -226,9 +246,14 @@ sk_sp<SkFlattenable> SkRuntimeImageFilter::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    return SkImageFilters::RuntimeShader(builder, maxSampleRadius, childShaderNames.data(),
-                                         common.inputs(), common.inputCount(),
-                                         restrictOutputToInputBounds);
+    return SkImageFilters::RuntimeShader(
+            builder,
+            maxSampleRadius,
+            childShaderNames,
+            // TODO(crbug.com/582862856): Common should expose inputs as a span.
+            SK_UNSAFE_TODO(
+                    SkSpan<const sk_sp<SkImageFilter>>(common.inputs(), common.inputCount())),
+            restrictOutputToInputBounds);
 }
 
 void SkRuntimeImageFilter::flatten(SkWriteBuffer& buffer) const {

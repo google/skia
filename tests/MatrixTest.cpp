@@ -209,7 +209,7 @@ static void test_flatten(skiatest::Reporter* reporter, const SkMatrix& m) {
 }
 
 static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
-    SkScalar scales[2];
+    std::array<SkScalar, 2> scales;
     bool success;
 
     SkMatrix identity;

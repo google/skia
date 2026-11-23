@@ -98,7 +98,7 @@ DEF_SIMPLE_GM(rtif_unsharp, canvas, 512, 256) {
     std::string_view childNames[] = { "content", "blurred" };
     sk_sp<SkImageFilter> childNodes[] = { nullptr, blurredSrc };
 
-    auto sharpened = SkImageFilters::RuntimeShader(builder, childNames, childNodes, 2);
+    auto sharpened = SkImageFilters::RuntimeShader(builder, childNames, childNodes);
 
     canvas->drawImage(image, 0, 0);
     canvas->translate(256, 0);

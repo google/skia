@@ -12,6 +12,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradient.h"
@@ -733,7 +734,7 @@ static sk_sp<SkShader> lit_shader(sk_sp<SkShader> normals) {
         }
     )";
     auto effect = SkRuntimeEffect::MakeForShader(SkString(kSrc)).effect;
-    return effect->makeShader(/* uniforms= */ nullptr, &normals, /* childCount= */ 1);
+    return effect->makeShader(/* uniforms= */ nullptr, /* children= */ SKSPAN_INIT_ONE(normals));
 }
 
 static sk_sp<SkShader> lit_shader_linear(sk_sp<SkShader> normals) {
@@ -747,7 +748,7 @@ static sk_sp<SkShader> lit_shader_linear(sk_sp<SkShader> normals) {
         }
     )";
     auto effect = SkRuntimeEffect::MakeForShader(SkString(kSrc)).effect;
-    return effect->makeShader(/* uniforms= */ nullptr, &normals, /* childCount= */ 1);
+    return effect->makeShader(/* uniforms= */ nullptr, /* children= */ SKSPAN_INIT_ONE(normals));
 }
 
 DEF_SIMPLE_GM(paint_alpha_normals_rt, canvas, 512,512) {
@@ -886,7 +887,8 @@ DEF_SIMPLE_GM(local_matrix_shader_rt, canvas, 256, 256) {
     // passthrough(image)
     canvas->save();
     canvas->translate(image->width(), 0);
-    paint.setShader(rte->makeShader(/* uniforms= */ nullptr, &imgShader, /* childCount= */ 1));
+    paint.setShader(rte->makeShader(/* uniforms= */ nullptr,
+                                    /* children= */ SKSPAN_INIT_ONE(imgShader)));
     canvas->drawRect(r, paint);
     canvas->restore();
 
@@ -900,7 +902,8 @@ DEF_SIMPLE_GM(local_matrix_shader_rt, canvas, 256, 256) {
     // localmatrix(passthrough(image)) This was the bug.
     canvas->save();
     canvas->translate(image->width(), image->height());
-    paint.setShader(rte->makeShader(/* uniforms= */ nullptr, &imgShader, /* childCount= */ 1)
+    paint.setShader(rte->makeShader(/* uniforms= */ nullptr,
+                                    /* children= */ SKSPAN_INIT_ONE(imgShader))
                             ->makeWithLocalMatrix(lm));
     canvas->drawRect(r, paint);
     canvas->restore();

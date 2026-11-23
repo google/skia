@@ -16,6 +16,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -145,11 +146,11 @@ static uint64_t next_image_filter_unique_id() {
     return id;
 }
 
-SkImageFilter_Base::SkImageFilter_Base(sk_sp<SkImageFilter> const* inputs,
-                                       int inputCount,
+SkImageFilter_Base::SkImageFilter_Base(SkSpan<const sk_sp<SkImageFilter>> inputs,
                                        std::optional<bool> usesSrc)
         : fUsesSrcInput(usesSrc.has_value() ? *usesSrc : false)
         , fUniqueID(next_image_filter_unique_id()) {
+    const int inputCount = SkToInt(inputs.size());
     fInputs.reset(inputCount);
 
     for (int i = 0; i < inputCount; ++i) {
@@ -159,6 +160,13 @@ SkImageFilter_Base::SkImageFilter_Base(sk_sp<SkImageFilter> const* inputs,
         fInputs[i] = inputs[i];
     }
 }
+
+SkImageFilter_Base::SkImageFilter_Base(sk_sp<SkImageFilter> const* inputs,
+                                       int inputCount,
+                                       std::optional<bool> usesSrc)
+        : SkImageFilter_Base(
+                  SK_UNSAFE_TODO(SkSpan<const sk_sp<SkImageFilter>>(inputs, SkToSizeT(inputCount))),
+                  usesSrc) {}
 
 SkImageFilter_Base::~SkImageFilter_Base() {
     SkImageFilterCache::Get()->purgeByImageFilter(this);

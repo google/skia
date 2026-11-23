@@ -1434,8 +1434,7 @@ static void test_RuntimeEffectStructNameReuse(skiatest::Reporter* r, GrRecording
     sk_sp<SkShader> sourceColor = SkShaders::Color({0.99608f, 0.50196f, 0.0f, 1.0f}, nullptr);
     const uint32_t kExpected = 0xFF00407F;
     sk_sp<SkShader> child = childEffect->makeShader(/*uniforms=*/nullptr,
-                                                    &sourceColor,
-                                                    /*childCount=*/1);
+                                                    /*children=*/SKSPAN_INIT_ONE(sourceColor));
 
     TestEffect effect(r, /*grContext=*/nullptr, /*graphite=*/nullptr);
     effect.build(
@@ -1720,7 +1719,7 @@ void test_using_transformed_coords(skiatest::Reporter* reporter,
     // Nest the image shader under the runtime shader, all under a local matrix transformation that
     // translates the draw right 1/4 of the way.
     SkPaint paint;
-    paint.setShader(runtimeEffectResult.effect->makeShader(nullptr, &imageShader, 1)
+    paint.setShader(runtimeEffectResult.effect->makeShader(nullptr, SKSPAN_INIT_ONE(imageShader))
                             ->makeWithLocalMatrix(SkMatrix::Translate(3.0f, 0.0f)));
 
     canvas->drawPaint(paint);

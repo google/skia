@@ -1635,6 +1635,13 @@ public:
         @param scaleFactors  storage for minimum and maximum scale factors
         @return              true if scale factors were computed correctly
     */
+    [[nodiscard]] bool getMinMaxScales(SkSpan<SkScalar, 2> scaleFactors) const;
+
+    /** DEPRECATED: Prefer the SkSpan overload above, which bounds-checks scaleFactors. This
+        pointer overload is kept for existing clients and forwards to the SkSpan overload.
+        PRECONDITIONS: scaleFactors must point to at least 2 writable SkScalar values.
+    */
+    // TODO(crbug.com/582862856): Remove once clients migrate to the SkSpan overload.
     [[nodiscard]] bool getMinMaxScales(SkScalar scaleFactors[2]) const;
 
     /** Decomposes SkMatrix into scale components and whatever remains. Returns false if

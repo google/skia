@@ -11,6 +11,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 
@@ -171,6 +172,11 @@ protected:
         skia_private::STArray<2, sk_sp<SkImageFilter>, true> fInputs;
     };
 
+    SkImageFilter_Base(SkSpan<const sk_sp<SkImageFilter>> inputs, std::optional<bool> usesSrc = {});
+    // DEPRECATED: Prefer the SkSpan overload above, which bounds-checks inputs. This pointer
+    // overload is kept for existing subclasses and forwards to it.
+    // PRECONDITIONS: inputs must point to at least inputCount readable elements.
+    // TODO(crbug.com/582862856): Remove once subclasses migrate to the SkSpan overload.
     SkImageFilter_Base(sk_sp<SkImageFilter> const* inputs, int inputCount,
                        std::optional<bool> usesSrc = {});
 

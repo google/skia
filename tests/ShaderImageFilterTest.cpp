@@ -17,6 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
@@ -32,6 +33,8 @@
 #include "tools/EncodeUtils.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
+#include <string_view>
 #include <vector>
 
 struct GrContextOptions;
@@ -164,11 +167,25 @@ static void test_runtime_shader(skiatest::Reporter* r, SkSurface* surface) {
     // create a red image filter to feed as input into the SkImageFilters::RuntimeShader
     sk_sp<SkImageFilter> input = SkImageFilters::Shader(SkShaders::Color(SK_ColorRED));
 
+    // Mismatched span sizes and negative legacy input counts should fail and return nullptr.
+    std::array<std::string_view, 2> mismatchNames = {"child", "child2"};
+    std::array<sk_sp<SkImageFilter>, 1> mismatchInputs = {nullptr};
+    REPORTER_ASSERT(r, !SkImageFilters::RuntimeShader(builder, 0.f, mismatchNames, mismatchInputs));
+    std::string_view legacyNames[] = {"child"};
+    sk_sp<SkImageFilter> legacyInputs[] = {nullptr};
+    REPORTER_ASSERT(r, !SkImageFilters::RuntimeShader(builder, 0.f, legacyNames, legacyInputs, -1));
+
     // Create the different variations of SkImageFilters::RuntimeShader
     // All variations should produce the same pixel output
+    std::array<std::string_view, 1> validNames = {"child"};
+    std::array<sk_sp<SkImageFilter>, 1> validInputs = {input};
+    sk_sp<SkImageFilter> spanFilter =
+            SkImageFilters::RuntimeShader(builder, 0.f, validNames, validInputs);
+    REPORTER_ASSERT(r, spanFilter);
     std::vector<sk_sp<SkImageFilter>> filters = {
             SkImageFilters::RuntimeShader(builder, /*childShaderName=*/"", input),
-            SkImageFilters::RuntimeShader(builder, /*childShaderName=*/"child", input)};
+            SkImageFilters::RuntimeShader(builder, /*childShaderName=*/"child", input),
+            spanFilter};
 
     for (auto&& filter : filters) {
         auto canvas = surface->getCanvas();
