@@ -24,6 +24,7 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkHalf.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMeshPriv.h"
 #include "src/core/SkRuntimeBlender.h"
 #include "src/core/SkRuntimeEffectPriv.h"
@@ -2160,16 +2161,15 @@ static void add_image_to_key(const KeyContext& keyContext,
     // nearest filtering when possible can also be a minor perf/power optimization depending on the
     // hardware.
     bool samplingHasNoEffect = false;
-    // Cubic sampling is will not filter the same as nearest even when pixel aligned.
+    // Cubic sampling will not filter the same as nearest even when pixel aligned.
     if (!(keyContext.flags() & KeyGenFlags::kDisableSamplingOptimization || newSampling.useCubic)) {
         SkMatrix totalM = keyContext.local2Dev().asM33();
         if (keyContext.localMatrix()) {
             totalM.preConcat(*keyContext.localMatrix());
         }
         totalM.normalizePerspective();
-        // The matrix should be translation with only pixel aligned 2d translation.
-        if (totalM.isTranslate() && SkScalarIsInt(totalM.getTranslateX()) &&
-            SkScalarIsInt(totalM.getTranslateY())) {
+
+        if (SkMatrixPriv::IsPrecisePixelAlignedTranslation(totalM)) {
             samplingHasNoEffect = true;
             newSampling = SkFilterMode::kNearest;
         }
