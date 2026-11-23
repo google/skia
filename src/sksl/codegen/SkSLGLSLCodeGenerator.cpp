@@ -184,9 +184,6 @@ protected:
 
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
 
-    void writeShortCircuitWorkaroundExpression(const BinaryExpression& b,
-                                               Precedence parentPrecedence);
-
     void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
 
     void writeIndexExpression(const IndexExpression& expr);
@@ -236,7 +233,6 @@ protected:
     PrettyPrint fPrettyPrint;
 
     // Workaround/polyfill flags
-    bool fWrittenAbsEmulation = false;
     bool fWrittenDeterminant2 = false, fWrittenDeterminant3 = false, fWrittenDeterminant4 = false;
     bool fWrittenInverse2 = false, fWrittenInverse3 = false, fWrittenInverse4 = false;
     std::array<std::array<bool, 3>, 3> fWrittenTranspose = {};
@@ -704,22 +700,6 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     bool nameWritten = false;
     const char* closingParen = ")";
     switch (c.function().intrinsicKind()) {
-        case k_abs_IntrinsicKind: {
-            if (!fCaps->fEmulateAbsIntFunction)
-                break;
-            SkASSERT(arguments.size() == 1);
-            if (!arguments[0]->type().matches(*fContext.fTypes.fInt)) {
-                break;
-            }
-            // abs(int) on Intel OSX is incorrect, so emulate it:
-            this->write("_absemulation");
-            nameWritten = true;
-            if (!fWrittenAbsEmulation) {
-                fWrittenAbsEmulation = true;
-                fExtraFunctions.writeText("int _absemulation(int x) { return x * sign(x); }\n");
-            }
-            break;
-        }
         case k_atan_IntrinsicKind:
             if (fCaps->fMustForceNegatedAtanParamToFloat &&
                 arguments.size() == 2 &&
@@ -1211,12 +1191,6 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     const Expression& left = *b.left();
     const Expression& right = *b.right();
     Operator op = b.getOperator();
-    if (fCaps->fUnfoldShortCircuitAsTernary && (op.kind() == Operator::Kind::LOGICALAND ||
-                                               op.kind() == Operator::Kind::LOGICALOR)) {
-        this->writeShortCircuitWorkaroundExpression(b, parentPrecedence);
-        return;
-    }
-
     if (fCaps->fRewriteMatrixComparisons && left.type().isMatrix() &&
         right.type().isMatrix() && op.isEquality()) {
         this->writeMatrixComparisonWorkaround(b);
@@ -1253,35 +1227,6 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->write(")");
     }
     if (precedence >= parentPrecedence) {
-        this->write(")");
-    }
-}
-
-void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpression& b,
-                                                              Precedence parentPrecedence) {
-    if (Precedence::kTernary >= parentPrecedence) {
-        this->write("(");
-    }
-
-    // Transform:
-    // a && b  =>   a ? b : false
-    // a || b  =>   a ? true : b
-    this->writeExpression(*b.left(), Precedence::kTernary);
-    this->write(" ? ");
-    if (b.getOperator().kind() == Operator::Kind::LOGICALAND) {
-        this->writeExpression(*b.right(), Precedence::kTernary);
-    } else {
-        Literal boolTrue(Position(), /*value=*/1, fContext.fTypes.fBool.get());
-        this->writeLiteral(boolTrue);
-    }
-    this->write(" : ");
-    if (b.getOperator().kind() == Operator::Kind::LOGICALAND) {
-        Literal boolFalse(Position(), /*value=*/0, fContext.fTypes.fBool.get());
-        this->writeLiteral(boolFalse);
-    } else {
-        this->writeExpression(*b.right(), Precedence::kTernary);
-    }
-    if (Precedence::kTernary >= parentPrecedence) {
         this->write(")");
     }
 }
@@ -1736,56 +1681,11 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
 }
 
 void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
-    if (!fCaps->fRewriteDoWhileLoops) {
-        this->write("do ");
-        this->writeStatement(*d.statement());
-        this->write(" while (");
-        this->writeExpression(*d.test(), Precedence::kExpression);
-        this->write(");");
-        return;
-    }
-
-    // Otherwise, do the do while loop workaround, to rewrite loops of the form:
-    //     do {
-    //         CODE;
-    //     } while (CONDITION)
-    //
-    // to loops of the form
-    //     bool temp = false;
-    //     while (true) {
-    //         if (temp) {
-    //             if (!CONDITION) {
-    //                 break;
-    //             }
-    //         }
-    //         temp = true;
-    //         CODE;
-    //     }
-    std::string tmpVar = "_tmpLoopSeenOnce" + std::to_string(fVarCount++);
-    this->write("bool ");
-    this->write(tmpVar);
-    this->writeLine(" = false;");
-    this->writeLine("while (true) {");
-    fIndentation++;
-    this->write("if (");
-    this->write(tmpVar);
-    this->writeLine(") {");
-    fIndentation++;
-    this->write("if (!");
-    this->writeExpression(*d.test(), Precedence::kPrefix);
-    this->writeLine(") {");
-    fIndentation++;
-    this->writeLine("break;");
-    fIndentation--;
-    this->writeLine("}");
-    fIndentation--;
-    this->writeLine("}");
-    this->write(tmpVar);
-    this->writeLine(" = true;");
+    this->write("do ");
     this->writeStatement(*d.statement());
-    this->finishLine();
-    fIndentation--;
-    this->write("}");
+    this->write(" while (");
+    this->writeExpression(*d.test(), Precedence::kExpression);
+    this->write(");");
 }
 
 void GLSLCodeGenerator::writeExpressionStatement(const ExpressionStatement& s) {

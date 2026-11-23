@@ -15,8 +15,6 @@
          disable_dual_source_blending_support)           \
   GPU_OP(DISALLOW_LARGE_INSTANCED_DRAW,                  \
          disallow_large_instanced_draw)                  \
-  GPU_OP(EMULATE_ABS_INT_FUNCTION,                       \
-         emulate_abs_int_function)                       \
   GPU_OP(ENSURE_PREVIOUS_FRAMEBUFFER_NOT_DELETED,        \
          ensure_previous_framebuffer_not_deleted)        \
   GPU_OP(FLUSH_QUERIES_BEFORE_DELETING_OR_UNBINDING_FBO, \
@@ -29,11 +27,7 @@
          pack_parameters_workaround_with_pack_buffer)    \
   GPU_OP(REMOVE_POW_WITH_CONSTANT_EXPONENT,              \
          remove_pow_with_constant_exponent)              \
-  GPU_OP(REWRITE_DO_WHILE_LOOPS,                         \
-         rewrite_do_while_loops)                         \
   GPU_OP(UNBIND_ATTACHMENTS_ON_BOUND_RENDER_FBO_DELETE,  \
          unbind_attachments_on_bound_render_fbo_delete)  \
-  GPU_OP(UNFOLD_SHORT_CIRCUIT_AS_TERNARY_OPERATION,      \
-         unfold_short_circuit_as_ternary_operation)      \
 
 #endif  // GPU_DRIVER_BUG_WORKAROUNDS

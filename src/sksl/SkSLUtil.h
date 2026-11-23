@@ -163,13 +163,6 @@ struct ShaderCaps {
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck = false;
     /** If false, SkSL uses a workaround so that sk_FragCoord doesn't actually query gl_FragCoord */
     bool fCanUseFragCoord = true;
-    /**
-     * If true, then expressions such as "x && y" or "x || y" are rewritten as ternary to work
-     * around driver bugs.
-     */
-    bool fUnfoldShortCircuitAsTernary = false;
-    bool fEmulateAbsIntFunction = false;
-    bool fRewriteDoWhileLoops = false;
     bool fRewriteSwitchStatements = false;
     bool fRemovePowWithConstantExponent = false;
     /**

@@ -651,7 +651,6 @@ sksl_settings_tests = [
   "shared/SwitchWithFallthroughGroups.sksl",
   "shared/SwitchWithLoops.sksl",
   "shared/SwitchWithLoopsES3.sksl",
-  "workarounds/AbsInt.sksl",
   "workarounds/BlendGuardedDivide.sksl",
   "workarounds/BuiltinDeterminantSupport.sksl",
   "workarounds/BuiltinFMASupport.sksl",
@@ -662,10 +661,8 @@ sksl_settings_tests = [
   "workarounds/NegatedAtan.sksl",
   "workarounds/NegatedLdexp.sksl",
   "workarounds/PowWithConstantExponent.sksl",
-  "workarounds/RewriteDoWhileLoops.sksl",
   "workarounds/RewriteMatrixComparisons.sksl",
   "workarounds/RewriteMatrixVectorMultiply.sksl",
-  "workarounds/TernaryShortCircuit.sksl",
   "workarounds/VoidInSequenceExpressions.sksl",
   "workarounds/VoidInSequenceExpressionsWithVoidMain.sksl",
 ]

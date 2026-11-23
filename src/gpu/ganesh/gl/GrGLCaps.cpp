@@ -4597,18 +4597,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fCanUseFragCoord = false;
     }
 
-    if (fDriverBugWorkarounds.unfold_short_circuit_as_ternary_operation) {
-        shaderCaps->fUnfoldShortCircuitAsTernary = true;
-    }
-
-    if (fDriverBugWorkarounds.emulate_abs_int_function) {
-        shaderCaps->fEmulateAbsIntFunction = true;
-    }
-
-    if (fDriverBugWorkarounds.rewrite_do_while_loops) {
-        shaderCaps->fRewriteDoWhileLoops = true;
-    }
-
     if (fDriverBugWorkarounds.remove_pow_with_constant_exponent) {
         shaderCaps->fRemovePowWithConstantExponent = true;
     }
