@@ -161,7 +161,12 @@ bool GetYUVAInfo(const rust_jpeg::Reader& reader,
         return false;
     }
     if (yuvaPixmapInfo) {
-        const SkYUVAInfo yuvaInfo(dimensions,
+        // YUVA dimensions are display-oriented; the planes retain their coded layout.
+        const SkISize displayDimensions =
+                SkEncodedOriginSwapsWidthHeight(origin)
+                        ? SkISize::Make(dimensions.height(), dimensions.width())
+                        : dimensions;
+        const SkYUVAInfo yuvaInfo(displayDimensions,
                                   kConfig,
                                   subsampling,
                                   kJPEG_Full_SkYUVColorSpace,
