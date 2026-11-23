@@ -39,11 +39,13 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cinttypes>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <optional>
 #include <utility>
 
 namespace {
@@ -808,6 +810,24 @@ DEF_TEST(TypefaceCache, reporter) {
         REPORTER_ASSERT(reporter, count(reporter, cache) == 1);
     }
     REPORTER_ASSERT(reporter, t1->unique());
+}
+
+// Typeface IDs key process-wide caches (strikes, blobs), so the generator must never hand out 0
+// or an ID it already issued, even once 2^32 typefaces have been created
+DEF_TEST(TypefaceIDNeverZeroOrReused, reporter) {
+    std::atomic<uint64_t> counter{1};
+    const std::optional<SkTypefaceID> firstID = SkTypefaceCache::NextTypefaceID(&counter);
+    REPORTER_ASSERT(reporter, firstID == 1u, "firstID=0x%x", firstID.value_or(0));
+    // Skip ahead to the last representable ID instead of creating 2^32 typefaces
+    counter.store(UINT32_MAX);
+    const std::optional<SkTypefaceID> lastID = SkTypefaceCache::NextTypefaceID(&counter);
+    REPORTER_ASSERT(reporter, lastID == UINT32_MAX, "lastID=0x%x", lastID.value_or(0));
+
+    // Exhaustion must be reported rather than wrapping to 0 and then to IDs already in use
+    for (int i = 0; i < 2; ++i) {
+        const std::optional<SkTypefaceID> id = SkTypefaceCache::NextTypefaceID(&counter);
+        REPORTER_ASSERT(reporter, !id.has_value(), "after the last ID got 0x%x", id.value_or(0));
+    }
 }
 
 static void check_serialize_behaviors(sk_sp<SkTypeface> tf, skiatest::Reporter* reporter) {

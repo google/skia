@@ -70,8 +70,20 @@ SkTypefaceCache& SkTypefaceCache::Get() {
 }
 
 SkTypefaceID SkTypefaceCache::NewTypefaceID() {
-    static std::atomic<int32_t> nextID{1};
-    return nextID.fetch_add(1, std::memory_order_relaxed);
+    static std::atomic<uint64_t> nextID{1};
+    std::optional<SkTypefaceID> id = NextTypefaceID(&nextID);
+    // Reissuing an ID would let a new typeface alias another one's cached strikes and blobs
+    SkASSERT_RELEASE(id.has_value());
+    return *id;
+}
+
+std::optional<SkTypefaceID> SkTypefaceCache::NextTypefaceID(std::atomic<uint64_t>* counter) {
+    // 64 bits cannot wrap in practice, so every value past UINT32_MAX stays out of range
+    uint64_t id = counter->fetch_add(1, std::memory_order_relaxed);
+    if (id > UINT32_MAX) {
+        return std::nullopt;
+    }
+    return static_cast<SkTypefaceID>(id);
 }
 
 static SkMutex& typeface_cache_mutex() {

@@ -14,6 +14,10 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTArray.h"
 
+#include <atomic>
+#include <cstdint>
+#include <optional>
+
 class SkTypefaceCache {
 public:
     SkTypefaceCache();
@@ -51,6 +55,13 @@ public:
      *  your subclass of SkTypeface
      */
     static SkTypefaceID NewTypefaceID();
+
+    /**
+     *  Advances `counter` and returns the ID it hands out, or nullopt once every nonzero 32-bit
+     *  ID has been issued. NewTypefaceID() applies it to the process-wide counter; tests apply
+     *  it to a local one to reach the 32-bit boundary
+     */
+    static std::optional<SkTypefaceID> NextTypefaceID(std::atomic<uint64_t>* counter);
 
     // These are static wrappers around a global instance of a cache.
 
