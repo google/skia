@@ -30,6 +30,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkCustomTypeface.h"
@@ -321,6 +322,13 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(DrawCoverageMaskClippedOutDropsScratchRead,
     const SkPath triangle =
             SkPathBuilder().moveTo(30, 30).lineTo(90, 30).lineTo(30, 90).close().detach();
     canvas->drawPath(triangle, blurPaint);
+
+    if (context->supportsProtectedContent()) {
+        // Protected surfaces disallow CPU readback; snap to flush tracked devices instead
+        std::unique_ptr<Recording> recording = recorder->snap();
+        REPORTER_ASSERT(reporter, recording != nullptr);
+        return;
+    }
 
     SkBitmap bitmap;
     bitmap.allocPixels(info);
