@@ -2118,3 +2118,94 @@ DEF_TEST(SkRuntimeShader_TransformShaderPropagatesChildFailure, r) {
     REPORTER_ASSERT(r, bm.getColor(2, 2) == SK_ColorBLUE);
 }
 
+DEF_TEST(SkRuntimeShader_InlinerSymbolTableLifetime, r) {
+    auto checkGreenShader = [&](const char* sksl, const SkRuntimeEffect::Options& options) {
+        auto [effect, err] = SkRuntimeEffect::MakeForShader(SkString(sksl), options);
+        REPORTER_ASSERT(r, effect != nullptr, "%s", err.c_str());
+        if (!effect) {
+            return;
+        }
+
+        sk_sp<SkShader> shader = effect->makeShader(/*uniforms=*/nullptr, /*children=*/{});
+        REPORTER_ASSERT(r, shader != nullptr);
+
+        sk_sp<SkSurface> surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(4, 4));
+        surface->getCanvas()->clear(SK_ColorRED);
+
+        SkPaint paint;
+        paint.setShader(shader);
+        surface->getCanvas()->drawPaint(paint);
+
+        SkBitmap bm;
+        bm.allocN32Pixels(4, 4);
+        REPORTER_ASSERT(r, surface->readPixels(bm, 0, 0));
+        REPORTER_ASSERT(r, bm.getColor(0, 0) == SK_ColorGREEN);
+    };
+
+    // Unscoped compound declarations (`S a[2], b[2];`) inside an inlined function must register
+    // their variables and cloned `S[2]` array type in the enclosing scope's SymbolTable rather
+    // than a child SymbolTable on the kCompoundStatement Block; otherwise eliminating that Block
+    // as unreachable frees `S[2]` while subsequent sibling statements still reference it
+    // (crbug.com/589666178).
+    checkGreenShader(
+            "struct S { float x; };"
+            "float helper() {"
+            "    for (int i = 0; i < 1; ++i) {"
+            "        break;"
+            "        S a[2], b[2];"
+            "        a[0].x = 1.0;"
+            "    }"
+            "    return 1.0;"
+            "}"
+            "half4 main(float2 p) {"
+            "    return half4(0, half(helper()), 0, 1);"
+            "}",
+            SkRuntimeEffect::Options{});
+
+    // Also verify reachable compound declarations of struct arrays in inlined functions.
+    checkGreenShader(
+            "struct S { float x; };"
+            "float helper() {"
+            "    S a[2], b[2];"
+            "    a[0].x = 0.25;"
+            "    b[1].x = 0.75;"
+            "    return a[0].x + b[1].x;"
+            "}"
+            "half4 main(float2 p) {"
+            "    return half4(0, half(helper()), 0, 1);"
+            "}",
+            SkRuntimeEffect::Options{});
+
+    // A single-return expression nested inside a scoped Block (`{ return S[2](...)[0].x; }`)
+    // escapes to the call site, so its cloned `S[2]` type must outlive the inner Block.
+    checkGreenShader(
+            "struct S { float x; };"
+            "float helper() {"
+            "    {"
+            "        return S[2](S(1.0), S(0.0))[0].x;"
+            "    }"
+            "}"
+            "half4 main(float2 p) {"
+            "    for (int i = 0; i < 1; ++i) {"
+            "        break;"
+            "        float y = helper();"
+            "    }"
+            "    return half4(0, 1, 0, 1);"
+            "}",
+            SkRuntimeEffectPriv::ES3Options());
+
+    // Functions inlined into a for-loop initializer emit their body statements outside the loop,
+    // so their cloned symbols and types must belong to the outer SymbolTable.
+    checkGreenShader(
+            "struct S { float x; };"
+            "inline float initLoop() {"
+            "    S a[2];"
+            "    a[0].x = 0.0;"
+            "    return a[0].x;"
+            "}"
+            "half4 main(float2 p) {"
+            "    for (float x = initLoop(); x < 1.0; x += 1.0) {}"
+            "    return half4(0, 1, 0, 1);"
+            "}",
+            SkRuntimeEffectPriv::ES3Options());
+}

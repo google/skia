@@ -68,6 +68,7 @@ private:
     std::unique_ptr<Statement> inlineStatement(Position pos,
                                                VariableRewriteMap* varMap,
                                                SymbolTable* symbolTableForStatement,
+                                               SymbolTable* topLevelSymbolTable,
                                                std::unique_ptr<Expression>* resultExpr,
                                                Analysis::ReturnComplexity returnComplexity,
                                                const Statement& statement,

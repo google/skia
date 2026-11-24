@@ -355,6 +355,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
 std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
                                                     VariableRewriteMap* varMap,
                                                     SymbolTable* symbolTableForStatement,
+                                                    SymbolTable* topLevelSymbolTable,
                                                     std::unique_ptr<Expression>* resultExpr,
                                                     Analysis::ReturnComplexity returnComplexity,
                                                     const Statement& statement,
@@ -362,8 +363,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
                                                     bool isBuiltinCode) {
     auto stmt = [&](const std::unique_ptr<Statement>& s) -> std::unique_ptr<Statement> {
         if (s) {
-            return this->inlineStatement(pos, varMap, symbolTableForStatement, resultExpr,
-                                         returnComplexity, *s, usage, isBuiltinCode);
+            return this->inlineStatement(pos, varMap, symbolTableForStatement, topLevelSymbolTable,
+                                         resultExpr, returnComplexity, *s, usage, isBuiltinCode);
         }
         return nullptr;
     };
@@ -377,7 +378,11 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
                                  const Expression* initialValue) -> ModifierFlags {
         return Transform::AddConstToVarModifiers(variable, initialValue, &usage);
     };
-    auto makeWithChildSymbolTable = [&](auto callback) -> std::unique_ptr<Statement> {
+    auto makeWithChildSymbolTable = [&](bool needsChildSymbolTable,
+                                        auto callback) -> std::unique_ptr<Statement> {
+        if (!needsChildSymbolTable) {
+            return callback(/*symbolTable=*/nullptr);
+        }
         SymbolTable* origSymbolTable = symbolTableForStatement;
         auto childSymbols = std::make_unique<SymbolTable>(origSymbolTable, isBuiltinCode);
         symbolTableForStatement = childSymbols.get();
@@ -391,19 +396,22 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
     ++fInlinedStatementCounter;
 
     switch (statement.kind()) {
-        case Statement::Kind::kBlock:
-            return makeWithChildSymbolTable([&](std::unique_ptr<SymbolTable> symbolTable) {
-                const Block& block = statement.as<Block>();
-                StatementArray statements;
-                statements.reserve_exact(block.children().size());
-                for (const std::unique_ptr<Statement>& child : block.children()) {
-                    statements.push_back(stmt(child));
-                }
-                return Block::Make(pos,
-                                   std::move(statements),
-                                   block.blockKind(),
-                                   std::move(symbolTable));
-            });
+        case Statement::Kind::kBlock: {
+            const Block& block = statement.as<Block>();
+            return makeWithChildSymbolTable(
+                    block.isScope() && block.symbolTable() != nullptr,
+                    [&](std::unique_ptr<SymbolTable> symbolTable) {
+                        StatementArray statements;
+                        statements.reserve_exact(block.children().size());
+                        for (const std::unique_ptr<Statement>& child : block.children()) {
+                            statements.push_back(stmt(child));
+                        }
+                        return Block::Make(pos,
+                                           std::move(statements),
+                                           block.blockKind(),
+                                           std::move(symbolTable));
+                    });
+        }
 
         case Statement::Kind::kBreak:
             return BreakStatement::Make(pos);
@@ -422,33 +430,37 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
             const ExpressionStatement& e = statement.as<ExpressionStatement>();
             return ExpressionStatement::Make(*fContext, expr(e.expression()));
         }
-        case Statement::Kind::kFor:
-            return makeWithChildSymbolTable([&](std::unique_ptr<SymbolTable> symbolTable) {
-                const ForStatement& f = statement.as<ForStatement>();
-                // We need to ensure `initializer` is evaluated first, so that we've already
-                // remapped its declaration by the time we evaluate `test` and `next`.
-                std::unique_ptr<Statement> initializerStmt = stmt(f.initializer());
-                std::unique_ptr<Expression> testExpr = expr(f.test());
-                std::unique_ptr<Expression> nextExpr = expr(f.next());
-                std::unique_ptr<Statement> bodyStmt = stmt(f.statement());
+        case Statement::Kind::kFor: {
+            const ForStatement& f = statement.as<ForStatement>();
+            return makeWithChildSymbolTable(
+                    f.symbols() != nullptr,
+                    [&](std::unique_ptr<SymbolTable> symbolTable) {
+                        // We need to ensure `initializer` is evaluated first, so that we've already
+                        // remapped its declaration by the time we evaluate `test` and `next`.
+                        std::unique_ptr<Statement> initializerStmt = stmt(f.initializer());
+                        std::unique_ptr<Expression> testExpr = expr(f.test());
+                        std::unique_ptr<Expression> nextExpr = expr(f.next());
+                        std::unique_ptr<Statement> bodyStmt = stmt(f.statement());
 
-                std::unique_ptr<LoopUnrollInfo> unrollInfo;
-                if (f.unrollInfo()) {
-                    // The for loop's unroll-info points to the Variable in the initializer as the
-                    // index. This variable has been rewritten into a clone by the inliner, so we
-                    // need to update the loop-unroll info to point to the clone.
-                    unrollInfo = std::make_unique<LoopUnrollInfo>(*f.unrollInfo());
-                    unrollInfo->fIndex = RemapVariable(unrollInfo->fIndex, varMap);
-                }
+                        std::unique_ptr<LoopUnrollInfo> unrollInfo;
+                        if (f.unrollInfo()) {
+                            // The for loop's unroll-info points to the Variable in the initializer
+                            // as the index. This variable has been rewritten into a clone by the
+                            // inliner, so we need to update the loop-unroll info to point to the
+                            // clone.
+                            unrollInfo = std::make_unique<LoopUnrollInfo>(*f.unrollInfo());
+                            unrollInfo->fIndex = RemapVariable(unrollInfo->fIndex, varMap);
+                        }
 
-                return ForStatement::Make(*fContext, pos, ForLoopPositions{},
-                                          std::move(initializerStmt),
-                                          std::move(testExpr),
-                                          std::move(nextExpr),
-                                          std::move(bodyStmt),
-                                          std::move(unrollInfo),
-                                          std::move(symbolTable));
-            });
+                        return ForStatement::Make(*fContext, pos, ForLoopPositions{},
+                                                  std::move(initializerStmt),
+                                                  std::move(testExpr),
+                                                  std::move(nextExpr),
+                                                  std::move(bodyStmt),
+                                                  std::move(unrollInfo),
+                                                  std::move(symbolTable));
+                    });
+        }
 
         case Statement::Kind::kIf: {
             const IfStatement& i = statement.as<IfStatement>();
@@ -471,7 +483,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
             // replace the function-call expression with the function's return expression.
             SkASSERT(resultExpr);
             if (returnComplexity <= Analysis::ReturnComplexity::kSingleSafeReturn) {
-                *resultExpr = expr(r.expression());
+                *resultExpr = this->inlineExpression(pos, varMap, topLevelSymbolTable,
+                                                     *r.expression());
                 return Nop::Make();
             }
 
@@ -617,7 +630,7 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
     }
 
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
-        inlineStatements.push_back(this->inlineStatement(pos, &varMap, symbolTable,
+        inlineStatements.push_back(this->inlineStatement(pos, &varMap, symbolTable, symbolTable,
                                                          &resultExpr, returnComplexity, *stmt,
                                                          usage, caller->isBuiltin()));
     }
@@ -801,7 +814,7 @@ public:
             case Statement::Kind::kBlock: {
                 Block& block = (*stmt)->as<Block>();
                 for (std::unique_ptr<Statement>& blockStmt : block.children()) {
-                    this->visitStatement(&blockStmt);
+                    this->visitStatement(&blockStmt, isViableAsEnclosingStatement);
                 }
                 break;
             }
@@ -827,9 +840,17 @@ public:
             }
             case Statement::Kind::kFor: {
                 ForStatement& forStmt = (*stmt)->as<ForStatement>();
-                // The initializer and loop body are candidates for inlining.
+                // The initializer and loop body are candidates for inlining. Statements inlined
+                // from the initializer are placed before `forStmt`, so they must use the outer
+                // symbol table rather than `forStmt.symbols()`.
+                if (scopedStackBuilder.foundSymbolTable()) {
+                    fSymbolTableStack.pop_back();
+                }
                 this->visitStatement(&forStmt.initializer(),
                                      /*isViableAsEnclosingStatement=*/false);
+                if (scopedStackBuilder.foundSymbolTable()) {
+                    fSymbolTableStack.push_back(forStmt.symbols());
+                }
                 this->visitStatement(&forStmt.statement());
 
                 // The inliner isn't smart enough to inline the test- or increment-expressions
