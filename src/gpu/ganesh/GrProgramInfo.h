@@ -42,6 +42,9 @@ public:
         return fUserStencilSettings != &GrUserStencilSettings::kUnused ||
                fPipeline->hasStencilClip();
     }
+    bool doesWriteStencil() const {
+        return fUserStencilSettings->doesWrite(fPipeline->hasStencilClip());
+    }
     const GrUserStencilSettings* userStencilSettings() const { return fUserStencilSettings; }
     // The backend format of the destination render target [proxy]
     const GrBackendFormat& backendFormat() const { return fBackendFormat; }

@@ -5,14 +5,33 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/gpu/ContextType.h"
+
+#include <initializer_list>
 
 namespace {
 
@@ -192,3 +211,98 @@ DEF_GANESH_TEST_FOR_CONTEXTS(StencilClearTest_PreservedAcrossSplit,
     dContext->submit(GrSyncCpu::kYes);
 }
 
+static void require_dst_reads(GrContextOptions* options) {
+    options->fSuppressAdvancedBlendEquations = true;
+    options->fSuppressFramebufferFetch = true;
+}
+
+// Verifies that a stencil-then-cover path fill using a dst-read blend mode (via dst-copy texture
+// or input attachment) under an analytic coverage clip still zeroes the user stencil bits it
+// modified outside the analytic clip, where coverage is zero.
+DEF_GANESH_TEST_FOR_CONTEXTS(StencilClearTest_DstReadDiscard,
+                             skgpu::IsRenderingContext,
+                             reporter,
+                             ctxInfo,
+                             require_dst_reads,
+                             CtsEnforcement::kNextRelease) {
+    GrDirectContext* dContext = ctxInfo.directContext();
+
+    if (dContext->supportsProtectedContent()) {
+        return;
+    }
+
+    // Non-convex top-left L-shape covering (85, 85).
+    SkPath polluterPath = SkPathBuilder()
+                                  .moveTo(50, 50)
+                                  .lineTo(200, 50)
+                                  .lineTo(200, 120)
+                                  .lineTo(120, 120)
+                                  .lineTo(120, 200)
+                                  .lineTo(50, 200)
+                                  .close()
+                                  .detach();
+
+    // Non-convex bottom-right L-shape whose [70, 70, 200, 200] bounding box covers (85, 85),
+    // while its interior (x >= 150 || y >= 150) leaves (85, 85) uncovered.
+    SkPath canaryPath = SkPathBuilder()
+                                .moveTo(150, 70)
+                                .lineTo(200, 70)
+                                .lineTo(200, 200)
+                                .lineTo(70, 200)
+                                .lineTo(70, 150)
+                                .lineTo(150, 150)
+                                .close()
+                                .detach();
+
+    SkSurfaceProps props(SkSurfaceProps::kDynamicMSAA_Flag, kUnknown_SkPixelGeometry);
+    SkImageInfo ii = SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    for (int sampleCount : {1, 4}) {
+        sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext,
+                                                            skgpu::Budgeted::kYes,
+                                                            ii,
+                                                            sampleCount,
+                                                            kTopLeft_GrSurfaceOrigin,
+                                                            &props);
+        if (!surface) {
+            continue;
+        }
+
+        // Test both kSrcOver (stays in the same OpsTask as the polluter) and kMultiply (forces a
+        // dst-copy OpsTask split so non-tilers exercise stencil preservation across render passes).
+        for (SkBlendMode canaryBlend : {SkBlendMode::kSrcOver, SkBlendMode::kMultiply}) {
+            SkCanvas* canvas = surface->getCanvas();
+            canvas->clear(SK_ColorWHITE);
+
+            // Draw 1: Stencil pass writes user stencil bits across polluterPath inside the outer
+            // [80, 80, 176, 176] scissor, including (85, 85). The oval clip produces an analytic
+            // coverage FP with coverage == 0 at (85, 85).
+            canvas->save();
+            canvas->clipRRect(SkRRect::MakeOval(SkRect::MakeLTRB(80, 80, 176, 176)),
+                              SkClipOp::kIntersect,
+                              /*doAntiAlias=*/true);
+            SkPaint polluterPaint;
+            polluterPaint.setColor(SK_ColorGREEN);
+            polluterPaint.setAntiAlias(true);
+            polluterPaint.setBlendMode(SkBlendMode::kMultiply);
+            canvas->drawPath(polluterPath, polluterPaint);
+            canvas->restore();
+
+            // Draw 2: Cover pass tests user stencil != 0 across [70, 70, 200, 200]. If Draw 1
+            // discarded at (85, 85) without zeroing its user stencil bits, Draw 2 will falsely
+            // paint RED at (85, 85).
+            SkPaint canaryPaint;
+            canaryPaint.setColor(SK_ColorRED);
+            canaryPaint.setAntiAlias(true);
+            canaryPaint.setBlendMode(canaryBlend);
+            canvas->drawPath(canaryPath, canaryPaint);
+
+            SkBitmap bm;
+            bm.allocN32Pixels(256, 256);
+            REPORTER_ASSERT(reporter, surface->readPixels(bm, 0, 0));
+            REPORTER_ASSERT(reporter, bm.getColor(85, 85) == SK_ColorWHITE);
+            REPORTER_ASSERT(reporter, bm.getColor(128, 100) == SK_ColorGREEN);
+            REPORTER_ASSERT(reporter, bm.getColor(175, 175) == SK_ColorRED);
+        }
+    }
+}

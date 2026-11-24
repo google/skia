@@ -126,7 +126,11 @@ void ProgramImpl::emitCode(const EmitArgs& args) {
         bool needsLocalOutColor = false;
 
         if (args.fDstTextureSamplerHandle.isValid()) {
-            if (args.fInputCoverage) {
+            // A discarded fragment skips all stencil updates, which would prevent stencil-then-
+            // cover passes from zeroing the user stencil bits they modified outside an analytic
+            // clip. When stencil writes are active, let DefaultCoverageModulation blend 100% dst
+            // color instead so the stencil op still executes.
+            if (args.fInputCoverage && !args.fDoesWriteStencil) {
                 // We don't think any shaders actually output negative coverage, but just as a
                 // safety check for floating point precision errors, we compare with <= here. We
                 // just check the RGB values of the coverage, since the alpha may not have been set
