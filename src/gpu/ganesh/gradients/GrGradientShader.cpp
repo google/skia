@@ -23,6 +23,7 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
+#include "include/private/SkMacros.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTemplates.h"
@@ -392,6 +393,7 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_colorizer(int intervalC
         auto result = SkRuntimeEffect::MakeForShader(std::move(sksl));
         SkASSERTF(result.effect, "%s", result.errorText.c_str());
         cacheEntry->effect = result.effect.release();
+        SK_INTENTIONALLY_LEAKED(cacheEntry->effect);
     });
 
     return GrSkSLFP::Make(cacheEntry->effect, "LoopingBinaryColorizer",
