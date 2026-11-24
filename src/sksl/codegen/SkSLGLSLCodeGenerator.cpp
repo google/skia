@@ -808,20 +808,6 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 }
             }
             break;
-        case k_pow_IntrinsicKind:
-            if (!fCaps->fRemovePowWithConstantExponent) {
-                break;
-            }
-            // pow(x, y) on some NVIDIA drivers causes crashes if y is a constant.
-            // It's hard to tell what constitutes "constant" here, so just replace in all cases.
-
-            // Change pow(x, y) into exp2(y * log2(x))
-            this->write("exp2(");
-            this->writeExpression(*arguments[1], Precedence::kMultiplicative);
-            this->write(" * log2(");
-            this->writeExpression(*arguments[0], Precedence::kSequence);
-            this->write("))");
-            return;
         case k_saturate_IntrinsicKind:
             SkASSERT(arguments.size() == 1);
             this->write("clamp(");

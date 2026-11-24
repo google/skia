@@ -11,8 +11,6 @@
          disable_blend_equation_advanced)                \
   GPU_OP(DISABLE_DISCARD_FRAMEBUFFER,                    \
          disable_discard_framebuffer)                    \
-  GPU_OP(DISABLE_DUAL_SOURCE_BLENDING_SUPPORT,           \
-         disable_dual_source_blending_support)           \
   GPU_OP(DISALLOW_LARGE_INSTANCED_DRAW,                  \
          disallow_large_instanced_draw)                  \
   GPU_OP(ENSURE_PREVIOUS_FRAMEBUFFER_NOT_DELETED,        \
@@ -25,8 +23,6 @@
          max_msaa_sample_count_4)                        \
   GPU_OP(PACK_PARAMETERS_WORKAROUND_WITH_PACK_BUFFER,    \
          pack_parameters_workaround_with_pack_buffer)    \
-  GPU_OP(REMOVE_POW_WITH_CONSTANT_EXPONENT,              \
-         remove_pow_with_constant_exponent)              \
   GPU_OP(UNBIND_ATTACHMENTS_ON_BOUND_RENDER_FBO_DELETE,  \
          unbind_attachments_on_bound_render_fbo_delete)  \
 

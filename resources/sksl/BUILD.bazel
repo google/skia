@@ -820,7 +820,6 @@ skia_filegroup(
         "workarounds/MinAndAbsTogether.sksl",
         "workarounds/NegatedAtan.sksl",
         "workarounds/NegatedLdexp.sksl",
-        "workarounds/PowWithConstantExponent.sksl",
         "workarounds/RewriteMatrixComparisons.sksl",
         "workarounds/RewriteMatrixVectorMultiply.sksl",
         "workarounds/VoidInSequenceExpressions.sksl",

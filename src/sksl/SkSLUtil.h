@@ -164,7 +164,6 @@ struct ShaderCaps {
     /** If false, SkSL uses a workaround so that sk_FragCoord doesn't actually query gl_FragCoord */
     bool fCanUseFragCoord = true;
     bool fRewriteSwitchStatements = false;
-    bool fRemovePowWithConstantExponent = false;
     /**
      * The Android emulator claims samplerExternalOES is an unknown type if a default precision
      * statement is made for the type.

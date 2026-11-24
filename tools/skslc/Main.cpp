@@ -219,16 +219,6 @@ public:
         return sCaps;
     }
 
-    static const SkSL::ShaderCaps* RemovePowWithConstantExponent() {
-        static const SkSL::ShaderCaps* sCaps = [] {
-            std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
-            caps->fVersionDeclString = "#version 400";
-            caps->fRemovePowWithConstantExponent = true;
-            return caps.release();
-        }();
-        return sCaps;
-    }
-
     static const SkSL::ShaderCaps* RewriteMatrixComparisons() {
         static const SkSL::ShaderCaps* sCaps = [] {
             std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
@@ -389,9 +379,6 @@ static bool detect_shader_settings(const std::string& text,
                 }
                 if (consume_suffix(&settingsText, " NoExternalTextureSupport")) {
                     *caps = Factory::NoExternalTextureSupport();
-                }
-                if (consume_suffix(&settingsText, " RemovePowWithConstantExponent")) {
-                    *caps = Factory::RemovePowWithConstantExponent();
                 }
                 if (consume_suffix(&settingsText, " RewriteSwitchStatements")) {
                     *caps = Factory::RewriteSwitchStatements();

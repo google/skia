@@ -660,7 +660,6 @@ sksl_settings_tests = [
   "workarounds/MinAndAbsTogether.sksl",
   "workarounds/NegatedAtan.sksl",
   "workarounds/NegatedLdexp.sksl",
-  "workarounds/PowWithConstantExponent.sksl",
   "workarounds/RewriteMatrixComparisons.sksl",
   "workarounds/RewriteMatrixVectorMultiply.sksl",
   "workarounds/VoidInSequenceExpressions.sksl",

@@ -4597,14 +4597,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fCanUseFragCoord = false;
     }
 
-    if (fDriverBugWorkarounds.remove_pow_with_constant_exponent) {
-        shaderCaps->fRemovePowWithConstantExponent = true;
-    }
-
-    if (fDriverBugWorkarounds.disable_dual_source_blending_support) {
-        shaderCaps->fDualSourceBlendingSupport = false;
-    }
-
     if (ctxInfo.renderer() == GrGLRenderer::kAdreno3xx ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno4xx_other) {
         shaderCaps->fMustWriteToFragColor = true;
