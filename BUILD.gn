@@ -2828,6 +2828,10 @@ if (skia_enable_tools) {
         "//third_party/libwebp",
         "//third_party/zlib",
       ]
+      if (skia_use_freetype) {
+        sources += [ "tests/FontHostFreeTypeTest.cpp" ]
+        deps += [ "//third_party/freetype2" ]
+      }
     }
   }
 
