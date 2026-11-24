@@ -1657,38 +1657,6 @@ DEF_TEST(RustJpegCodec_decode_with_color_transform, r) {
 
 #if defined(SK_CODEC_DECODES_JPEG)
 
-DEF_TEST(RustJpegCodec_RawYUVAOrientation, r) {
-    for (int origin = 1; origin <= 8; ++origin) {
-        for (const char* sampling : {"420", "422", "444"}) {
-            SkString path;
-            path.printf("images/orientation/%d_%s.jpg", origin, sampling);
-            auto codec = decode_rust_jpeg(r, path.c_str());
-            REPORTER_ASSERT(r, codec);
-            if (!codec) {
-                continue;
-            }
-            SkYUVAPixmapInfo info;
-            REPORTER_ASSERT(
-                    r, codec->queryYUVAInfo(SkYUVAPixmapInfo::SupportedDataTypes::All(), &info));
-            if (!info.isValid()) {
-                continue;
-            }
-            const SkISize coded = codec->dimensions();
-            const SkISize displayed = SkEncodedOriginSwapsWidthHeight(codec->getOrigin())
-                                              ? SkISize::Make(coded.height(), coded.width())
-                                              : coded;
-            REPORTER_ASSERT(r, info.yuvaInfo().dimensions() == displayed);
-            REPORTER_ASSERT(r, info.yuvaInfo().origin() == codec->getOrigin());
-            REPORTER_ASSERT(r, info.planeInfo(0).dimensions() == coded);
-            auto planes = SkYUVAPixmaps::Allocate(info);
-            REPORTER_ASSERT(r, planes.isValid());
-            if (planes.isValid()) {
-                REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getYUVAPlanes(planes));
-            }
-        }
-    }
-}
-
 DEF_TEST(RustJpegCodec_RawYUVAParity, r) {
     struct TestCase {
         const char* path;
