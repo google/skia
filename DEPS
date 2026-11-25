@@ -39,7 +39,7 @@ deps = {
   # Dawn requires jinja2 and markupsafe for the code generator, abseil for string formatting,
   # and a few other depencencies.
   # When the Dawn revision is updated these should be updated from the Dawn DEPS as well.
-  "third_party/externals/dawn"                   : "https://dawn.googlesource.com/dawn.git@e3162fc67cd935b768357b3cffd966b90ba9d68a",
+  "third_party/externals/dawn"                   : "https://dawn.googlesource.com/dawn.git@f90919280a8bf4abd0f89132d81bceb0792f7b45",
   "third_party/externals/abseil-cpp"             : "https://chromium.googlesource.com/chromium/src/third_party/abseil-cpp@fd9aa96c94f60aa86933ba121e4f7f009dcdf509",
   "third_party/externals/jinja2"                 : "https://chromium.googlesource.com/chromium/src/third_party/jinja2@fde3c16799bd5937e4f15aedc9037c89f96236b9",
   "third_party/externals/markupsafe"             : "https://chromium.googlesource.com/chromium/src/third_party/markupsafe@4256084ae14175d38a3ff7d739dca83ae49ccec6",
