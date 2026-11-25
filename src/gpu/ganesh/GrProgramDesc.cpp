@@ -95,20 +95,12 @@ static void gen_geomproc_key(const GrGeometryProcessor& geomProc,
 // This corresponds to GrGLSLProgramBuilder::emitAndInstallXferProc
 static void gen_xp_key(const GrXferProcessor& xp,
                        const GrCaps& caps,
-                       const GrProgramInfo& programInfo,
+                       const GrPipeline& pipeline,
                        skgpu::KeyBuilder* b) {
     b->appendComment(xp.name());
     b->addBits(kClassIDBits, xp.classID(), "xpClassID");
 
     xp.addToKey(*caps.shaderCaps(), b);
-    // Conditionally adding this bit is unambiguous since xp.addToKey() already records
-    // willReadDstColor(), and whether dst reads use a texture/input attachment vs. framebuffer
-    // fetch (fDstReadInShaderSupport) is invariant across all pipelines on a context.
-    if (xp.willReadDstColor() &&
-        (programInfo.pipeline().usesDstTexture() ||
-         programInfo.pipeline().usesDstInputAttachment())) {
-        b->addBool(programInfo.doesWriteStencil(), "doesWriteStencil");
-    }
 }
 
 static void gen_fp_key(const GrFragmentProcessor& fp,
@@ -172,7 +164,7 @@ static void gen_key(skgpu::KeyBuilder* b,
         gen_fp_key(pipeline.getFragmentProcessor(i), caps, b);
     }
 
-    gen_xp_key(pipeline.getXferProcessor(), caps, programInfo, b);
+    gen_xp_key(pipeline.getXferProcessor(), caps, pipeline, b);
 
     b->addBits(16, pipeline.writeSwizzle().asKey(), "writeSwizzle");
     b->addBool(pipeline.snapVerticesToPixelCenters(), "snapVertices");

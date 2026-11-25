@@ -297,8 +297,7 @@ public:
                  const char* outputSecondary,
                  const SamplerHandle dstTextureSamplerHandle,
                  GrSurfaceOrigin dstTextureOrigin,
-                 const skgpu::Swizzle& writeSwizzle,
-                 bool doesWriteStencil)
+                 const skgpu::Swizzle& writeSwizzle)
                 : fXPFragBuilder(fragBuilder)
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
@@ -309,8 +308,7 @@ public:
                 , fOutputSecondary(outputSecondary)
                 , fDstTextureSamplerHandle(dstTextureSamplerHandle)
                 , fDstTextureOrigin(dstTextureOrigin)
-                , fWriteSwizzle(writeSwizzle)
-                , fDoesWriteStencil(doesWriteStencil) {}
+                , fWriteSwizzle(writeSwizzle) {}
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
@@ -322,7 +320,6 @@ public:
         const SamplerHandle fDstTextureSamplerHandle;
         GrSurfaceOrigin fDstTextureOrigin;
         skgpu::Swizzle fWriteSwizzle;
-        bool fDoesWriteStencil;
     };
     /**
      * This is similar to emitCode() in the base class, except it takes a full shader builder.

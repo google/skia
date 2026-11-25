@@ -193,9 +193,6 @@ struct GrUserStencilSettings {
     bool isDisabled(bool hasStencilClip) const {
         return this->flags(hasStencilClip) & kDisabled_StencilFlag;
     }
-    bool doesWrite(bool hasStencilClip) const {
-        return !(this->flags(hasStencilClip) & kNoModifyStencil_StencilFlag);
-    }
     bool testAlwaysPasses(bool hasStencilClip) const {
         return this->flags(hasStencilClip) & kTestAlwaysPasses_StencilFlag;
     }

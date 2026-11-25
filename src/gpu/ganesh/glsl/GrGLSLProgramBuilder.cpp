@@ -15,7 +15,6 @@
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrPipeline.h"
-#include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrResourceHandle.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
@@ -438,8 +437,7 @@ bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
             fFS.getSecondaryColorOutputName(),
             fDstTextureSamplerHandle,
             fDstTextureOrigin,
-            this->pipeline().writeSwizzle(),
-            fProgramInfo.doesWriteStencil());
+            this->pipeline().writeSwizzle());
     fXPImpl->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
