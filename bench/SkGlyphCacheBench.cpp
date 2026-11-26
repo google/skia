@@ -21,6 +21,7 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/text/SkTextBlobTrace.h"
 
+#include <algorithm>
 #include <array>
 #include <optional>
 
@@ -133,7 +134,7 @@ namespace {
 class DiscardableManager : public SkStrikeServer::DiscardableHandleManager,
                            public SkStrikeClient::DiscardableHandleManager {
 public:
-    DiscardableManager() { sk_bzero(&fCacheMissCount, sizeof(fCacheMissCount)); }
+    DiscardableManager() = default;
     ~DiscardableManager() override = default;
 
     // Server implementation.
@@ -198,15 +199,12 @@ public:
     }
     bool hasCacheMiss() const {
         SkAutoMutexExclusive l(fMutex);
-
-        for (uint32_t i = 0; i <= SkStrikeClient::CacheMissType::kLast; ++i) {
-            if (fCacheMissCount[i] > 0) return true;
-        }
-        return false;
+        return std::any_of(fCacheMissCount.begin(), fCacheMissCount.end(),
+                           [](int c) { return c > 0; });
     }
     void resetCacheMissCounts() {
         SkAutoMutexExclusive l(fMutex);
-        sk_bzero(&fCacheMissCount, sizeof(fCacheMissCount));
+        fCacheMissCount.fill(0);
     }
 
 private:
@@ -218,7 +216,7 @@ private:
     SkDiscardableHandleId fNextHandleId = 0u;
     SkDiscardableHandleId fLastDeletedHandleId = 0u;
     THashSet<SkDiscardableHandleId> fLockedHandles;
-    int fCacheMissCount[SkStrikeClient::CacheMissType::kLast + 1u];
+    std::array<int, SkStrikeClient::CacheMissType::kLast + 1u> fCacheMissCount{};
 };
 
 class DiffCanvasBench : public Benchmark {

@@ -23,6 +23,7 @@
 #include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
+#include <array>
 
 namespace skiagm {
 
@@ -136,9 +137,14 @@ protected:
         SkRect interiorClip = bounds;
         interiorClip.inset(boundsQuarterWidth, boundsQuarterHeight);
 
-        const SkRect clipRects[] = { bounds, upperLeftClip, lowerRightClip, interiorClip};
+        const auto clipRects = std::to_array<SkRect>({
+                bounds,
+                upperLeftClip,
+                lowerRightClip,
+                interiorClip,
+        });
 
-        size_t count = sizeof(clipRects) / sizeof(SkRect);
+        size_t count = clipRects.size();
         for (size_t x = 0; x < count; ++x) {
             draw_blob(canvas, fBlob.get(), paint, clipRects[x]);
             if (x == (count >> 1) - 1) {

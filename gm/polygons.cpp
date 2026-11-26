@@ -13,6 +13,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
@@ -72,29 +73,16 @@ protected:
             p4[i].set(20 * SkScalarCos(angle) + 20, 20 * SkScalarSin(angle) + 20);
         }
 
-        struct Polygons {
-            const SkPoint* fPoints;
-            size_t fPointNum;
-        };
-        auto pgs = std::to_array<Polygons>({
-                Polygons{p0.data(), std::size(p0)},
-                Polygons{p1.data(), std::size(p1)},
-                Polygons{p2.data(), std::size(p2)},
-                Polygons{p3.data(), std::size(p3)},
-                Polygons{p4.data(), std::size(p4)},
-                Polygons{p5.data(), std::size(p5)},
-                Polygons{p6.data(), std::size(p6)},
-                Polygons{p7.data(), std::size(p7)}
+        const auto pgs = std::to_array<SkSpan<const SkPoint>>({
+                p0, p1, p2, p3, p4, p5, p6, p7,
         });
 
         SkASSERT(std::size(pgs) == kNumPolygons);
-        for (size_t pgIndex = 0; pgIndex < std::size(pgs); ++pgIndex) {
+        for (SkSpan<const SkPoint> points : pgs) {
             SkPathBuilder b;
-            b.moveTo(pgs[pgIndex].fPoints[0].fX,
-                     pgs[pgIndex].fPoints[0].fY);
-            for (size_t ptIndex = 1; ptIndex < pgs[pgIndex].fPointNum; ++ptIndex) {
-                b.lineTo(pgs[pgIndex].fPoints[ptIndex].fX,
-                         pgs[pgIndex].fPoints[ptIndex].fY);
+            b.moveTo(points[0].fX, points[0].fY);
+            for (const SkPoint& pt : points.subspan(1)) {
+                b.lineTo(pt.fX, pt.fY);
             }
             b.close();
             fPolygons.push_back(b.detach());

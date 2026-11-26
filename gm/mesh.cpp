@@ -1112,9 +1112,9 @@ protected:
                 auto vb = gpu ? SkMeshes::CopyVertexBuffer(dc, fVB) : fVB;
                 auto ib = gpu ? SkMeshes::CopyIndexBuffer (dc, fIB) : fIB;
 
-                float offset[2] = {8, 8};
+                std::array<float, 2> offset = {8, 8};
                 for (size_t i = 0; i < 4; ++i) {
-                    auto uniforms = SkData::MakeWithCopy(&offset, sizeof(offset));
+                    auto uniforms = SkData::MakeWithCopy(offset.data(), sizeof(offset));
                     SkMesh::Result r;
                     switch (i) {
                         case 0:

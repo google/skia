@@ -28,6 +28,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
@@ -64,11 +65,11 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #endif
 
+#include <math.h>
+#include <string.h>
 #include <array>
 #include <initializer_list>
-#include <math.h>
 #include <memory>
-#include <string.h>
 #include <utility>
 #include <vector>
 
@@ -216,8 +217,7 @@ public:
 
     SkYUVAPixmaps makeYUVAPixmaps(SkISize dimensions,
                                   SkYUVColorSpace yuvColorSpace,
-                                  const SkBitmap bitmaps[],
-                                  int numBitmaps) const;
+                                  SkSpan<const SkBitmap> bitmaps) const;
 
 private:
     SkYUVAInfo::PlaneConfig fPlaneConfig;
@@ -227,12 +227,11 @@ private:
 
 SkYUVAPixmaps YUVAPlanarConfig::makeYUVAPixmaps(SkISize dimensions,
                                                 SkYUVColorSpace yuvColorSpace,
-                                                const SkBitmap bitmaps[],
-                                                int numBitmaps) const {
+                                                SkSpan<const SkBitmap> bitmaps) const {
     SkYUVAInfo info(dimensions, fPlaneConfig, fSubsampling, yuvColorSpace, fOrigin);
     SkPixmap pmaps[SkYUVAInfo::kMaxPlanes];
     int n = info.numPlanes();
-    if (numBitmaps < n) {
+    if (bitmaps.size() < SkToSizeT(n)) {
         return {};
     }
     for (int i = 0; i < n; ++i) {
@@ -404,7 +403,7 @@ static SkBitmap make_bitmap(SkColorType colorType, const SkPath& path,
     return bm;
 }
 
-static void convert_rgba_to_yuva(const float mtx[20], SkColor col, uint8_t yuv[4]) {
+static void convert_rgba_to_yuva(SkSpan<const float, 20> mtx, SkColor col, SkSpan<uint8_t, 4> yuv) {
     const uint8_t r = SkColorGetR(col);
     const uint8_t g = SkColorGetG(col);
     const uint8_t b = SkColorGetB(col);
@@ -574,7 +573,7 @@ static uint16_t flt_2_uint16(float flt) { return SkScalarRoundToInt(flt * 65535.
 // Recombine the separate planes into some YUV format. Returns the number of planes.
 static int create_YUV(const PlaneData& planes,
                       YUVFormat yuvFormat,
-                      SkBitmap resultBMs[],
+                      SkSpan<SkBitmap> resultBMs,
                       bool opaque) {
     int nextLayer = 0;
 
@@ -984,8 +983,7 @@ protected:
                     SkYUVAPixmaps pixmaps =
                             planarConfig.makeYUVAPixmaps(fOriginalBMs[opaque].dimensions(),
                                                          kColorSpaces[cs].yuvColorSpace,
-                                                         resultBMs,
-                                                         numPlanes);
+                                                         SkSpan(resultBMs).first(numPlanes));
                     auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(std::move(pixmaps));
 #if defined(SK_GRAPHITE)
                     if (recorder) {
@@ -1250,8 +1248,7 @@ protected:
 
             auto yuvaPixmaps = planarConfig.makeYUVAPixmaps(fOriginalBMs[opaque].dimensions(),
                                                             kJPEG_Full_SkYUVColorSpace,
-                                                            resultBMs,
-                                                            std::size(resultBMs));
+                                                            resultBMs);
 
             int i = 0;
             for (sk_sp<SkColorSpace> cs : {sk_sp<SkColorSpace>(nullptr),

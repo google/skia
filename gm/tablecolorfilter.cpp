@@ -215,13 +215,15 @@ class ComposeColorFilterGM : public skiagm::GM {
         COLOR_COUNT = 3,
         MODE_COUNT = 4,
     };
-    const SkColor*      fColors;
-    const SkBlendMode*  fModes;
-    const char*         fName;
+    std::array<SkColor, COLOR_COUNT>    fColors;
+    std::array<SkBlendMode, MODE_COUNT> fModes;
+    const char*                         fName;
 
 public:
-    ComposeColorFilterGM(const SkColor colors[], const SkBlendMode modes[], const char* name)
-        : fColors(colors), fModes(modes), fName(name) {}
+    ComposeColorFilterGM(const std::array<SkColor, COLOR_COUNT>& colors,
+                         const std::array<SkBlendMode, MODE_COUNT>& modes,
+                         const char* name)
+            : fColors(colors), fModes(modes), fName(name) {}
 
 private:
     SkString getName() const override { return SkString(fName); }
@@ -237,9 +239,9 @@ private:
         const int MODES = MODE_COUNT * COLOR_COUNT;
         std::array<sk_sp<SkColorFilter>, MODES> filters;
         int index = 0;
-        for (int i = 0; i < MODE_COUNT; ++i) {
-            for (int j = 0; j < COLOR_COUNT; ++j) {
-                filters[index++] = SkColorFilters::Blend(fColors[j], fModes[i]);
+        for (SkBlendMode mode : fModes) {
+            for (SkColor color : fColors) {
+                filters[index++] = SkColorFilters::Blend(color, mode);
             }
         }
 
@@ -281,20 +283,24 @@ private:
     }
 };
 
-const SkColor gColors0[] = { SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW };
-const SkBlendMode gModes0[] = {
+static constexpr auto gColors0 = std::to_array<SkColor>({
+    SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW
+});
+static constexpr auto gModes0 = std::to_array<SkBlendMode>({
     SkBlendMode::kOverlay,
     SkBlendMode::kDarken,
     SkBlendMode::kColorBurn,
     SkBlendMode::kExclusion,
-};
+});
 DEF_GM( return new ComposeColorFilterGM(gColors0, gModes0, "colorcomposefilter_wacky"); )
 
-const SkColor gColors1[] = { 0x80FF0000, 0x8000FF00, 0x800000FF };
-const SkBlendMode gModes1[] = {
+static constexpr auto gColors1 = std::to_array<SkColor>({
+    0x80FF0000, 0x8000FF00, 0x800000FF
+});
+static constexpr auto gModes1 = std::to_array<SkBlendMode>({
     SkBlendMode::kSrcOver,
     SkBlendMode::kXor,
     SkBlendMode::kDstOut,
     SkBlendMode::kSrcATop,
-};
+});
 DEF_GM( return new ComposeColorFilterGM(gColors1, gModes1, "colorcomposefilter_alpha"); )

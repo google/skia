@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "bench/BenchmarkDataset.h"
+
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
@@ -591,16 +592,15 @@ struct {
 namespace skgpu::graphite {
 
 std::vector<SkPath> BenchmarkDatasetInfo<BenchmarkDataset::kTiger>::GetPaths() {
-    int pathCount = static_cast<int>(std::size(kTigerPaths));
     std::vector<SkPath> paths;
-    paths.reserve(pathCount);
+    paths.reserve(std::size(kTigerPaths));
 
-    for (int i = 0; i < pathCount; ++i) {
+    for (const auto& tigerPath : kTigerPaths) {
         SkPathBuilder builder;
-        const std::vector<SkPoint>& pts = kTigerPaths[i].fPoints;
+        const std::vector<SkPoint>& pts = tigerPath.fPoints;
         int ptsIdx = 0;
 
-        for (const char* v = kTigerPaths[i].fVerbs; *v; ++v) {
+        for (const char* v = tigerPath.fVerbs; *v; ++v) {
             switch (*v) {
                 case 'm':
                     builder.moveTo(pts[ptsIdx]);

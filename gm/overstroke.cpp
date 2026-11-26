@@ -31,6 +31,7 @@
 #include "include/core/SkScalar.h"
 #include "src/core/SkPointPriv.h"
 
+#include <array>
 #include <cstddef>
 
 const SkScalar OVERSTROKE_WIDTH = 500.0f;
@@ -226,13 +227,13 @@ void draw_stroked_oval(SkCanvas *canvas) {
 
 ////////// gm
 
-void (*examples[])(SkCanvas *canvas) = {
-    draw_small_quad,    draw_stroked_quad, draw_small_cubic,
-    draw_stroked_cubic, draw_small_oval,   draw_stroked_oval,
-};
+static constexpr auto kExamples = std::to_array<void (*)(SkCanvas*)>({
+        draw_small_quad,    draw_stroked_quad, draw_small_cubic,
+        draw_stroked_cubic, draw_small_oval,   draw_stroked_oval,
+});
 
 DEF_SIMPLE_GM(OverStroke, canvas, 500, 500) {
-    const size_t length = sizeof(examples) / sizeof(examples[0]);
+    const size_t length = kExamples.size();
     const size_t width = 2;
 
     for (size_t i = 0; i < length; i++) {
@@ -244,7 +245,7 @@ DEF_SIMPLE_GM(OverStroke, canvas, 500, 500) {
         canvas->scale(0.2f, 0.2f);
         canvas->translate(300.0f, 400.0f);
 
-        examples[i](canvas);
+        kExamples[i](canvas);
 
         canvas->restore();
     }

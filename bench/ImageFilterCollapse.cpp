@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkImageFilter.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
@@ -25,11 +26,11 @@ public:
     BaseImageFilterCollapseBench() {}
 
 protected:
-    void doPreDraw(sk_sp<SkColorFilter> colorFilters[], int nFilters) {
+    void doPreDraw(SkSpan<const sk_sp<SkColorFilter>> colorFilters) {
         SkASSERT(!fImageFilter);
 
         // Create a chain of ImageFilters from colorFilters
-        for(int i = nFilters; i --> 0;) {
+        for (size_t i = colorFilters.size(); i-- > 0;) {
             fImageFilter = SkImageFilters::ColorFilter(colorFilters[i], fImageFilter);
         }
     }
@@ -88,7 +89,7 @@ protected:
             SkColorFilters::Table(table3),
         };
 
-        this->doPreDraw(colorFilters, std::size(colorFilters));
+        this->doPreDraw(colorFilters);
     }
 
 private:
@@ -126,7 +127,7 @@ protected:
             make_brightness(-0.1f),
         };
 
-        this->doPreDraw(colorFilters, std::size(colorFilters));
+        this->doPreDraw(colorFilters);
     }
 };
 

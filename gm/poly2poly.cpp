@@ -18,6 +18,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkTextUtils.h"
@@ -25,6 +26,7 @@
 #include "tools/fonts/FontToolUtils.h"
 
 #include <stdint.h>
+#include <array>
 
 class Poly2PolyGM : public skiagm::GM {
 public:
@@ -35,17 +37,21 @@ protected:
 
     SkISize getISize() override { return SkISize::Make(835, 840); }
 
-    static void doDraw(SkCanvas* canvas, const SkFont& font, SkPaint* paint, const int isrc[],
-                       const int idst[], size_t count) {
-        SkPoint src[4], dst[4];
-
+    static void doDraw(SkCanvas* canvas,
+                       const SkFont& font,
+                       SkPaint* paint,
+                       SkSpan<const int> isrc,
+                       SkSpan<const int> idst) {
+        SkASSERT(isrc.size() == idst.size());
+        const size_t count = isrc.size() / 2;
+        std::array<SkPoint, 4> src, dst;
         for (size_t i = 0; i < count; i++) {
             src[i].set(SkIntToScalar(isrc[2*i+0]), SkIntToScalar(isrc[2*i+1]));
             dst[i].set(SkIntToScalar(idst[2*i+0]), SkIntToScalar(idst[2*i+1]));
         }
 
         canvas->save();
-        if (auto mx = SkMatrix::PolyToPoly({src, count}, {dst, count})) {
+        if (auto mx = SkMatrix::PolyToPoly(SkSpan(src).first(count), SkSpan(dst).first(count))) {
             canvas->concat(*mx);
         }
 
@@ -86,7 +92,7 @@ protected:
         // translate (1 point)
         const int src1[] = { 0, 0 };
         const int dst1[] = { 5, 5 };
-        doDraw(canvas, font, &paint, src1, dst1, 1);
+        doDraw(canvas, font, &paint, src1, dst1);
         canvas->restore();
 
         canvas->save();
@@ -94,7 +100,7 @@ protected:
         // rotate/uniform-scale (2 points)
         const int src2[] = { 32, 32, 64, 32 };
         const int dst2[] = { 32, 32, 64, 48 };
-        doDraw(canvas, font, &paint, src2, dst2, 2);
+        doDraw(canvas, font, &paint, src2, dst2);
         canvas->restore();
 
         canvas->save();
@@ -102,7 +108,7 @@ protected:
         // rotate/skew (3 points)
         const int src3[] = { 0, 0, 64, 0, 0, 64 };
         const int dst3[] = { 0, 0, 96, 0, 24, 64 };
-        doDraw(canvas, font, &paint, src3, dst3, 3);
+        doDraw(canvas, font, &paint, src3, dst3);
         canvas->restore();
 
         canvas->save();
@@ -110,7 +116,7 @@ protected:
         // perspective (4 points)
         const int src4[] = { 0, 0, 64, 0, 64, 64, 0, 64 };
         const int dst4[] = { 0, 0, 96, 0, 64, 96, 0, 64 };
-        doDraw(canvas, font, &paint, src4, dst4, 4);
+        doDraw(canvas, font, &paint, src4, dst4);
         canvas->restore();
     }
 

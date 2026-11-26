@@ -10,6 +10,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkPathPriv.h"
@@ -32,7 +33,7 @@ static constexpr auto gPathIterNames = std::to_array<const char*>({
         "pathiter",
 });
 
-static int rand_pts(SkRandom& rand, SkPoint pts[4]) {
+static int rand_pts(SkRandom& rand, SkSpan<SkPoint, 4> pts) {
     int n = rand.nextU() & 3;
     n += 1;
 
@@ -60,7 +61,7 @@ public:
 
         SkRandom rand;
         for (int i = 0; i < 1000; ++i) {
-            SkPoint pts[4];
+            std::array<SkPoint, 4> pts;
             int n = rand_pts(rand, pts);
             switch (n) {
                 case 2:
@@ -108,12 +109,12 @@ protected:
                 for (int i = 0; i < loops; ++i) {
                     SkPath::Iter iter(fPath, false);
                     for (;;) {
-                        SkPoint pts[4];
-                        auto verb = iter.next(pts);
+                        std::array<SkPoint, 4> pts;
+                        auto verb = iter.next(pts.data());
                         if (verb == SkPath::kDone_Verb) {
                             break;
                         }
-                        handle((int)verb, pts);
+                        handle((int)verb, pts.data());
                     }
                 }
                 break;
