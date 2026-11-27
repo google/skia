@@ -29,7 +29,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/angle/angle": {
 		Id:      "chromium.googlesource.com/angle/angle",
-		Version: "ca690d1bf67fc80d996a96cc0ac6c97a0ca05eae",
+		Version: "3faf19e9252029b4b27a511c424d9f3538a2c950",
 		Path:    "third_party/externals/angle2",
 	},
 	"chromium.googlesource.com/chromium/agents": {
